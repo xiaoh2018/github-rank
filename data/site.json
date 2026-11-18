@@ -10,5 +10,30 @@
     "qrUrl": "",
     "email": "",
     "note": ""
+  },
+  "beian": {
+    "enabled": false,
+    "icp": "",
+    "icpUrl": "https://beian.miit.gov.cn/",
+    "police": "",
+    "policeUrl": "",
+    "text": ""
+  },
+  "seo": {
+    "siteName": "",
+    "title": "",
+    "description": "",
+    "keywords": "",
+    "ogImage": "",
+    "siteUrl": ""
+  },
+  "geo": {
+    "summary": "",
+    "faq": [
+      {
+        "q": "1",
+        "a": "2"
+      }
+    ]
   }
 }
