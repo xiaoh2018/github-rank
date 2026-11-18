@@ -23,6 +23,8 @@ const SITE = {
   '/icon.svg': ['icon.svg', 'image/svg+xml'],
   '/data/links.json': ['data/links.json', 'application/json; charset=utf-8'],
   '/data/site.json': ['data/site.json', 'application/json; charset=utf-8'],
+  '/articles': ['articles.html', 'text/html; charset=utf-8'],
+  '/articles.html': ['articles.html', 'text/html; charset=utf-8'],
 };
 
 export default {
@@ -41,7 +43,7 @@ export default {
       if (url.pathname === '/sitemap.xml' && request.method === 'GET') {
         const seoSite = (await loadSiteRaw(env)).seo;
         const origin = seoSite.siteUrl ? seoSite.siteUrl.replace(/\/+$/, '') : url.origin;
-        const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>' + origin + '/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n</urlset>\n';
+        const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>' + origin + '/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n  <url><loc>' + origin + '/articles</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>\n</urlset>\n';
         return new Response(xml, { headers: { 'content-type': 'application/xml; charset=utf-8' } });
       }
       if (url.pathname === '/keepalive' && request.method === 'GET') {

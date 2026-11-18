@@ -936,7 +936,7 @@ async function load(bypassCache) {
     state.source = 'static';
     state.updatedAt = t && !isNaN(t) ? t.toLocaleString() : (gd.generatedAt || '未知');
     render();
-    setStatus('数据更新于 ' + state.updatedAt);
+    setStatus('当前是定时抓取的静态数据，生成于 ' + state.updatedAt + '。点「立即刷新」可拉取 GitHub 最新数据。');
     return;
   }
   // 24 小时内的旧缓存先显示，再后台更新
@@ -974,8 +974,8 @@ function updateSourceNote() {
     : state.source === 'static' ? '当前数据：定时抓取的静态文件（每 3 小时更新）' + when
     : '当前数据：加载中';
   el.textContent = src + '。' + (getToken()
-    ? '已填写 Token，点「立即刷新」可用 Token 实时拉取最新数据。'
-    : '未填写 Token，无法立即刷新；可在「设置」中填写 Token。');
+    ? '点「立即刷新」会用你的 Token 直接请求 GitHub，拉取最新数据。'
+    : '点「立即刷新」需要先在「设置」里填写 Token，填好后才会实时请求 GitHub。');
 }
 
 // ---------- 立即刷新（需要 Token；失败时保留当前数据） ----------
