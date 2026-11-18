@@ -766,9 +766,10 @@ $('btnClearToken').onclick = () => { setToken(''); $('token').value = ''; refres
 
 // ---------- 网址状态（可分享）：range/lang/cat/sort/view ----------
 // 地址形如 ?range=month&lang=Python&sort=trend&view=devs，默认值不写进地址
-function syncHash() {
-  const sp = new URLSearchParams();
-  if (state.range !== 'week') sp.set('range', state.range);
+let legacyRange = false; // 从旧链接 #week/... 进来时，地址里明确写出 range=week
+  function syncHash() {
+    const sp = new URLSearchParams();
+    if (state.range !== 'week' || legacyRange) sp.set('range', state.range);
   if (state.lang) sp.set('lang', state.lang);
   if (state.cat) sp.set('cat', state.cat);
   if (state.sort !== 'stars') sp.set('sort', state.sort);
@@ -782,7 +783,7 @@ function readHash() {
     // 兼容旧链接 #week/-/-/stars/repos
     const p = location.hash.slice(1).split('/');
     if (p.length >= 4) {
-      if (RANGES[p[0]]) state.range = p[0];
+      if (RANGES[p[0]]) { state.range = p[0]; legacyRange = true; }
       state.lang = p[1] === '-' ? '' : p[1];
       state.cat = CATS.some(c => c.id === p[2]) ? p[2] : '';
       if (SORTS.includes(p[3])) state.sort = p[3];
