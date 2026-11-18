@@ -565,12 +565,16 @@ function renderChanges(repos, trend, dropped) {
   };
   const rowNew = ({ r, rank }) => {
       const row = el('div', 'chg-row');
-    row.append(el('b', null, '#' + rank + ' ' + r.name), el('span', null, '★ ' + fmt(r.stars)));
+    const name = el('b', null, '#' + rank + ' ' + r.name);
+      name.title = r.name;
+      row.append(name, el('span', null, '★ ' + fmt(r.stars)));
     return row;
   };
   const rowDrop = d => {
       const row = el('div', 'chg-row');
-    row.append(el('b', null, '原 #' + d.rank + ' ' + d.name), el('span', null, '★ ' + fmt(d.stars)));
+    const name = el('b', null, '原 #' + d.rank + ' ' + d.name);
+      name.title = d.name;
+      row.append(name, el('span', null, '★ ' + fmt(d.stars)));
     return row;
   };
   const grid = el('div', 'chg-grid');
@@ -751,18 +755,36 @@ $('btnSaveToken').onclick = () => {
 $('btnClearToken').onclick = () => { setToken(''); $('token').value = ''; refreshTokenHint(); };
 
 // ---------- 网址状态（可分享）：range/lang/cat/sort/view ----------
+// 地址形如 ?range=month&lang=Python&sort=trend&view=devs，默认值不写进地址
 function syncHash() {
-  history.replaceState(null, '', '#' + [state.range, state.lang || '-', state.cat || '-', state.sort, state.view].join('/'));
+  const sp = new URLSearchParams();
+  if (state.range !== 'week') sp.set('range', state.range);
+  if (state.lang) sp.set('lang', state.lang);
+  if (state.cat) sp.set('cat', state.cat);
+  if (state.sort !== 'stars') sp.set('sort', state.sort);
+  if (state.view !== 'repos') sp.set('view', state.view);
+  const qs = sp.toString();
+  history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
 }
 function readHash() {
-  const p = (location.hash || '').slice(1).split('/');
-  if (p.length >= 4) {
-    if (RANGES[p[0]]) state.range = p[0];
-    state.lang = p[1] === '-' ? '' : p[1];
-    state.cat = CATS.some(c => c.id === p[2]) ? p[2] : '';
-    if (SORTS.includes(p[3])) state.sort = p[3];
+  const sp = new URLSearchParams(location.search);
+  if (!sp.toString() && location.hash.length > 1) {
+    // 兼容旧链接 #week/-/-/stars/repos
+    const p = location.hash.slice(1).split('/');
+    if (p.length >= 4) {
+      if (RANGES[p[0]]) state.range = p[0];
+      state.lang = p[1] === '-' ? '' : p[1];
+      state.cat = CATS.some(c => c.id === p[2]) ? p[2] : '';
+      if (SORTS.includes(p[3])) state.sort = p[3];
+    }
+    if (VIEWS.includes(p[4])) state.view = p[4];
+    return;
   }
-  if (VIEWS.includes(p[4])) state.view = p[4];
+  if (RANGES[sp.get('range')]) state.range = sp.get('range');
+  state.lang = sp.get('lang') || '';
+  state.cat = CATS.some(c => c.id === sp.get('cat')) ? sp.get('cat') : '';
+  if (SORTS.includes(sp.get('sort'))) state.sort = sp.get('sort');
+  if (VIEWS.includes(sp.get('view'))) state.view = sp.get('view');
 }
 
 // ---------- 数据：筛选 + 排序 ----------
