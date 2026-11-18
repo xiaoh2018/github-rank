@@ -901,7 +901,6 @@ dialog{width:calc(100% - 24px)}
 <div id="gate">
   <form class="gbox" id="loginForm">
     <h1>网站管理后台</h1>
-    <p class="msg">输入管理密码（Cloudflare 里设置的 ADMIN_PASSWORD）进入。密码只保存在当前浏览器会话中，关闭标签页即失效。</p>
     <label for="pw">管理密码</label>
     <input type="password" id="pw" autocomplete="current-password">
     <div class="actions"><button type="submit" id="loginBtn" style="width:100%">进入后台</button></div>
