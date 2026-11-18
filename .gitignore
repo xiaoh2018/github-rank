@@ -1,0 +1,4 @@
+.nova/
+task_plan.md
+node_modules/
+.DS_Store

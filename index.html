@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f0b429">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>GitHub 热门项目排行榜</title>
+<style>
+:root{
+  --bg:#faf7f0;--card:#ffffff;--text:#1c2230;--muted:#6b7280;
+  --border:#e5e0d4;--accent:#b07d10;--gold:#f0b429;--silver:#9aa4b2;--bronze:#b0764a;
+  --chip:#f1ecdf;--danger:#c2402f;--bar-track:#eee8da;
+  --shadow:0 1px 2px rgba(28,34,48,.06),0 8px 24px -16px rgba(28,34,48,.25);
+  --radius:12px;--radius-sm:8px;--pad:16px;--gap:12px;
+}
+html[data-theme="dark"]{
+  --bg:#0a0e1a;--card:#111726;--text:#e8ecf4;--muted:#8b95a7;
+  --border:#232c42;--accent:#f5c64e;--gold:#f0b429;--silver:#7f8ba0;--bronze:#a8714a;
+  --chip:#1a2338;--danger:#f87171;--bar-track:#1a2338;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -20px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.65 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 16px 56px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.title-row{display:flex;align-items:baseline;gap:10px}
+h1{font-size:26px;margin:0;font-weight:700;letter-spacing:-.01em}
+.star-dot{color:var(--gold);font-size:20px}
+.sub{color:var(--muted);margin:6px 0 0;font-size:13px}
+.head-actions{display:flex;gap:8px}
+.btn{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px;cursor:pointer;font:inherit;transition:border-color .15s,color .15s}
+.btn:hover{border-color:var(--gold);color:var(--accent)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.on{background:var(--text);border-color:var(--text);color:var(--bg);font-weight:500}
+.btn.ghost{background:transparent;box-shadow:none}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:var(--pad);margin-top:20px;box-shadow:var(--shadow)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--card)}
+.seg .btn{border:0;border-radius:0;box-shadow:none}
+select,input{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;font:inherit;min-width:0}
+select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outline-offset:0}
+.grow{flex:1 1 200px}
+.note{color:var(--muted);font-size:12px;margin:10px 0 0}
+ .guide{margin-top:12px;font-size:13px;color:var(--text)}
+ .guide summary{cursor:pointer;color:var(--accent);font-weight:500;min-height:40px;display:flex;align-items:center}
+ .guide ol{margin:8px 0;padding-left:20px;line-height:1.7}
+ .guide li{margin:4px 0}
+ .guide-link{display:inline-flex;align-items:center;min-height:40px;text-decoration:none;margin:4px 0}
+ .guide-tip{color:var(--muted);font-size:12px;margin:8px 0 0}
+/* 分类标签 */
+.cats{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.cat{border:1px solid var(--border);background:var(--chip);border-radius:999px;padding:3px 14px;font-size:13px;cursor:pointer;color:var(--muted);transition:border-color .15s,color .15s}
+.cat:hover{border-color:var(--gold);color:var(--accent)}
+.cat.on{background:var(--gold);border-color:var(--gold);color:#10141f;font-weight:600}
+/* 统计概览 */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap);margin-top:20px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:20px;font-family:Consolas,ui-monospace,monospace;color:var(--accent)}
+.stat span{font-size:12px;color:var(--muted);display:block;margin-top:2px}
+#status{margin:var(--gap) 0 0;color:var(--muted)}
+#status.error{color:var(--danger)}
+#list{list-style:none;padding:0;margin:var(--gap) 0 0;display:flex;flex-direction:column;gap:var(--gap)}
+.item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:grid;grid-template-columns:44px 1fr auto;gap:12px;box-shadow:var(--shadow);transition:border-color .15s}
+.item:hover{border-color:var(--gold)}
+.item.faved{border-color:var(--gold);background:linear-gradient(0deg,rgba(240,180,41,.06),rgba(240,180,41,.06)),var(--card)}
+.rank{font-family:Consolas,"JetBrains Mono",ui-monospace,monospace;font-size:15px;font-weight:700;color:var(--muted);text-align:center;padding-top:4px}
+.rank-top{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;color:#10141f;font-size:14px}
+.rank-1{background:var(--gold)}
+.rank-2{background:var(--silver)}
+.rank-3{background:var(--bronze)}
+.name{font-weight:600;font-size:16px;color:var(--accent);text-decoration:none;word-break:break-all}
+.name:hover{text-decoration:underline}
+.desc{margin:4px 0 8px;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:13px;font-family:Consolas,ui-monospace,"PingFang SC",monospace}
+.meta .stars{color:var(--accent);font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{background:var(--chip);border-radius:999px;padding:1px 10px;font-size:12px;color:var(--muted)}
+.lang-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:1px}
+.starbar{height:3px;border-radius:2px;background:var(--bar-track);margin-top:10px;overflow:hidden}
+.starbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#ffd977);border-radius:2px}
+.fav{align-self:flex-start;background:none;border:0;font-size:20px;cursor:pointer;color:var(--muted);padding:2px 4px;line-height:1;transition:transform .15s,color .15s}
+.fav:hover{transform:scale(1.2)}
+.fav.on{color:var(--gold)}
+.pager{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:20px}
+#pageInfo{font-family:Consolas,ui-monospace,monospace;font-size:13px;color:var(--muted)}
+.toolrow{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--gap);margin-top:var(--gap)}
+/* 骨架屏 */
+.skel{height:86px;border-radius:12px;background:linear-gradient(100deg,var(--chip) 40%,var(--card) 50%,var(--chip) 60%);background-size:200% 100%;animation:shine 1.2s infinite}
+@keyframes shine{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+/* 语言分布 */
+.dist{margin-top:var(--gap);background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:var(--pad);box-shadow:var(--shadow)}
+.dist-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:20px;margin-top:20px;align-items:start}
+.main{min-width:0}
+.insights{display:grid;grid-template-columns:1fr;gap:var(--gap);position:sticky;top:16px}
+.insights>.dist{margin-top:0;padding:var(--pad)}
+
+.dist-row{display:grid;grid-template-columns:64px 1fr 28px;gap:8px;align-items:center;width:100%;padding:1px 4px;border:0;background:none;color:var(--text);font:inherit;font-size:12px;text-align:left;border-radius:6px;cursor:pointer}
+.dist-row:hover:not(:disabled){background:var(--chip)}
+.dist-row:disabled{cursor:default;opacity:.6}
+.dist-track{height:5px;border-radius:4px;background:var(--bar-track);overflow:hidden}
+.dist-track i{display:block;height:100%;border-radius:4px}
+.dist-n{font-family:Consolas,ui-monospace,monospace;color:var(--muted);text-align:right}
+.mini{background:var(--chip);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:0 8px;font:inherit;font-size:12px;cursor:pointer}
+.mini:hover{color:var(--accent);border-color:var(--gold)}
+/* 回到顶部 */
+#top{position:fixed;right:18px;bottom:18px;width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);font-size:18px;cursor:pointer;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s}
+#top.show{opacity:1;pointer-events:auto}
+@media (prefers-reduced-motion:no-preference){
+  .item{animation:rise .35s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+}
+@media (max-width:600px){
+  h1{font-size:21px}
+  .item{padding:12px;grid-template-columns:36px 1fr auto}
+  .rank{font-size:13px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  #token{flex-basis:100%}
+  .btn,select,input,.cat,.mini,.dist-row,.fav{min-height:40px}
+  .fav{min-width:40px;display:inline-flex;align-items:center;justify-content:center}
+  .name{display:inline-block;padding:11px 0;line-height:1.3}
+  .item button{min-height:40px}
+}
+[hidden]{display:none!important}
+.views-seg{margin-right:4px}
+.badge{font-size:12px;padding:0 7px;border-radius:999px;font-weight:600;font-family:Consolas,ui-monospace,monospace;line-height:20px}
+.badge.new{background:var(--gold);color:#10141f}
+.badge.up{color:#16a34a;background:rgba(22,163,74,.12)}
+.badge.down{color:var(--danger);background:rgba(194,64,47,.12)}
+.act{color:var(--accent)}
+.author-row{display:grid;grid-template-columns:22px 22px minmax(0,1fr) minmax(48px,96px) 54px;align-items:center;gap:8px;padding:3px 4px;border-top:1px solid var(--border)}
+.chg-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 4px;border-top:1px solid var(--border);font-size:13px}
+.dist-title + .author-row{border-top:0}
+.au-rank{font-family:Consolas,ui-monospace,monospace;font-size:12px;color:var(--muted)}
+.au-avatar{width:22px;height:22px;border-radius:50%;border:1px solid var(--border);object-fit:cover;background:var(--chip)}
+.au-fallback{display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#10141f;background:var(--gold);border:0}
+.au-info{display:flex;flex-direction:column;min-width:0}
+.au-name{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:inherit;text-decoration:none;padding:10px 0;margin:-10px 0}
+ .au-name:hover,.au-name:focus-visible{color:var(--accent);text-decoration:underline}
+.au-count{font-size:12px;color:var(--muted)}
+.au-bar{height:6px;border-radius:3px;background:var(--bar-track);overflow:hidden}
+.au-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),#ffd977)}
+.au-stars{font-family:Consolas,ui-monospace,monospace;font-size:13px;font-weight:600;color:var(--accent);text-align:right}
+.insights .author-row{grid-template-columns:22px 24px minmax(0,1fr) 54px}
+.insights .au-bar{display:none}
+@media (max-width:600px){
+  .author-row{grid-template-columns:22px 24px minmax(0,1fr) 48px;gap:8px}
+  .layout{grid-template-columns:1fr}
+    .insights{position:static}
+  .au-bar{display:none}
+}
+.user-item{grid-template-columns:48px 40px 1fr}
+.avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--border);align-self:center}
+.drawer-back{position:fixed;inset:0;background:rgba(5,8,16,.5);opacity:0;transition:opacity .2s;z-index:20}
+.drawer-back.show{opacity:1}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--card);border-left:1px solid var(--border);box-shadow:var(--shadow);padding:18px 20px;overflow-y:auto;transform:translateX(100%);transition:transform .2s ease;z-index:21}
+.drawer.open{transform:none}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.drawer-head .name{font-size:18px;min-width:0}
+.readme{white-space:pre-wrap;word-break:break-word;background:var(--chip);border-radius:8px;padding:12px;max-height:60vh;overflow:auto;font:12px/1.6 Consolas,ui-monospace,monospace;color:var(--text)}
+#drawerBody h4{margin:16px 0 8px;font-size:14px}
+.gain{font-family:Consolas,ui-monospace,monospace;font-size:12px;color:var(--muted)}
+.gain.up{color:#16a34a}
+.gain.down{color:var(--danger)}
+.chg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chg-col{min-width:0}
+.contribs{display:grid;gap:6px}
+.contrib-who{display:flex;align-items:center;gap:8px;min-width:0}
+.contrib-who a{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:10px 0;margin:-10px 0}
+.avatar-sm{width:24px;height:24px;border-radius:50%;border:1px solid var(--border)}
+.contribs .author-row{grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:6px 0;font-size:13px;white-space:nowrap}
+.drawer-hint{margin:0 0 12px;font-size:12px;color:var(--muted)}
+@media (max-width:600px){.chg-grid{grid-template-columns:1fr}}
+@media (max-width:600px){
+  .user-item{grid-template-columns:36px 40px 1fr}
+  .drawer{padding:14px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="title-row">
+        <svg class="star-dot" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2l-6.1 3.4 1.4-6.8L2.2 9.1l6.9-.8z"/></svg>
+        <h1>GitHub 热门项目排行榜</h1>
+      </div>
+      <p class="sub">按星标数排序。"近 N 天"指创建时间在此之后的新项目，用来发现新火起来的仓库。</p>
+    </div>
+    <div class="head-actions">
+      <button class="btn" id="btnSettings">设置</button>
+      <button class="btn" id="btnTheme">切换主题</button>
+    </div>
+  </header>
+
+  <section class="panel" id="settings" hidden>
+    <div class="controls">
+      <input type="password" id="token" class="grow" placeholder="GitHub Personal Token（可选，仅保存在本浏览器）" autocomplete="off">
+      <button class="btn" id="btnSaveToken">保存</button>
+      <button class="btn" id="btnClearToken">清除</button>
+    </div>
+    <details class="guide" open>
+ <summary>小白指南：怎么获取 Token（约 1 分钟，可选）</summary>
+ <p class="note">Token 是 GitHub 发给你的一串密码，填进来后可以「立即刷新」。不填也能正常看榜单。</p>
+ <ol>
+ <li>点下面的按钮打开 GitHub 的 Token 创建页面。没登录的话，先登录你自己的 GitHub 账号。</li>
+ <li>Note 随便填，比如 ghrank；Expiration 选 90 days。</li>
+ <li><b>权限（Select scopes）一个都不要勾</b>。本页面只读取公开仓库，不需要任何权限。</li>
+ <li>拉到页面最下面，点绿色的 Generate token。</li>
+ <li>页面会显示一串以 ghp_ 开头的字符，立即复制（关掉页面后就看不到了）。</li>
+ <li>回到本页面，粘贴到上面的输入框，点「保存」。</li>
+ </ol>
+ <a class="btn guide-link" href="https://github.com/settings/tokens/new?description=ghrank&scopes=" target="_blank" rel="noopener noreferrer">打开 GitHub 创建 Token 页面 ↗</a>
+ <p class="guide-tip">Token 只保存在你自己的浏览器里，不会上传到别处。如果泄露了，到 GitHub 的 Token 设置页删除即可。</p>
+ </details>
+ <p class="note">Token 只在点击「立即刷新」时使用，可把搜索额度从每分钟 10 次提到 30 次；默认数据来自定时抓取的静态文件（每 3 小时更新），不消耗额度。Token 只保存在本机 localStorage 中，不会上传到别处。</p>
+  </section>
+
+  <section class="panel">
+    <div class="controls">
+      <div class="seg views-seg" id="views">
+        <button class="btn on" data-view="repos">项目榜</button>
+        <button class="btn" data-view="devs">开发者榜</button>
+        <button class="btn" data-view="orgs">组织榜</button>
+      </div>
+      <div class="seg repo-only" id="ranges">
+        <button class="btn" data-range="week">近 7 天</button>
+        <button class="btn" data-range="month">近 30 天</button>
+        <button class="btn" data-range="year">近 1 年</button>
+        <button class="btn" data-range="all">全部</button>
+      </div>
+      <select id="lang" class="repo-only" aria-label="语言"></select>
+      <select id="sort" class="repo-only" aria-label="排序">
+        <option value="stars">按星标</option>
+        <option value="trend">按今日增量</option>
+        <option value="activity">按活跃度</option>
+        <option value="forks">按 Fork</option>
+        <option value="updated">按最近更新</option>
+      </select>
+      <select id="pageSize" class="repo-only" aria-label="每页条数">
+        <option value="20">每页 20 条</option>
+        <option value="50">每页 50 条</option>
+        <option value="100">每页 100 条</option>
+      </select>
+        <input type="text" id="q" class="grow repo-only" placeholder="在当前榜单中搜索名称或描述" aria-label="搜索">
+
+    </div>
+    <div class="cats repo-only" id="cats" aria-label="项目分类"></div>
+  </section>
+
+  <div class="stats" id="stats" hidden></div>
+
+      <div class="layout">
+      <div class="main">
+
+  <div class="toolrow repo-only">
+    <div class="controls">
+      <button class="btn ghost" id="btnFavFilter">☆ 只看收藏</button>
+      <button class="btn ghost" id="btnRefresh">↻ 立即刷新（需 Token）</button>
+    </div>
+    <div class="controls">
+      <button class="btn ghost" id="btnExport">导出 CSV</button>
+    </div>
+  </div>
+
+  <p class="note repo-only" id="srcNote"></p>
+  <div id="status" role="status"></div>
+  <ol id="list"></ol>
+  <nav class="pager" id="pager" hidden>
+    <button class="btn" id="prev">上一页</button>
+    <span id="pageInfo"></span>
+    <button class="btn" id="next">下一页</button>
+  </nav>
+  <p class="note">数据来自 GitHub Search API：每个条件按星标区间分段、分页查询（星标数超过 50 的仓库），合并去重后最多取前 500 个，结果在浏览器中缓存 2 小时。今日增量和新晋 / 掉队是和至少 1 小时前的一次记录对比得出的。开发者榜与组织榜取粉丝数超过 1000 的前 50 个账号。筛选条件会保存在网址里，方便分享。</p>
+    </div>
+
+    <aside class="insights">
+      <div class="dist" id="dist" hidden></div>
+      <div class="dist" id="authors" hidden></div>
+      <div class="dist" id="changes" hidden></div>
+    </aside>
+    </div>
+</div>
+<button id="top" aria-label="回到顶部">↑</button>
+
+<aside class="drawer" id="drawer" hidden aria-label="项目详情">
+  <div class="drawer-head">
+    <a id="drawerTitle" class="name" target="_blank" rel="noopener noreferrer"></a>
+    <button class="btn ghost" id="drawerClose" aria-label="关闭">✕</button>
+  </div>
+  <p class="drawer-hint">项目详情 · 点击上方项目名可打开 GitHub 仓库页面</p>
+<div id="drawerBody"></div>
+</aside>
+<div class="drawer-back" id="drawerBack" hidden></div>
+
+<script src="data/repos.js"></script>
+<script src="js/bundle.js"></script>
+</body>
+</html>
