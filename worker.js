@@ -664,7 +664,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       })
       .catch(function (e) { $('msg').textContent = '请求失败：' + e; })
       .then(function () { btn.disabled = false; load(); });
-  };
+    });
 
   load();
 })();
