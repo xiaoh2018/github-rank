@@ -1,1 +1,14 @@
-{"ad":{"enabled":false,"html":""},"contact":{"enabled":false,"title":"联系我","wechat":"","qrUrl":"","email":"","note":""}}
+{
+  "ad": {
+    "enabled": false,
+    "html": ""
+  },
+  "contact": {
+    "enabled": true,
+    "title": "联系我",
+    "wechat": "xiaoh2018",
+    "qrUrl": "",
+    "email": "",
+    "note": ""
+  }
+}
