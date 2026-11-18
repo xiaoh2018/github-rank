@@ -17,8 +17,10 @@
 <meta property="og:url" content="https://github-rank.xiaoh2018.workers.dev/">
 <meta property="og:site_name" content="GitHub 热门项目排行榜">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GitHub 热门项目排行榜">
+<meta name="twitter:description" content="按星标、增速、活跃度发现热门 GitHub 开源项目，附语言分布、热门开发者与组织榜。">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","name":"GitHub 热门项目排行榜","url":"https://github-rank.xiaoh2018.workers.dev/","inLanguage":"zh-CN","description":"按星标、增速、活跃度查看 GitHub 热门开源项目、开发者与组织。"}
+{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://github-rank.xiaoh2018.workers.dev/#website","name":"GitHub 热门项目排行榜","url":"https://github-rank.xiaoh2018.workers.dev/","inLanguage":"zh-CN","description":"按星标、增速、活跃度查看 GitHub 热门开源项目、开发者与组织。"},{"@type":"WebPage","@id":"https://github-rank.xiaoh2018.workers.dev/#webpage","url":"https://github-rank.xiaoh2018.workers.dev/","name":"GitHub 热门项目排行榜 - 按星标、增速、活跃度发现热门开源项目","description":"按近 7 天、近 30 天、近 1 年、全部时间查看星标最多的开源仓库，并提供今日增量、活跃度、语言分布、热门开发者与组织榜单。","inLanguage":"zh-CN","isPartOf":{"@id":"https://github-rank.xiaoh2018.workers.dev/#website"}}]}
 </script>
 <style>
 :root{
@@ -207,6 +209,12 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
   .user-item{grid-template-columns:36px 40px 1fr}
   .drawer{padding:14px}
 }
+  .friends{margin-top:28px;padding:var(--pad);background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);min-width:0}
+  .friends h2{font-size:16px;margin:0 0 10px}
+  .friend-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+  .friend-list li{min-width:0;max-width:100%}
+  .friend-list a{display:inline-block;max-width:100%;overflow-wrap:anywhere;word-break:break-word;color:var(--accent);text-decoration:none;font-size:13px;padding:4px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--chip)}
+  .friend-list a:hover{border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -282,7 +290,7 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 
   <div class="stats" id="stats" hidden></div>
 
-      <div class="layout">
+      <main class="layout">
       <div class="main">
 
   <div class="toolrow repo-only">
@@ -303,7 +311,7 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
     <span id="pageInfo"></span>
     <button class="btn" id="next">下一页</button>
   </nav>
-  <div class="ad-slot" id="adList" aria-label="广告"></div>
+  <div class="ad-slot" id="adList" role="region" aria-label="广告位"></div>
     <section class="faq" aria-labelledby="faqTitle">
       <h2 id="faqTitle">关于本排行榜</h2>
       <h3>这个榜单是什么？</h3>
@@ -314,6 +322,7 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
       <p>筛选条件会写进网址（例如 ?range=month&amp;lang=Python&amp;sort=trend），复制地址栏即可分享同一视图。</p>
     </section>
     <p class="note">数据来自 GitHub Search API：每个条件按星标区间分段、分页查询（星标数超过 50 的仓库），合并去重后最多取前 500 个，结果在浏览器中缓存 2 小时。今日增量和新晋 / 掉队是和至少 1 小时前的一次记录对比得出的。开发者榜与组织榜取粉丝数超过 1000 的前 50 个账号。筛选条件会保存在网址里，方便分享。</p>
+      <section class="friends" id="friendLinks" aria-labelledby="friendsTitle" hidden><h2 id="friendsTitle">友情链接</h2><ul class="friend-list" id="friendList"></ul></section>
     </div>
 
     <aside class="insights">
@@ -321,8 +330,8 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
       <div class="dist" id="authors" hidden></div>
       <div class="dist" id="changes" hidden></div>
     </aside>
-    </div>
-</div>
+    </main>
+  </div>
 <button id="top" aria-label="回到顶部">↑</button>
 
 <aside class="drawer" id="drawer" hidden aria-label="项目详情">
@@ -337,5 +346,35 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 
 <script src="data/repos.js"></script>
 <script src="js/bundle.js"></script>
+<script>
+(function(){
+  var box=document.getElementById('friendLinks');
+  var list=document.getElementById('friendList');
+  if(!box||!list||typeof fetch!=='function') return;
+  fetch('/data/links.json',{cache:'no-cache'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(items){
+      if(!Array.isArray(items)) return;
+      var frag=document.createDocumentFragment();
+      var n=0;
+      items.forEach(function(it){
+        if(!it||typeof it.url!=='string'||it.url.indexOf('https://')!==0) return;
+        var li=document.createElement('li');
+        var a=document.createElement('a');
+        a.href=it.url;
+        a.target='_blank';
+        a.rel='noopener nofollow';
+        a.textContent=(typeof it.name==='string'&&it.name.trim())?it.name:it.url;
+        li.appendChild(a);
+        frag.appendChild(li);
+        n++;
+      });
+      if(!n) return;
+      list.appendChild(frag);
+      box.hidden=false;
+    })
+    .catch(function(){ box.hidden=true; });
+})();
+</script>
 </body>
 </html>
