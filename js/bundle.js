@@ -565,15 +565,25 @@ function renderChanges(repos, trend, dropped) {
   };
   const rowNew = ({ r, rank }) => {
       const row = el('div', 'chg-row');
-    const name = el('b', null, '#' + rank + ' ' + r.name);
-      name.title = r.name;
+      const name = el('b');
+      const link = el('a', null, '#' + rank + ' ' + r.name);
+      link.href = 'https://github.com/' + r.name;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.title = r.name;
+      name.append(link);
       row.append(name, el('span', null, '★ ' + fmt(r.stars)));
     return row;
   };
   const rowDrop = d => {
       const row = el('div', 'chg-row');
-    const name = el('b', null, '原 #' + d.rank + ' ' + d.name);
-      name.title = d.name;
+      const name = el('b');
+      const link = el('a', null, '原 #' + d.rank + ' ' + d.name);
+      link.href = 'https://github.com/' + d.name;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.title = d.name;
+      name.append(link);
       row.append(name, el('span', null, '★ ' + fmt(d.stars)));
     return row;
   };
