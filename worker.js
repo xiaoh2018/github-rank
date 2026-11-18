@@ -22,6 +22,7 @@ const SITE = {
   '/manifest.json': ['manifest.json', 'application/manifest+json; charset=utf-8'],
   '/icon.svg': ['icon.svg', 'image/svg+xml'],
   '/data/links.json': ['data/links.json', 'application/json; charset=utf-8'],
+  '/data/articles.json': ['data/articles.json', 'application/json; charset=utf-8'],
   '/data/site.json': ['data/site.json', 'application/json; charset=utf-8'],
   '/articles': ['articles.html', 'text/html; charset=utf-8'],
   '/articles.html': ['articles.html', 'text/html; charset=utf-8'],
