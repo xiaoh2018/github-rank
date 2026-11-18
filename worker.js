@@ -39,11 +39,13 @@ export default {
         return new Response('User-agent: *\nAllow: /\nSitemap: ' + url.origin + '/sitemap.xml\n', { headers: { 'content-type': 'text/plain; charset=utf-8' } });
       }
       if (url.pathname === '/sitemap.xml' && request.method === 'GET') {
-        const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>' + url.origin + '/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n</urlset>\n';
+        const seoSite = (await loadSiteRaw(env)).seo;
+        const origin = seoSite.siteUrl ? seoSite.siteUrl.replace(/\/+$/, '') : url.origin;
+        const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>' + origin + '/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n</urlset>\n';
         return new Response(xml, { headers: { 'content-type': 'application/xml; charset=utf-8' } });
       }
-  if (url.pathname === '/keepalive' && request.method === 'GET') {
-        return new Response(PAGE, { headers: { 'content-type': 'text/html; charset=utf-8' } });
+      if (url.pathname === '/keepalive' && request.method === 'GET') {
+        return Response.redirect(url.origin + '/admin#keepalive', 302);
       }
       if (url.pathname === '/api/status' && request.method === 'GET') {
         return json(await getStatus(env));
@@ -71,6 +73,9 @@ export default {
       }
       if (url.pathname === '/api/site' && (request.method === 'GET' || request.method === 'POST')) {
         return handleSite(request, env);
+      }
+      if (url.pathname === '/api/articles' && (request.method === 'GET' || request.method === 'POST')) {
+        return handleArticles(request, env);
       }
       if (url.pathname === '/api/admin/check' && request.method === 'POST') {
         if (!env.ADMIN_PASSWORD) {
@@ -114,11 +119,62 @@ async function serveSite(env, entry) {
     'https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + entry[0];
   const r = await fetch(raw, { cf: { cacheTtl: 300, cacheEverything: true } });
   if (!r.ok) {
-    return text('读取站点文件失败：' + r.status + '（请确认仓库是公开的，且文件已经推送到 ' + branch(env) + ' 分支）', 502);
+      return text('读取站点文件失败：' + r.status + '（请确认仓库是公开的，且文件已经推送到 ' + branch(env) + ' 分支）', 502);
+    }
+    if (entry[0] === 'index.html') {
+      const html = applySeo(await r.text(), (await loadSiteRaw(env)).seo);
+      return new Response(html, {
+        headers: { 'content-type': entry[1], 'cache-control': 'public, max-age=300' },
+      });
+    }
+    return new Response(r.body, {
+      headers: { 'content-type': entry[1], 'cache-control': 'public, max-age=300' },
+    });
+}
+
+// 后台可以保存的站点配置分组
+const SITE_SECTIONS = ['ad', 'contact', 'beian', 'seo', 'geo'];
+
+// 读取仓库 data/site.json（raw 地址，边缘缓存 5 分钟），给站点页和 sitemap 用；失败时用默认值
+async function loadSiteRaw(env) {
+  if (!env.REPO_OWNER || !env.REPO_NAME) return normalizeSite(null);
+  const u = 'https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + SITE_FILE;
+  const r = await fetch(u, { cf: { cacheTtl: 300, cacheEverything: true } });
+  if (!r.ok) return normalizeSite(null);
+  try {
+    return normalizeSite(JSON.parse(await r.text()));
+  } catch (e) {
+    return normalizeSite(null);
   }
-  return new Response(r.body, {
-    headers: { 'content-type': entry[1], 'cache-control': 'public, max-age=300' },
-  });
+}
+
+// HTML 属性值转义
+function escAttr(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// 把 site.seo 写进站点页 head 的标题和 meta；字段为空就保留页面原来的内容
+function applySeo(html, seo) {
+  let out = html;
+  const put = (re, val, build) => {
+    if (!val) return;
+    const v = escAttr(val);
+    out = out.replace(re, () => build(v));
+  };
+  const base = seo.siteUrl ? String(seo.siteUrl).replace(/\/+$/, '') : '';
+  put(/<title>[\s\S]*?<\/title>/i, seo.title, (v) => '<title>' + v + '</title>');
+  put(/<meta\s+name=["']description["'][^>]*>/i, seo.description, (v) => '<meta name="description" content="' + v + '">');
+  put(/<meta\s+name=["']keywords["'][^>]*>/i, seo.keywords, (v) => '<meta name="keywords" content="' + v + '">');
+  put(/<meta\s+property=["']og:title["'][^>]*>/i, seo.title, (v) => '<meta property="og:title" content="' + v + '">');
+  put(/<meta\s+property=["']og:description["'][^>]*>/i, seo.description, (v) => '<meta property="og:description" content="' + v + '">');
+  put(/<meta\s+property=["']og:image["'][^>]*>/i, seo.ogImage, (v) => '<meta property="og:image" content="' + v + '">');
+  put(/<link\s+rel=["']canonical["'][^>]*>/i, base, (v) => '<link rel="canonical" href="' + v + '/">');
+  return out;
 }
 
 function checkConfig(env) {
@@ -444,7 +500,13 @@ const SITE_FILE = 'data/site.json';
 const AD_HTML_MAX = 20000;
 
 function defaultSite() {
-  return { ad: { enabled: false, html: '' }, contact: { enabled: false, title: '联系我', wechat: '', qrUrl: '', email: '', note: '' } };
+  return {
+    ad: { enabled: false, html: '' },
+    contact: { enabled: false, title: '联系我', wechat: '', qrUrl: '', email: '', note: '' },
+    beian: { enabled: false, icp: '', icpUrl: 'https://beian.miit.gov.cn/', police: '', policeUrl: '', text: '' },
+    seo: { siteName: '', title: '', description: '', keywords: '', ogImage: '', siteUrl: '' },
+    geo: { summary: '', faq: [{ q: '', a: '' }] },
+  };
 }
 
 // 读出来的内容统一成标准结构，缺的字段用默认值补齐
@@ -461,6 +523,23 @@ function normalizeSite(o) {
   d.contact.qrUrl = str(c.qrUrl, '');
   d.contact.email = str(c.email, '');
   d.contact.note = str(c.note, '');
+  const b = o && typeof o.beian === 'object' && o.beian ? o.beian : {};
+  d.beian.enabled = b.enabled === true;
+  d.beian.icp = str(b.icp, '');
+  d.beian.icpUrl = str(b.icpUrl, 'https://beian.miit.gov.cn/');
+  d.beian.police = str(b.police, '');
+  d.beian.policeUrl = str(b.policeUrl, '');
+  d.beian.text = str(b.text, '');
+  const s = o && typeof o.seo === 'object' && o.seo ? o.seo : {};
+  for (const k of Object.keys(d.seo)) d.seo[k] = str(s[k], '');
+  const g = o && typeof o.geo === 'object' && o.geo ? o.geo : {};
+  d.geo.summary = str(g.summary, '');
+  if (Array.isArray(g.faq)) {
+    d.geo.faq = g.faq
+      .filter((f) => f && typeof f === 'object')
+      .slice(0, 20)
+      .map((f) => ({ q: str(f.q, ''), a: str(f.a, '') }));
+  }
   return d;
 }
 
@@ -512,8 +591,58 @@ function checkSection(section, value) {
     }
     return { ok: true, clean: clean };
   }
-  return { ok: false, error: 'section 只能是 ad 或 contact' };
-}
+  if (section === 'beian') {
+    if (typeof value.enabled !== 'boolean') return { ok: false, error: '备案开关必须是 true 或 false' };
+    const limits = { icp: 60, icpUrl: 300, police: 60, policeUrl: 300, text: 200 };
+    const clean = { enabled: value.enabled };
+    for (const k of Object.keys(limits)) {
+      const v = value[k] == null ? '' : value[k];
+      if (typeof v !== 'string') return { ok: false, error: '备案信息的「' + k + '」必须是文字' };
+      const t = v.trim();
+      if (t.length > limits[k]) return { ok: false, error: '备案信息的「' + k + '」不能超过 ' + limits[k] + ' 个字符' };
+      if ((k === 'icpUrl' || k === 'policeUrl') && t && !/^https?:\/\//i.test(t)) {
+        return { ok: false, error: '备案链接必须以 http:// 或 https:// 开头，或留空' };
+      }
+      clean[k] = t;
+    }
+    return { ok: true, clean: clean };
+  }
+  if (section === 'seo') {
+    const limits = { siteName: 60, title: 100, description: 300, keywords: 300, ogImage: 300, siteUrl: 300 };
+    const urlKeys = ['ogImage', 'siteUrl'];
+    const clean = {};
+    for (const k of Object.keys(limits)) {
+      const v = value[k] == null ? '' : value[k];
+      if (typeof v !== 'string') return { ok: false, error: 'SEO 的「' + k + '」必须是文字' };
+      const t = v.trim();
+      if (t.length > limits[k]) return { ok: false, error: 'SEO 的「' + k + '」不能超过 ' + limits[k] + ' 个字符' };
+      if (urlKeys.indexOf(k) >= 0 && t && !/^https?:\/\//i.test(t)) {
+        return { ok: false, error: 'SEO 的「' + k + '」必须以 http:// 或 https:// 开头，或留空' };
+      }
+      clean[k] = t;
+    }
+    return { ok: true, clean: clean };
+  }
+  if (section === 'geo') {
+    const summary = value.summary == null ? '' : value.summary;
+    if (typeof summary !== 'string') return { ok: false, error: 'GEO 摘要必须是文字' };
+    if (summary.trim().length > 500) return { ok: false, error: 'GEO 摘要不能超过 500 个字符' };
+    const faqIn = value.faq == null ? [] : value.faq;
+    if (!Array.isArray(faqIn)) return { ok: false, error: 'GEO 问答必须是列表' };
+    if (faqIn.length > 20) return { ok: false, error: 'GEO 问答最多 20 条' };
+    const faq = [];
+    for (const f of faqIn) {
+      const q = f && f.q == null ? '' : f && f.q;
+      const a = f && f.a == null ? '' : f && f.a;
+      if (typeof q !== 'string' || typeof a !== 'string') return { ok: false, error: 'GEO 问答的问题和回答必须是文字' };
+      if (q.trim().length > 100) return { ok: false, error: 'GEO 问题不能超过 100 个字符' };
+      if (a.trim().length > 500) return { ok: false, error: 'GEO 回答不能超过 500 个字符' };
+      if (q.trim() || a.trim()) faq.push({ q: q.trim(), a: a.trim() });
+    }
+    return { ok: true, clean: { summary: summary.trim(), faq: faq } };
+  }
+  return { ok: false, error: 'section 只能是 ad、contact、beian、seo 或 geo' };
+  }
 
 // 把整体结构写回 data/site.json（带上当前 sha）
 async function writeSite(env, site, sha) {
@@ -549,8 +678,8 @@ async function handleSite(request, env) {
   if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
     return json({ ok: false, error: '密码不对' }, 403);
   }
-  if (body.section !== 'ad' && body.section !== 'contact') {
-    return json({ ok: false, error: 'section 只能是 ad 或 contact' }, 400);
+  if (SITE_SECTIONS.indexOf(body.section) < 0) {
+    return json({ ok: false, error: 'section 只能是 ad、contact、beian、seo 或 geo' }, 400);
   }
   const check = checkSection(body.section, body.value);
   if (!check.ok) return json({ ok: false, error: check.error }, 400);
@@ -565,6 +694,125 @@ async function handleSite(request, env) {
   return json({ ok: true, site: site });
 }
 
+// ---- 文章（GEO 内容）：数据存在仓库 data/articles.json ----
+const ARTICLES_FILE = 'data/articles.json';
+const ARTICLES_MAX = 200;
+const ART_LIMITS = { title: 100, summary: 300, body: 5000 };
+
+function todayBJ() {
+  return new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+}
+
+// 从仓库读 data/articles.json：文件不存在视为 []
+async function readArticles(env) {
+  const miss = checkConfig(env);
+  if (miss.length) return { ok: false, status: 500, error: '还没配置变量：' + miss.join('、') };
+  const cur = await gh(env, '/contents/' + ARTICLES_FILE + '?ref=' + encodeURIComponent(branch(env)));
+  if (cur.status === 404) return { ok: true, status: 404, articles: [], sha: null };
+  if (!cur.ok || !cur.data) {
+    return { ok: false, status: cur.status, error: '读取文章失败：' + cur.status + ' ' + cur.text.slice(0, 200) };
+  }
+  let articles = [];
+  try {
+    const bin = atob(String(cur.data.content || '').replace(/\n/g, ''));
+    const txt = new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+    if (txt.trim()) {
+      const parsed = JSON.parse(txt);
+      if (!Array.isArray(parsed)) throw new Error('not array');
+      articles = parsed;
+    }
+  } catch (e) {
+    return { ok: false, status: 500, error: 'data/articles.json 不是合法的 JSON 数组，请先在仓库里修正' };
+  }
+  return { ok: true, status: 200, articles: articles, sha: cur.data.sha || null };
+}
+
+// 把文章数组写回 data/articles.json（带上当前 sha）
+async function writeArticles(env, articles, sha, msg) {
+  const body = {
+    message: msg,
+    content: utf8ToBase64(JSON.stringify(articles, null, 2) + '\n'),
+    branch: branch(env),
+  };
+  if (sha) body.sha = sha;
+  const put = await gh(env, '/contents/' + ARTICLES_FILE, {
+    method: 'PUT',
+    headers: ghHeaders(env, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify(body),
+  });
+  if (!put.ok) return { ok: false, error: '写入失败：' + put.status + ' ' + put.text.slice(0, 200) };
+  return { ok: true };
+}
+
+// 校验一篇文章：title / summary / body 为文字，date 为 YYYY-MM-DD（缺省为今天）
+function checkArticle(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return { ok: false, error: '文章内容必须是对象' };
+  const clean = {};
+  for (const k of ['title', 'summary', 'body']) {
+    const s = v[k] == null ? '' : v[k];
+    if (typeof s !== 'string') return { ok: false, error: '文章的「' + k + '」必须是文字' };
+    const t = s.replace(/\r\n/g, '\n').trim();
+    if (t.length > ART_LIMITS[k]) return { ok: false, error: '文章的「' + k + '」不能超过 ' + ART_LIMITS[k] + ' 个字符' };
+    clean[k] = t;
+  }
+  if (!clean.title) return { ok: false, error: '文章标题不能为空' };
+  const date = v.date == null || v.date === '' ? todayBJ() : String(v.date);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date))) return { ok: false, error: '日期格式应为 YYYY-MM-DD' };
+  clean.date = date;
+  return { ok: true, clean: clean };
+}
+
+// GET 读取；POST 体 { password, action: add|update|remove, id, article }
+async function handleArticles(request, env) {
+  if (request.method === 'GET') {
+    const r = await readArticles(env);
+    if (!r.ok) return json({ ok: false, error: r.error }, 502);
+    return json({ ok: true, articles: r.articles });
+  }
+
+  if (!env.ADMIN_PASSWORD) {
+    return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
+  }
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== 'object') {
+    return json({ ok: false, error: '请求体必须是 JSON 对象' }, 400);
+  }
+  if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
+    return json({ ok: false, error: '密码不对' }, 403);
+  }
+  if (body.action !== 'add' && body.action !== 'update' && body.action !== 'remove') {
+    return json({ ok: false, error: 'action 只能是 add、update 或 remove' }, 400);
+  }
+
+  const cur = await readArticles(env);
+  if (!cur.ok) return json({ ok: false, error: cur.error }, 502);
+  const list = cur.articles;
+
+  if (body.action === 'add') {
+    const c = checkArticle(body.article);
+    if (!c.ok) return json({ ok: false, error: c.error }, 400);
+    if (list.length >= ARTICLES_MAX) return json({ ok: false, error: '文章最多 ' + ARTICLES_MAX + ' 篇，请先删除旧文章' }, 400);
+    let id = String(Date.now());
+    while (list.some((a) => a && String(a.id) === id)) id = String(Number(id) + 1);
+    list.push(Object.assign({ id: id }, c.clean));
+  } else {
+    const id = body.id == null ? '' : String(body.id);
+    const idx = list.findIndex((a) => a && String(a.id) === id);
+    if (idx < 0) return json({ ok: false, error: '没有找到这篇文章' }, 404);
+    if (body.action === 'remove') {
+      list.splice(idx, 1);
+    } else {
+      const c = checkArticle(body.article);
+      if (!c.ok) return json({ ok: false, error: c.error }, 400);
+      list[idx] = Object.assign({ id: id }, c.clean);
+    }
+  }
+
+  const w = await writeArticles(env, list, cur.sha, 'chore: update articles');
+  if (!w.ok) return json({ ok: false, error: w.error }, 500);
+  return json({ ok: true, articles: list });
+}
+
 const ADMIN_PAGE = `<!doctype html>
 <html lang='zh-CN'>
 <head>
@@ -575,642 +823,677 @@ const ADMIN_PAGE = `<!doctype html>
 <style>
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{margin:0;font:15px/1.6 -apple-system,'Segoe UI','Microsoft YaHei',sans-serif;background:#f5f7fb;color:#1f2937}
-.wrap{max-width:860px;margin:0 auto;padding:24px 16px}
-h1{font-size:22px;margin:0 0 4px}
-.sub{color:#6b7280;margin:0 0 16px;font-size:14px}
-.card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px;margin-bottom:16px;min-width:0}
-.title{font-weight:600;font-size:17px}
-label{display:block;font-size:13px;color:#6b7280;margin:12px 0 4px}
-input[type=text],input[type=password],input[type=url],textarea{width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px;font:inherit;font-size:15px;min-height:44px}
-textarea{min-height:140px;font-family:Consolas,monospace;font-size:13px;resize:vertical}
-button{background:#2563eb;color:#fff;border:0;border-radius:10px;padding:10px 18px;font-size:15px;cursor:pointer;min-height:44px;font-family:inherit}
-button.ghost{background:#fff;color:#1f2937;border:1px solid #e5e7eb}
-button.del{background:#dc2626;padding:6px 12px;min-height:34px;font-size:14px}
+:root{--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--brand:#2563eb;--side:#0f172a;--ok:#16a34a;--warn:#d97706;--bad:#dc2626}
+html,body{margin:0;min-height:100%}
+body{font:15px/1.6 -apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text)}
+#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,#0f172a,#1e3a8a)}
+.gbox{background:#fff;border-radius:18px;padding:32px;width:min(380px,100%);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.gbox h1{margin:0 0 6px;font-size:22px}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}
+.side{background:var(--side);padding:24px 14px;position:sticky;top:0;height:100vh;height:100dvh;overflow-y:auto}
+.brand{color:#fff;font-weight:700;font-size:17px;padding:0 10px 16px;border-bottom:1px solid #1e293b;margin-bottom:12px}
+.brand small{display:block;color:#64748b;font-weight:400;font-size:12px}
+.nav{display:block;width:100%;text-align:left;background:none;color:#cbd5e1;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-size:15px;cursor:pointer;min-height:42px;margin-bottom:4px}
+.nav:hover{background:#1e293b;color:#fff}
+.nav[aria-current=true]{background:var(--brand);color:#fff}
+.main{padding:28px 36px 60px;min-width:0}
+.bar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.bar h1{margin:0;font-size:24px}
+.bar .sub{color:var(--muted);font-size:14px}
+.pane{max-width:920px}
+.intro{background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;border-radius:12px;padding:12px 16px;font-size:14px;margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:0 1px 2px rgba(15,23,42,.04);min-width:0}
+.card h2{margin:0 0 2px;font-size:17px}
+.card .desc{color:var(--muted);font-size:13px;margin:0 0 8px}
+label{display:block;font-size:13px;color:#334155;margin:14px 0 5px;font-weight:600}
+.hint{color:var(--muted);font-size:12px;margin-top:4px;font-weight:400}
+input[type=text],input[type=password],input[type=url],input[type=date],textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;font-size:14px;min-height:42px;background:#fff;color:var(--text)}
+input:focus,textarea:focus{outline:2px solid #93c5fd;border-color:transparent}
+textarea{min-height:110px;resize:vertical}
+textarea.code{font-family:Consolas,monospace;font-size:13px;min-height:180px}
+button{background:var(--brand);color:#fff;border:0;border-radius:10px;padding:9px 18px;font:inherit;font-size:14px;cursor:pointer;min-height:40px}
+button:hover{filter:brightness(1.06)}
+button.ghost{background:#fff;color:var(--text);border:1px solid #cbd5e1}
+button.danger{background:var(--bad)}
+button.small{padding:6px 12px;min-height:32px;font-size:13px}
 button:disabled{opacity:.5;cursor:not-allowed}
-.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:16px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-nav#tabs{display:flex;gap:8px;overflow-x:auto;white-space:nowrap;margin-bottom:16px;padding-bottom:4px;-webkit-overflow-scrolling:touch}
-nav#tabs button{background:#fff;color:#1f2937;border:1px solid #e5e7eb;flex:none}
-nav#tabs button[aria-selected=true]{background:#2563eb;color:#fff;border-color:#2563eb}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.msg{color:var(--muted);font-size:14px}
+.toggle{display:flex;align-items:center;gap:10px;margin:4px 0 2px;font-weight:600;color:var(--text)}
+.toggle input{width:20px;height:20px;margin:0}
 table{width:100%;border-collapse:collapse}
-th,td{text-align:left;padding:8px;border-bottom:1px solid #e5e7eb;font-size:14px;word-break:break-all}
-.toggle{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:15px;color:#1f2937}
-.toggle input{width:20px;height:20px;margin:0;min-height:0}
-.note{color:#6b7280;font-size:13px}
-.err-text{color:#dc2626;font-size:14px;min-height:20px;margin-top:8px}
-.kv{margin-top:12px;font-size:15px}
-.kv div{margin-top:4px}
-.stat{font-size:20px;font-weight:600}
-.dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:#9ca3af;margin-right:8px;vertical-align:middle}
-.dot.ok{background:#16a34a}
-.dot.warn{background:#d97706}
-.dot.bad{background:#dc2626}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:calc(100% - 32px);padding:10px 16px;border-radius:10px;background:#1f2937;color:#fff;font-size:14px;display:none;z-index:50}
-.toast.show{display:block}
-.toast.ok{background:#16a34a}
-.toast.err{background:#dc2626}
-dialog{border:1px solid #e5e7eb;border-radius:14px;padding:24px;width:min(420px,calc(100% - 32px));color:#1f2937;background:#fff}
-dialog::backdrop{background:rgba(15,23,42,.45)}
-dialog:modal{overscroll-behavior:contain}
-dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
-@media (max-width:560px){.wrap{padding:16px 12px}.card{padding:16px}}
-</style>
-</head>
-<body>
-<div class='wrap'>
-<div class='top'>
-<div><h1>网站管理后台</h1><div class='sub'>不需要改代码，点按钮就能管理友情链接、广告、联系方式，并手动保活。</div></div>
-<button type='button' class='ghost' id='logout' hidden>退出登录</button>
-</div>
-
-<div class='card' id='gate'>
-<div class='title' id='gateTitle'>请先登录</div>
-<div class='note' id='gateNote'>输入管理密码。密码只保存在本次标签页里，关掉页面即失效。</div>
-<form id='loginForm'>
-<label for='pw'>管理密码</label>
-<input id='pw' type='password' autocomplete='current-password'>
-<div class='row'><button type='submit' id='loginBtn'>登录</button></div>
-</form>
-<div class='err-text' id='loginErr'></div>
-</div>
-
-<div id='app' hidden>
-<nav id='tabs' role='tablist'>
-<button type='button' role='tab' data-tab='links' aria-selected='true'>友情链接</button>
-<button type='button' role='tab' data-tab='ad' aria-selected='false'>广告位</button>
-<button type='button' role='tab' data-tab='contact' aria-selected='false'>联系方式</button>
-<button type='button' role='tab' data-tab='keepalive' aria-selected='false'>保活</button>
-</nav>
-
-<section class='card' data-panel='links'>
-<div class='top'>
-<div><div class='title'>友情链接</div><div class='note'>这里的网站会显示在排行榜的友情链接区。点「删除」会先弹窗确认。上限 50 条。</div></div>
-<button type='button' id='openAdd'>添加友链</button>
-</div>
-<table><thead><tr><th>名称</th><th>网址</th><th style='width:90px'>操作</th></tr></thead><tbody id='rows'></tbody></table>
-<div class='note' id='linkCount'></div>
-</section>
-
-<section class='card' data-panel='ad' hidden>
-<div class='title'>广告位</div>
-<div class='note'>粘贴广告平台给的代码，保存后会显示在排行榜列表下方。关闭「启用广告」后不显示。</div>
-<label for='adHtml'>广告代码（最多 20000 字）</label>
-<textarea id='adHtml' maxlength='20000' placeholder='把广告平台给的代码粘贴到这里'></textarea>
-<label class='toggle'><input type='checkbox' id='adOn'> 启用广告</label>
-<div class='row'><button type='button' id='adSave'>保存广告</button></div>
-</section>
-
-<section class='card' data-panel='contact' hidden>
-<div class='title'>联系方式</div>
-<div class='note'>填写后会显示在排行榜页面上。二维码地址只能是 https:// 开头，或留空。</div>
-<label for='conTitle'>标题（最多 20 字，留空则显示「联系我」）</label>
-<input id='conTitle' type='text' maxlength='20'>
-<label for='conWechat'>微信号（最多 60 字）</label>
-<input id='conWechat' type='text' maxlength='60'>
-<label for='conQr'>二维码图片地址（https:// 开头，最多 300 字，可留空）</label>
-<input id='conQr' type='url' maxlength='300' placeholder='https://'>
-<label for='conEmail'>邮箱（最多 120 字）</label>
-<input id='conEmail' type='text' maxlength='120'>
-<label for='conNote'>说明文字（最多 200 字）</label>
-<textarea id='conNote' maxlength='200' style='min-height:80px'></textarea>
-<label class='toggle'><input type='checkbox' id='conOn'> 启用联系方式</label>
-<div class='row'><button type='button' id='conSave'>保存联系方式</button></div>
-</section>
-
-<section class='card' data-panel='keepalive' hidden>
-<div class='title'>保活</div>
-<div class='note'>每周自动往仓库提交一次记录，防止公开仓库 60 天没有活动后定时任务被停用。</div>
-<div class='kv'>
-<div><span class='dot' id='kDot'></span><span class='stat' id='kState'>读取中…</span></div>
-<div class='note' id='kNote'></div>
-</div>
-<div class='kv'>
-<div>上次保活（北京时间）：<span id='kLast'>—</span></div>
-<div>下次保活：<span id='kNext'>—</span></div>
-<div>数据更新任务（最近一次）：<span id='kWf'>—</span> <span class='note' id='kWfNote'></span></div>
-</div>
-<div class='row'>
-<button type='button' id='runBtn'>立即保活一次</button>
-<button type='button' class='ghost' id='refreshBtn'>刷新状态</button>
-</div>
-</section>
-</div>
-</div>
-
-<div class='toast' id='toast' role='status' aria-live='polite'></div>
-
-<dialog id='addDlg' aria-labelledby='addTitle' closedby='any'>
-<form id='addForm' novalidate>
-<div class='title' id='addTitle'>添加友链</div>
-<label for='nm'>名称（必填，最多 40 字）</label>
-<input id='nm' type='text' maxlength='40' autocomplete='off' autofocus>
-<label for='ur'>网址（必须以 http:// 或 https:// 开头，最多 300 字）</label>
-<input id='ur' type='url' maxlength='300' autocomplete='off' placeholder='https://'>
-<div class='err-text' id='addErr'></div>
-<div class='row' style='justify-content:flex-end'>
-<button type='button' class='ghost' id='addCancel'>取消</button>
-<button type='submit' id='addSubmit'>添加</button>
-</div>
-</form>
-</dialog>
-
-<dialog id='delDlg' aria-labelledby='delTitle' aria-describedby='delNote' closedby='any'>
-<form method='dialog'>
-<div class='title' id='delTitle'>确认删除</div>
-<div class='note' id='delNote' style='margin-top:8px'></div>
-<div class='row' style='justify-content:flex-end'>
-<button value='cancel' class='ghost' autofocus>取消</button>
-<button value='ok' class='del' style='padding:10px 18px;min-height:44px;font-size:15px'>删除</button>
-</div>
-</form>
-</dialog>
-<script>
-(function(){
-var KEY = 'adminPw';
-var linkList = [];
-var siteData = null;
-var pendingDel = null;
-
-function $(id) { return document.getElementById(id); }
-
-function toast(msg, ok) {
-  var t = $('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + (ok ? 'ok' : 'err');
-  clearTimeout(toast.timer);
-  toast.timer = setTimeout(function () { t.className = 'toast'; }, 3500);
-}
-
-function getPw() { return sessionStorage.getItem(KEY) || ''; }
-
-function api(method, path, body) {
-  var opt = { method: method, headers: {} };
-  if (body) {
-    opt.headers['Content-Type'] = 'application/json';
-    opt.body = JSON.stringify(body);
-  }
-  return fetch(path, opt).then(function (r) {
-    return r.text().then(function (txt) {
-      var j;
-      try { j = JSON.parse(txt); } catch (e) { j = { ok: false, error: '服务器返回了非 JSON 内容（HTTP ' + r.status + '）' }; }
-      if (!j || typeof j !== 'object') j = { ok: false, error: '返回内容格式不正确' };
-      j._status = r.status;
-      return j;
-    });
-  });
-}
-
-function openDialog(d) {
-  if (typeof d.showModal !== 'function') {
-    toast('当前浏览器版本较旧，无法打开弹窗，请升级到新版浏览器', false);
-    return false;
-  }
-  if (!d.open) d.showModal();
-  return true;
-}
-
-// 老浏览器不认识 closedby 时，手动实现「点遮罩关闭」
-if (window.HTMLDialogElement && !('closedBy' in HTMLDialogElement.prototype)) {
-  Array.prototype.forEach.call(document.querySelectorAll('dialog[closedby="any"]'), function (dlg) {
-    var pressedOutside = false;
-    function outside(e) {
-      var r = dlg.getBoundingClientRect();
-      return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
-    }
-    dlg.addEventListener('pointerdown', function (e) { pressedOutside = outside(e); });
-    dlg.addEventListener('pointerup', function (e) { if (pressedOutside && outside(e) && dlg.open) dlg.close(); });
-  });
-}
-
-// ---- 登录 ----
-function showGate(note) {
-  $('app').hidden = true;
-  $('gate').hidden = false;
-  $('logout').hidden = true;
-  $('gateNote').textContent = note || '输入管理密码。密码只保存在本次标签页里，关掉页面即失效。';
-}
-
-function enterApp() {
-  $('gate').hidden = true;
-  $('app').hidden = false;
-  $('logout').hidden = false;
-  loadLinks();
-  loadSite();
-  loadStatus();
-}
-
-function tryLogin(pw) {
-  return api('POST', '/api/admin/check', { password: pw }).then(function (j) {
-    if (j.ok === true) return { ok: true };
-    if (j._status === 403) return { ok: false, disabled: true, error: '后台未启用：请在 Cloudflare 添加 ADMIN_PASSWORD' };
-    return { ok: false, error: j.error || '密码不对' };
-  }).catch(function (e) {
-    return { ok: false, error: '请求失败：' + e };
-  });
-}
-
-$('loginForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var pw = $('pw').value;
-  if (!pw) { $('loginErr').textContent = '请输入密码'; return; }
-  $('loginBtn').disabled = true;
-  $('loginErr').textContent = '登录中…';
-  tryLogin(pw).then(function (r) {
-    if (r.ok) {
-      sessionStorage.setItem(KEY, pw);
-      $('pw').value = '';
-      $('loginErr').textContent = '';
-      enterApp();
-    } else {
-      $('loginErr').textContent = r.error;
-      if (r.disabled) $('loginBtn').disabled = true;
-    }
-  }).then(function () {
-    if (!$('loginErr').textContent || $('loginErr').textContent.indexOf('后台未启用') !== 0) $('loginBtn').disabled = false;
-  });
-});
-
-$('logout').addEventListener('click', function () {
-  sessionStorage.removeItem(KEY);
-  location.reload();
-});
-
-(function init() {
-  var saved = getPw();
-  if (!saved) { showGate(); return; }
-  tryLogin(saved).then(function (r) {
-    if (r.ok) { enterApp(); return; }
-    sessionStorage.removeItem(KEY);
-    showGate(r.disabled ? r.error : '登录已失效，请重新输入密码');
-  });
-})();
-
-// ---- 标签页 ----
-var tabs = document.querySelectorAll('#tabs button');
-Array.prototype.forEach.call(tabs, function (b) {
-  b.addEventListener('click', function () {
-    var name = b.getAttribute('data-tab');
-    Array.prototype.forEach.call(tabs, function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
-    var panels = document.querySelectorAll('[data-panel]');
-    Array.prototype.forEach.call(panels, function (p) { p.hidden = p.getAttribute('data-panel') !== name; });
-    if (name === 'keepalive') loadStatus();
-  });
-});
-
-// ---- 友情链接 ----
-function loadLinks() {
-  api('GET', '/api/links').then(function (j) {
-    if (!j.ok) { toast(j.error || '读取友链失败', false); return; }
-    linkList = j.links || [];
-    renderLinks();
-  }).catch(function (e) { toast('读取失败：' + e, false); });
-}
-
-function renderLinks() {
-  var tb = $('rows');
-  tb.textContent = '';
-  linkList.forEach(function (l, i) {
-    var tr = document.createElement('tr');
-    var a = document.createElement('td'); a.textContent = l.name || '';
-    var b = document.createElement('td'); b.textContent = l.url || '';
-    var c = document.createElement('td');
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'del';
-    btn.textContent = '删除';
-    btn.addEventListener('click', function () { askDelete(i); });
-    c.appendChild(btn);
-    tr.appendChild(a); tr.appendChild(b); tr.appendChild(c);
-    tb.appendChild(tr);
-  });
-  $('linkCount').textContent = '共 ' + linkList.length + ' 条（上限 50 条）';
-}
-
-function askDelete(i) {
-  var l = linkList[i];
-  if (!l) return;
-  pendingDel = i;
-  $('delNote').textContent = '确定删除「' + (l.name || '') + '」？删除后会从仓库的友链列表中移除。';
-  openDialog($('delDlg'));
-}
-
-$('delDlg').addEventListener('close', function () {
-  var d = $('delDlg');
-  var ok = d.returnValue === 'ok';
-  d.returnValue = '';
-  var idx = pendingDel;
-  pendingDel = null;
-  if (!ok || idx === null) return;
-  toast('正在删除…', true);
-  api('POST', '/api/links', { password: getPw(), action: 'remove', index: idx }).then(function (j) {
-    if (j.ok) { linkList = j.links || []; renderLinks(); toast('已删除并保存到仓库', true); }
-    else toast(j.error || '删除失败', false);
-  }).catch(function (e) { toast('请求失败：' + e, false); });
-});
-
-$('openAdd').addEventListener('click', function () {
-  $('nm').value = '';
-  $('ur').value = '';
-  $('addErr').textContent = '';
-  if (openDialog($('addDlg'))) $('nm').focus();
-});
-
-$('addCancel').addEventListener('click', function () { $('addDlg').close(); });
-
-$('addForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var name = $('nm').value.trim();
-  var url = $('ur').value.trim();
-  var err = '';
-  if (!name) err = '名称必填';
-  else if (name.length > 40) err = '名称不能超过 40 个字';
-  else if (url.length > 300) err = '网址不能超过 300 个字符';
-  else if (url.slice(0, 8).toLowerCase() !== 'https://' && url.slice(0, 7).toLowerCase() !== 'http://') err = '网址必须以 http:// 或 https:// 开头';
-  if (err) { $('addErr').textContent = err; return; }
-  $('addErr').textContent = '';
-  $('addSubmit').disabled = true;
-  api('POST', '/api/links', { password: getPw(), action: 'add', name: name, url: url }).then(function (j) {
-    if (j.ok) {
-      linkList = j.links || [];
-      renderLinks();
-      $('addDlg').close();
-      toast('已添加并保存到仓库', true);
-    } else {
-      $('addErr').textContent = j.error || '添加失败';
-    }
-  }).catch(function (e) {
-    $('addErr').textContent = '请求失败：' + e;
-  }).then(function () { $('addSubmit').disabled = false; });
-});
-
-// ---- 站点配置（广告 / 联系方式） ----
-function loadSite() {
-  api('GET', '/api/site').then(function (j) {
-    if (!j.ok) { toast(j.error || '读取站点配置失败', false); return; }
-    siteData = j.site || {};
-    fillSite();
-  }).catch(function (e) { toast('读取失败：' + e, false); });
-}
-
-function fillSite() {
-  var ad = (siteData && siteData.ad) || {};
-  var c = (siteData && siteData.contact) || {};
-  $('adHtml').value = ad.html || '';
-  $('adOn').checked = !!ad.enabled;
-  $('conTitle').value = c.title || '';
-  $('conWechat').value = c.wechat || '';
-  $('conQr').value = c.qrUrl || '';
-  $('conEmail').value = c.email || '';
-  $('conNote').value = c.note || '';
-  $('conOn').checked = !!c.enabled;
-}
-
-function saveSection(section, value, btn) {
-  btn.disabled = true;
-  api('POST', '/api/site', { password: getPw(), section: section, value: value }).then(function (j) {
-    if (j.ok) {
-      siteData = j.site || siteData;
-      fillSite();
-      toast('保存成功', true);
-    } else {
-      toast(j.error || '保存失败', false);
-    }
-  }).catch(function (e) {
-    toast('请求失败：' + e, false);
-  }).then(function () { btn.disabled = false; });
-}
-
-$('adSave').addEventListener('click', function () {
-  var html = $('adHtml').value;
-  if (html.length > 20000) { toast('广告代码不能超过 20000 字', false); return; }
-  saveSection('ad', { enabled: $('adOn').checked, html: html }, $('adSave'));
-});
-
-$('conSave').addEventListener('click', function () {
-  var qr = $('conQr').value.trim();
-  if (qr && qr.slice(0, 8) !== 'https://') { toast('二维码地址必须以 https:// 开头，或留空', false); return; }
-  saveSection('contact', {
-    enabled: $('conOn').checked,
-    title: $('conTitle').value.trim(),
-    wechat: $('conWechat').value.trim(),
-    qrUrl: qr,
-    email: $('conEmail').value.trim(),
-    note: $('conNote').value.trim()
-  }, $('conSave'));
-});
-
-// ---- 保活 ----
-function loadStatus() {
-  $('kState').textContent = '读取中…';
-  fetch('/api/status').then(function (r) { return r.json(); }).then(function (s) {
-    var dot = $('kDot');
-    if (!s.configured) {
-      dot.className = 'dot bad';
-      $('kState').textContent = '未配置';
-      $('kNote').textContent = s.error || '';
-      $('kNext').textContent = s.next || '—';
-      $('runBtn').disabled = true;
-      return;
-    }
-    $('runBtn').disabled = false;
-    dot.className = 'dot ' + (s.level || '');
-    $('kState').textContent = s.stateText || '';
-    $('kNote').textContent = s.stateNote || '';
-    $('kLast').textContent = s.lastKeepalive || '还没有记录';
-    $('kNext').textContent = s.next || '—';
-    if (s.workflow) {
-      $('kWf').textContent = s.workflow.conclusion || s.workflow.status;
-      $('kWfNote').textContent = '（' + s.workflow.time + '，北京时间）';
-    } else {
-      $('kWf').textContent = '—';
-      $('kWfNote').textContent = s.workflowError || '没有查到运行记录';
-    }
-  }).catch(function (e) {
-    $('kState').textContent = '读取失败';
-    $('kNote').textContent = String(e);
-  });
-}
-
-$('refreshBtn').addEventListener('click', loadStatus);
-
-$('runBtn').addEventListener('click', function () {
-  var btn = $('runBtn');
-  btn.disabled = true;
-  toast('正在保活…', true);
-  api('POST', '/api/run', { password: getPw() }).then(function (j) {
-    if (j.ok) toast('保活成功，已写入仓库', true);
-    else toast('保活失败：' + (j.error || ''), false);
-  }).catch(function (e) {
-    toast('请求失败：' + e, false);
-  }).then(function () {
-    btn.disabled = false;
-    loadStatus();
-  });
-});
-})();
-</script>
-</body>
-</html>`;
-
-const PAGE = `<!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>仓库定时保活</title>
-<style>
-:root{--bg:#f5f7fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--line:#e5e7eb;--accent:#2563eb}
-*{box-sizing:border-box}
-body{margin:0;font:15px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text)}
-.wrap{max-width:720px;margin:0 auto;padding:32px 16px}
-h1{font-size:22px;margin:0 0 4px}
-.sub{color:var(--muted);margin:0 0 24px}
-.hero{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;align-items:center;gap:16px}
-.dot{width:16px;height:16px;border-radius:50%;background:var(--muted);flex:none}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top;word-break:break-all}
+th{color:var(--muted);font-weight:600;font-size:13px}
+.empty{color:var(--muted);padding:18px 0;text-align:center;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:14px}
+.stat{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.stat span{font-size:15px;font-weight:600}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;margin-right:8px;vertical-align:middle}
 .dot.ok{background:var(--ok)}
 .dot.warn{background:var(--warn)}
 .dot.bad{background:var(--bad)}
-.state{font-size:20px;font-weight:600}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0}
-.label{color:var(--muted);font-size:13px}
-.value{font-size:18px;font-weight:600;margin-top:4px;word-break:break-all}
-.note{color:var(--muted);font-size:13px;margin-top:8px}
-.bar{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden;margin-top:10px}
-.bar span{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
-.actions{margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.links{margin-top:20px;font-size:14px}
-.links a{color:var(--accent);margin-right:16px}
-button{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:12px 20px;font-size:15px;cursor:pointer;min-height:44px}
-button:disabled{opacity:.5;cursor:not-allowed}
-#msg{color:var(--muted);font-size:14px}
-@media (max-width:560px){.grid{grid-template-columns:1fr}}
+.faq-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) auto;gap:8px;align-items:start;margin-top:10px}
+.faq-row textarea{min-height:70px}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin-top:8px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:calc(100% - 32px);padding:10px 18px;border-radius:10px;background:#1f2937;color:#fff;font-size:14px;display:none;z-index:50}
+.toast.show{display:block}
+.toast.ok{background:var(--ok)}
+.toast.err{background:var(--bad)}
+dialog{border:0;border-radius:16px;padding:24px;width:min(480px,calc(100% - 32px));color:var(--text);background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(15,23,42,.5)}
+dialog h3{margin:0 0 4px;font-size:18px}
+@media (max-width:760px){
+.app{grid-template-columns:1fr}
+.side{position:sticky;top:0;height:auto;z-index:10;padding:0;display:flex;overflow-x:auto;background:var(--side);-webkit-overflow-scrolling:touch}
+.brand{display:none}
+.nav{width:auto;flex:none;border-radius:0;white-space:nowrap;padding:14px 16px;min-height:50px;margin:0}
+.nav[aria-current=true]{background:var(--brand)}
+.main{padding:18px 14px 48px}
+.bar h1{font-size:20px}
+.card{padding:16px}
+.faq-row{grid-template-columns:1fr}
+dialog{width:calc(100% - 24px)}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>GitHub 排行榜 · 定时保活</h1>
-  <p class="sub">每周自动往仓库里提交一次记录，防止公开仓库 60 天没有活动后，定时更新被停用。</p>
-
-  <div class="hero">
-    <span class="dot" id="dot"></span>
-    <div>
-      <div class="label">当前状态</div>
-      <div class="state" id="state">读取中…</div>
-      <div class="note" id="stateNote"></div>
-    </div>
-  </div>
-
-  <div class="grid">
-    <div class="card">
-      <div class="label">上次保活（北京时间）</div>
-      <div class="value" id="last">—</div>
-    </div>
-    <div class="card">
-      <div class="label">下次保活</div>
-      <div class="value" id="next">—</div>
-      <div class="note">每周一 10:00（北京时间）</div>
-    </div>
-    <div class="card">
-      <div class="label">距离上次保活</div>
-      <div class="value" id="age">—</div>
-      <div class="bar"><span id="bar"></span></div>
-      <div class="note">进度条满格 = 60 天（超过就会被停用）</div>
-    </div>
-    <div class="card">
-      <div class="label">数据更新任务（Update data）</div>
-      <div class="value" id="wf">—</div>
-      <div class="note" id="wfNote"></div>
-    </div>
-  </div>
-
-  <div class="actions">
-    <button id="run">立即保活一次</button>
-    <span id="msg"></span>
-  </div>
-  <div class="links"><a href="/">查看排行榜</a></div>
-</div>
-<dialog id="dlg" style="border:1px solid #e5e7eb;border-radius:14px;padding:24px;max-width:340px;width:calc(100% - 32px)">
-  <form method="dialog">
-    <div style="font-weight:600;margin-bottom:12px">请输入手动保活密码</div>
-    <input id="pw" type="password" autocomplete="current-password" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px;font-size:15px;min-height:44px">
-    <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px">
-      <button value="cancel" style="background:#fff;color:#1f2937;border:1px solid #e5e7eb">取消</button>
-      <button id="ok" value="ok">确定</button>
-    </div>
+<div id="gate">
+  <form class="gbox" id="loginForm">
+    <h1>网站管理后台</h1>
+    <p class="msg">输入管理密码（Cloudflare 里设置的 ADMIN_PASSWORD）进入。密码只保存在当前浏览器会话中，关闭标签页即失效。</p>
+    <label for="pw">管理密码</label>
+    <input type="password" id="pw" autocomplete="current-password">
+    <div class="actions"><button type="submit" id="loginBtn" style="width:100%">进入后台</button></div>
+    <div class="err" id="loginErr"></div>
   </form>
+</div>
+
+<div class="app" id="app" hidden>
+  <aside class="side">
+    <div class="brand">网站管理后台<small>仅管理员可见</small></div>
+    <button type="button" class="nav" data-tab="overview">概览</button>
+    <button type="button" class="nav" data-tab="links">友链</button>
+    <button type="button" class="nav" data-tab="ad">广告</button>
+    <button type="button" class="nav" data-tab="contact">联系方式</button>
+    <button type="button" class="nav" data-tab="beian">备案信息</button>
+    <button type="button" class="nav" data-tab="seo">SEO</button>
+    <button type="button" class="nav" data-tab="geo">GEO 与文章</button>
+  </aside>
+
+  <main class="main">
+
+    <section class="pane" id="pane-overview">
+      <div class="bar"><div><h1>概览</h1><div class="sub">保活状态与定时任务</div></div></div>
+      <div class="intro">这里显示仓库的保活状态。GitHub 连续 60 天没有提交，定时任务就会被停用，所以系统每周自动写入一次时间戳。平时不需要操作；如果状态是「注意」或「有风险」，点下方按钮立即保活一次。</div>
+      <div class="card">
+        <h2><span class="dot" id="stDot"></span><span id="stState">加载中…</span></h2>
+        <p class="desc" id="stNote"></p>
+        <div class="stats">
+          <div class="stat"><b>上次保活</b><span id="stLast">—</span></div>
+          <div class="stat"><b>距今</b><span id="stAge">—</span></div>
+          <div class="stat"><b>下次定时</b><span id="stNext">—</span></div>
+          <div class="stat"><b>最近一次数据更新</b><span id="stWf">—</span></div>
+        </div>
+        <div class="err" id="stErr"></div>
+        <div class="actions">
+          <button type="button" id="keepBtn">立即保活一次</button>
+          <button type="button" class="ghost" id="refreshBtn">刷新状态</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="pane" id="pane-links" hidden>
+      <div class="bar">
+        <div><h1>友链</h1><div class="sub">显示在排行榜页面上的友情链接</div></div>
+        <button type="button" id="addLinkBtn">添加友链</button>
+      </div>
+      <div class="intro">友链会显示在排行榜页面的友情链接区域。名称建议 40 字以内，网址必须以 http:// 或 https:// 开头，最多 50 条。删除后约 5 分钟生效（页面有缓存）。</div>
+      <div class="card">
+        <div class="msg">当前 <span id="linkCount">0</span> 条</div>
+        <table>
+          <thead><tr><th>名称</th><th>网址</th><th style="width:90px">操作</th></tr></thead>
+          <tbody id="linkBody"><tr><td colspan="3" class="empty">加载中…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="pane" id="pane-ad" hidden>
+      <div class="bar"><div><h1>广告</h1><div class="sub">站点上的广告位代码</div></div></div>
+      <div class="intro">这里放广告代码（如联盟广告、统计代码）。开关打开后，代码会显示在站点页面上；关闭时页面不显示广告。代码直接粘贴 HTML 片段，最多 20000 字符。</div>
+      <div class="card">
+        <label class="toggle"><input type="checkbox" id="ad-enabled">显示广告</label>
+        <label for="ad-html">广告代码（HTML）</label>
+        <textarea class="code" id="ad-html" maxlength="20000" spellcheck="false"></textarea>
+        <div class="hint">只粘贴来源可信的代码。拿不准时先关闭开关再保存，访客就看不到。</div>
+        <div class="actions"><button type="button" data-save="ad">保存广告</button></div>
+      </div>
+    </section>
+
+    <section class="pane" id="pane-contact" hidden>
+      <div class="bar"><div><h1>联系方式</h1><div class="sub">让访客找到你</div></div></div>
+      <div class="intro">用来展示微信、邮箱或二维码，方便访客联系你。全部留空或关闭开关时不显示。「悬浮按钮」不单独设置：它跟随本页的「显示联系方式」开关，打开后站点上会出现悬浮的联系入口（需站点页面支持）。</div>
+      <div class="card">
+        <label class="toggle"><input type="checkbox" id="contact-enabled">显示联系方式（同时控制悬浮按钮）</label>
+        <label for="contact-title">标题</label>
+        <input type="text" id="contact-title" maxlength="20" placeholder="联系我">
+        <div class="hint">弹窗或卡片顶部显示的文字，20 字以内。</div>
+        <label for="contact-wechat">微信号</label>
+        <input type="text" id="contact-wechat" maxlength="60" placeholder="例如 your_wechat">
+        <div class="hint">直接填写微信号；不想公开就留空，改用二维码或邮箱。</div>
+        <label for="contact-qrUrl">二维码图片地址</label>
+        <input type="url" id="contact-qrUrl" maxlength="300" placeholder="https://…">
+        <div class="hint">把二维码图片上传到图床后粘贴图片的 https 网址。没有就留空。</div>
+        <label for="contact-email">邮箱</label>
+        <input type="text" id="contact-email" maxlength="120" placeholder="you@example.com">
+        <div class="hint">用于接收合作或反馈，可留空。</div>
+        <label for="contact-note">说明</label>
+        <input type="text" id="contact-note" maxlength="200" placeholder="例如：合作请备注来意">
+        <div class="hint">显示在联系方式下方的一句话，200 字以内。</div>
+        <div class="actions"><button type="button" data-save="contact">保存联系方式</button></div>
+      </div>
+    </section>
+
+    <section class="pane" id="pane-beian" hidden>
+      <div class="bar"><div><h1>备案信息</h1><div class="sub">网站底部的备案号</div></div></div>
+      <div class="intro">国内服务器的网站需要备案号，并在页脚展示。没有备案号就关闭开关，页脚不会显示备案信息；打开开关但字段为空，页脚会只显示底部文字。</div>
+      <div class="card">
+        <label class="toggle"><input type="checkbox" id="beian-enabled">在页脚显示备案信息</label>
+        <label for="beian-icp">ICP 备案号</label>
+        <input type="text" id="beian-icp" maxlength="60" placeholder="京ICP备12345678号">
+        <div class="hint">形如 京ICP备12345678号，没有就留空并关闭开关。</div>
+        <label for="beian-icpUrl">ICP 备案链接</label>
+        <input type="url" id="beian-icpUrl" maxlength="300" placeholder="https://beian.miit.gov.cn/">
+        <div class="hint">点击备案号跳转的网址，默认是工信部查询页，一般不用改。</div>
+        <label for="beian-police">公安备案号</label>
+        <input type="text" id="beian-police" maxlength="60" placeholder="京公网安备 11010202000000号">
+        <div class="hint">公安备案号，没有就留空。</div>
+        <label for="beian-policeUrl">公安备案链接</label>
+        <input type="url" id="beian-policeUrl" maxlength="300" placeholder="https://www.beian.gov.cn/">
+        <div class="hint">点击公安备案号跳转的网址，可留空。</div>
+        <label for="beian-text">底部文字</label>
+        <input type="text" id="beian-text" maxlength="200" placeholder="© 2026 你的网站名">
+        <div class="hint">版权或其他说明，200 字以内，可留空。</div>
+        <div class="actions"><button type="button" data-save="beian">保存备案信息</button></div>
+      </div>
+    </section>
+
+    <section class="pane" id="pane-seo" hidden>
+      <div class="bar"><div><h1>SEO</h1><div class="sub">搜索引擎与分享卡片</div></div></div>
+      <div class="intro">这些内容会写进页面标题和 meta 标签，决定搜索结果和微信、微博分享时显示的样子。全部留空时保持页面原样；填写后保存，约 5 分钟内生效（页面有缓存）。</div>
+      <div class="card">
+        <label for="seo-siteName">站点名称</label>
+        <input type="text" id="seo-siteName" maxlength="60" placeholder="GitHub 项目排行榜">
+        <div class="hint">网站的名字，会出现在分享卡片和浏览器标签上，60 字以内。</div>
+        <label for="seo-title">页面标题</label>
+        <input type="text" id="seo-title" maxlength="100" placeholder="GitHub 热门项目排行榜">
+        <div class="hint">建议 30 字以内，把最核心的关键词放在前面。</div>
+        <label for="seo-description">页面描述</label>
+        <textarea id="seo-description" maxlength="300" placeholder="每周自动更新 GitHub 热门开源项目的 Star 数、增长和分类……"></textarea>
+        <div class="hint">建议 80–120 字，说清楚网站是什么、有什么价值，搜索结果里会显示这段话。</div>
+        <label for="seo-keywords">关键词</label>
+        <input type="text" id="seo-keywords" maxlength="300" placeholder="GitHub, 开源项目, 排行榜">
+        <div class="hint">3–8 个词，用英文逗号分隔。现在对搜索排名影响较小，可以留空。</div>
+        <label for="seo-ogImage">分享图地址</label>
+        <input type="url" id="seo-ogImage" maxlength="300" placeholder="https://…/cover.png">
+        <div class="hint">建议 1200×630 的图片网址，以 https 开头。留空则分享时不带图片。</div>
+        <label for="seo-siteUrl">站点网址</label>
+        <input type="url" id="seo-siteUrl" maxlength="300" placeholder="https://example.com">
+        <div class="hint">填完整的 https 网址，末尾不带斜杠。用于规范链接（canonical）和站点地图，填错会影响收录。</div>
+        <div class="actions"><button type="button" data-save="seo">保存 SEO 设置</button></div>
+      </div>
+    </section>
+
+    <section class="pane" id="pane-geo" hidden>
+      <div class="bar"><div><h1>GEO 与文章</h1><div class="sub">给 AI 搜索和读者看的内容</div></div></div>
+      <div class="intro">GEO 摘要和问答会帮助 AI 搜索（如 ChatGPT、Perplexity）准确理解并引用网站。文章用来沉淀长内容，也会被搜索引擎收录。两块都可以留空，留空时不影响网站正常访问。</div>
+      <div class="card">
+        <h2>GEO 摘要</h2>
+        <p class="desc">2–3 句话说清网站是什么、收录了什么、多久更新一次。</p>
+        <textarea id="geo-summary" maxlength="500" placeholder="本站每周自动抓取 GitHub 热门开源项目……"></textarea>
+        <div class="hint">500 字以内。</div>
+        <h2 style="margin-top:20px">常见问答</h2>
+        <p class="desc">写访客最常问的问题和简短回答，最多 20 条。</p>
+        <div id="faqList"></div>
+        <div class="actions"><button type="button" class="ghost" id="faqAdd">新增一条</button></div>
+        <div class="actions"><button type="button" data-save="geo">保存 GEO 设置</button></div>
+      </div>
+      <div class="card">
+        <div class="bar" style="margin-bottom:6px">
+          <div><h2>文章</h2><p class="desc">共 <span id="artCount">0</span> 篇。标题、摘要、正文会显示在文章页。</p></div>
+          <button type="button" id="artNew">新增文章</button>
+        </div>
+        <table>
+          <thead><tr><th>标题</th><th style="width:110px">日期</th><th>摘要</th><th style="width:130px">操作</th></tr></thead>
+          <tbody id="artTbody"><tr><td colspan="4" class="empty">加载中…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+<dialog id="addDlg">
+  <h3>添加友链</h3>
+  <p class="msg">名称和网址都会显示在排行榜页面上。</p>
+  <label for="addName">名称</label>
+  <input type="text" id="addName" maxlength="40" placeholder="例如：某某博客">
+  <div class="hint">40 字以内。</div>
+  <label for="addUrl">网址</label>
+  <input type="url" id="addUrl" maxlength="300" placeholder="https://example.com">
+  <div class="hint">必须以 http:// 或 https:// 开头。</div>
+  <div class="err" id="addErr"></div>
+  <div class="actions"><button type="button" class="ghost" data-close="addDlg">取消</button><button type="button" id="addSubmit">添加</button></div>
 </dialog>
+<dialog id="delDlg">
+  <h3 id="delTitle">确认删除</h3>
+  <p class="msg" id="delNote"></p>
+  <div class="err" id="delErr"></div>
+  <div class="actions"><button type="button" class="ghost" data-close="delDlg">取消</button><button type="button" class="danger" id="delSubmit">确定删除</button></div>
+</dialog>
+<dialog id="artDlg">
+  <h3 id="artTitle">新增文章</h3>
+  <p class="msg">标题必填；日期留空默认今天；正文段落之间空一行。</p>
+  <label for="artTitleIn">标题</label>
+  <input type="text" id="artTitleIn" maxlength="100">
+  <div class="hint">100 字以内。</div>
+  <label for="artDate">日期</label>
+  <input type="date" id="artDate">
+  <label for="artSummary">摘要</label>
+  <textarea id="artSummary" maxlength="300"></textarea>
+  <div class="hint">300 字以内，显示在文章列表里，也会被 AI 搜索引用。</div>
+  <label for="artBody">正文（纯文本）</label>
+  <textarea id="artBody" maxlength="5000" style="min-height:200px"></textarea>
+  <div class="hint">5000 字以内，段落之间用空行分隔，不支持 HTML。</div>
+  <div class="err" id="artErr"></div>
+  <div class="actions"><button type="button" class="ghost" data-close="artDlg">取消</button><button type="button" id="artSubmit">保存文章</button></div>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
 <script>
 (function () {
-  function $(id) { return document.getElementById(id); }
-  function setDot(level) { $('dot').className = 'dot ' + (level || ''); }
+  'use strict';
+  var PW_KEY = 'adminPw';
+  var TABS = ['overview', 'links', 'ad', 'contact', 'beian', 'seo', 'geo'];
+  var FIELDS = {
+    ad: ['html'],
+    contact: ['title', 'wechat', 'qrUrl', 'email', 'note'],
+    beian: ['icp', 'icpUrl', 'police', 'policeUrl', 'text'],
+    seo: ['siteName', 'title', 'description', 'keywords', 'ogImage', 'siteUrl'],
+    geo: ['summary']
+  };
+  var pw = '';
+  var state = { links: [], articles: [], faq: [] };
+  var editingId = null;
+  var confirmFn = null;
 
-  function render(s) {
-    if (!s.configured) {
-      setDot('bad');
-      $('state').textContent = '未配置';
-      $('stateNote').textContent = s.error;
-      $('next').textContent = s.next;
-      $('run').disabled = true;
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function toast(msg, ok) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (ok ? 'ok' : 'err');
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(function () { t.className = 'toast'; }, 2600);
+  }
+  function api(path, opt) {
+    opt = opt || {};
+    var init = { method: opt.method || 'GET', headers: {} };
+    if (opt.body) {
+      init.headers['Content-Type'] = 'application/json';
+      init.body = JSON.stringify(opt.body);
+    }
+    return fetch(path, init)
+      .then(function (r) {
+        return r.json().catch(function () {
+          return { ok: false, error: '服务器返回了非 JSON 内容（' + r.status + '）' };
+        });
+      })
+      .catch(function () { return { ok: false, error: '网络错误，请稍后重试' }; });
+  }
+  function today() { return new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10); }
+
+  // ---- 登录 ----
+  function enter() {
+    $('gate').hidden = true;
+    $('app').hidden = false;
+    go(location.hash.slice(1));
+    loadStatus();
+    loadLinks();
+    loadSite();
+    loadArticles();
+  }
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = $('pw').value;
+    if (!v) { $('loginErr').textContent = '请输入密码'; return; }
+    $('loginBtn').disabled = true;
+    api('/api/admin/check', { method: 'POST', body: { password: v } }).then(function (r) {
+      $('loginBtn').disabled = false;
+      if (r.ok) {
+        pw = v;
+        sessionStorage.setItem(PW_KEY, v);
+        $('loginErr').textContent = '';
+        enter();
+      } else {
+        $('loginErr').textContent = r.error || '密码不对';
+      }
+    });
+  });
+
+  // ---- 标签页 ----
+  function go(tab) {
+    if (tab === 'keepalive') tab = 'overview';
+    if (TABS.indexOf(tab) < 0) tab = 'overview';
+    TABS.forEach(function (t) { $('pane-' + t).hidden = t !== tab; });
+    document.querySelectorAll('.nav').forEach(function (b) {
+      b.setAttribute('aria-current', b.getAttribute('data-tab') === tab ? 'true' : 'false');
+    });
+    history.replaceState(null, '', '#' + tab);
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('.nav').forEach(function (b) {
+    b.addEventListener('click', function () { go(b.getAttribute('data-tab')); });
+  });
+
+  // ---- 弹窗 ----
+  function askConfirm(title, note, fn) {
+    $('delTitle').textContent = title;
+    $('delNote').textContent = note;
+    $('delErr').textContent = '';
+    confirmFn = fn;
+    $('delDlg').showModal();
+  }
+  $('delSubmit').addEventListener('click', function () {
+    if (!confirmFn) return;
+    var btn = this;
+    btn.disabled = true;
+    confirmFn().then(function (r) {
+      btn.disabled = false;
+      if (r && r.ok) {
+        $('delDlg').close();
+      } else {
+        $('delErr').textContent = (r && r.error) || '操作失败';
+      }
+    });
+  });
+  document.addEventListener('click', function (e) {
+    var c = e.target.getAttribute && e.target.getAttribute('data-close');
+    if (c) $(c).close();
+  });
+
+  // ---- 概览：保活状态 ----
+  function loadStatus() {
+    $('stState').textContent = '读取中…';
+    api('/api/status').then(function (s) {
+      if (!s.configured) {
+        $('stDot').className = 'dot bad';
+        $('stState').textContent = '未配置';
+        $('stNote').textContent = s.error || '';
+        return;
+      }
+      $('stDot').className = 'dot ' + (s.level || '');
+      $('stState').textContent = s.stateText || '';
+      $('stNote').textContent = (s.stateNote || '') + (s.workflowError ? '（' + s.workflowError + '）' : '');
+      $('stLast').textContent = s.lastKeepalive || '—';
+      $('stAge').textContent = s.age == null ? '—' : s.age + ' 天前';
+      $('stNext').textContent = s.next || '—';
+      $('stWf').textContent = s.workflow ? s.workflow.time + ' · ' + (s.workflow.conclusion || s.workflow.status) : '—';
+      $('stErr').textContent = '';
+    });
+  }
+  $('refreshBtn').addEventListener('click', loadStatus);
+  $('keepBtn').addEventListener('click', function () {
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = '保活中…';
+    api('/api/run', { method: 'POST', body: { password: pw } }).then(function (r) {
+      btn.disabled = false;
+      btn.textContent = '立即保活一次';
+      if (r.ok) {
+        toast('保活成功，已写入 ' + r.time, true);
+        loadStatus();
+      } else {
+        $('stErr').textContent = r.error || '保活失败';
+        toast(r.error || '保活失败', false);
+      }
+    });
+  });
+
+  // ---- 友链 ----
+  function renderLinks() {
+    $('linkCount').textContent = state.links.length;
+    var b = $('linkBody');
+    if (!state.links.length) {
+      b.innerHTML = '<tr><td colspan="3" class="empty">还没有友链，点右上角「添加友链」</td></tr>';
       return;
     }
-    $('run').disabled = false;
-    setDot(s.level);
-    $('state').textContent = s.stateText;
-    $('stateNote').textContent = s.stateNote;
-    $('last').textContent = s.lastKeepalive || '还没有记录';
-    $('next').textContent = s.next;
-    $('age').textContent = s.age == null ? '—' : s.age + ' 天前';
-    $('bar').style.width = s.age == null ? '0%' : Math.min(100, s.age / 60 * 100) + '%';
-    if (s.workflow) {
-      $('wf').textContent = s.workflow.conclusion || s.workflow.status;
-      $('wfNote').textContent = '最近一次运行：' + s.workflow.time + '（北京时间）';
-    } else {
-      $('wf').textContent = '—';
-      $('wfNote').textContent = s.workflowError || '没有查到运行记录';
-    }
+    b.innerHTML = state.links.map(function (l, i) {
+      return '<tr><td>' + esc(l.name) + '</td><td><a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.url) +
+        '</a></td><td><button type="button" class="danger small" data-del="' + i + '">删除</button></td></tr>';
+    }).join('');
   }
-
-  function load() {
-    fetch('/api/status')
-      .then(function (r) { return r.json(); })
-      .then(render)
-      .catch(function (e) {
-        setDot('bad');
-        $('state').textContent = '读取失败';
-        $('stateNote').textContent = String(e);
-      });
-  }
-
-  $('run').onclick = function () {
-    var dlg = $('dlg');
-    $('pw').value = '';
-    dlg.showModal();
-    $('pw').focus();
-  };
-
-  $('dlg').addEventListener('close', function () {
-    var pw = $('pw').value;
-    if ($('dlg').returnValue !== 'ok' || !pw) return;
-    var btn = $('run');
-    btn.disabled = true;
-    $('msg').textContent = '正在保活…';
-    fetch('/api/run', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pw })
-    })
-      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (x) {
-        $('msg').textContent = x.ok ? '保活成功，已写入仓库' : '保活失败：' + x.j.error;
-      })
-      .catch(function (e) { $('msg').textContent = '请求失败：' + e; })
-      .then(function () { btn.disabled = false; load(); });
+  function loadLinks() {
+    api('/api/links').then(function (r) {
+      if (!r.ok) {
+        $('linkBody').innerHTML = '<tr><td colspan="3" class="empty">' + esc(r.error) + '</td></tr>';
+        return;
+      }
+      state.links = r.links || [];
+      renderLinks();
     });
+  }
+  $('addLinkBtn').addEventListener('click', function () {
+    $('addName').value = '';
+    $('addUrl').value = '';
+    $('addErr').textContent = '';
+    $('addDlg').showModal();
+  });
+  $('addSubmit').addEventListener('click', function () {
+    var name = $('addName').value.trim();
+    var url = $('addUrl').value.trim();
+    if (!name) { $('addErr').textContent = '请填写名称'; return; }
+    if (!/^https?:\\/\\//i.test(url)) { $('addErr').textContent = '网址必须以 http:// 或 https:// 开头'; return; }
+    var btn = this;
+    btn.disabled = true;
+    api('/api/links', { method: 'POST', body: { password: pw, action: 'add', name: name, url: url } }).then(function (r) {
+      btn.disabled = false;
+      if (r.ok) {
+        state.links = r.links;
+        renderLinks();
+        $('addDlg').close();
+        toast('已添加友链', true);
+      } else {
+        $('addErr').textContent = r.error || '添加失败';
+      }
+    });
+  });
+  $('linkBody').addEventListener('click', function (e) {
+    var d = e.target.getAttribute && e.target.getAttribute('data-del');
+    if (d == null) return;
+    var i = Number(d);
+    var name = state.links[i] ? state.links[i].name : '';
+    askConfirm('删除友链', '确定删除「' + name + '」吗？删除后约 5 分钟生效。', function () {
+      return api('/api/links', { method: 'POST', body: { password: pw, action: 'remove', index: i } }).then(function (r) {
+        if (r.ok) {
+          state.links = r.links;
+          renderLinks();
+          toast('已删除', true);
+        }
+        return r;
+      });
+    });
+  });
 
-  load();
+  // ---- 站点配置：广告 / 联系方式 / 备案 / SEO / GEO ----
+  function fillSite(s) {
+    var a = s.ad || {}, c = s.contact || {}, b = s.beian || {}, o = s.seo || {}, g = s.geo || {};
+    $('ad-enabled').checked = !!a.enabled;
+    $('ad-html').value = a.html || '';
+    $('contact-enabled').checked = !!c.enabled;
+    $('beian-enabled').checked = !!b.enabled;
+    var src = { contact: c, beian: b, seo: o, geo: g };
+    Object.keys(src).forEach(function (sec) {
+      FIELDS[sec].forEach(function (k) {
+        var el = $(sec + '-' + k);
+        if (el) el.value = src[sec][k] || '';
+      });
+    });
+    state.faq = Array.isArray(g.faq) ? g.faq.slice() : [];
+    renderFaq();
+  }
+  function loadSite() {
+    api('/api/site').then(function (r) {
+      if (!r.ok) { toast(r.error || '读取站点配置失败', false); return; }
+      fillSite(r.site);
+    });
+  }
+  function collect(sec) {
+    var v = {};
+    if (sec !== 'seo' && sec !== 'geo') v.enabled = $(sec + '-enabled').checked;
+    FIELDS[sec].forEach(function (k) { v[k] = $(sec + '-' + k).value; });
+    if (sec === 'geo') v.faq = readFaq();
+    return v;
+  }
+  document.querySelectorAll('[data-save]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var sec = btn.getAttribute('data-save');
+      btn.disabled = true;
+      api('/api/site', { method: 'POST', body: { password: pw, section: sec, value: collect(sec) } }).then(function (r) {
+        btn.disabled = false;
+        if (r.ok) toast('已保存', true);
+        else toast(r.error || '保存失败', false);
+      });
+    });
+  });
+
+  // GEO 问答
+  function syncFaq() {
+    state.faq = [].map.call(document.querySelectorAll('#faqList .faq-row'), function (row) {
+      return { q: row.querySelector('.fq').value, a: row.querySelector('.fa').value };
+    });
+  }
+  function readFaq() {
+    syncFaq();
+    return state.faq.filter(function (f) { return f.q.trim() || f.a.trim(); });
+  }
+  function renderFaq() {
+    var h = state.faq.map(function (f, i) {
+      return '<div class="faq-row"><div><label>问题</label><input type="text" class="fq" maxlength="100" value="' + esc(f.q) +
+        '"></div><div><label>回答</label><textarea class="fa" maxlength="500">' + esc(f.a) +
+        '</textarea></div><div><button type="button" class="ghost small" data-faqdel="' + i + '">删除</button></div></div>';
+    }).join('');
+    $('faqList').innerHTML = h || '<p class="empty">还没有问答，点下方「新增一条」</p>';
+  }
+  $('faqAdd').addEventListener('click', function () {
+    syncFaq();
+    if (state.faq.length >= 20) { toast('问答最多 20 条', false); return; }
+    state.faq.push({ q: '', a: '' });
+    renderFaq();
+  });
+  $('faqList').addEventListener('click', function (e) {
+    var d = e.target.getAttribute && e.target.getAttribute('data-faqdel');
+    if (d == null) return;
+    syncFaq();
+    state.faq.splice(Number(d), 1);
+    renderFaq();
+  });
+
+  // ---- 文章 ----
+  function renderArticles() {
+    var list = state.articles.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+    $('artCount').textContent = list.length;
+    if (!list.length) {
+      $('artTbody').innerHTML = '<tr><td colspan="4" class="empty">还没有文章，点「新增文章」开始写</td></tr>';
+      return;
+    }
+    $('artTbody').innerHTML = list.map(function (a) {
+      return '<tr><td>' + esc(a.title) + '</td><td>' + esc(a.date) + '</td><td>' + esc(a.summary) +
+        '</td><td><button type="button" class="ghost small" data-artedit="' + esc(a.id) + '">编辑</button> ' +
+        '<button type="button" class="danger small" data-artdel="' + esc(a.id) + '">删除</button></td></tr>';
+    }).join('');
+  }
+  function loadArticles() {
+    api('/api/articles').then(function (r) {
+      if (!r.ok) {
+        $('artTbody').innerHTML = '<tr><td colspan="4" class="empty">' + esc(r.error) + '</td></tr>';
+        return;
+      }
+      state.articles = r.articles || [];
+      renderArticles();
+    });
+  }
+  function openArt(a) {
+    editingId = a ? a.id : null;
+    $('artTitle').textContent = a ? '编辑文章' : '新增文章';
+    $('artTitleIn').value = a ? a.title : '';
+    $('artDate').value = a ? a.date : today();
+    $('artSummary').value = a ? a.summary : '';
+    $('artBody').value = a ? a.body : '';
+    $('artErr').textContent = '';
+    $('artDlg').showModal();
+  }
+  $('artNew').addEventListener('click', function () { openArt(null); });
+  $('artSubmit').addEventListener('click', function () {
+    var article = {
+      title: $('artTitleIn').value,
+      date: $('artDate').value || today(),
+      summary: $('artSummary').value,
+      body: $('artBody').value
+    };
+    if (!article.title.trim()) { $('artErr').textContent = '请填写标题'; return; }
+    var body = { password: pw, article: article };
+    if (editingId) { body.action = 'update'; body.id = editingId; }
+    else body.action = 'add';
+    var btn = this;
+    btn.disabled = true;
+    api('/api/articles', { method: 'POST', body: body }).then(function (r) {
+      btn.disabled = false;
+      if (r.ok) {
+        state.articles = r.articles;
+        renderArticles();
+        $('artDlg').close();
+        toast('文章已保存', true);
+      } else {
+        $('artErr').textContent = r.error || '保存失败';
+      }
+    });
+  });
+  $('artTbody').addEventListener('click', function (e) {
+    var t = e.target;
+    var ed = t.getAttribute && t.getAttribute('data-artedit');
+    var dl = t.getAttribute && t.getAttribute('data-artdel');
+    if (ed != null) {
+      var a = state.articles.filter(function (x) { return String(x.id) === ed; })[0];
+      if (a) openArt(a);
+    } else if (dl != null) {
+      var art = state.articles.filter(function (x) { return String(x.id) === dl; })[0];
+      askConfirm('删除文章', '确定删除《' + (art ? art.title : '') + '》吗？', function () {
+        return api('/api/articles', { method: 'POST', body: { password: pw, action: 'remove', id: dl } }).then(function (r) {
+          if (r.ok) {
+            state.articles = r.articles;
+            renderArticles();
+            toast('已删除', true);
+          }
+          return r;
+        });
+      });
+    }
+  });
+
+  // ---- 启动 ----
+  var saved = sessionStorage.getItem(PW_KEY);
+  if (saved) {
+    pw = saved;
+    enter();
+  } else {
+    $('gate').hidden = false;
+  }
 })();
 </script>
 </body>
-</html>`;
+</html>
+`;
+
+
