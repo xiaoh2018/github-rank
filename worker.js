@@ -107,6 +107,10 @@ export default {
       if (url.pathname === '/api/gh-search' && request.method === 'GET') {
         return ghSearch(request, env);
       }
+      if (url.pathname === '/api/refresh' && request.method === 'POST') {
+        const r = await triggerRefresh(env);
+        return json(r, r.ok ? 200 : (r.status || 500));
+      }
       return new Response('Not found', { status: 404 });
     } catch (e) {
       return json({ ok: false, error: String((e && e.message) || e) }, 500);
@@ -512,6 +516,28 @@ async function maybeRefresh(env) {
     body: JSON.stringify({ ref: branch(env) }),
   });
   console.log(d.ok ? '已触发 Update data' : '触发失败：' + d.status + ' ' + d.text.slice(0, 200));
+}
+
+// 访客点「立即刷新」时调用：触发一次 Update data，让仓库数据更新，之后所有访客打开都能看到新数据
+// 仍受冷却时间和「正在运行」限制，防止被刷爆 Action 额度
+async function triggerRefresh(env) {
+  if (checkConfig(env).length) return { ok: false, status: 500, msg: '服务器没有配置 GITHUB_TOKEN' };
+  const coolMin = Number(env.COOLDOWN_MINUTES) || 60;
+  const runs = await gh(env, '/actions/workflows/' + WORKFLOW_FILE + '/runs?per_page=1');
+  const last = runs.ok && runs.data && runs.data.workflow_runs && runs.data.workflow_runs[0];
+  if (last) {
+    if (last.status !== 'completed') return { ok: true, started: false, msg: '数据正在更新中，几分钟后刷新即可看到最新数据' };
+    if (Date.now() - Date.parse(last.created_at) < coolMin * 60000) {
+      return { ok: true, started: false, msg: '数据刚更新过，约 ' + coolMin + ' 分钟后才能再次更新' };
+    }
+  }
+  const d = await gh(env, '/actions/workflows/' + WORKFLOW_FILE + '/dispatches', {
+    method: 'POST',
+    headers: ghHeaders(env, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ ref: branch(env) }),
+  });
+  if (!d.ok) return { ok: false, status: 502, msg: '触发更新失败：' + d.status };
+  return { ok: true, started: true, msg: '已开始更新仓库数据，通常 2～5 分钟后所有访客打开都能看到新数据' };
 }
 
 // 下一次定时执行的时间（cron "0 2 * * 1"：UTC 周一 02:00）

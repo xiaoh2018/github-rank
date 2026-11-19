@@ -1111,6 +1111,7 @@ async function serverHasToken() {
 }
 
 async function liveRefresh() {
+  serverMode = false;
   if (!getToken()) {
     if (!(await serverHasToken())) {
       setStatus('还没有可用的 Token，无法立即刷新。当前显示的是定时抓取的静态数据；请在「设置」中填写你自己的 Token 后再试。', true);
@@ -1123,6 +1124,17 @@ async function liveRefresh() {
   const btn = $('btnRefresh');
   btn.disabled = true;
   setStatus('正在用 Token 实时刷新，请稍候…');
+  // 同时让服务器触发一次仓库数据更新，之后所有访客打开都能拿到新数据
+  let serverMsg = '';
+  if (serverMode) {
+    try {
+      const r = await fetch('/api/refresh', { method: 'POST', cache: 'no-store' });
+      const d = await r.json();
+      serverMsg = d && d.msg ? d.msg : '';
+    } catch (e) {
+      serverMsg = '';
+    }
+  }
   try {
     const { repos, partial } = await loadRepos(state, true, n => {
       if (id === reqId) setStatus('正在用 Token 实时刷新，已取到 ' + n + ' 个项目…');
@@ -1132,9 +1144,10 @@ async function liveRefresh() {
     state.source = 'live';
     state.updatedAt = new Date().toLocaleString();
     render();
-    setStatus(partial
+    const tail = serverMsg ? ' ' + serverMsg : '';
+    setStatus((partial
       ? '刷新部分成功：中途有请求失败，只拿到 ' + repos.length + ' 个项目，更新于 ' + state.updatedAt + '。'
-      : '刷新成功：共 ' + repos.length + ' 个项目，更新于 ' + state.updatedAt + '。');
+      : '刷新成功：共 ' + repos.length + ' 个项目，更新于 ' + state.updatedAt + '。') + tail);
   } catch (e) {
     if (id !== reqId) return;
     setStatus('实时刷新失败：' + e.message + ' 当前仍显示之前的数据。', true);
