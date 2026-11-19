@@ -104,6 +104,9 @@ export default {
       if (url.pathname === '/api/gh' && request.method === 'GET') {
         return ghProxy(request, env, ctx);
       }
+      if (url.pathname === '/api/gh-search' && request.method === 'GET') {
+        return ghSearch(request, env);
+      }
       return new Response('Not found', { status: 404 });
     } catch (e) {
       return json({ ok: false, error: String((e && e.message) || e) }, 500);
@@ -135,8 +138,9 @@ async function ghProxy(request, env, ctx) {
     Accept: raw ? 'application/vnd.github.raw' : 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
     'User-Agent': 'github-rank-detail',
-  };
-  if (env.GITHUB_TOKEN) headers.Authorization = 'Bearer ' + env.GITHUB_TOKEN;
+    };
+    const tok = await serverGhToken(env);
+    if (tok) headers.Authorization = 'Bearer ' + tok;
   const r = await fetch(upstream, { headers: headers });
   if (r.status === 204) return new Response(null, { status: 204 });
   if (!r.ok) return new Response('HTTP ' + r.status, { status: r.status, headers: { 'cache-control': 'no-store' } });
@@ -150,6 +154,43 @@ async function ghProxy(request, env, ctx) {
   });
   ctx.waitUntil(cache.put(key, res.clone()));
   return res;
+}
+
+// ---------- 服务端 GitHub Token：后台保存（加密存仓库 data/translate.json 的 gh 字段），没有则用环境变量 GITHUB_TOKEN ----------
+let ghCache = { at: 0, val: null };
+
+async function serverGhToken(env) {
+  if (Date.now() - ghCache.at < 300000) return ghCache.val || env.GITHUB_TOKEN || null;
+  let val = null;
+  if (env.ADMIN_PASSWORD && env.REPO_OWNER && env.REPO_NAME) {
+    try {
+      const r = await fetch('https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + TRANSLATE_FILE, { cf: { cacheTtl: 30, cacheEverything: true } });
+      if (r.ok) {
+        const d = await r.json();
+        if (d && d.gh) val = await openSecret(env.ADMIN_PASSWORD, d.gh);
+      }
+    } catch (e) {
+      val = null;
+    }
+  }
+  ghCache = { at: Date.now(), val: val };
+  return val || env.GITHUB_TOKEN || null;
+}
+
+// 「立即刷新」用的搜索代理：只放行仓库搜索，用服务端 Token 转发，不缓存
+async function ghSearch(request, env) {
+  const u = new URL(request.url);
+  const q = u.searchParams.get('q') || '';
+  const sort = u.searchParams.get('sort') || 'stars';
+  const page = Math.min(Math.max(parseInt(u.searchParams.get('page') || '1', 10) || 1, 1), 10);
+  const perPage = Math.min(Math.max(parseInt(u.searchParams.get('per_page') || '100', 10) || 100, 1), 100);
+  if (!q || q.length > 500 || ['stars', 'forks', 'updated'].indexOf(sort) < 0) return json({ ok: false, error: '参数不对' }, 400);
+  const headers = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'github-rank-search' };
+  const tok = await serverGhToken(env);
+  if (tok) headers.Authorization = 'Bearer ' + tok;
+  const r = await fetch('https://api.github.com/search/repositories?q=' + encodeURIComponent(q) + '&sort=' + sort + '&order=desc&per_page=' + perPage + '&page=' + page, { headers: headers });
+  if (!r.ok) return new Response('HTTP ' + r.status, { status: r.status, headers: { 'cache-control': 'no-store' } });
+  return new Response(await r.text(), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
 }
 
 // ---------- README 中文译文（免 Key：MyMemory 公开接口；结果缓存 7 天）----------
@@ -169,7 +210,8 @@ async function readmeZh(request, env, ctx) {
     return preResp;
   }
   const headers = { Accept: 'application/vnd.github.raw', 'User-Agent': 'github-rank-readme' };
-  if (env.GITHUB_TOKEN) headers.Authorization = 'Bearer ' + env.GITHUB_TOKEN;
+  const tok = await serverGhToken(env);
+  if (tok) headers.Authorization = 'Bearer ' + tok;
   const r = await fetch('https://api.github.com/repos/' + repo + '/readme', { headers: headers });
   if (!r.ok) return json({ ok: false, error: 'README 读取失败（HTTP ' + r.status + '）' }, 502);
   const parts = splitForTranslate((await r.text()).slice(0, 12000)).slice(0, 30);
@@ -944,7 +986,7 @@ async function writeSite(env, site, sha) {
 async function handleTranslate(request, env) {
   if (request.method === 'GET') {
     const ms = await msConfig(env);
-    return json({ ok: true, configured: !!(ms && ms.key), region: ms ? ms.region : '' });
+    return json({ ok: true, configured: !!(ms && ms.key), region: ms ? ms.region : '', ghConfigured: !!(await serverGhToken(env)) });
   }
   if (!env.ADMIN_PASSWORD) {
     return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
@@ -961,7 +1003,12 @@ async function handleTranslate(request, env) {
     return json({ ok: false, error: '区域只能包含字母、数字和短横线' }, 400);
   }
   const newKey = body.key == null ? '' : String(body.key).trim();
+  const newGh = body.ghKey == null ? '' : String(body.ghKey).trim();
   const clear = body.clear === true;
+  const clearGh = body.clearGh === true;
+  if (newGh && (newGh.length < 20 || newGh.length > 300 || /\s/.test(newGh))) {
+    return json({ ok: false, error: 'GitHub Token 格式不对，请粘贴完整的 Token' }, 400);
+  }
   if (newKey && (newKey.length < 16 || newKey.length > 200 || /\s/.test(newKey))) {
     return json({ ok: false, error: '密钥格式不对，请粘贴完整的 Key' }, 400);
   }
@@ -981,15 +1028,11 @@ async function handleTranslate(request, env) {
     }
   }
 
-  let out;
-  if (clear) {
-    out = { region: region };
-  } else if (newKey) {
-    out = { v: 1, region: region, box: await sealSecret(env.ADMIN_PASSWORD, newKey) };
-  } else {
-    out = { region: region };
-    if (keep.box) out.box = keep.box;
-  }
+  const out = { v: 1, region: region };
+  if (!clear && newKey) out.box = await sealSecret(env.ADMIN_PASSWORD, newKey);
+  else if (!clear && keep.box) out.box = keep.box;
+  if (!clearGh && newGh) out.gh = await sealSecret(env.ADMIN_PASSWORD, newGh);
+  else if (!clearGh && keep.gh) out.gh = keep.gh;
 
   const put = await gh(env, '/contents/' + TRANSLATE_FILE, {
     method: 'PUT',
@@ -1003,7 +1046,8 @@ async function handleTranslate(request, env) {
   });
   if (!put.ok) return json({ ok: false, error: '写入失败：' + put.status + ' ' + put.text.slice(0, 200) }, 500);
   msCache = { at: 0, val: null };
-  return json({ ok: true, configured: !!out.box, region: region });
+  ghCache = { at: 0, val: null };
+  return json({ ok: true, configured: !!out.box, region: region, ghConfigured: !!out.gh });
 }
 
 async function handleSite(request, env) {
@@ -1331,7 +1375,17 @@ dialog{width:calc(100% - 24px)}
           <button type="button" id="tr-save">保存翻译设置</button>
           <button type="button" id="tr-clear" class="ghost">清除 Key</button>
         </div>
-      </div>
+        </div>
+        <div class="card">
+        <div class="hint" id="gh-status">读取中…</div>
+        <label for="gh-key">GitHub Token</label>
+        <input type="password" id="gh-key" maxlength="300" autocomplete="off" placeholder="已配置时留空即保持不变">
+        <div class="hint">用于前台「立即刷新」和详情读取。只读公开数据，不勾选任何权限也可以。保存后访客不用再自己填 Token。</div>
+        <div class="actions">
+          <button type="button" id="gh-save">保存 GitHub Token</button>
+          <button type="button" id="gh-clear" class="ghost">清除</button>
+        </div>
+        </div>
     </section>
 
     <section class="pane" id="pane-layout" hidden>
@@ -1896,6 +1950,7 @@ dialog{width:calc(100% - 24px)}
     api('/api/translate').then(function (r) {
       if (!r.ok) { $('tr-status').textContent = r.error || '读取失败'; return; }
       $('tr-status').textContent = r.configured ? '已配置微软翻译 Key' : '还没有配置微软翻译 Key';
+      $('gh-status').textContent = r.ghConfigured ? '已配置 GitHub Token，前台立即刷新可直接使用' : '还没有配置 GitHub Token';
       $('tr-region').value = r.region || '';
     });
   }
@@ -1913,6 +1968,27 @@ dialog{width:calc(100% - 24px)}
     askConfirm('清除微软翻译 Key？', '清除后只使用 MyMemory 翻译。', function () {
       btn.disabled = true;
       api('/api/translate', { method: 'POST', body: { password: pw, clear: true, region: '' } }).then(function (r) {
+        btn.disabled = false;
+        if (r.ok) { toast('已清除', true); loadTranslate(); }
+        else toast(r.error || '清除失败', false);
+      });
+    });
+  });
+
+  $('gh-save').addEventListener('click', function () {
+    var btn = this;
+    btn.disabled = true;
+    api('/api/translate', { method: 'POST', body: { password: pw, ghKey: $('gh-key').value, region: $('tr-region').value } }).then(function (r) {
+      btn.disabled = false;
+      if (r.ok) { $('gh-key').value = ''; toast('已保存', true); loadTranslate(); }
+      else toast(r.error || '保存失败', false);
+    });
+  });
+  $('gh-clear').addEventListener('click', function () {
+    var btn = this;
+    askConfirm('清除 GitHub Token？', '清除后前台「立即刷新」需要访客自己填写 Token。', function () {
+      btn.disabled = true;
+      api('/api/translate', { method: 'POST', body: { password: pw, clearGh: true, region: $('tr-region').value } }).then(function (r) {
         btn.disabled = false;
         if (r.ok) { toast('已清除', true); loadTranslate(); }
         else toast(r.error || '清除失败', false);

@@ -201,11 +201,12 @@ function segQuery(base, seg) {
 }
 
 async function fetchSearch(q, kind = 'repositories', sort = 'stars', page = 1) {
-  const url = `https://api.github.com/search/${kind}?q=${encodeURIComponent(q)}` +
-    `&sort=${sort}&order=desc&per_page=${PAGE_SIZE}&page=${page}`;
+  let url = `https://api.github.com/search/${kind}?q=${encodeURIComponent(q)}` +
+      `&sort=${sort}&order=desc&per_page=${PAGE_SIZE}&page=${page}`;
   const headers = { Accept: 'application/vnd.github+json' };
   const token = getToken();
   if (token) headers.Authorization = 'Bearer ' + token;
+  else if (serverMode && kind === 'repositories') url = '/api/gh-search?q=' + encodeURIComponent(q) + '&sort=' + sort + '&page=' + page + '&per_page=' + PAGE_SIZE;
   let res;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 20000);
@@ -216,6 +217,9 @@ async function fetchSearch(q, kind = 'repositories', sort = 'stars', page = 1) {
       ? '请求超时（GitHub 接口响应太慢），请重试或稍后再来。'
       : '网络请求失败，请检查网络连接后重试。');
   } finally { clearTimeout(timer); }
+  if ((res.status === 403 || res.status === 429) && serverMode && !token) {
+    throw new Error('服务器共用的额度已用完，请在「设置」中填写你自己的 Token 后再刷新。');
+  }
   if (res.status === 403 || res.status === 429) {
     throw new Error(token
       ? '已触发 GitHub 请求限制，当前 Token 的额度也已用完，请稍后再试。'
@@ -1080,10 +1084,25 @@ function updateSourceNote() {
 }
 
 // ---------- 立即刷新（需要 Token；失败时保留当前数据） ----------
+let serverMode = false;   // 本次刷新是否用服务端保存的 Token（访客没填自己的 Token 时）
+
+async function serverHasToken() {
+  try {
+    const r = await fetch('/api/translate', { cache: 'no-store' });
+    const d = await r.json();
+    return !!(d && d.ok && d.ghConfigured);
+  } catch (e) {
+    return false;
+  }
+}
+
 async function liveRefresh() {
   if (!getToken()) {
-    setStatus('还没有填写 Token，无法立即刷新。当前显示的是定时抓取的静态数据；可在「设置」中填写 Token 后再试。', true);
-    return;
+    if (!(await serverHasToken())) {
+      setStatus('还没有可用的 Token，无法立即刷新。当前显示的是定时抓取的静态数据；请在「设置」中填写你自己的 Token 后再试。', true);
+      return;
+    }
+    serverMode = true;
   }
   const id = ++reqId;
   const base = buildQuery(state);
