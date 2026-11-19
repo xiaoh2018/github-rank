@@ -940,7 +940,7 @@ async function load(bypassCache) {
         state.source = 'live';
         state.updatedAt = new Date(live.t).toLocaleString();
         render();
-        setStatus('当前显示你上次实时刷新的数据，更新于 ' + state.updatedAt + '。');
+        setStatus('');
         return;
       }
       const all = gd.ranges[state.range].repos || [];
@@ -951,7 +951,7 @@ async function load(bypassCache) {
     state.source = 'static';
     state.updatedAt = t && !isNaN(t) ? t.toLocaleString() : (gd.generatedAt || '未知');
     render();
-    setStatus('当前是定时抓取的静态数据，生成于 ' + state.updatedAt + '。点「立即刷新」可拉取 GitHub 最新数据。');
+    setStatus('');
     return;
   }
   // 24 小时内的旧缓存先显示，再后台更新
