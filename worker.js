@@ -145,7 +145,8 @@ function splitForTranslate(md) {
 
 async function translateMM(text, env) {
   let url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=en|zh-CN';
-  if (env.TRANSLATE_EMAIL) url += '&de=' + encodeURIComponent(env.TRANSLATE_EMAIL);
+  // 带上联系邮箱，MyMemory 每天额度从 5000 提到 50000 字符
+  url += '&de=' + encodeURIComponent(env.TRANSLATE_EMAIL || 'xiaoh2018@gmail.com');
   try {
     const r = await fetch(url);
     if (!r.ok) return null;

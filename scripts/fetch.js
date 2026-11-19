@@ -14,7 +14,7 @@ const MAX_RETRY = 3;        // 403/429 最多重试次数
 const TOKEN = process.env.GITHUB_TOKEN || '';
 const INTERVAL_MS = TOKEN ? 2200 : 6500; // 未登录每分钟 10 次；有 token 每分钟 30 次
 // 简介翻译（MyMemory 免 Key 接口）：匿名每天 5000 字符；填了联系邮箱（TRANSLATE_EMAIL）后 50000 字符
-const TRANSLATE_EMAIL = process.env.TRANSLATE_EMAIL || '';
+const TRANSLATE_EMAIL = process.env.TRANSLATE_EMAIL || 'xiaoh2018@gmail.com';
 const TRANSLATE_BUDGET = TRANSLATE_EMAIL ? 45000 : 4500; // 每次抓取最多翻译的字符数，留余量
 const ZH_FILE = path.join(__dirname, '..', 'data', 'desc-zh.json');
 
