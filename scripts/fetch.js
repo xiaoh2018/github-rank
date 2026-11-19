@@ -17,6 +17,11 @@ const INTERVAL_MS = TOKEN ? 2200 : 6500; // 未登录每分钟 10 次；有 toke
 const TRANSLATE_EMAIL = process.env.TRANSLATE_EMAIL || 'xiaoh2018@gmail.com';
 const TRANSLATE_BUDGET = TRANSLATE_EMAIL ? 45000 : 4500; // 每次抓取最多翻译的字符数，留余量
 const ZH_FILE = path.join(__dirname, '..', 'data', 'desc-zh.json');
+const README_ZH_FILE = path.join(__dirname, '..', 'data', 'readme-zh.json');
+const README_BUDGET = 15000;   // 每次抓取最多翻译的 README 字符数（和简介共用 MyMemory 每日额度，留余量）
+const README_TOP = 40;         // 只预翻译星标最高的前 N 个仓库的 README
+const MS_KEY = process.env.MS_TRANSLATOR_KEY || '';       // 可选：微软翻译 Key，MyMemory 额度用完时兜底
+const MS_REGION = process.env.MS_TRANSLATOR_REGION || '';
 
 const OUT_DIR = path.join(__dirname, '..', 'data');
 const OUT_FILE = path.join(OUT_DIR, 'repos.js');
@@ -197,6 +202,84 @@ async function translateDescs(repos) {
   return cache;
 }
 
+async function translateMS(text) {
+  if (!MS_KEY) throw new Error('未配置微软翻译 Key');
+  const headers = { 'Ocp-Apim-Subscription-Key': MS_KEY, 'Content-Type': 'application/json' };
+  if (MS_REGION) headers['Ocp-Apim-Subscription-Region'] = MS_REGION;
+  const res = await fetch('https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=zh-Hans', {
+    method: 'POST', headers, body: JSON.stringify([{ Text: text }]),
+  });
+  if (!res.ok) throw new Error('微软翻译 HTTP ' + res.status);
+  const d = await res.json();
+  const out = d && d[0] && d[0].translations && d[0].translations[0] && d[0].translations[0].text;
+  if (!out) throw new Error('微软翻译返回为空');
+  return out;
+}
+
+// 先 MyMemory，额度用完或出错再用微软（配置了 Key 时）
+async function translateAny(text) {
+  try { return await translateOne(text); } catch (e) {
+    if (!MS_KEY) throw e;
+    return translateMS(text);
+  }
+}
+
+// 和 worker.js 的切分规则一致：代码块、表格、图片、HTML 原样保留，普通段落每段最多 300 字符
+function splitMd(md) {
+  const out = [];
+  for (const b of md.replace(/\r/g, '').split(/\n\s*\n/)) {
+    const t = b.trim();
+    if (!t) continue;
+    if (t.includes('```') || /^(\||<|!\[|\[!\[)/.test(t)) { out.push({ raw: true, text: t }); continue; }
+    for (let i = 0; i < t.length; i += 300) out.push({ raw: false, text: t.slice(i, i + 300) });
+  }
+  return out;
+}
+
+// 批量预翻译 README（只翻前 README_TOP 个高星仓库，已有完整译文的跳过；额度用完立即停止）
+async function translateReadmes(repos) {
+  let map = {};
+  try { map = JSON.parse(fs.readFileSync(README_ZH_FILE, 'utf8')); } catch (e) { map = {}; }
+  const top = [...new Map(repos.map(r => [r.name, r])).values()]
+    .sort((a, b) => b.stars - a.stars).slice(0, README_TOP);
+  const hdr = { Accept: 'application/vnd.github.raw', 'User-Agent': 'ghrank-fetch' };
+  if (TOKEN) hdr.Authorization = 'Bearer ' + TOKEN;
+  let used = 0, stored = 0, stop = false;
+  for (const r of top) {
+    if (stop) break;
+    if (map[r.name] && !map[r.name].partial) continue;
+    if (used >= README_BUDGET) break;
+    try {
+      const res = await fetch('https://api.github.com/repos/' + r.name + '/readme', { headers: hdr });
+      if (!res.ok) continue;
+      const parts = splitMd((await res.text()).slice(0, 12000)).slice(0, 30);
+      const out = [];
+      let partial = false, okCount = 0;
+      for (const p of parts) {
+        if (p.raw) { out.push(p.text); continue; }
+        if (stop || used + p.text.length > README_BUDGET) { out.push(p.text); partial = true; continue; }
+        try {
+          out.push(await translateAny(p.text));
+          used += p.text.length; okCount++;
+          await sleep(300);
+        } catch (e) {
+          out.push(p.text); partial = true; stop = true;
+          console.log('  README 翻译停止：' + e.message);
+        }
+      }
+      if (okCount > 0) {
+        map[r.name] = { partial: partial, text: out.join('\n\n') };
+        stored++;
+      }
+    } catch (e) {
+      console.log('  README 读取失败（' + r.name + '）：' + e.message);
+    }
+  }
+  console.log(`README 翻译：更新 ${stored} 个，用了 ${used} 字符`);
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  fs.writeFileSync(README_ZH_FILE, JSON.stringify(map, null, 1), 'utf8');
+}
+
 async function main() {
   console.log(`GitHub Token：${TOKEN ? '已设置（请求间隔 2200ms）' : '未设置（请求间隔 6500ms）'}`);
   const ranges = {};
@@ -211,6 +294,7 @@ async function main() {
   const allRepos = Object.values(ranges).flatMap(x => x.repos);
   const zh = await translateDescs(allRepos);
   allRepos.forEach(r => { r.desc_zh = zh[r.desc] || ''; });
+  await translateReadmes(allRepos);
 
   const generatedAt = new Date().toISOString();
   const text =

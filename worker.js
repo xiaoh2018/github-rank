@@ -156,6 +156,14 @@ async function readmeZh(request, env, ctx) {
   const key = new Request(new URL('/__readme_zh/' + repo, request.url).toString());
   const hit = await cache.match(key);
   if (hit) return hit;
+  // 先用仓库里 GitHub Action 预翻译好的译文（data/readme-zh.json），不占实时翻译额度
+  const pre = await staticReadmeZh(env, repo);
+  if (pre) {
+    const preResp = json({ ok: true, partial: !!pre.partial, text: pre.text });
+    preResp.headers.set('cache-control', 'public, max-age=' + (pre.partial ? 600 : 3600));
+    ctx.waitUntil(cache.put(key, preResp.clone()));
+    return preResp;
+  }
   const headers = { Accept: 'application/vnd.github.raw', 'User-Agent': 'github-rank-readme' };
   if (env.GITHUB_TOKEN) headers.Authorization = 'Bearer ' + env.GITHUB_TOKEN;
   const r = await fetch('https://api.github.com/repos/' + repo + '/readme', { headers: headers });
@@ -165,7 +173,7 @@ async function readmeZh(request, env, ctx) {
   let partial = false;
   for (const p of parts) {
     if (p.raw) { out.push(p.text); continue; }
-    const t = await translateMM(p.text, env);
+    const t = await translateText(p.text, env);
     if (t == null) { out.push(p.text); partial = true; continue; }   // 额度不够时该段保留英文，其余段落照常翻译
     out.push(t);
   }
@@ -187,7 +195,7 @@ async function descZh(request, env, ctx) {
     const key = new Request(new URL('/__desc_zh/' + encodeURIComponent(t), request.url).toString());
     const hit = await cache.match(key);
     if (hit) { items[t] = await hit.text(); return; }
-    const zh = await translateMM(t, env);
+    const zh = await translateText(t, env);
     if (!zh) return;
     items[t] = zh;
     ctx.waitUntil(cache.put(key, new Response(zh, { headers: { 'cache-control': 'public, max-age=2592000' } })));
@@ -220,6 +228,60 @@ async function translateMM(text, env) {
     return out;
   } catch (e) {
     return null;
+  }
+}
+
+// 翻译顺序：先 MyMemory（免 Key）；额度用完或失败再用微软翻译（需要 MS_TRANSLATOR_KEY，可选 MS_TRANSLATOR_REGION）
+async function translateText(text, env) {
+  const zh = await translateMM(text, env);
+  if (zh) return zh;
+  return translateMS(text, env);
+}
+
+async function translateMS(text, env) {
+  if (!env.MS_TRANSLATOR_KEY) return null;
+  const headers = {
+    'Ocp-Apim-Subscription-Key': env.MS_TRANSLATOR_KEY,
+    'Content-Type': 'application/json',
+  };
+  if (env.MS_TRANSLATOR_REGION) headers['Ocp-Apim-Subscription-Region'] = env.MS_TRANSLATOR_REGION;
+  try {
+    const r = await fetch('https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=zh-Hans', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify([{ Text: text }]),
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    const out = d && d[0] && d[0].translations && d[0].translations[0] && d[0].translations[0].text;
+    return out || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// 读取 GitHub Action 预翻译的 README 译文（data/readme-zh.json，格式 {"owner/repo": {partial, text}}）
+async function staticReadmeZh(env, repo) {
+  if (!env.REPO_OWNER || !env.REPO_NAME) return null;
+  try {
+    const r = await fetch('https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/data/readme-zh.json', { cf: { cacheTtl: 300, cacheEverything: true } });
+    if (!r.ok) return null;
+    const map = await r.json();
+    return (map && map[repo]) || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// 读取 GitHub Action 预翻译的简介译文（data/desc-zh.json，格式 {"英文简介": "中文"}）
+async function staticDescZh(env) {
+  if (!env.REPO_OWNER || !env.REPO_NAME) return {};
+  try {
+    const r = await fetch('https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/data/desc-zh.json', { cf: { cacheTtl: 300, cacheEverything: true } });
+    if (!r.ok) return {};
+    return (await r.json()) || {};
+  } catch (e) {
+    return {};
   }
 }
 
