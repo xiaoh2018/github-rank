@@ -75,9 +75,14 @@ function safeParse(s, fb) {
 
 // ---------- 榜单缓存 ----------
 function readCache(key, maxAge) {
+  const c = readCacheEntry(key, maxAge);
+  return c ? c.repos : null;
+}
+
+// 返回完整缓存记录（含保存时间 t），过期或不存在返回 null
+function readCacheEntry(key, maxAge) {
   const c = safeParse(localStorage.getItem(key), null);
-  if (c && Date.now() - c.t < (maxAge || CACHE_TTL)) return c.repos;
-  return null;
+  return c && Date.now() - c.t < (maxAge || CACHE_TTL) ? c : null;
 }
 
 function saveCache(key, repos) {
@@ -928,7 +933,17 @@ async function load(bypassCache) {
   // 默认直接用静态数据（不发网络请求）；缺少对应 range 时降级到实时拉取
   const gd = window.__GHRANK_DATA__;
   if (!bypassCache && gd && gd.ranges && gd.ranges[state.range]) {
-    const all = gd.ranges[state.range].repos || [];
+      // 用户点过「立即刷新」的结果优先保留，切换筛选或重新打开页面时不被静态文件覆盖
+      const live = readCacheEntry(CACHE_PREFIX + base, STALE_TTL);
+      if (live) {
+        applyRepos(base, live.repos);
+        state.source = 'live';
+        state.updatedAt = new Date(live.t).toLocaleString();
+        render();
+        setStatus('当前显示你上次实时刷新的数据，更新于 ' + state.updatedAt + '。');
+        return;
+      }
+      const all = gd.ranges[state.range].repos || [];
     const repos = state.lang ? all.filter(r => r.lang === state.lang) : all;
     applyRepos(base, repos);
     pushSnap(base, repos);
