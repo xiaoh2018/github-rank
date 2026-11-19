@@ -615,10 +615,10 @@ async function openDrawer(r) {
     fetchLatestRelease(r.name),
     fetchContributors(r.name)
   ]);
-  let readmeShow = readme, zhReadme = false;
+  let readmeShow = readme, zhReadme = false, zhPartial = false;
   if (readme && getLang() === 'zh') {
     const zh = await fetch('/api/readme-zh?repo=' + encodeURIComponent(r.name)).then(x => x.json()).catch(() => null);
-    if (zh && zh.ok && zh.text) { readmeShow = zh.text; zhReadme = true; }
+    if (zh && zh.ok && zh.text) { readmeShow = zh.text; zhReadme = true; zhPartial = !!zh.partial; }
   }
   if (drawerTarget !== r.name) return;   // 用户已经切到别的项目或关掉了
 
@@ -662,7 +662,7 @@ async function openDrawer(r) {
     rows.push(el('p', 'note', '没有读取到贡献者信息。'));
   }
 
-  rows.push(el('h4', null, 'README 预览' + (zhReadme ? '（机器翻译，仅供参考）' : '')));
+  rows.push(el('h4', null, 'README 预览' + (zhReadme ? (zhPartial ? '（机器翻译，部分段落为英文原文）' : '（机器翻译，仅供参考）') : '')));
   if (readmeShow) {
     rows.push(el('pre', 'readme', readmeShow.slice(0, 4000)));
     if (readmeShow.length > 4000) rows.push(el('p', 'note', '（仅显示前 4000 字符，完整内容请访问仓库）'));
@@ -879,6 +879,36 @@ function renderRepos() {
   $('pageInfo').textContent = `第 ${state.page} / ${pages} 页，共 ${list.length} 个`;
   $('prev').disabled = state.page <= 1;
   $('next').disabled = state.page >= pages;
+  translateDescs();
+}
+
+// 列表简介：当前页没有中文译文的，批量请求 Worker 翻译（免 Key，结果缓存 30 天）。翻过或失败的不重复请求
+const descTried = new Set();
+async function translateDescs() {
+  if (getLang() !== 'zh') return;
+  const list = visibleRepos();
+  const start = (state.page - 1) * state.pageSize;
+  const todo = list.slice(start, start + state.pageSize)
+    .filter(r => r.desc && !r.desc_zh && !descTried.has(r.desc.slice(0, 300)));
+  if (!todo.length) return;
+  const texts = [...new Set(todo.map(r => r.desc.slice(0, 300)))];
+  texts.forEach(t => descTried.add(t));
+  try {
+    const res = await fetch('/api/desc-zh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texts: texts })
+    }).then(x => x.json());
+    if (!res || !res.ok || !res.items) return;
+    let changed = false;
+    todo.forEach(r => {
+      const zh = res.items[r.desc.slice(0, 300)];
+      if (zh) { r.desc_zh = zh; changed = true; }
+    });
+    if (changed && getLang() === 'zh') renderRepos();
+  } catch (e) {
+    // 翻译失败就继续显示英文原文
+  }
 }
 
 function renderUsers() {

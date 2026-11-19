@@ -94,6 +94,9 @@ export default {
       if (url.pathname === '/api/readme-zh' && request.method === 'GET') {
         return readmeZh(request, env, ctx);
       }
+      if (url.pathname === '/api/desc-zh' && request.method === 'POST') {
+        return descZh(request, env, ctx);
+      }
       if (url.pathname === '/api/gh' && request.method === 'GET') {
         return ghProxy(request, env, ctx);
       }
@@ -159,16 +162,37 @@ async function readmeZh(request, env, ctx) {
   if (!r.ok) return json({ ok: false, error: 'README 读取失败（HTTP ' + r.status + '）' }, 502);
   const parts = splitForTranslate((await r.text()).slice(0, 12000)).slice(0, 30);
   const out = [];
+  let partial = false;
   for (const p of parts) {
     if (p.raw) { out.push(p.text); continue; }
     const t = await translateMM(p.text, env);
-    if (t == null) return json({ ok: false, error: '翻译额度暂时用完，请先看英文原文' }, 503);
+    if (t == null) { out.push(p.text); partial = true; continue; }   // 额度不够时该段保留英文，其余段落照常翻译
     out.push(t);
   }
-  const resp = json({ ok: true, text: out.join('\n\n') });
-  resp.headers.set('cache-control', 'public, max-age=604800');
+  const resp = json({ ok: true, partial: partial, text: out.join('\n\n') });
+  // 全部译完缓存 7 天；有段落是英文时只缓存 10 分钟，额度恢复后再访问可以补全
+  resp.headers.set('cache-control', 'public, max-age=' + (partial ? 600 : 604800));
   ctx.waitUntil(cache.put(key, resp.clone()));
   return resp;
+}
+
+// 列表简介批量翻译：POST {texts:[...]}（最多 20 条），返回 {items:{原文:译文}}；译不出来的不返回；每条结果缓存 30 天
+async function descZh(request, env, ctx) {
+  const body = await request.json().catch(() => null);
+  if (!body || !Array.isArray(body.texts)) return json({ ok: false, error: '参数不对' }, 400);
+  const list = body.texts.slice(0, 20).map((t) => String(t || '').slice(0, 300)).filter(Boolean);
+  const cache = globalThis.caches.default;
+  const items = {};
+  await Promise.all(list.map(async (t) => {
+    const key = new Request(new URL('/__desc_zh/' + encodeURIComponent(t), request.url).toString());
+    const hit = await cache.match(key);
+    if (hit) { items[t] = await hit.text(); return; }
+    const zh = await translateMM(t, env);
+    if (!zh) return;
+    items[t] = zh;
+    ctx.waitUntil(cache.put(key, new Response(zh, { headers: { 'cache-control': 'public, max-age=2592000' } })));
+  }));
+  return json({ ok: true, items: items });
 }
 
 // 按段落切分：含代码块、表格、图片、HTML 的段落原样保留；普通文字每段最多 300 字符（MyMemory 单次上限 500 字节）
