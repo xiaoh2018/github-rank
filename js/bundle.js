@@ -1085,6 +1085,42 @@ async function liveRefresh() {
   }
 }
 
+// ---------- 收藏导出 / 导入（JSON 文件，换浏览器或换电脑时带过去） ----------
+function exportFavs() {
+  const favs = [...getFavs()];
+  if (!favs.length) { setStatus('还没有收藏的项目。', true); return; }
+  const data = JSON.stringify({ app: 'github-rank', type: 'favs', t: Date.now(), favs }, null, 2);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+  a.download = 'github-rank-收藏.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function importFavs() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json,.json';
+  input.onchange = async () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    let list;
+    try {
+      const obj = JSON.parse(await file.text());
+      list = obj && obj.type === 'favs' && Array.isArray(obj.favs)
+        ? obj.favs.filter(x => typeof x === 'string' && /^[\w.-]+\/[\w.-]+$/.test(x))
+        : null;
+    } catch (e) { list = null; }
+    if (!list) { setStatus('导入失败：这不是本站导出的收藏文件。', true); return; }
+    const f = getFavs();
+    list.forEach(n => f.add(n));
+    localStorage.setItem(FAV_KEY, JSON.stringify([...f]));
+    render();
+    setStatus('已导入 ' + list.length + ' 个收藏，当前共 ' + f.size + ' 个。');
+  };
+  input.click();
+}
+
 // ---------- 导出 CSV（含相对上次的星标变化） ----------
 function exportCSV() {
   const list = visibleRepos();
@@ -1146,6 +1182,8 @@ $('btnFavFilter').onclick = () => {
 };
 $('btnRefresh').onclick = () => liveRefresh();
 $('btnExport').onclick = exportCSV;
+$('btnFavExport').onclick = exportFavs;
+$('btnFavImport').onclick = importFavs;
 
 hooks.onLangPick = lang => { state.lang = lang; $('lang').value = lang; state.page = 1; syncHash(); load(); };
 hooks.onLangClear = () => { state.lang = ''; $('lang').value = ''; state.page = 1; syncHash(); load(); };

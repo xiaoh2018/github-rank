@@ -1,5 +1,5 @@
 /* Service Worker：缓存页面外壳（HTML/JS/图标），让离线也能打开；GitHub API 不缓存，由页面自己的 localStorage 管理 */
-const CACHE = 'ghrank-shell-v25';
+const CACHE = 'ghrank-shell-v26';
 const SHELL = ['./', 'index.html', 'js/bundle.js', 'manifest.json', 'icon.svg'];
 const DATA = 'data/repos.js';   // 静态数据可能暂时不存在，单独缓存、失败不影响安装
 
