@@ -29,7 +29,7 @@
 - 翻译设置页面只显示 Cloudflare 里是否已配置微软翻译 Key 和 GitHub Token，不能在页面上保存密钥。
 
 **翻译**
-- 简介和 README 的中文译文按顺序尝试：仓库里预翻译好的文件 → MyMemory（免 Key，可用邮箱提高额度）→ Workers AI（如果绑定了 AI）→ 微软翻译（如果配置了 Key）。全部失败时显示英文原文。
+- 简介和 README 的中文译文按顺序尝试：仓库里预翻译好的文件 → MyMemory（免 Key，可用邮箱提高额度）→ Workers AI（如果绑定了 AI）。全部失败时显示英文原文。
 
 ## 整体结构
 
@@ -130,12 +130,12 @@ node serve.js
 GITHUB_TOKEN=你的Token node scripts/fetch.js
 ```
 
-不设置 `GITHUB_TOKEN` 也能运行，只是速度慢、额度少。可选的环境变量：`MS_TRANSLATOR_KEY`、`MS_TRANSLATOR_REGION`、`TRANSLATE_EMAIL`。
+不设置 `GITHUB_TOKEN` 也能运行，只是速度慢、额度少。可选的环境变量：`TRANSLATE_EMAIL`。
 
 ## 安全说明
 
 - 仓库里不包含任何明文密码或 Token。管理密码、GitHub Token 只存在 Cloudflare Secret 中。
-- 微软翻译 Key 和 GitHub Token 只放在 Cloudflare 的 Secret 里（`MS_TRANSLATOR_KEY`、`GITHUB_TOKEN`），不写入仓库。
+- GitHub Token 只放在 Cloudflare 的 Secret 里（`GITHUB_TOKEN`），不写入仓库。
 - 访客刷新时只读取公开数据，不需要任何权限。Worker 代理的接口有路径白名单，不是通用代理。
 - 发现安全问题请通过 GitHub Issue 或私信联系，不要在公开 Issue 里贴出密钥。
 
@@ -154,7 +154,7 @@ GITHUB_TOKEN=你的Token node scripts/fetch.js
 检查 Workflow permissions 是否为 Read and write，以及 `GITHUB_TOKEN` 的 Contents 和 Actions 权限。
 
 **翻译一直是英文？**
-MyMemory 的免费额度有限，额度用完时会依次尝试 Workers AI 和微软翻译。需要更多译文，可以在 Cloudflare 的 Secret 里添加 `MS_TRANSLATOR_KEY`（和可选的 `MS_TRANSLATOR_REGION`）。
+MyMemory 的免费额度有限，额度用完时会改用 Workers AI（需绑定 AI）。仍然失败的段落会显示英文原文。
 
 **本地预览看不到抽屉详情？**
 这是预期行为，抽屉依赖 Worker 接口，部署 Worker 后即可使用。

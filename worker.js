@@ -280,43 +280,11 @@ async function translateAI(text, env) {
   }
 }
 
-// 翻译顺序：MyMemory（免 Key）→ Workers AI（绑定即用）→ 微软翻译（需要后台填的 Key）
+// 翻译顺序：MyMemory（免 Key）→ Workers AI（绑定即用）
 async function translateText(text, env) {
   const mm = await translateMM(text, env);
   if (mm) return mm;
-  const ai = await translateAI(text, env);
-  if (ai) return ai;
-  return translateMS(text, env);
-}
-
-// 微软翻译 Key 只从 Cloudflare 环境变量 MS_TRANSLATOR_KEY / MS_TRANSLATOR_REGION 读取（不再存仓库、不再加密）
-async function msConfig(env) {
-  if (!env.MS_TRANSLATOR_KEY) return null;
-  return { key: env.MS_TRANSLATOR_KEY, region: env.MS_TRANSLATOR_REGION || '' };
-}
-
-
-async function translateMS(text, env) {
-  const ms = await msConfig(env);
-  if (!ms) return null;
-  const headers = {
-    'Ocp-Apim-Subscription-Key': ms.key,
-    'Content-Type': 'application/json',
-  };
-  if (ms.region) headers['Ocp-Apim-Subscription-Region'] = ms.region;
-  try {
-    const r = await fetch('https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=zh-Hans', {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify([{ Text: text }]),
-    });
-    if (!r.ok) return null;
-    const d = await r.json();
-    const out = d && d[0] && d[0].translations && d[0].translations[0] && d[0].translations[0].text;
-    return out || null;
-  } catch (e) {
-    return null;
-  }
+  return translateAI(text, env);
 }
 
 // 读取 GitHub Action 预翻译的 README 译文（data/readme-zh.json，格式 {"owner/repo": {partial, text}}）
@@ -918,12 +886,7 @@ async function writeSite(env, site, sha) {
   // 翻译 Key 和 GitHub Token 不再通过后台保存，只读取 Cloudflare 环境变量
   async function handleTranslate(request, env) {
     if (request.method === 'GET') {
-      return json({
-        ok: true,
-        configured: !!env.MS_TRANSLATOR_KEY,
-        region: env.MS_TRANSLATOR_REGION || '',
-        ghConfigured: !!env.GITHUB_TOKEN,
-      });
+      return json({ ok: true, ghConfigured: !!env.GITHUB_TOKEN });
     }
     return json({ ok: false, error: '后台已不再保存翻译 Key 和 GitHub Token，请在 Cloudflare 的 Variables and Secrets 里设置 MS_TRANSLATOR_KEY、GITHUB_TOKEN' }, 410);
   }
@@ -1241,11 +1204,7 @@ dialog{width:calc(100% - 24px)}
 
       <section class="pane" id="pane-translate" hidden>
         <div class="bar"><div><h1>翻译设置</h1><div class="sub">微软翻译 Key 和 GitHub Token 只放在 Cloudflare 环境变量里</div></div></div>
-        <div class="intro">为了安全，这两项不在后台保存，也不写进仓库。在 Cloudflare 里设置即可，设置后刷新本页查看状态。</div>
-        <div class="card">
-          <div class="hint" id="tr-status">读取中…</div>
-          <div class="hint">Cloudflare → github-rank → Settings → Variables and Secrets，添加 Secret：<b>MS_TRANSLATOR_KEY</b>（微软翻译 Key）；可选再加 Text 变量 <b>MS_TRANSLATOR_REGION</b>（区域，例如 eastasia）。</div>
-        </div>
+        <div class="intro">为了安全，GitHub Token 不在后台保存，也不写进仓库。在 Cloudflare 里设置即可，设置后刷新本页查看状态。</div>
         <div class="card">
           <div class="hint" id="gh-status">读取中…</div>
           <div class="hint">同一位置添加 Secret：<b>GITHUB_TOKEN</b>。用于前台「立即刷新」和详情读取，只读公开数据即可。</div>
@@ -1813,8 +1772,7 @@ dialog{width:calc(100% - 24px)}
     // ---- 翻译设置（Key 和 Token 只在 Cloudflare 环境变量里，后台只显示状态）----
     function loadTranslate() {
       api('/api/translate').then(function (r) {
-        if (!r.ok) { $('tr-status').textContent = r.error || '读取失败'; return; }
-        $('tr-status').textContent = r.configured ? '已在 Cloudflare 配置微软翻译 Key' : '还没有在 Cloudflare 配置微软翻译 Key';
+        if (!r.ok) { $('gh-status').textContent = r.error || '读取失败'; return; }
         $('gh-status').textContent = r.ghConfigured ? '已在 Cloudflare 配置 GitHub Token，前台立即刷新可直接使用' : '还没有在 Cloudflare 配置 GitHub Token';
       });
     }

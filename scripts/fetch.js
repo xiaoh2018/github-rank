@@ -20,8 +20,6 @@ const ZH_FILE = path.join(__dirname, '..', 'data', 'desc-zh.json');
 const README_ZH_FILE = path.join(__dirname, '..', 'data', 'readme-zh.json');
 const README_BUDGET = 15000;   // 每次抓取最多翻译的 README 字符数（和简介共用 MyMemory 每日额度，留余量）
 const README_TOP = 40;         // 只预翻译星标最高的前 N 个仓库的 README
-const MS_KEY = process.env.MS_TRANSLATOR_KEY || '';       // 可选：微软翻译 Key，MyMemory 额度用完时兜底
-const MS_REGION = process.env.MS_TRANSLATOR_REGION || '';
 
 const OUT_DIR = path.join(__dirname, '..', 'data');
 const OUT_FILE = path.join(OUT_DIR, 'repos.js');
@@ -202,28 +200,6 @@ async function translateDescs(repos) {
   return cache;
 }
 
-async function translateMS(text) {
-  if (!MS_KEY) throw new Error('未配置微软翻译 Key');
-  const headers = { 'Ocp-Apim-Subscription-Key': MS_KEY, 'Content-Type': 'application/json' };
-  if (MS_REGION) headers['Ocp-Apim-Subscription-Region'] = MS_REGION;
-  const res = await fetch('https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=zh-Hans', {
-    method: 'POST', headers, body: JSON.stringify([{ Text: text }]),
-  });
-  if (!res.ok) throw new Error('微软翻译 HTTP ' + res.status);
-  const d = await res.json();
-  const out = d && d[0] && d[0].translations && d[0].translations[0] && d[0].translations[0].text;
-  if (!out) throw new Error('微软翻译返回为空');
-  return out;
-}
-
-// 先 MyMemory，额度用完或出错再用微软（配置了 Key 时）
-async function translateAny(text) {
-  try { return await translateOne(text); } catch (e) {
-    if (!MS_KEY) throw e;
-    return translateMS(text);
-  }
-}
-
 // 和 worker.js 的切分规则一致：代码块、表格、图片、HTML 原样保留，普通段落每段最多 300 字符
 function splitMd(md) {
   const out = [];
@@ -259,7 +235,7 @@ async function translateReadmes(repos) {
         if (p.raw) { out.push(p.text); continue; }
         if (stop || used + p.text.length > README_BUDGET) { out.push(p.text); partial = true; continue; }
         try {
-          out.push(await translateAny(p.text));
+          out.push(await translateOne(p.text));
           used += p.text.length; okCount++;
           await sleep(300);
         } catch (e) {

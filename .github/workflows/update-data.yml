@@ -24,8 +24,6 @@ jobs:
         run: node scripts/fetch.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MS_TRANSLATOR_KEY: ${{ secrets.MS_TRANSLATOR_KEY }}
-          MS_TRANSLATOR_REGION: ${{ secrets.MS_TRANSLATOR_REGION }}
 
       - name: Commit and push if changed
         run: |
