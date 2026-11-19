@@ -814,10 +814,31 @@ function readHash() {
 }
 
 // ---------- 数据：筛选 + 排序 ----------
+// 智能搜索：空格分词，每个词都要命中（名称、描述、中文译文、语言、主题）；常用中文词映射到英文主题
+const SEARCH_SYN = {
+  '命令行': ['cli', 'command-line', 'terminal'], '终端': ['terminal', 'cli'], '机器学习': ['machine-learning', 'deep-learning'],
+  '人工智能': ['ai', 'llm'], '大模型': ['llm', 'gpt'], '绘图': ['diffusion', 'image', 'stable-diffusion'], '图片': ['image'],
+  '前端': ['frontend', 'react', 'vue', 'css'], '后端': ['backend', 'server', 'api'], '数据库': ['database', 'sql'],
+  '游戏': ['game', 'gamedev'], '安全': ['security', 'pentest'], '教程': ['tutorial', 'learning', 'awesome'],
+  '编辑器': ['editor', 'ide'], '自动化': ['automation'], '爬虫': ['crawler', 'scraper'], '视频': ['video'],
+  '音频': ['audio'], '笔记': ['notes'], '部署': ['deploy', 'docker', 'kubernetes'], '容器': ['docker', 'container'],
+  '代理': ['proxy', 'vpn'], '面试': ['interview']
+};
+
+function searchMatch(r, tokens) {
+  const topics = (r.topics || []).map(t => t.toLowerCase());
+  const hay = [r.name, r.desc, r.desc_zh || '', r.lang || '', topics.join(' ')].join(' ').toLowerCase();
+  return tokens.every(tk => {
+    if (hay.includes(tk)) return true;
+    const syn = SEARCH_SYN[tk] || [];
+    return syn.some(s => topics.includes(s) || hay.includes(s));
+  });
+}
+
 function visibleRepos() {
-  const q = state.q.trim().toLowerCase();
+  const tokens = state.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const favs = getFavs();
-  let list = state.repos.filter(r => !q || (r.name + ' ' + r.desc).toLowerCase().includes(q));
+  let list = state.repos.filter(r => !tokens.length || searchMatch(r, tokens));
   const cat = CATS.find(c => c.id === state.cat);
   if (cat) list = list.filter(r => matchCat(r, cat));
   if (state.favOnly) list = list.filter(r => favs.has(r.name));
