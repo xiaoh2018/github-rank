@@ -1085,6 +1085,14 @@ async function liveRefresh() {
   }
 }
 
+// ---------- 收藏是否已导出（用来决定关闭页面时要不要提醒） ----------
+const FAV_EXPORTED_KEY = 'ghrank:favs-exported';
+function favSnapshot() { return JSON.stringify([...getFavs()].sort()); }
+function favsUnsaved() {
+  if (!getFavs().size) return false;
+  return localStorage.getItem(FAV_EXPORTED_KEY) !== favSnapshot();
+}
+
 // ---------- 收藏导出 / 导入（JSON 文件，换浏览器或换电脑时带过去） ----------
 function exportFavs() {
   const favs = [...getFavs()];
@@ -1094,6 +1102,7 @@ function exportFavs() {
   a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
   a.download = 'github-rank-收藏.json';
   a.click();
+  localStorage.setItem(FAV_EXPORTED_KEY, favSnapshot());
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
@@ -1188,6 +1197,11 @@ $('btnFavImport').onclick = importFavs;
 hooks.onLangPick = lang => { state.lang = lang; $('lang').value = lang; state.page = 1; syncHash(); load(); };
 hooks.onLangClear = () => { state.lang = ''; $('lang').value = ''; state.page = 1; syncHash(); load(); };
 hooks.onFavChanged = render;
+
+// 关闭或刷新页面时，如果收藏有改动还没导出，提醒用户先导出（浏览器只允许显示它自己的通用提示文字）
+window.addEventListener('beforeunload', e => {
+  if (favsUnsaved()) { e.preventDefault(); e.returnValue = ''; }
+});
 
 // ---------- 启动 ----------
 initDrawer();
