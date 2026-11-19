@@ -947,6 +947,8 @@ function renderRepos() {
 const descTried = new Set();
 async function translateDescs() {
   if (getLang() !== 'zh') return;
+  // 本地静态预览没有 Worker 接口，直接跳过，避免控制台出现 404
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return;
   const list = visibleRepos();
   const start = (state.page - 1) * state.pageSize;
   const todo = list.slice(start, start + state.pageSize)
