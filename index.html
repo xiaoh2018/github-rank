@@ -272,6 +272,24 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
     .contact-panel{right:44px;width:min(260px,calc(100vw - 64px))}
   }
   </style>
+<script>
+/* 自清理：若浏览器里还留着旧版 Service Worker（v22 之前），注销它并清掉旧缓存，然后刷新一次 */
+(function () {
+  if (!('serviceWorker' in navigator) || !location.protocol.startsWith('http')) return;
+  var KEY = 'ghrank-sw-cleaned';
+  navigator.serviceWorker.getRegistrations().then(function (regs) {
+    if (!regs.length) return;
+    return caches.keys().then(function (keys) {
+      var stale = keys.some(function (k) { return k !== 'ghrank-shell-v22'; });
+      if (!stale || sessionStorage.getItem(KEY)) return;
+      sessionStorage.setItem(KEY, '1');
+      return Promise.all(regs.map(function (r) { return r.unregister(); }))
+        .then(function () { return Promise.all(keys.map(function (k) { return caches.delete(k); })); })
+        .then(function () { location.reload(); });
+    });
+  }).catch(function () { /* 失败不影响页面 */ });
+})();
+</script>
 </head>
 <body>
 <div class="wrap">
