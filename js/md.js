@@ -31,7 +31,7 @@
       if (!u) return hold(alt);
       return hold('<img src="' + u + '" alt="' + alt + '" loading="lazy" decoding="async">');
     });
-    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, text, url) {
+    s = s.replace(/\[([^\]]+)\]\(((?:[^()\s]|\([^()\s]*\))+)\)/g, function (_, text, url) {
       var u = safeUrl(url);
       if (!u) return text;
       return hold('<a href="' + u + '" target="_blank" rel="nofollow noopener">' + text + '</a>');
