@@ -128,14 +128,20 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 [id]{scroll-margin-top:16px}
 .topnav{display:flex;gap:8px;margin:16px 0 0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .topnav::-webkit-scrollbar{display:none}
-.topnav a.btn{flex:none;display:inline-flex;align-items:center;min-height:40px;text-decoration:none}
+.topnav .btn{flex:none;display:inline-flex;align-items:center;min-height:40px;text-decoration:none}
 .topnav a[hidden]{display:none}
 @media (min-width:1440px){
   .wrap{max-width:1360px}
   #list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:stretch}
   .item{height:100%}
-}
-@media (prefers-reduced-motion:no-preference){
+  }
+  /* 榜单布局模式（site.json 的 layout.mode，写在 body[data-layout] 上）：auto 沿用上面的规则 */
+  body[data-layout="single"] #list{display:flex;flex-direction:column;gap:var(--gap)}
+  @media (min-width:900px){
+  body[data-layout="double"] #list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:stretch}
+  body[data-layout="double"] .item{height:100%}
+  }
+  @media (prefers-reduced-motion:no-preference){
   .item{animation:rise .35s ease both}
   @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 }
@@ -208,7 +214,15 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 @media (max-width:600px){.chg-grid{grid-template-columns:1fr}}
 .ad-slot{margin:20px 0;border-radius:var(--radius);overflow:hidden;min-width:0}
 .ad-slot img{max-width:100%;height:auto}
-.faq{margin-top:28px;padding:var(--pad);background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+/* 关于本站弹窗 */
+#aboutDialog{box-sizing:border-box;width:min(680px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:80vh;overflow:auto;margin:auto;padding:var(--pad);background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+#aboutDialog::backdrop{background:rgba(5,8,16,.6)}
+dialog:modal{overscroll-behavior:contain}
+dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
+.about-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.about-head h2{margin:0}
+#aboutDialog .btn{min-height:40px;flex:none}
+.faq{margin:0}
 .faq h2{font-size:16px;margin:0 0 10px}
 .faq h3{font-size:14px;margin:12px 0 4px}
 .faq p{margin:0;color:var(--muted);font-size:13px}
@@ -276,7 +290,7 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
   </header>
 
   <nav class="topnav" aria-label="页面导航">
-    <a class="btn" href="#faqTitle" data-target="faqTitle">关于本站</a>
+    <button class="btn" id="btnAbout" type="button">关于本站</button>
     <a class="btn" href="/articles">文章</a>
     <a class="btn" href="#friendLinks" data-target="friendLinks">友情链接</a>
   </nav>
@@ -379,14 +393,17 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
     <button class="btn" id="next">下一页</button>
   </nav>
   <div class="ad-slot" id="adList" role="region" aria-label="广告位" hidden></div>
-    <section class="faq" aria-labelledby="faqTitle">
-      <h2 id="faqTitle">关于本排行榜</h2>
+    <dialog id="aboutDialog" class="faq" aria-labelledby="faqTitle">
+            <div class="about-head">
+              <h2 id="faqTitle">关于本排行榜</h2>
+              <button class="btn ghost" id="aboutClose" type="button">关闭</button>
+            </div>
       <div id="geoSummary">
         <p>它把 GitHub 上星标数较高的开源仓库按时间范围（近 7 天、近 30 天、近 1 年、全部）整理成排行榜，并提供语言分布、今日增量、活跃度、热门开发者与组织等视图。</p>
         <p>页面默认读取定时抓取的静态数据，每 3 小时更新一次；数据来自 GitHub 公开的 Search API。筛选条件会写进网址（例如 ?range=month&amp;lang=Python&amp;sort=trend），复制地址栏即可分享同一视图。</p>
       </div>
       <div id="geoFaq" class="geo-faq" hidden></div>
-    </section>
+      </dialog>
     <section class="articles" id="articles" aria-labelledby="articlesTitle" hidden>
       <h2 id="articlesTitle">文章</h2>
       <div id="articleList"></div>
@@ -671,17 +688,39 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
     }
 
 
+    // ---------- 关于本站：弹窗（原生 dialog）----------
+    var aboutDlg=document.getElementById('aboutDialog');
+    var btnAbout=document.getElementById('btnAbout');
+    var aboutClose=document.getElementById('aboutClose');
+    if(btnAbout&&aboutDlg) btnAbout.addEventListener('click',function(){ aboutDlg.showModal(); });
+    if(aboutClose&&aboutDlg) aboutClose.addEventListener('click',function(){ aboutDlg.close(); });
+    // 点背景关闭：点击目标是 dialog 本身，且坐标落在弹窗矩形之外（内边距区域的点击不关闭）
+    if(aboutDlg) aboutDlg.addEventListener('click',function(e){
+      if(e.target!==aboutDlg) return;
+      var r=aboutDlg.getBoundingClientRect();
+      if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom) aboutDlg.close();
+    });
+
+    // ---------- 榜单布局（site.json 的 layout.mode）：auto / single / double，缺省或非法按 auto ----------
+    function applyLayout(layout){
+      var m=layout&&typeof layout==='object'?layout.mode:'';
+      if(m!=='single'&&m!=='double') m='auto';
+      document.body.setAttribute('data-layout',m);
+    }
+
     // 各份配置各自加载、互不影响
     getJSON('/data/links.json').then(renderLinks).catch(function(){
       var box=document.getElementById('friendLinks'); if(box) box.hidden=true;
     });
     getJSON('/data/site.json').then(function(site){
       if(!site||typeof site!=='object') return;
+      applyLayout(site.layout);
       renderAd(site.ad);
       renderContact(site.contact);
       renderBeian(site.beian);
       renderGeo(site.geo);
     }).catch(function(){
+      applyLayout(null);
       var slot=document.getElementById('adList'); if(slot) slot.hidden=true;
       hideContact();
       var footer=document.getElementById('siteFooter'); if(footer) footer.hidden=true;

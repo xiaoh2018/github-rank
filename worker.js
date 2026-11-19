@@ -136,7 +136,7 @@ async function serveSite(env, entry) {
 }
 
 // 后台可以保存的站点配置分组
-const SITE_SECTIONS = ['ad', 'contact', 'beian', 'seo', 'geo'];
+const SITE_SECTIONS = ['ad', 'layout', 'contact', 'beian', 'seo', 'geo'];
 
 // 读取仓库 data/site.json（raw 地址，边缘缓存 5 分钟），给站点页和 sitemap 用；失败时用默认值
 async function loadSiteRaw(env) {
@@ -505,6 +505,7 @@ const AD_HTML_MAX = 20000;
 function defaultSite() {
   return {
     ad: { enabled: false, html: '' },
+    layout: { mode: 'auto' },
     contact: { enabled: false, title: '联系我', wechat: '', qrUrl: '', email: '', note: '' },
     beian: { enabled: false, icp: '', icpUrl: 'https://beian.miit.gov.cn/', police: '', policeUrl: '', text: '' },
     seo: { siteName: '', title: '', description: '', keywords: '', ogImage: '', siteUrl: '' },
@@ -533,6 +534,8 @@ function normalizeSite(o) {
   d.beian.police = str(b.police, '');
   d.beian.policeUrl = str(b.policeUrl, '');
   d.beian.text = str(b.text, '');
+  const lo = o && typeof o.layout === 'object' && o.layout ? o.layout : {};
+  d.layout.mode = ['auto', 'single', 'double'].indexOf(lo.mode) >= 0 ? lo.mode : 'auto';
   const s = o && typeof o.seo === 'object' && o.seo ? o.seo : {};
   for (const k of Object.keys(d.seo)) d.seo[k] = str(s[k], '');
   const g = o && typeof o.geo === 'object' && o.geo ? o.geo : {};
@@ -577,6 +580,11 @@ function checkSection(section, value) {
     if (typeof html !== 'string') return { ok: false, error: '广告代码必须是文字' };
     if (html.length > AD_HTML_MAX) return { ok: false, error: '广告代码不能超过 ' + AD_HTML_MAX + ' 个字符' };
     return { ok: true, clean: { enabled: value.enabled, html: html } };
+  }
+  if (section === 'layout') {
+    const mode = value.mode == null ? '' : value.mode;
+    if (['auto', 'single', 'double'].indexOf(mode) < 0) return { ok: false, error: '榜单布局只能是 auto、single 或 double' };
+    return { ok: true, clean: { mode: mode } };
   }
   if (section === 'contact') {
     if (typeof value.enabled !== 'boolean') return { ok: false, error: '联系方式开关必须是 true 或 false' };
@@ -644,7 +652,7 @@ function checkSection(section, value) {
     }
     return { ok: true, clean: { summary: summary.trim(), faq: faq } };
   }
-  return { ok: false, error: 'section 只能是 ad、contact、beian、seo 或 geo' };
+  return { ok: false, error: 'section 只能是 ad、layout、contact、beian、seo 或 geo' };
   }
 
 // 把整体结构写回 data/site.json（带上当前 sha）
@@ -682,7 +690,7 @@ async function handleSite(request, env) {
     return json({ ok: false, error: '密码不对' }, 403);
   }
   if (SITE_SECTIONS.indexOf(body.section) < 0) {
-    return json({ ok: false, error: 'section 只能是 ad、contact、beian、seo 或 geo' }, 400);
+    return json({ ok: false, error: 'section 只能是 ad、layout、contact、beian、seo 或 geo' }, 400);
   }
   const check = checkSection(body.section, body.value);
   if (!check.ok) return json({ ok: false, error: check.error }, 400);
@@ -917,7 +925,8 @@ dialog{width:calc(100% - 24px)}
     <button type="button" class="nav" data-tab="overview">概览</button>
     <button type="button" class="nav" data-tab="links">友链</button>
     <button type="button" class="nav" data-tab="ad">广告</button>
-    <button type="button" class="nav" data-tab="contact">联系方式</button>
+    <button type="button" class="nav" data-tab="layout">榜单布局</button>
+      <button type="button" class="nav" data-tab="contact">联系方式</button>
     <button type="button" class="nav" data-tab="beian">备案信息</button>
     <button type="button" class="nav" data-tab="seo">SEO</button>
     <button type="button" class="nav" data-tab="geo">GEO 与文章</button>
@@ -972,7 +981,18 @@ dialog{width:calc(100% - 24px)}
       </div>
     </section>
 
-    <section class="pane" id="pane-contact" hidden>
+    <section class="pane" id="pane-layout" hidden>
+        <div class="bar"><div><h1>榜单布局</h1><div class="sub">决定榜单是单列还是双列</div></div></div>
+        <div class="card">
+          <label class="toggle"><input type="radio" name="layout-mode" value="auto">自动（桌面宽屏双栏，窄屏单栏）</label>
+          <label class="toggle"><input type="radio" name="layout-mode" value="single">单栏（任何宽度都单列）</label>
+          <label class="toggle"><input type="radio" name="layout-mode" value="double">双栏（屏宽 900px 以上双列，窄屏单列）</label>
+          <div class="hint">只影响站点上榜单的排列方式，默认自动。</div>
+          <div class="actions"><button type="button" data-save="layout">保存榜单布局</button></div>
+        </div>
+      </section>
+
+  <section class="pane" id="pane-contact" hidden>
       <div class="bar"><div><h1>联系方式</h1><div class="sub">让访客找到你</div></div></div>
       <div class="intro">用来展示微信、邮箱或二维码，方便访客联系你。全部留空或关闭开关时不显示。「悬浮按钮」不单独设置：它跟随本页的「显示联系方式」开关，打开后站点上会出现悬浮的联系入口（需站点页面支持）。</div>
       <div class="card">
@@ -1115,9 +1135,10 @@ dialog{width:calc(100% - 24px)}
 (function () {
   'use strict';
   var PW_KEY = 'adminPw';
-  var TABS = ['overview', 'links', 'ad', 'contact', 'beian', 'seo', 'geo'];
+  var TABS = ['overview', 'links', 'ad', 'layout', 'contact', 'beian', 'seo', 'geo'];
   var FIELDS = {
     ad: ['html'],
+    layout: ['mode'],
     contact: ['title', 'wechat', 'qrUrl', 'email', 'note'],
     beian: ['icp', 'icpUrl', 'police', 'policeUrl', 'text'],
     seo: ['siteName', 'title', 'description', 'keywords', 'ogImage', 'siteUrl'],
@@ -1342,6 +1363,8 @@ dialog{width:calc(100% - 24px)}
         if (el) el.value = src[sec][k] || '';
       });
     });
+    var lm = (s.layout && s.layout.mode) || 'auto';
+    document.querySelectorAll('input[name="layout-mode"]').forEach(function (r) { r.checked = r.value === lm; });
     state.faq = Array.isArray(g.faq) ? g.faq.slice() : [];
     renderFaq();
   }
@@ -1352,6 +1375,10 @@ dialog{width:calc(100% - 24px)}
     });
   }
   function collect(sec) {
+    if (sec === 'layout') {
+      var checked = document.querySelector('input[name="layout-mode"]:checked');
+      return { mode: checked ? checked.value : 'auto' };
+    }
     var v = {};
     if (sec !== 'seo' && sec !== 'geo') v.enabled = $(sec + '-enabled').checked;
     FIELDS[sec].forEach(function (k) { v[k] = $(sec + '-' + k).value; });
