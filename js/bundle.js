@@ -212,23 +212,34 @@ async function fetchSearch(q, kind = 'repositories', sort = 'stars', page = 1) {
   const timer = setTimeout(() => ctrl.abort(), 20000);
   try {
     res = await fetch(url, { headers, signal: ctrl.signal });
-  } catch (e) {
+    } catch (e) {
+    clearTimeout(timer);
     throw new Error(e.name === 'AbortError'
       ? '请求超时（GitHub 接口响应太慢），请重试或稍后再来。'
       : '网络请求失败，请检查网络连接后重试。');
-  } finally { clearTimeout(timer); }
+    }
   if ((res.status === 403 || res.status === 429) && serverMode && !token) {
+    clearTimeout(timer);
     throw new Error('服务器共用的额度已用完，请在「设置」中填写你自己的 Token 后再刷新。');
   }
   if (res.status === 403 || res.status === 429) {
+    clearTimeout(timer);
     throw new Error(token
       ? '已触发 GitHub 请求限制，当前 Token 的额度也已用完，请稍后再试。'
       : '已触发 GitHub 请求限制（未填 Token 时搜索每分钟只能 10 次），请稍后再试；也可以在「设置」中填写 Token。');
   }
-  if (res.status === 401) throw new Error('Token 无效或已过期，请在「设置」中重新填写。');
-  if (res.status === 422) throw new Error('查询条件无效，请换一个筛选条件。');
-  if (!res.ok) throw new Error('请求失败（HTTP ' + res.status + '），请稍后重试。');
-  const data = await res.json();
+  if (res.status === 401) { clearTimeout(timer); throw new Error('Token 无效或已过期，请在「设置」中重新填写。'); }
+  if (res.status === 422) { clearTimeout(timer); throw new Error('查询条件无效，请换一个筛选条件。'); }
+  if (!res.ok) { clearTimeout(timer); throw new Error('请求失败（HTTP ' + res.status + '），请稍后重试。'); }
+  // 读取返回内容也要受超时保护，否则响应体卡住时整个刷新会一直停在进度文字上
+  let data;
+  try {
+    data = await res.json();
+  } catch (e) {
+    throw new Error(e.name === 'AbortError'
+      ? '请求超时（GitHub 接口响应太慢），请重试或稍后再来。'
+      : '返回内容解析失败，请稍后重试。');
+  } finally { clearTimeout(timer); }
   return data.items || [];
 }
 
