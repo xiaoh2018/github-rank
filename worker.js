@@ -77,6 +77,9 @@ export default {
       if (url.pathname === '/api/site' && (request.method === 'GET' || request.method === 'POST')) {
         return handleSite(request, env);
       }
+      if (url.pathname === '/api/translate' && (request.method === 'GET' || request.method === 'POST')) {
+        return handleTranslate(request, env);
+      }
       if (url.pathname === '/api/articles' && (request.method === 'GET' || request.method === 'POST')) {
         return handleArticles(request, env);
       }
@@ -238,13 +241,80 @@ async function translateText(text, env) {
   return translateMS(text, env);
 }
 
+// 微软翻译设置：后台保存的密钥加密后存在仓库 data/translate.json（用 ADMIN_PASSWORD 派生的密钥加密），
+// Worker 运行时用 ADMIN_PASSWORD 解开。环境变量 MS_TRANSLATOR_KEY 存在时优先使用。
+const TRANSLATE_FILE = 'data/translate.json';
+let msCache = { at: 0, val: null };
+
+async function deriveAesKey(pass, salt) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+    base,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+function bytesToB64(u8) {
+  let s = '';
+  for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]);
+  return btoa(s);
+}
+
+function b64ToBytes(s) {
+  return Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+}
+
+async function sealSecret(pass, plain) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveAesKey(pass, salt);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(plain));
+  return { salt: bytesToB64(salt), iv: bytesToB64(iv), ct: bytesToB64(new Uint8Array(ct)) };
+}
+
+async function openSecret(pass, box) {
+  try {
+    const key = await deriveAesKey(pass, b64ToBytes(box.salt));
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64ToBytes(box.iv) }, key, b64ToBytes(box.ct));
+    return new TextDecoder().decode(pt);
+  } catch (e) {
+    return null;
+  }
+}
+
+// 返回 { key, region } 或 null（没配置或解不开）
+async function msConfig(env) {
+  if (env.MS_TRANSLATOR_KEY) return { key: env.MS_TRANSLATOR_KEY, region: env.MS_TRANSLATOR_REGION || '' };
+  if (!env.ADMIN_PASSWORD || !env.REPO_OWNER || !env.REPO_NAME) return null;
+  if (Date.now() - msCache.at < 300000) return msCache.val;
+  let val = null;
+  try {
+    const r = await fetch('https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + TRANSLATE_FILE, { cf: { cacheTtl: 30, cacheEverything: true } });
+    if (r.ok) {
+      const d = await r.json();
+      if (d && d.box) {
+        const key = await openSecret(env.ADMIN_PASSWORD, d.box);
+        if (key) val = { key: key, region: d.region || '' };
+      }
+    }
+  } catch (e) {
+    val = null;
+  }
+  msCache = { at: Date.now(), val: val };
+  return val;
+}
+
 async function translateMS(text, env) {
-  if (!env.MS_TRANSLATOR_KEY) return null;
+  const ms = await msConfig(env);
+  if (!ms) return null;
   const headers = {
-    'Ocp-Apim-Subscription-Key': env.MS_TRANSLATOR_KEY,
+    'Ocp-Apim-Subscription-Key': ms.key,
     'Content-Type': 'application/json',
   };
-  if (env.MS_TRANSLATOR_REGION) headers['Ocp-Apim-Subscription-Region'] = env.MS_TRANSLATOR_REGION;
+  if (ms.region) headers['Ocp-Apim-Subscription-Region'] = ms.region;
   try {
     const r = await fetch('https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=zh-Hans', {
       method: 'POST',
@@ -855,6 +925,72 @@ async function writeSite(env, site, sha) {
   return { ok: true };
 }
 
+// 翻译设置：GET 只返回是否已配置和区域，不返回密钥；POST 保存（密码校验后加密写入仓库）
+async function handleTranslate(request, env) {
+  if (request.method === 'GET') {
+    const ms = await msConfig(env);
+    return json({ ok: true, configured: !!(ms && ms.key), region: ms ? ms.region : '' });
+  }
+  if (!env.ADMIN_PASSWORD) {
+    return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
+  }
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== 'object') {
+    return json({ ok: false, error: '请求体必须是 JSON 对象' }, 400);
+  }
+  if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
+    return json({ ok: false, error: '密码不对' }, 403);
+  }
+  const region = body.region == null ? '' : String(body.region).trim();
+  if (!/^[a-z0-9-]{0,40}$/i.test(region)) {
+    return json({ ok: false, error: '区域只能包含字母、数字和短横线' }, 400);
+  }
+  const newKey = body.key == null ? '' : String(body.key).trim();
+  const clear = body.clear === true;
+  if (newKey && (newKey.length < 16 || newKey.length > 200 || /\s/.test(newKey))) {
+    return json({ ok: false, error: '密钥格式不对，请粘贴完整的 Key' }, 400);
+  }
+
+  const cur = await gh(env, '/contents/' + TRANSLATE_FILE + '?ref=' + encodeURIComponent(branch(env)));
+  if (!cur.ok && cur.status !== 404) {
+    return json({ ok: false, error: '读取翻译设置失败：' + cur.status }, 502);
+  }
+  const sha = cur.ok && cur.data ? cur.data.sha : null;
+  let keep = {};
+  if (cur.ok && cur.data) {
+    try {
+      const bin = atob(String(cur.data.content || '').replace(/\n/g, ''));
+      keep = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
+    } catch (e) {
+      keep = {};
+    }
+  }
+
+  let out;
+  if (clear) {
+    out = { region: region };
+  } else if (newKey) {
+    out = { v: 1, region: region, box: await sealSecret(env.ADMIN_PASSWORD, newKey) };
+  } else {
+    out = { region: region };
+    if (keep.box) out.box = keep.box;
+  }
+
+  const put = await gh(env, '/contents/' + TRANSLATE_FILE, {
+    method: 'PUT',
+    headers: ghHeaders(env, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify({
+      message: 'chore: update translate settings',
+      content: utf8ToBase64(JSON.stringify(out, null, 2) + '\n'),
+      branch: branch(env),
+      sha: sha || undefined,
+    }),
+  });
+  if (!put.ok) return json({ ok: false, error: '写入失败：' + put.status + ' ' + put.text.slice(0, 200) }, 500);
+  msCache = { at: 0, val: null };
+  return json({ ok: true, configured: !!out.box, region: region });
+}
+
 async function handleSite(request, env) {
   if (request.method === 'GET') {
     const r = await readSite(env);
@@ -1113,7 +1249,8 @@ dialog{width:calc(100% - 24px)}
     <button type="button" class="nav" data-tab="beian">备案信息</button>
     <button type="button" class="nav" data-tab="seo">SEO</button>
     <button type="button" class="nav" data-tab="geo">GEO 与文章</button>
-  </aside>
+    <button type="button" class="nav" data-tab="translate">翻译设置</button>
+    </aside>
 
   <main class="main">
 
@@ -1161,6 +1298,24 @@ dialog{width:calc(100% - 24px)}
         <textarea class="code" id="ad-html" maxlength="20000" spellcheck="false"></textarea>
         <div class="hint">只粘贴来源可信的代码。拿不准时先关闭开关再保存，访客就看不到。</div>
         <div class="actions"><button type="button" data-save="ad">保存广告</button></div>
+      </div>
+    </section>
+
+    <section class="pane" id="pane-translate" hidden>
+      <div class="bar"><div><h1>翻译设置</h1><div class="sub">微软翻译 Key，用于列表简介和 README 的中文兜底</div></div></div>
+      <div class="intro">先用免 Key 的 MyMemory 翻译，额度用完时才用微软翻译。Key 保存后加密写入仓库，页面上不再显示原文。</div>
+      <div class="card">
+        <div class="hint" id="tr-status">读取中…</div>
+        <label for="tr-key">微软翻译 Key</label>
+        <input type="password" id="tr-key" maxlength="200" autocomplete="off" placeholder="已配置时留空即保持不变">
+        <div class="hint">在 Azure 门户创建 Translator 资源后，复制「密钥」。</div>
+        <label for="tr-region">区域</label>
+        <input type="text" id="tr-region" maxlength="40" placeholder="例如 eastasia 或 global">
+        <div class="hint">资源所在的区域，在 Azure 资源页的「位置」里可以看到。</div>
+        <div class="actions">
+          <button type="button" id="tr-save">保存翻译设置</button>
+          <button type="button" id="tr-clear" class="ghost">清除 Key</button>
+        </div>
       </div>
     </section>
 
@@ -1318,7 +1473,7 @@ dialog{width:calc(100% - 24px)}
 (function () {
   'use strict';
   var PW_KEY = 'adminPw';
-  var TABS = ['overview', 'links', 'ad', 'layout', 'contact', 'beian', 'seo', 'geo'];
+  var TABS = ['overview', 'links', 'ad', 'layout', 'contact', 'beian', 'seo', 'geo', 'translate'];
   var FIELDS = {
     ad: ['html'],
     layout: ['mode'],
@@ -1369,7 +1524,8 @@ dialog{width:calc(100% - 24px)}
     loadLinks();
     loadSite();
     loadArticles();
-  }
+    loadTranslate();
+    }
   $('loginForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var v = $('pw').value;
@@ -1692,6 +1848,35 @@ dialog{width:calc(100% - 24px)}
         });
       });
     }
+  });
+
+  // ---- 翻译设置 ----
+  function loadTranslate() {
+    api('/api/translate').then(function (r) {
+      if (!r.ok) { $('tr-status').textContent = r.error || '读取失败'; return; }
+      $('tr-status').textContent = r.configured ? '已配置微软翻译 Key' : '还没有配置微软翻译 Key';
+      $('tr-region').value = r.region || '';
+    });
+  }
+  $('tr-save').addEventListener('click', function () {
+    var btn = this;
+    btn.disabled = true;
+    api('/api/translate', { method: 'POST', body: { password: pw, key: $('tr-key').value, region: $('tr-region').value } }).then(function (r) {
+      btn.disabled = false;
+      if (r.ok) { $('tr-key').value = ''; toast('已保存', true); loadTranslate(); }
+      else toast(r.error || '保存失败', false);
+    });
+  });
+  $('tr-clear').addEventListener('click', function () {
+    var btn = this;
+    askConfirm('清除微软翻译 Key？', '清除后只使用 MyMemory 翻译。', function () {
+      btn.disabled = true;
+      api('/api/translate', { method: 'POST', body: { password: pw, clear: true, region: '' } }).then(function (r) {
+        btn.disabled = false;
+        if (r.ok) { toast('已清除', true); loadTranslate(); }
+        else toast(r.error || '清除失败', false);
+      });
+    });
   });
 
   // ---- 启动 ----
