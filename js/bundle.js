@@ -1036,9 +1036,10 @@ async function load(bypassCache) {
   // 默认直接用静态数据（不发网络请求）；缺少对应 range 时降级到实时拉取
   const gd = window.__GHRANK_DATA__;
   if (!bypassCache && gd && gd.ranges && gd.ranges[state.range]) {
-      // 用户点过「立即刷新」的结果优先保留，切换筛选或重新打开页面时不被静态文件覆盖
-      const live = readCacheEntry(CACHE_PREFIX + base, STALE_TTL);
-      if (live) {
+        // 本地「立即刷新」的结果和仓库里的静态数据，哪个新用哪个；否则旧的本地缓存会一直盖住仓库里的新数据
+        const live = readCacheEntry(CACHE_PREFIX + base, STALE_TTL);
+        const genAt = Date.parse(gd.generatedAt) || 0;
+        if (live && live.t >= genAt) {
         applyRepos(base, live.repos);
         state.source = 'live';
         state.updatedAt = new Date(live.t).toLocaleString();
