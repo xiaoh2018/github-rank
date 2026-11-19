@@ -384,7 +384,8 @@ function renderItem(r, rank, maxStars, trend) {
   a.href = r.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
   a.onclick = e => { e.preventDefault(); openDrawer(r); };   // 中键 / 右键仍可新开
   body.append(a);
-  if (r.desc) body.append(el('p', 'desc', r.desc));
+  const descText = (getLang() === 'zh' && r.desc_zh) ? r.desc_zh : r.desc;
+  if (descText) body.append(el('p', 'desc', descText));
 
   const meta = el('div', 'meta');
   if (r.lang) {
@@ -616,6 +617,11 @@ async function openDrawer(r) {
     fetchLatestRelease(r.name),
     fetchContributors(r.name)
   ]);
+  let readmeShow = readme, zhReadme = false;
+  if (readme && getLang() === 'zh') {
+    const zh = await fetch('/api/readme-zh?repo=' + encodeURIComponent(r.name)).then(x => x.json()).catch(() => null);
+    if (zh && zh.ok && zh.text) { readmeShow = zh.text; zhReadme = true; }
+  }
   if (drawerTarget !== r.name) return;   // 用户已经切到别的项目或关掉了
 
   const rows = [];
@@ -658,10 +664,10 @@ async function openDrawer(r) {
     rows.push(el('p', 'note', '没有读取到贡献者信息。'));
   }
 
-  rows.push(el('h4', null, 'README 预览'));
-  if (readme) {
-    rows.push(el('pre', 'readme', readme.slice(0, 4000)));
-    if (readme.length > 4000) rows.push(el('p', 'note', '（仅显示前 4000 字符，完整内容请访问仓库）'));
+  rows.push(el('h4', null, 'README 预览' + (zhReadme ? '（机器翻译，仅供参考）' : '')));
+  if (readmeShow) {
+    rows.push(el('pre', 'readme', readmeShow.slice(0, 4000)));
+    if (readmeShow.length > 4000) rows.push(el('p', 'note', '（仅显示前 4000 字符，完整内容请访问仓库）'));
   } else {
     rows.push(el('p', 'note', '没有读取到 README。'));
   }
@@ -738,6 +744,12 @@ function applyTheme(t) {
 }
 applyTheme(localStorage.getItem('ghrank:theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
 $('btnTheme').onclick = () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+
+// ---------- 中英文（简介 / README 中文）：默认中文，中文没有译文时显示英文原文 ----------
+function getLang() { return localStorage.getItem('ghrank:lang') || 'zh'; }
+function refreshLangBtn() { $('btnLang').textContent = getLang() === 'zh' ? 'English' : '中文'; }
+$('btnLang').onclick = () => { localStorage.setItem('ghrank:lang', getLang() === 'zh' ? 'en' : 'zh'); refreshLangBtn(); render(); };
+refreshLangBtn();
 
 // ---------- 下拉框 / 分类 ----------
 $('lang').append(new Option('全部语言', ''), ...LANGS.map(l => new Option(l, l)));

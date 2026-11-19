@@ -13,6 +13,10 @@ const MAX_KEEP = 500;       // 每个 range 最多保留条数
 const MAX_RETRY = 3;        // 403/429 最多重试次数
 const TOKEN = process.env.GITHUB_TOKEN || '';
 const INTERVAL_MS = TOKEN ? 2200 : 6500; // 未登录每分钟 10 次；有 token 每分钟 30 次
+// 简介翻译（MyMemory 免 Key 接口）：匿名每天 5000 字符；填了联系邮箱（TRANSLATE_EMAIL）后 50000 字符
+const TRANSLATE_EMAIL = process.env.TRANSLATE_EMAIL || '';
+const TRANSLATE_BUDGET = TRANSLATE_EMAIL ? 45000 : 4500; // 每次抓取最多翻译的字符数，留余量
+const ZH_FILE = path.join(__dirname, '..', 'data', 'desc-zh.json');
 
 const OUT_DIR = path.join(__dirname, '..', 'data');
 const OUT_FILE = path.join(OUT_DIR, 'repos.js');
@@ -153,6 +157,46 @@ function toJs(v, indent) {
   return JSON.stringify(v);
 }
 
+function loadZhCache() {
+  try { return JSON.parse(fs.readFileSync(ZH_FILE, 'utf8')); } catch (e) { return {}; }
+}
+
+async function translateOne(text) {
+  const q = text.slice(0, 400);
+  let url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(q) + '&langpair=en|zh-CN';
+  if (TRANSLATE_EMAIL) url += '&de=' + encodeURIComponent(TRANSLATE_EMAIL);
+  const res = await fetch(url, { headers: { 'User-Agent': 'ghrank-fetch' } });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  const out = data.responseData && data.responseData.translatedText;
+  if (data.responseStatus !== 200 || !out || /MYMEMORY WARNING|QUOTA/i.test(out)) {
+    throw new Error('额度用完或翻译失败：' + (data.responseDetails || data.responseStatus));
+  }
+  return out;
+}
+
+// 只翻译还没有译文的简介；超出预算或出错就停止，没翻到的页面显示英文原文
+async function translateDescs(repos) {
+  const cache = loadZhCache();
+  const todo = [...new Set(repos.map(r => r.desc).filter(d => d && !cache[d]))];
+  let used = 0, done = 0;
+  for (const d of todo) {
+    if (used + d.length > TRANSLATE_BUDGET) break;
+    try {
+      cache[d] = await translateOne(d);
+      used += d.length; done++;
+      await sleep(300);
+    } catch (e) {
+      console.log('  简介翻译停止：' + e.message);
+      break;
+    }
+  }
+  console.log(`简介翻译：新增 ${done} 条，用了 ${used} 字符，剩余待翻译 ${todo.length - done} 条`);
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  fs.writeFileSync(ZH_FILE, JSON.stringify(cache, null, 1), 'utf8');
+  return cache;
+}
+
 async function main() {
   console.log(`GitHub Token：${TOKEN ? '已设置（请求间隔 2200ms）' : '未设置（请求间隔 6500ms）'}`);
   const ranges = {};
@@ -163,6 +207,10 @@ async function main() {
     devs: await fetchUsers('user'),
     orgs: await fetchUsers('org'),
   };
+
+  const allRepos = Object.values(ranges).flatMap(x => x.repos);
+  const zh = await translateDescs(allRepos);
+  allRepos.forEach(r => { r.desc_zh = zh[r.desc] || ''; });
 
   const generatedAt = new Date().toISOString();
   const text =

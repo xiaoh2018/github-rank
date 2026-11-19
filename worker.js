@@ -91,6 +91,9 @@ export default {
         }
         return json({ ok: true });
       }
+      if (url.pathname === '/api/readme-zh' && request.method === 'GET') {
+        return readmeZh(request, env, ctx);
+      }
       return new Response('Not found', { status: 404 });
     } catch (e) {
       return json({ ok: false, error: String((e && e.message) || e) }, 500);
@@ -101,6 +104,59 @@ export default {
     ctx.waitUntil(keepalive(env).then((r) => console.log(JSON.stringify(r))));
   },
 };
+
+// ---------- README 中文译文（免 Key：MyMemory 公开接口；结果缓存 7 天）----------
+async function readmeZh(request, env, ctx) {
+  const repo = new URL(request.url).searchParams.get('repo') || '';
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) return json({ ok: false, error: '仓库名不对' }, 400);
+  const cache = globalThis.caches.default;
+  const key = new Request(new URL('/__readme_zh/' + repo, request.url).toString());
+  const hit = await cache.match(key);
+  if (hit) return hit;
+  const headers = { Accept: 'application/vnd.github.raw', 'User-Agent': 'github-rank-readme' };
+  if (env.GITHUB_TOKEN) headers.Authorization = 'Bearer ' + env.GITHUB_TOKEN;
+  const r = await fetch('https://api.github.com/repos/' + repo + '/readme', { headers: headers });
+  if (!r.ok) return json({ ok: false, error: 'README 读取失败（HTTP ' + r.status + '）' }, 502);
+  const parts = splitForTranslate((await r.text()).slice(0, 12000)).slice(0, 30);
+  const out = [];
+  for (const p of parts) {
+    if (p.raw) { out.push(p.text); continue; }
+    const t = await translateMM(p.text, env);
+    if (t == null) return json({ ok: false, error: '翻译额度暂时用完，请先看英文原文' }, 503);
+    out.push(t);
+  }
+  const resp = json({ ok: true, text: out.join('\n\n') });
+  resp.headers.set('cache-control', 'public, max-age=604800');
+  ctx.waitUntil(cache.put(key, resp.clone()));
+  return resp;
+}
+
+// 按段落切分：含代码块、表格、图片、HTML 的段落原样保留；普通文字每段最多 300 字符（MyMemory 单次上限 500 字节）
+function splitForTranslate(md) {
+  const out = [];
+  for (const b of md.replace(/\r/g, '').split(/\n\s*\n/)) {
+    const t = b.trim();
+    if (!t) continue;
+    if (t.includes('```') || /^(\||<|!\[|\[!\[)/.test(t)) { out.push({ raw: true, text: t }); continue; }
+    for (let i = 0; i < t.length; i += 300) out.push({ raw: false, text: t.slice(i, i + 300) });
+  }
+  return out;
+}
+
+async function translateMM(text, env) {
+  let url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=en|zh-CN';
+  if (env.TRANSLATE_EMAIL) url += '&de=' + encodeURIComponent(env.TRANSLATE_EMAIL);
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return null;
+    const d = await r.json();
+    const out = d.responseData && d.responseData.translatedText;
+    if (d.responseStatus !== 200 || !out || /MYMEMORY WARNING|QUOTA/i.test(out)) return null;
+    return out;
+  } catch (e) {
+    return null;
+  }
+}
 
 function text(msg, status) {
   return new Response(msg, { status: status, headers: { 'content-type': 'text/plain; charset=utf-8' } });
