@@ -188,7 +188,13 @@ async function ghSearch(request, env) {
   const headers = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'github-rank-search' };
   const tok = await serverGhToken(env);
   if (tok) headers.Authorization = 'Bearer ' + tok;
-  const r = await fetch('https://api.github.com/search/repositories?q=' + encodeURIComponent(q) + '&sort=' + sort + '&order=desc&per_page=' + perPage + '&page=' + page, { headers: headers });
+  let r;
+  try {
+    r = await fetch('https://api.github.com/search/repositories?q=' + encodeURIComponent(q) + '&sort=' + sort + '&order=desc&per_page=' + perPage + '&page=' + page,
+      { headers: headers, signal: AbortSignal.timeout(15000) });
+  } catch (e) {
+    return json({ ok: false, error: 'GitHub 响应超时，请稍后重试' }, 504);
+  }
   if (!r.ok) return new Response('HTTP ' + r.status, { status: r.status, headers: { 'cache-control': 'no-store' } });
   return new Response(await r.text(), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
 }
