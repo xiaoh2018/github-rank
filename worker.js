@@ -156,26 +156,11 @@ async function ghProxy(request, env, ctx) {
   return res;
 }
 
-// ---------- 服务端 GitHub Token：后台保存（加密存仓库 data/translate.json 的 gh 字段），没有则用环境变量 GITHUB_TOKEN ----------
-let ghCache = { at: 0, val: null };
-
+// 服务端 GitHub Token 只从 Cloudflare 环境变量 GITHUB_TOKEN 读取
 async function serverGhToken(env) {
-  if (Date.now() - ghCache.at < 300000) return ghCache.val || env.GITHUB_TOKEN || null;
-  let val = null;
-  if (env.ADMIN_PASSWORD && env.REPO_OWNER && env.REPO_NAME) {
-    try {
-      const r = await fetch('https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + TRANSLATE_FILE, { cf: { cacheTtl: 30, cacheEverything: true } });
-      if (r.ok) {
-        const d = await r.json();
-        if (d && d.gh) val = await openSecret(env.ADMIN_PASSWORD, d.gh);
-      }
-    } catch (e) {
-      val = null;
-    }
-  }
-  ghCache = { at: Date.now(), val: val };
-  return val || env.GITHUB_TOKEN || null;
+  return env.GITHUB_TOKEN || null;
 }
+
 
 // 「立即刷新」用的搜索代理：只放行仓库搜索，用服务端 Token 转发，不缓存
 async function ghSearch(request, env) {
@@ -304,71 +289,12 @@ async function translateText(text, env) {
   return translateMS(text, env);
 }
 
-// 微软翻译设置：后台保存的密钥加密后存在仓库 data/translate.json（用 ADMIN_PASSWORD 派生的密钥加密），
-// Worker 运行时用 ADMIN_PASSWORD 解开。环境变量 MS_TRANSLATOR_KEY 存在时优先使用。
-const TRANSLATE_FILE = 'data/translate.json';
-let msCache = { at: 0, val: null };
-
-async function deriveAesKey(pass, salt) {
-  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
-    base,
-    { name: 'AES-GCM', length: 256 },
-    false,
-    ['encrypt', 'decrypt']
-  );
-}
-
-function bytesToB64(u8) {
-  let s = '';
-  for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]);
-  return btoa(s);
-}
-
-function b64ToBytes(s) {
-  return Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-}
-
-async function sealSecret(pass, plain) {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await deriveAesKey(pass, salt);
-  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(plain));
-  return { salt: bytesToB64(salt), iv: bytesToB64(iv), ct: bytesToB64(new Uint8Array(ct)) };
-}
-
-async function openSecret(pass, box) {
-  try {
-    const key = await deriveAesKey(pass, b64ToBytes(box.salt));
-    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64ToBytes(box.iv) }, key, b64ToBytes(box.ct));
-    return new TextDecoder().decode(pt);
-  } catch (e) {
-    return null;
-  }
-}
-
-// 返回 { key, region } 或 null（没配置或解不开）
+// 微软翻译 Key 只从 Cloudflare 环境变量 MS_TRANSLATOR_KEY / MS_TRANSLATOR_REGION 读取（不再存仓库、不再加密）
 async function msConfig(env) {
-  if (env.MS_TRANSLATOR_KEY) return { key: env.MS_TRANSLATOR_KEY, region: env.MS_TRANSLATOR_REGION || '' };
-  if (!env.ADMIN_PASSWORD || !env.REPO_OWNER || !env.REPO_NAME) return null;
-  if (Date.now() - msCache.at < 300000) return msCache.val;
-  let val = null;
-  try {
-    const r = await fetch('https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + TRANSLATE_FILE, { cf: { cacheTtl: 30, cacheEverything: true } });
-    if (r.ok) {
-      const d = await r.json();
-      if (d && d.box) {
-        const key = await openSecret(env.ADMIN_PASSWORD, d.box);
-        if (key) val = { key: key, region: d.region || '' };
-      }
-    }
-  } catch (e) {
-    val = null;
-  }
-  msCache = { at: Date.now(), val: val };
-  return val;
+  if (!env.MS_TRANSLATOR_KEY) return null;
+  return { key: env.MS_TRANSLATOR_KEY, region: env.MS_TRANSLATOR_REGION || '' };
 }
+
 
 async function translateMS(text, env) {
   const ms = await msConfig(env);
@@ -989,72 +915,19 @@ async function writeSite(env, site, sha) {
 }
 
 // 翻译设置：GET 只返回是否已配置和区域，不返回密钥；POST 保存（密码校验后加密写入仓库）
-async function handleTranslate(request, env) {
-  if (request.method === 'GET') {
-    const ms = await msConfig(env);
-    return json({ ok: true, configured: !!(ms && ms.key), region: ms ? ms.region : '', ghConfigured: !!(await serverGhToken(env)) });
-  }
-  if (!env.ADMIN_PASSWORD) {
-    return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
-  }
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== 'object') {
-    return json({ ok: false, error: '请求体必须是 JSON 对象' }, 400);
-  }
-  if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
-    return json({ ok: false, error: '密码不对' }, 403);
-  }
-  const region = body.region == null ? '' : String(body.region).trim();
-  if (!/^[a-z0-9-]{0,40}$/i.test(region)) {
-    return json({ ok: false, error: '区域只能包含字母、数字和短横线' }, 400);
-  }
-  const newKey = body.key == null ? '' : String(body.key).trim();
-  const newGh = body.ghKey == null ? '' : String(body.ghKey).trim();
-  const clear = body.clear === true;
-  const clearGh = body.clearGh === true;
-  if (newGh && (newGh.length < 20 || newGh.length > 300 || /\s/.test(newGh))) {
-    return json({ ok: false, error: 'GitHub Token 格式不对，请粘贴完整的 Token' }, 400);
-  }
-  if (newKey && (newKey.length < 16 || newKey.length > 200 || /\s/.test(newKey))) {
-    return json({ ok: false, error: '密钥格式不对，请粘贴完整的 Key' }, 400);
-  }
-
-  const cur = await gh(env, '/contents/' + TRANSLATE_FILE + '?ref=' + encodeURIComponent(branch(env)));
-  if (!cur.ok && cur.status !== 404) {
-    return json({ ok: false, error: '读取翻译设置失败：' + cur.status }, 502);
-  }
-  const sha = cur.ok && cur.data ? cur.data.sha : null;
-  let keep = {};
-  if (cur.ok && cur.data) {
-    try {
-      const bin = atob(String(cur.data.content || '').replace(/\n/g, ''));
-      keep = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
-    } catch (e) {
-      keep = {};
+  // 翻译 Key 和 GitHub Token 不再通过后台保存，只读取 Cloudflare 环境变量
+  async function handleTranslate(request, env) {
+    if (request.method === 'GET') {
+      return json({
+        ok: true,
+        configured: !!env.MS_TRANSLATOR_KEY,
+        region: env.MS_TRANSLATOR_REGION || '',
+        ghConfigured: !!env.GITHUB_TOKEN,
+      });
     }
+    return json({ ok: false, error: '后台已不再保存翻译 Key 和 GitHub Token，请在 Cloudflare 的 Variables and Secrets 里设置 MS_TRANSLATOR_KEY、GITHUB_TOKEN' }, 410);
   }
 
-  const out = { v: 1, region: region };
-  if (!clear && newKey) out.box = await sealSecret(env.ADMIN_PASSWORD, newKey);
-  else if (!clear && keep.box) out.box = keep.box;
-  if (!clearGh && newGh) out.gh = await sealSecret(env.ADMIN_PASSWORD, newGh);
-  else if (!clearGh && keep.gh) out.gh = keep.gh;
-
-  const put = await gh(env, '/contents/' + TRANSLATE_FILE, {
-    method: 'PUT',
-    headers: ghHeaders(env, { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({
-      message: 'chore: update translate settings',
-      content: utf8ToBase64(JSON.stringify(out, null, 2) + '\n'),
-      branch: branch(env),
-      sha: sha || undefined,
-    }),
-  });
-  if (!put.ok) return json({ ok: false, error: '写入失败：' + put.status + ' ' + put.text.slice(0, 200) }, 500);
-  msCache = { at: 0, val: null };
-  ghCache = { at: 0, val: null };
-  return json({ ok: true, configured: !!out.box, region: region, ghConfigured: !!out.gh });
-}
 
 async function handleSite(request, env) {
   if (request.method === 'GET') {
@@ -1366,33 +1239,19 @@ dialog{width:calc(100% - 24px)}
       </div>
     </section>
 
-    <section class="pane" id="pane-translate" hidden>
-      <div class="bar"><div><h1>翻译设置</h1><div class="sub">微软翻译 Key，用于列表简介和 README 的中文兜底</div></div></div>
-      <div class="intro">先用免 Key 的 MyMemory 翻译，额度用完时才用微软翻译。Key 保存后加密写入仓库，页面上不再显示原文。</div>
-      <div class="card">
-        <div class="hint" id="tr-status">读取中…</div>
-        <label for="tr-key">微软翻译 Key</label>
-        <input type="password" id="tr-key" maxlength="200" autocomplete="off" placeholder="已配置时留空即保持不变">
-        <div class="hint">在 Azure 门户创建 Translator 资源后，复制「密钥」。</div>
-        <label for="tr-region">区域</label>
-        <input type="text" id="tr-region" maxlength="40" placeholder="例如 eastasia 或 global">
-        <div class="hint">资源所在的区域，在 Azure 资源页的「位置」里可以看到。</div>
-        <div class="actions">
-          <button type="button" id="tr-save">保存翻译设置</button>
-          <button type="button" id="tr-clear" class="ghost">清除 Key</button>
-        </div>
+      <section class="pane" id="pane-translate" hidden>
+        <div class="bar"><div><h1>翻译设置</h1><div class="sub">微软翻译 Key 和 GitHub Token 只放在 Cloudflare 环境变量里</div></div></div>
+        <div class="intro">为了安全，这两项不在后台保存，也不写进仓库。在 Cloudflare 里设置即可，设置后刷新本页查看状态。</div>
+        <div class="card">
+          <div class="hint" id="tr-status">读取中…</div>
+          <div class="hint">Cloudflare → github-rank → Settings → Variables and Secrets，添加 Secret：<b>MS_TRANSLATOR_KEY</b>（微软翻译 Key）；可选再加 Text 变量 <b>MS_TRANSLATOR_REGION</b>（区域，例如 eastasia）。</div>
         </div>
         <div class="card">
-        <div class="hint" id="gh-status">读取中…</div>
-        <label for="gh-key">GitHub Token</label>
-        <input type="password" id="gh-key" maxlength="300" autocomplete="off" placeholder="已配置时留空即保持不变">
-        <div class="hint">用于前台「立即刷新」和详情读取。只读公开数据，不勾选任何权限也可以。保存后访客不用再自己填 Token。</div>
-        <div class="actions">
-          <button type="button" id="gh-save">保存 GitHub Token</button>
-          <button type="button" id="gh-clear" class="ghost">清除</button>
+          <div class="hint" id="gh-status">读取中…</div>
+          <div class="hint">同一位置添加 Secret：<b>GITHUB_TOKEN</b>。用于前台「立即刷新」和详情读取，只读公开数据即可。</div>
         </div>
-        </div>
-    </section>
+      </section>
+
 
     <section class="pane" id="pane-layout" hidden>
         <div class="bar"><div><h1>榜单布局</h1><div class="sub">决定榜单是单列还是双列</div></div></div>
@@ -1951,56 +1810,15 @@ dialog{width:calc(100% - 24px)}
     }
   });
 
-  // ---- 翻译设置 ----
-  function loadTranslate() {
-    api('/api/translate').then(function (r) {
-      if (!r.ok) { $('tr-status').textContent = r.error || '读取失败'; return; }
-      $('tr-status').textContent = r.configured ? '已配置微软翻译 Key' : '还没有配置微软翻译 Key';
-      $('gh-status').textContent = r.ghConfigured ? '已配置 GitHub Token，前台立即刷新可直接使用' : '还没有配置 GitHub Token';
-      $('tr-region').value = r.region || '';
-    });
-  }
-  $('tr-save').addEventListener('click', function () {
-    var btn = this;
-    btn.disabled = true;
-    api('/api/translate', { method: 'POST', body: { password: pw, key: $('tr-key').value, region: $('tr-region').value } }).then(function (r) {
-      btn.disabled = false;
-      if (r.ok) { $('tr-key').value = ''; toast('已保存', true); loadTranslate(); }
-      else toast(r.error || '保存失败', false);
-    });
-  });
-  $('tr-clear').addEventListener('click', function () {
-    var btn = this;
-    askConfirm('清除微软翻译 Key？', '清除后只使用 MyMemory 翻译。', function () {
-      btn.disabled = true;
-      api('/api/translate', { method: 'POST', body: { password: pw, clear: true, region: '' } }).then(function (r) {
-        btn.disabled = false;
-        if (r.ok) { toast('已清除', true); loadTranslate(); }
-        else toast(r.error || '清除失败', false);
+    // ---- 翻译设置（Key 和 Token 只在 Cloudflare 环境变量里，后台只显示状态）----
+    function loadTranslate() {
+      api('/api/translate').then(function (r) {
+        if (!r.ok) { $('tr-status').textContent = r.error || '读取失败'; return; }
+        $('tr-status').textContent = r.configured ? '已在 Cloudflare 配置微软翻译 Key' : '还没有在 Cloudflare 配置微软翻译 Key';
+        $('gh-status').textContent = r.ghConfigured ? '已在 Cloudflare 配置 GitHub Token，前台立即刷新可直接使用' : '还没有在 Cloudflare 配置 GitHub Token';
       });
-    });
-  });
+    }
 
-  $('gh-save').addEventListener('click', function () {
-    var btn = this;
-    btn.disabled = true;
-    api('/api/translate', { method: 'POST', body: { password: pw, ghKey: $('gh-key').value, region: $('tr-region').value } }).then(function (r) {
-      btn.disabled = false;
-      if (r.ok) { $('gh-key').value = ''; toast('已保存', true); loadTranslate(); }
-      else toast(r.error || '保存失败', false);
-    });
-  });
-  $('gh-clear').addEventListener('click', function () {
-    var btn = this;
-    askConfirm('清除 GitHub Token？', '清除后前台「立即刷新」需要访客自己填写 Token。', function () {
-      btn.disabled = true;
-      api('/api/translate', { method: 'POST', body: { password: pw, clearGh: true, region: $('tr-region').value } }).then(function (r) {
-        btn.disabled = false;
-        if (r.ok) { toast('已清除', true); loadTranslate(); }
-        else toast(r.error || '清除失败', false);
-      });
-    });
-  });
 
   // ---- 启动 ----
   var saved = sessionStorage.getItem(PW_KEY);
