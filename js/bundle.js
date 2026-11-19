@@ -297,8 +297,8 @@ async function loadUsers(kind, bypassCache) {
 
 // ---------- 详情（抽屉用） ----------
 async function gh(path, raw) {
-  // 走本站 Worker 代理（/api/gh），由 Worker 用 GITHUB_TOKEN 请求 GitHub，避免访客浏览器未登录被限流
-  const res = await fetch('/api/gh?path=' + encodeURIComponent(path) + (raw ? '&raw=1' : ''));
+  // 走本站 Worker 代理（/api/gh），由 Worker 用 GITHUB_TOKEN 请求 GitHub，避免访客浏览器未登录被限流；15 秒超时，慢了直接显示「暂时读取不到」
+  const res = await fetch('/api/gh?path=' + encodeURIComponent(path) + (raw ? '&raw=1' : ''), { signal: timeoutSignal(15000) });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error('HTTP ' + res.status);
   return raw ? res.text() : res.json();
@@ -606,22 +606,41 @@ async function openDrawer(r) {
   requestAnimationFrame(() => { d.classList.add('open'); bd.classList.add('show'); });
   $('drawerTitle').textContent = r.name;
   $('drawerTitle').href = r.url;
-  const body = $('drawerBody');
-  body.replaceChildren(el('p', 'note', '加载详情…'));
+  $('drawerBody').replaceChildren(el('p', 'note', '加载详情…'));
 
+  // 详情、README、Release、贡献者并行请求；任何一项慢或失败都不影响其它部分
   const [full, readme, rel, contribs] = await Promise.all([
     fetchRepoDetail(r.name).catch(() => null),
     fetchReadme(r.name).catch(() => null),
     fetchLatestRelease(r.name),
     fetchContributors(r.name)
   ]);
-  let readmeShow = readme, zhReadme = false, zhPartial = false;
-  if (readme && getLang() === 'zh') {
-    const zh = await fetch('/api/readme-zh?repo=' + encodeURIComponent(r.name)).then(x => x.json()).catch(() => null);
-    if (zh && zh.ok && zh.text) { readmeShow = zh.text; zhReadme = true; zhPartial = !!zh.partial; }
-  }
   if (drawerTarget !== r.name) return;   // 用户已经切到别的项目或关掉了
 
+  const view = { full, rel, contribs, readme, zh: false, zhPartial: false, zhPending: false };
+  renderDrawerBody(r, view);
+
+  // 中文 README 单独请求，到了再替换 README 部分，不再让它拖住整个抽屉
+  if (readme && getLang() === 'zh') {
+    view.zhPending = true;
+    renderDrawerBody(r, view);
+    const zh = await fetch('/api/readme-zh?repo=' + encodeURIComponent(r.name), { signal: timeoutSignal(20000) })
+      .then(x => x.json()).catch(() => null);
+    if (drawerTarget !== r.name) return;
+    view.zhPending = false;
+    if (zh && zh.ok && zh.text) { view.readme = zh.text; view.zh = true; view.zhPartial = !!zh.partial; }
+    renderDrawerBody(r, view);
+  }
+}
+
+function timeoutSignal(ms) {
+  const ctrl = new AbortController();
+  setTimeout(() => ctrl.abort(), ms);
+  return ctrl.signal;
+}
+
+// 按现有数据重画抽屉内容（同一个项目可以多次调用）
+function renderDrawerBody(r, v) {
   const rows = [];
   const meta = el('div', 'meta');
   meta.append(el('span', 'stars', '★ ' + fmt(r.stars)), el('span', null, 'Fork ' + fmt(r.forks)));
@@ -629,24 +648,26 @@ async function openDrawer(r) {
   meta.append(el('span', null, '创建于 ' + (r.created || '').slice(0, 10)));
   meta.append(el('span', 'act', '活跃 ' + activityScore(r)));
   rows.push(meta);
-  if (full) {
-    rows.push(el('p', 'note', '最近提交 ' + timeAgo(full.pushed_at) + ' · Watch ' + fmt(full.subscribers_count || 0)));
+  if (v.full) {
+    rows.push(el('p', 'note', '最近提交 ' + timeAgo(v.full.pushed_at) + ' · Watch ' + fmt(v.full.subscribers_count || 0)));
+  } else {
+    rows.push(el('p', 'note', '项目详情暂时读取不到，可点上方项目名去 GitHub 查看。'));
   }
 
   rows.push(el('h4', null, '最新 Release'));
-  if (rel) {
-    const a = el('a', 'name', (rel.name || rel.tag_name) + '（' + rel.tag_name + '）');
-    a.href = rel.html_url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+  if (v.rel) {
+    const a = el('a', 'name', (v.rel.name || v.rel.tag_name) + '（' + v.rel.tag_name + '）');
+    a.href = v.rel.html_url; a.target = '_blank'; a.rel = 'noopener noreferrer';
     a.style.fontSize = '14px';
-    rows.push(a, el('p', 'note', '发布于 ' + (rel.published_at || '').slice(0, 10)));
+    rows.push(a, el('p', 'note', '发布于 ' + (v.rel.published_at || '').slice(0, 10)));
   } else {
     rows.push(el('p', 'note', '该项目还没有发布 Release。'));
   }
 
   rows.push(el('h4', null, '主要贡献者'));
-  if (contribs.length) {
+  if (v.contribs.length) {
     const list = el('div', 'contribs');
-    contribs.forEach(c => {
+    v.contribs.forEach(c => {
       const row = el('div', 'author-row');
       const img = document.createElement('img');
       img.className = 'avatar-sm'; img.src = c.avatar_url; img.alt = ''; img.width = 24; img.height = 24; img.loading = 'lazy';
@@ -662,15 +683,19 @@ async function openDrawer(r) {
     rows.push(el('p', 'note', '没有读取到贡献者信息。'));
   }
 
-  rows.push(el('h4', null, 'README 预览' + (zhReadme ? (zhPartial ? '（机器翻译，部分段落为英文原文）' : '（机器翻译，仅供参考）') : '')));
-  if (readmeShow) {
-    rows.push(el('pre', 'readme', readmeShow.slice(0, 4000)));
-    if (readmeShow.length > 4000) rows.push(el('p', 'note', '（仅显示前 4000 字符，完整内容请访问仓库）'));
+  let readmeTitle = 'README 预览';
+  if (v.zhPending) readmeTitle += '（中文翻译中…）';
+  else if (v.zh) readmeTitle += v.zhPartial ? '（机器翻译，部分段落为英文原文）' : '（机器翻译，仅供参考）';
+  rows.push(el('h4', null, readmeTitle));
+  if (v.readme) {
+    rows.push(el('pre', 'readme', v.readme.slice(0, 4000)));
+    if (v.readme.length > 4000) rows.push(el('p', 'note', '（仅显示前 4000 字符，完整内容请访问仓库）'));
   } else {
     rows.push(el('p', 'note', '没有读取到 README。'));
   }
-  body.replaceChildren(...rows);
+  $('drawerBody').replaceChildren(...rows);
 }
+
 
 function closeDrawer() {
   drawerTarget = '';
