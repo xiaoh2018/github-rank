@@ -94,6 +94,9 @@ export default {
       if (url.pathname === '/api/readme-zh' && request.method === 'GET') {
         return readmeZh(request, env, ctx);
       }
+      if (url.pathname === '/api/gh' && request.method === 'GET') {
+        return ghProxy(request, env, ctx);
+      }
       return new Response('Not found', { status: 404 });
     } catch (e) {
       return json({ ok: false, error: String((e && e.message) || e) }, 500);
@@ -104,6 +107,43 @@ export default {
     ctx.waitUntil(keepalive(env).then((r) => console.log(JSON.stringify(r))));
   },
 };
+
+// ---------- 抽屉详情代理：访客浏览器不再直连 api.github.com（未登录每小时只有 60 次，容易 403）----------
+// 只放行仓库详情、README、最新 Release、贡献者四类路径；用 GITHUB_TOKEN 转发；成功结果缓存 10 分钟
+async function ghProxy(request, env, ctx) {
+  const u = new URL(request.url);
+  const p = u.searchParams.get('path') || '';
+  const raw = u.searchParams.get('raw') === '1';
+  const parts = p.split('?');
+  const base = parts[0];
+  const qs = parts[1] || '';
+  const m = base.match(/^\/repos\/([\w.-]+\/[\w.-]+)(\/readme|\/releases\/latest|\/contributors)?$/);
+  if (!m || (qs && qs !== 'per_page=8')) return json({ ok: false, error: '不支持的路径' }, 400);
+  const upstream = 'https://api.github.com' + base + (qs ? '?' + qs : '');
+  const cache = globalThis.caches.default;
+  const key = new Request(new URL('/__gh/' + (raw ? 'raw:' : 'json:') + p, request.url).toString());
+  const hit = await cache.match(key);
+  if (hit) return hit;
+  const headers = {
+    Accept: raw ? 'application/vnd.github.raw' : 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'github-rank-detail',
+  };
+  if (env.GITHUB_TOKEN) headers.Authorization = 'Bearer ' + env.GITHUB_TOKEN;
+  const r = await fetch(upstream, { headers: headers });
+  if (r.status === 204) return new Response(null, { status: 204 });
+  if (!r.ok) return new Response('HTTP ' + r.status, { status: r.status, headers: { 'cache-control': 'no-store' } });
+  const body = await r.text();
+  const res = new Response(body, {
+    status: 200,
+    headers: {
+      'content-type': raw ? 'text/plain; charset=utf-8' : 'application/json; charset=utf-8',
+      'cache-control': 'public, max-age=600',
+    },
+  });
+  ctx.waitUntil(cache.put(key, res.clone()));
+  return res;
+}
 
 // ---------- README 中文译文（免 Key：MyMemory 公开接口；结果缓存 7 天）----------
 async function readmeZh(request, env, ctx) {

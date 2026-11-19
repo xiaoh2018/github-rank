@@ -297,10 +297,8 @@ async function loadUsers(kind, bypassCache) {
 
 // ---------- 详情（抽屉用） ----------
 async function gh(path, raw) {
-  const headers = { Accept: raw ? 'application/vnd.github.raw' : 'application/vnd.github+json' };
-  const token = getToken();
-  if (token) headers.Authorization = 'Bearer ' + token;
-  const res = await fetch('https://api.github.com' + path, { headers });
+  // 走本站 Worker 代理（/api/gh），由 Worker 用 GITHUB_TOKEN 请求 GitHub，避免访客浏览器未登录被限流
+  const res = await fetch('/api/gh?path=' + encodeURIComponent(path) + (raw ? '&raw=1' : ''));
   if (res.status === 204) return null;
   if (!res.ok) throw new Error('HTTP ' + res.status);
   return raw ? res.text() : res.json();
