@@ -1,9 +1,1 @@
-[
-  {
-    "id": "1795079991315",
-    "title": "MD 测试文章（临时）",
-    "summary": "用于验证 Markdown 渲染",
-    "body": "# 测试标题\n\n这是 **粗体** 与 `代码`。\n\n- 列表一\n- 列表二\n\n[链接](https://github.com)\n\n<script>alert(1)</script>",
-    "date": "2026-11-19"
-  }
-]
+[]
