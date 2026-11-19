@@ -25,8 +25,8 @@
 - 渲染前会转义 HTML，只放行 http(s) 链接和站内路径，不执行页面里的脚本。
 
 **后台（`/admin`）**
-- 用管理密码登录，可视化管理：概览（保活状态）、友链、广告位、榜单布局（自动 / 单栏 / 双栏）、联系方式（悬浮按钮）、备案信息、SEO、GEO（摘要与问答）、文章、翻译设置（微软翻译 Key、GitHub Token）。
-- 翻译设置里保存的 Key 用管理密码加密后写入仓库，页面只显示「已配置」，不回显原文。
+- 用管理密码登录，可视化管理：概览（保活状态）、友链、广告位、榜单布局（自动 / 单栏 / 双栏）、联系方式（悬浮按钮）、备案信息、SEO、GEO（摘要与问答）、文章、翻译设置（显示 Cloudflare 里的配置状态；密钥需在 Cloudflare Secret 中设置）。
+- 翻译设置页面只显示 Cloudflare 里是否已配置微软翻译 Key 和 GitHub Token，不能在页面上保存密钥。
 
 **翻译**
 - 简介和 README 的中文译文按顺序尝试：仓库里预翻译好的文件 → MyMemory（免 Key，可用邮箱提高额度）→ Workers AI（如果绑定了 AI）→ 微软翻译（如果配置了 Key）。全部失败时显示英文原文。
@@ -154,7 +154,7 @@ GITHUB_TOKEN=你的Token node scripts/fetch.js
 检查 Workflow permissions 是否为 Read and write，以及 `GITHUB_TOKEN` 的 Contents 和 Actions 权限。
 
 **翻译一直是英文？**
-MyMemory 的免费额度有限，额度用完时会依次尝试 Workers AI 和微软翻译。需要更多译文，可以在后台「翻译设置」里填写微软翻译 Key。
+MyMemory 的免费额度有限，额度用完时会依次尝试 Workers AI 和微软翻译。需要更多译文，可以在 Cloudflare 的 Secret 里添加 `MS_TRANSLATOR_KEY`（和可选的 `MS_TRANSLATOR_REGION`）。
 
 **本地预览看不到抽屉详情？**
 这是预期行为，抽屉依赖 Worker 接口，部署 Worker 后即可使用。

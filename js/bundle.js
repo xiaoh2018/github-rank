@@ -1093,7 +1093,7 @@ function updateSourceNote() {
     : '当前数据：加载中';
   el.textContent = src + '。' + (getToken()
     ? '点「立即刷新」会用你的 Token 直接请求 GitHub，拉取最新数据。'
-    : '点「立即刷新」需要先在「设置」里填写 Token，填好后才会实时请求 GitHub。');
+    : '点「立即刷新」会使用服务器配置的 Token 实时请求 GitHub；服务器额度用完时，再在「设置」里填写你自己的 Token。');
 }
 
 // ---------- 立即刷新（需要 Token；失败时保留当前数据） ----------
