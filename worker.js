@@ -17,6 +17,7 @@ const SITE = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/index.html': ['index.html', 'text/html; charset=utf-8'],
   '/js/bundle.js': ['js/bundle.js', 'application/javascript; charset=utf-8'],
+  '/js/md.js': ['js/md.js', 'application/javascript; charset=utf-8'],
   '/data/repos.js': ['data/repos.js', 'application/javascript; charset=utf-8'],
   '/sw.js': ['sw.js', 'application/javascript; charset=utf-8'],
   '/manifest.json': ['manifest.json', 'application/manifest+json; charset=utf-8'],
@@ -234,10 +235,24 @@ async function translateMM(text, env) {
   }
 }
 
-// 翻译顺序：先 MyMemory（免 Key）；额度用完或失败再用微软翻译（需要 MS_TRANSLATOR_KEY，可选 MS_TRANSLATOR_REGION）
+// Workers AI 翻译（m2m100）：需要在 Worker 上绑定 AI（变量名 AI）；没有绑定时直接跳过
+async function translateAI(text, env) {
+  if (!env.AI) return null;
+  try {
+    const r = await env.AI.run('@cf/meta/m2m100-1.2b', { text: text, source_lang: 'english', target_lang: 'chinese' });
+    const out = r && (r.translated_text || r.translation);
+    return out ? String(out) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// 翻译顺序：MyMemory（免 Key）→ Workers AI（绑定即用）→ 微软翻译（需要后台填的 Key）
 async function translateText(text, env) {
-  const zh = await translateMM(text, env);
-  if (zh) return zh;
+  const mm = await translateMM(text, env);
+  if (mm) return mm;
+  const ai = await translateAI(text, env);
+  if (ai) return ai;
   return translateMS(text, env);
 }
 
@@ -1027,7 +1042,7 @@ async function handleSite(request, env) {
 // ---- 文章（GEO 内容）：数据存在仓库 data/articles.json ----
 const ARTICLES_FILE = 'data/articles.json';
 const ARTICLES_MAX = 200;
-const ART_LIMITS = { title: 100, summary: 300, body: 5000 };
+const ART_LIMITS = { title: 100, summary: 300, body: 20000 };
 
 function todayBJ() {
   return new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
@@ -1461,13 +1476,16 @@ dialog{width:calc(100% - 24px)}
   <label for="artSummary">摘要</label>
   <textarea id="artSummary" maxlength="300"></textarea>
   <div class="hint">300 字以内，显示在文章列表里，也会被 AI 搜索引用。</div>
-  <label for="artBody">正文（纯文本）</label>
-  <textarea id="artBody" maxlength="5000" style="min-height:200px"></textarea>
-  <div class="hint">5000 字以内，段落之间用空行分隔，不支持 HTML。</div>
+  <div class="actions" style="justify-content:flex-start;margin:6px 0"><button type="button" class="ghost small" id="artImport">导入 .md 文件</button><button type="button" class="ghost small" id="artPreviewBtn">预览 / 收起</button><input type="file" id="artFile" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden></div>
+    <label for="artBody">正文（Markdown）</label>
+  <textarea id="artBody" maxlength="20000" style="min-height:200px"></textarea>
+    <div id="artPrev" hidden style="border:1px solid #ddd;padding:10px;border-radius:8px;max-height:320px;overflow:auto;margin-top:8px;font-size:13px"></div>
+  <div class="hint">20000 字以内。支持 Markdown：标题、列表、代码块、链接；图片写成 ![说明](图片网址)。不支持 HTML 标签。</div>
   <div class="err" id="artErr"></div>
   <div class="actions"><button type="button" class="ghost" data-close="artDlg">取消</button><button type="button" id="artSubmit">保存文章</button></div>
 </dialog>
 <div class="toast" id="toast" role="status"></div>
+<script src="/js/md.js"></script>
 
 <script>
 (function () {
@@ -1828,7 +1846,30 @@ dialog{width:calc(100% - 24px)}
       }
     });
   });
-  $('artTbody').addEventListener('click', function (e) {
+  $('artImport').addEventListener('click', function () { $('artFile').click(); });
+    $('artFile').addEventListener('change', function () {
+      var f = this.files && this.files[0];
+      this.value = '';
+      if (!f) return;
+      if (f.size > 300000) { $('artErr').textContent = 'MD 文件不能超过 300KB'; return; }
+      var rd = new FileReader();
+      rd.onload = function () {
+        var p = KeeMd.parse(rd.result, f.name);
+        $('artTitleIn').value = p.title;
+        if (p.date) $('artDate').value = p.date;
+        $('artSummary').value = p.summary;
+        $('artBody').value = p.body;
+        $('artErr').textContent = '';
+        toast('已导入，请检查后保存', true);
+      };
+      rd.readAsText(f, 'utf-8');
+    });
+    $('artPreviewBtn').addEventListener('click', function () {
+      var box = $('artPrev');
+      box.innerHTML = KeeMd.render($('artBody').value);
+      box.hidden = !box.hidden;
+    });
+    $('artTbody').addEventListener('click', function (e) {
     var t = e.target;
     var ed = t.getAttribute && t.getAttribute('data-artedit');
     var dl = t.getAttribute && t.getAttribute('data-artdel');

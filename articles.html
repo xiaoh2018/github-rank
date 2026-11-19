@@ -29,7 +29,15 @@ header nav{display:flex;gap:8px;flex-wrap:wrap}
 .summary{margin:4px 0 0;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
 details{margin-top:6px}
 summary{cursor:pointer;color:var(--accent);font-size:13px;min-height:28px;display:flex;align-items:center}
-.body p{margin:6px 0;font-size:13px;white-space:pre-line;overflow-wrap:anywhere}
+.body{font-size:13px}
+.body p,.body li{margin:6px 0;line-height:1.7;overflow-wrap:anywhere}
+.body h2,.body h3,.body h4{font-size:14px;margin:12px 0 4px}
+.body img{max-width:100%;height:auto;border-radius:6px;display:block;margin:8px 0}
+.body pre{overflow:auto;background:#f5f1e6;padding:8px;border-radius:6px;font-size:12px}
+.body code{background:#f5f1e6;padding:0 4px;border-radius:4px;font-size:12px}
+.body blockquote{margin:6px 0;padding-left:10px;border-left:3px solid var(--gold);color:var(--muted)}
+.body ul,.body ol{padding-left:20px;margin:6px 0}
+.body a{color:var(--accent)}
 .empty{padding:24px 16px;color:var(--muted);text-align:center}
 .error{color:#c2402f}
 </style>
@@ -46,6 +54,7 @@ summary{cursor:pointer;color:var(--accent);font-size:13px;min-height:28px;displa
     <p class="empty">加载中…</p>
   </main>
 </div>
+<script src="js/md.js"></script>
 <script>
 (function(){
   var list=document.getElementById('list');
@@ -98,7 +107,7 @@ summary{cursor:pointer;color:var(--accent);font-size:13px;min-height:28px;displa
         ds.textContent='阅读全文';
         var bd=document.createElement('div');
         bd.className='body';
-        fillParas(bd,body);
+        if(window.KeeMd) bd.innerHTML=KeeMd.render(body); else fillParas(bd,body);
         det.appendChild(ds);
         det.appendChild(bd);
         art.appendChild(det);
