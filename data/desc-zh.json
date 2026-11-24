@@ -3441,5 +3441,9 @@
  "HomeMusic — личный музыкальный сервис: Navidrome + Хаб (FastAPI, React PWA) + Android-приложение": "HomeMusic — 个人音乐服务：Navidrome + 集线器（FastAPI、React PWA）+ Android 应用",
  "免费开源的 macOS 录屏与 AI 剪辑工作台：双语字幕、配音、封面与提词器。Native Mac screen recording, captions and AI editing.": "免费开源的 macOS 录屏与 AI 剪辑工作台：双语字幕、配音、封面与提词器。原生 Mac 屏幕录制、字幕和 AI 编辑。",
  "Open-source Rust coding agent for terminal, web, and desktop. Any model, multi-agent fleets, MCP & plugins, OS sandboxing, and session receipts.": "适用于终端、网页和桌面的开源 Rust 编程代理。任何模型、多代理集群、MCP 和插件、操作系统沙盒以及会话收据。",
- "An (experimental) CLI for the Gemini API": "用于 Gemini API 的（实验性）CLI"
+ "An (experimental) CLI for the Gemini API": "用于 Gemini API 的（实验性）CLI",
+ "Velvet Hold'em — Self-hosted 3D multiplayer Texas Hold'em club with CPU-only GTO/CFR solver, Bayesian opponent profiling & AI hand review | 开源 3D 德州扑克私人牌室（免 GPU · GTO 推演 · 贝叶斯对手画像 · 实时复盘）": "Velvet Hold'em — 自托管3D多人德州扑克俱乐部，配备纯CPU GTO/CFR求解器、贝叶斯对手画像和AI牌局复盘 | 开源3D德州扑克私人牌室（免GPU · GTO推演 · 贝叶斯对手画像 · 实时复盘）",
+ "Rob run cheat - robrun cheat hack fly mode menu money dupe for free": "Rob Run作弊 - Rob Run作弊黑客飞行模式菜单免费复制金币",
+ "Turn logos into animated liquid metal, heatmap or frosted glass. Seamless 6-second loops in 2K/4K. Runs locally in the browser.": "将徽标变为动画液态金属、热图或磨砂玻璃。2K/4K 无缝 6 秒循环。在浏览器中本地运行。",
+ "Offline first, self hostable note taking application": "优先离线、可自托管的笔记应用程序"
 }
