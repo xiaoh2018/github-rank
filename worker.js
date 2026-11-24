@@ -304,18 +304,6 @@ async function staticReadmeZh(env, repo) {
   }
 }
 
-// 读取 GitHub Action 预翻译的简介译文（data/desc-zh.json，格式 {"英文简介": "中文"}）
-async function staticDescZh(env) {
-  if (!env.REPO_OWNER || !env.REPO_NAME) return {};
-  try {
-    const r = await fetch('https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/data/desc-zh.json', { cf: { cacheTtl: 300, cacheEverything: true } });
-    if (!r.ok) return {};
-    return (await r.json()) || {};
-  } catch (e) {
-    return {};
-  }
-}
-
 function text(msg, status) {
   return new Response(msg, { status: status, headers: { 'content-type': 'text/plain; charset=utf-8' } });
 }
@@ -914,7 +902,7 @@ async function writeSite(env, site, sha) {
     if (request.method === 'GET') {
       return json({ ok: true, ghConfigured: !!env.GITHUB_TOKEN });
     }
-    return json({ ok: false, error: '后台已不再保存翻译 Key 和 GitHub Token，请在 Cloudflare 的 Variables and Secrets 里设置 MS_TRANSLATOR_KEY、GITHUB_TOKEN' }, 410);
+    return json({ ok: false, error: '后台已不再保存翻译 Key 和 GitHub Token，请在 Cloudflare 的 Variables and Secrets 里设置 GITHUB_TOKEN；翻译走 MyMemory（免 Key），可绑定 Workers AI（变量名 AI）兜底' }, 410);
   }
 
 
@@ -1229,7 +1217,7 @@ dialog{width:calc(100% - 24px)}
     </section>
 
       <section class="pane" id="pane-translate" hidden>
-        <div class="bar"><div><h1>翻译设置</h1><div class="sub">微软翻译 Key 和 GitHub Token 只放在 Cloudflare 环境变量里</div></div></div>
+        <div class="bar"><div><h1>翻译设置</h1><div class="sub">翻译用 MyMemory（免 Key），可绑定 Workers AI（变量名 AI）兜底；GitHub Token 只放在 Cloudflare 环境变量里</div></div></div>
         <div class="intro">为了安全，GitHub Token 不在后台保存，也不写进仓库。在 Cloudflare 里设置即可，设置后刷新本页查看状态。</div>
         <div class="card">
           <div class="hint" id="gh-status">读取中…</div>
