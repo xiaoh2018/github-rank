@@ -1,7 +1,8 @@
 /* Service Worker：缓存页面外壳（HTML/JS/图标），让离线也能打开；GitHub API 不缓存，由页面自己的 localStorage 管理 */
-const CACHE = 'ghrank-shell-v37';
+const CACHE = 'ghrank-shell-v38';
 const SHELL = ['./', 'index.html', 'js/bundle.js', 'js/md.js', 'manifest.json', 'icon.svg'];
-const DATA = 'data/repos.js';   // 静态数据可能暂时不存在，单独缓存、失败不影响安装
+// 只预缓存 meta（约 2KB）。榜单数据按 range 分文件、由页面按需加载，不再在安装时白下几百 KB
+const DATA = 'data/repos-meta.js';
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c =>

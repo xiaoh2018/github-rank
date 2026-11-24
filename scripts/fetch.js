@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
-// 抓取 GitHub 榜单，写入 data/repos.js（供页面用 <script src> 加载）。
-// 只用 Node 20 内置 fetch，无依赖。任何一步失败：非零退出，不写入 data/repos.js。
+// 抓取 GitHub 榜单，写入 data/repos-meta.js（generatedAt + 开发者榜）和 data/repos-<range>.js
+// （每个时间范围一个文件，页面按需加载），另外保留旧版合并文件 data/repos.js 做过渡兼容。
+// 只用 Node 20 内置 fetch，无依赖。任何一步失败：非零退出，不写入任何文件。
 
 const fs = require('fs');
 const path = require('path');
@@ -22,8 +23,8 @@ const README_BUDGET = 15000;   // 每次抓取最多翻译的 README 字符数�
 const README_TOP = 40;         // 只预翻译星标最高的前 N 个仓库的 README
 
 const OUT_DIR = path.join(__dirname, '..', 'data');
-const OUT_FILE = path.join(OUT_DIR, 'repos.js');
-const TMP_FILE = OUT_FILE + '.tmp';
+// 旧版合并文件 data/repos.js 已冻结（不再重写）：它只在「新 Worker 还没部署」的过渡期兜底，
+// 每轮都重写它会让仓库每次提交多出 1.5MB，没必要。
 
 // 星标分段（互不重叠，由高到低）。hi 缺省表示 '>lo'
 const RANGES = {
@@ -273,17 +274,42 @@ async function main() {
   await translateReadmes(allRepos);
 
   const generatedAt = new Date().toISOString();
-  const text =
-    `window.__GHRANK_DATA__ = {\n` +
-    `  generatedAt: ${JSON.stringify(generatedAt)},\n` +
-    `  ranges: ${toJs(ranges, '  ')},\n` +
-    `  users: ${toJs(users, '  ')}\n` +
-    `};\n`;
+  const counts = {};
+  for (const name of Object.keys(ranges)) counts[name] = (ranges[name].repos || []).length;
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  fs.writeFileSync(TMP_FILE, text, 'utf8');
-  fs.renameSync(TMP_FILE, OUT_FILE);
-  console.log(`已写入 ${path.relative(process.cwd(), OUT_FILE)}（generatedAt ${generatedAt}）`);
+  const writeAtomic = (file, text) => {
+    const tmp = file + '.tmp';
+    fs.writeFileSync(tmp, text, 'utf8');
+    fs.renameSync(tmp, file);
+  };
+
+  // 1) meta：generatedAt + 开发者/组织榜。很小，页面首屏先拿它
+  const meta =
+    `window.__GHRANK_META__ = {\n` +
+    `  generatedAt: ${JSON.stringify(generatedAt)},\n` +
+    `  counts: ${JSON.stringify(counts)},\n` +
+    `  users: ${toJs(users, '  ')}\n` +
+    `};\n`;
+  writeAtomic(path.join(OUT_DIR, 'repos-meta.js'), meta);
+
+  // 2) 每个时间范围一个文件：页面只下载当前 range，首屏数据量从约 400KB 降到约 100KB
+  for (const name of Object.keys(ranges)) {
+    const body =
+      `window.__GHRANK_RANGES__ = window.__GHRANK_RANGES__ || {};\n` +
+      `window.__GHRANK_RANGES__[${JSON.stringify(name)}] = {\n` +
+      `  range: ${JSON.stringify(name)},\n` +
+      `  repos: ${toJs(ranges[name].repos, '  ')}\n` +
+      `};\n`;
+    writeAtomic(path.join(OUT_DIR, 'repos-' + name + '.js'), body);
+  }
+
+  // 旧版合并文件 data/repos.js 不再生成（见文件顶部说明）：过渡期兜底用它，之后可直接删。
+
+  console.log(
+    `已写入 repos-meta.js + ${Object.keys(ranges).length} 个分范围文件（generatedAt ${generatedAt}）`
+  );
+  console.log('各范围条数：' + JSON.stringify(counts));
 }
 
 main().catch(err => {

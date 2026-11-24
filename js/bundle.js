@@ -253,6 +253,66 @@ function trimRepo(r) {
   };
 }
 
+// ---------- 静态数据：meta + 每个时间范围一个文件，用到才加载 ----------
+// 以前四个 range 全塞在 data/repos.js（约 400KB 压缩后），页面只用其中一个。
+// 现在首屏只下载 meta（约 2KB）+ 当前 range（约 100KB）。
+const RANGE_FILES = {
+  week: 'data/repos-week.js',
+  month: 'data/repos-month.js',
+  year: 'data/repos-year.js',
+  all: 'data/repos-all.js'
+};
+const rangePending = {};
+
+// 兼容旧版单文件（window.__GHRANK_DATA__）：旧 Worker 或旧缓存页面还会加载它
+function staticMeta() {
+  const m = window.__GHRANK_META__;
+  if (m && m.generatedAt) return m;
+  const old = window.__GHRANK_DATA__;
+  return old && old.generatedAt ? old : null;
+}
+
+function staticUsers() {
+  const m = window.__GHRANK_META__;
+  if (m && m.users) return m.users;
+  const old = window.__GHRANK_DATA__;
+  return old && old.users ? old.users : null;
+}
+
+function staticRange(name) {
+  const old = window.__GHRANK_DATA__;
+  if (old && old.ranges && old.ranges[name]) return old.ranges[name];
+  const map = window.__GHRANK_RANGES__;
+  return (map && map[name]) || null;
+}
+
+// 按需插入 <script> 加载某个 range；失败返回 reject，调用方降级到实时拉取
+function ensureRange(name) {
+  const ready = staticRange(name);
+  if (ready) return Promise.resolve(ready);
+  const file = RANGE_FILES[name];
+  if (!file) return Promise.resolve(null);
+  if (rangePending[name]) return rangePending[name];
+  rangePending[name] = new Promise((resolve, reject) => {
+    const meta = staticMeta();
+    const s = document.createElement('script');
+    s.src = file + (meta && meta.generatedAt ? '?v=' + encodeURIComponent(meta.generatedAt) : '');
+    s.async = true;
+    s.onload = () => {
+      const got = (window.__GHRANK_RANGES__ || {})[name];
+      delete rangePending[name];
+      if (got && Array.isArray(got.repos)) resolve(got);
+      else reject(new Error('数据文件格式不对'));
+    };
+    s.onerror = () => {
+      delete rangePending[name];
+      reject(new Error('数据文件加载失败'));
+    };
+    document.head.appendChild(s);
+  });
+  return rangePending[name];
+}
+
 // 分段 + 分页拉取，合并去重。返回 {repos, partial}；partial=中途失败，只用了已拿到的数据（不缓存）
 async function loadRepos(state, bypassCache, onProgress) {
   const base = buildQuery(state);
@@ -294,8 +354,8 @@ async function loadRepos(state, bypassCache, onProgress) {
 
 // 开发者榜 / 组织榜：搜索接口不返回粉丝数，所以按粉丝数排序后只显示账号
 async function loadUsers(kind, bypassCache) {
-  // 默认走静态数据（data/repos.js），不发请求；没有静态数据时降级到实时拉取
-  const sd = !bypassCache && window.__GHRANK_DATA__ && window.__GHRANK_DATA__.users;
+  // 默认走静态数据（data/repos-meta.js 里的 users），不发请求；没有静态数据时降级到实时拉取
+  const sd = !bypassCache && staticUsers();
   const staticList = sd && (kind === 'org' ? sd.orgs : sd.devs);
   if (Array.isArray(staticList)) return staticList.filter(u => !u.kind || u.kind === kind);
   const q = 'type:' + kind + ' followers:>1000';
@@ -1034,12 +1094,22 @@ async function load(bypassCache) {
   const id = ++reqId;
   const base = buildQuery(state);
   // 默认直接用静态数据（不发网络请求）；缺少对应 range 时降级到实时拉取
-  const gd = window.__GHRANK_DATA__;
-  if (!bypassCache && gd && gd.ranges && gd.ranges[state.range]) {
-        // 本地「立即刷新」的结果和仓库里的静态数据，哪个新用哪个；否则旧的本地缓存会一直盖住仓库里的新数据
-        const live = readCacheEntry(CACHE_PREFIX + base, STALE_TTL);
-        const genAt = Date.parse(gd.generatedAt) || 0;
-        if (live && live.t >= genAt) {
+  const meta = bypassCache ? null : staticMeta();
+  if (meta) {
+    let packed = staticRange(state.range);   // 已加载过（或旧版单文件已就绪）
+    if (!packed) {
+      // 当前 range 还没下载过：先出骨架屏，再按需插入 script 取回这一个 range
+      setStatus('加载数据…');
+      renderSkeleton();
+      $('pager').hidden = true;
+      try { packed = await ensureRange(state.range); } catch (e) { packed = null; }
+      if (id !== reqId) return;
+    }
+    if (packed) {
+      // 本地「立即刷新」的结果和仓库里的静态数据，哪个新用哪个；否则旧的本地缓存会一直盖住仓库里的新数据
+      const live = readCacheEntry(CACHE_PREFIX + base, STALE_TTL);
+      const genAt = Date.parse(meta.generatedAt) || 0;
+      if (live && live.t >= genAt) {
         applyRepos(base, live.repos);
         state.source = 'live';
         state.updatedAt = new Date(live.t).toLocaleString();
@@ -1047,16 +1117,17 @@ async function load(bypassCache) {
         setStatus('');
         return;
       }
-      const all = gd.ranges[state.range].repos || [];
-    const repos = state.lang ? all.filter(r => r.lang === state.lang) : all;
-    applyRepos(base, repos);
-    pushSnap(base, repos);
-    const t = gd.generatedAt ? new Date(gd.generatedAt) : null;
-    state.source = 'static';
-    state.updatedAt = t && !isNaN(t) ? t.toLocaleString() : (gd.generatedAt || '未知');
-    render();
-    setStatus('');
-    return;
+      const all = packed.repos || [];
+      const repos = state.lang ? all.filter(r => r.lang === state.lang) : all;
+      applyRepos(base, repos);
+      pushSnap(base, repos);
+      const t = meta.generatedAt ? new Date(meta.generatedAt) : null;
+      state.source = 'static';
+      state.updatedAt = t && !isNaN(t) ? t.toLocaleString() : (meta.generatedAt || '未知');
+      render();
+      setStatus('');
+      return;
+    }
   }
   // 24 小时内的旧缓存先显示，再后台更新
   const stale = bypassCache ? null : readCache(CACHE_PREFIX + base, STALE_TTL);

@@ -29,9 +29,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/repos.js data/desc-zh.json data/readme-zh.json
+          git add data/repos.js data/repos-meta.js data/repos-week.js data/repos-month.js data/repos-year.js data/repos-all.js data/desc-zh.json data/readme-zh.json
           if git diff --cached --quiet; then
-            echo "No changes to data/repos.js, skip commit."
+            echo "No changes to data/, skip commit."
           else
             git commit -m "chore: update ranking data $(date -u +%F)"
             git push
