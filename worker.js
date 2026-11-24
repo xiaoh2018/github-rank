@@ -28,6 +28,8 @@ const SITE = {
   '/sw.js': ['sw.js', 'application/javascript; charset=utf-8'],
   '/manifest.json': ['manifest.json', 'application/manifest+json; charset=utf-8'],
   '/icon.svg': ['icon.svg', 'image/svg+xml'],
+  // 社交平台抓取用的分享图（1200×630，由 scripts/make-og-image.ps1 生成）
+  '/og-image.png': ['og-image.png', 'image/png'],
   '/data/links.json': ['data/links.json', 'application/json; charset=utf-8'],
   '/data/articles.json': ['data/articles.json', 'application/json; charset=utf-8'],
   '/data/site.json': ['data/site.json', 'application/json; charset=utf-8'],
@@ -59,7 +61,8 @@ export default {
         return Response.redirect(url.origin + '/admin#keepalive', 302);
       }
       if (url.pathname === '/api/status' && request.method === 'GET') {
-        return json(await getStatus(env));
+        // 状态接口要打两次 GitHub API，冷启动接近 1 秒；用边缘缓存挡 60 秒
+        return json(await getStatusCached(env));
       }
       if (url.pathname === '/api/run' && request.method === 'POST') {
         if (!env.RUN_PASSWORD && !env.ADMIN_PASSWORD) {
@@ -473,6 +476,14 @@ function applySeo(html, seo) {
   put(/<meta\s+property=["']og:title["'][^>]*>/i, seo.title, (v) => '<meta property="og:title" content="' + v + '">');
   put(/<meta\s+property=["']og:description["'][^>]*>/i, seo.description, (v) => '<meta property="og:description" content="' + v + '">');
   put(/<meta\s+property=["']og:image["'][^>]*>/i, seo.ogImage, (v) => '<meta property="og:image" content="' + v + '">');
+  put(/<meta\s+property=["']og:url["'][^>]*>/i, base, (v) => '<meta property="og:url" content="' + v + '/">');
+  // 有分享图才值得用大图卡片，否则社交平台会留一块空白
+  put(
+    /<meta\s+name=["']twitter:card["'][^>]*>/i,
+    seo.ogImage ? 'summary_large_image' : 'summary',
+    (v) => '<meta name="twitter:card" content="' + v + '">'
+  );
+  put(/<meta\s+name=["']twitter:image["'][^>]*>/i, seo.ogImage, (v) => '<meta name="twitter:image" content="' + v + '">');
   put(/<link\s+rel=["']canonical["'][^>]*>/i, base, (v) => '<link rel="canonical" href="' + v + '/">');
   return out;
 }
@@ -562,6 +573,7 @@ async function keepalive(env) {
   if (!put.ok) {
     return { ok: false, error: '写入失败：' + put.status + ' ' + put.text.slice(0, 200) };
   }
+  await purgeEdge(['/api/status']);
   return { ok: true, time: fmtBJ(new Date(iso)) };
 }
 
@@ -620,6 +632,7 @@ async function triggerRefresh(env) {
     body: JSON.stringify({ ref: branch(env) }),
   });
   if (!d.ok) return { ok: false, status: 502, msg: '触发更新失败：' + d.status };
+  await purgeEdge(['/api/status']);
   return { ok: true, started: true, msg: '已开始更新仓库数据，通常 2～5 分钟后所有访客打开都能看到新数据' };
 }
 
@@ -705,6 +718,35 @@ async function getStatus(env) {
     workflow: workflow,
     workflowError: runs.ok ? null : '读取数据更新任务失败：GitHub 返回 ' + runs.status,
   };
+}
+
+// /api/status 的薄缓存：两个 GitHub 请求本身已经并行，剩下的延迟就是 API 往返。
+// 用 Cache API 挡 60 秒，后台反复刷新页面不会每次都打到 GitHub（5000 次/小时的额度也省了）。
+// 保活、触发更新之后会主动 purge，所以状态不会因此变旧。
+async function getStatusCached(env) {
+  const key = new Request(EDGE_KEY_BASE + '/api/status', { method: 'GET' });
+  const hit = await EDGE_CACHE.match(key);
+  if (hit) {
+    try {
+      return await hit.json();
+    } catch (e) {
+      // 缓存里是坏数据，删掉重新算
+      await EDGE_CACHE.delete(key);
+    }
+  }
+  const data = await getStatus(env);
+  const res = new Response(JSON.stringify(data), {
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'public, max-age=60, s-maxage=60',
+    },
+  });
+  try {
+    await EDGE_CACHE.put(key, res);
+  } catch (e) {
+    console.log('status cache put failed: ' + String(e));
+  }
+  return data;
 }
 
 // ---- 友链后台 ----
@@ -1507,7 +1549,7 @@ dialog{width:calc(100% - 24px)}
   }
   function api(path, opt) {
     opt = opt || {};
-    var init = { method: opt.method || 'GET', headers: {} };
+    var init = { method: opt.method || 'GET', headers: {}, cache: 'no-store' };
     if (opt.body) {
       init.headers['Content-Type'] = 'application/json';
       init.body = JSON.stringify(opt.body);

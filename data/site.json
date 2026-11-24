@@ -27,8 +27,8 @@
     "title": "GitHub 热门项目排行榜 - 按星标、增速发现热门开源项目",
     "description": "GitHub 热门项目排行榜，按近 7 天、近 30 天、近 1 年、全部时间查看星标最多的开源仓库，并提供今日增量、语言分布、热门开发者与组织榜。数据每 3 小时更新。",
     "keywords": "GitHub 排行榜,GitHub 热门项目,GitHub Trending,开源项目,星标排行,热门开发者,GitHub 组织,语言分布",
-    "ogImage": "",
-    "siteUrl": "https://github-rank.xiaoh2018.workers.dev"
+    "ogImage": "https://github.661026.xyz/og-image.png",
+    "siteUrl": "https://github.661026.xyz"
   },
   "geo": {
     "summary": "GitHub 热门项目排行榜是静态展示的 GitHub 开源仓库排行站点。数据来自 GitHub 公开的 Search API，由 GitHub Actions 每 3 小时抓取一次并写入静态文件，页面默认读取该文件。主要功能：按近 7 天、近 30 天、近 1 年、全部时间查看星标排行；按星标、今日增量、活跃度、Fork 数、最近更新排序；按编程语言筛选；查看今日增量、新晋与掉队变化及语言分布；查看热门开发者与组织榜。",

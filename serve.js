@@ -10,12 +10,17 @@ const types = {
   '.js': 'application/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
-  '.css': 'text/css; charset=utf-8'
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.css': 'text/css; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8'
 };
 
 const server = http.createServer((req, res) => {
   let urlPath = decodeURIComponent(req.url.split('?')[0]);
   if (urlPath === '/') urlPath = '/index.html';
+  // 和 Worker 的路由保持一致，本地预览也能打开 /articles
+  if (urlPath === '/articles') urlPath = '/articles.html';
   const file = path.normalize(path.join(root, urlPath));
   if (!file.startsWith(root)) { res.writeHead(403); return res.end('forbidden'); }
   fs.readFile(file, (err, data) => {
