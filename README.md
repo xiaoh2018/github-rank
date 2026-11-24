@@ -41,12 +41,20 @@ js/md.js            Markdown 渲染（文章和 README 共用）
 sw.js               Service Worker，缓存版本号 CACHE 在文件内
 manifest.json       PWA 配置
 icon.svg            图标
+og-image.png        社交分享图（1200×630，由 scripts/make-og-image.ps1 生成）
 worker.js           Cloudflare Worker：页面转发、后台、API、保活、定时任务
 scripts/fetch.js    抓取榜单、翻译简介和 README 的脚本（Node 20，无依赖）
+scripts/split-data.js        把旧的合并数据文件拆成按时间范围的新格式（迁移用）
+scripts/make-og-image.ps1    生成 og-image.png（Windows 自带 GDI+，无需额外依赖）
 serve.js            本地静态服务（只用于本机预览）
 启动网页.bat         Windows 下双击启动本地预览
 data/
-  repos.js          榜单数据（Action 生成）
+  repos-meta.js     榜单元信息（生成时间、各范围条数、开发者与组织榜）
+  repos-week.js     近 7 天榜（Action 生成）
+  repos-month.js    近 30 天榜（Action 生成）
+  repos-year.js     近 1 年榜（Action 生成）
+  repos-all.js      全部时间榜（Action 生成）
+  repos.js          旧版合并数据，已冻结，仅作新 Worker 部署前的兜底
   desc-zh.json      简介中文译文（Action 和 Worker 共同维护）
   readme-zh.json    README 中文译文（Action 生成）
   site.json         站点设置：SEO、GEO、广告、联系方式、备案、榜单布局
@@ -57,9 +65,9 @@ data/
 
 ## 数据如何流动
 
-1. **榜单**：GitHub Action 每 3 小时运行 `scripts/fetch.js`，生成 `data/repos.js` 等文件。只有内容变化时才提交。也可以在 Actions 页面手动运行 `Update data`。
-2. **访客打开页面**：Worker 从仓库的 raw 地址读取页面文件和数据，原样返回。页面脚本再请求抽屉详情、README 等接口，由 Worker 代为请求 GitHub 并缓存。
-3. **后台保存**：管理员在 `/admin` 修改配置，Worker 使用 `GITHUB_TOKEN` 把修改提交到仓库的 `data/` 目录，约 5 分钟后前台生效。
+1. **榜单**：GitHub Action 每 3 小时运行 `scripts/fetch.js`，生成 `data/repos-meta.js`（元信息 + 开发者/组织榜）和 `data/repos-week.js`、`repos-month.js`、`repos-year.js`、`repos-all.js`（每个时间范围一个文件，页面只下载当前选中的那一个）。只有内容变化时才提交。也可以在 Actions 页面手动运行 `Update data`。
+2. **访客打开页面**：Worker 从仓库的 raw 地址读取页面文件和数据，把**成品响应**写进边缘缓存（Cache API）：命中时直接返回，既不回源也不重新拼页面；未命中才回源一次，之后按文件类型带长缓存、`ETag` 和 `stale-while-revalidate`。页面脚本再请求抽屉详情、README 等接口，由 Worker 代为请求 GitHub 并缓存。
+3. **后台保存**：管理员在 `/admin` 修改配置，Worker 使用 `GITHUB_TOKEN` 把修改提交到仓库的 `data/` 目录，并顺手清掉相关成品缓存，刷新即可看到。
 4. **保活**：Cron 每周一 UTC 02:00（北京时间 10:00）运行一次，检查保活状态并记录时间。
 
 ## 部署

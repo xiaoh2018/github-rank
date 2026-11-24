@@ -225,15 +225,15 @@ if ((request.method === 'GET' || request.method === 'HEAD') && SITE[url.pathname
 
 ### P1-4 `/api/status` 996ms
 
-串行调 GitHub API 两次（workflow 状态 + 仓库信息）。两个请求 `Promise.all` 并行，外加 60 秒边缘缓存，能压到 200ms 内。
+串行调 GitHub API 两次（workflow 状态 + 仓库信息）。两个请求 `Promise.all` 并行，外加 60 秒边缘缓存，能压到 200ms 内。**✅ 已做**（2026-11-24 晚，见优化建议 §8）。
 
 ### P2 小项
 
 | 项 | 说明 |
 |---|---|
 | `sw.js` 预取 `data/repos.js` | 装 SW 时就把 400KB 下下来，弱网用户第一次访问白白多 400KB。改成不预取，或只在 `navigator.connection.saveData === false` 时预取 |
-| `canonical` 还指着 workers.dev | 实测 `github.661026.xyz` 返回的 `<link rel="canonical">` 和 `data/site.json` 的 `siteUrl` 都还是 `https://github-rank.xiaoh2018.workers.dev`。**新域名上线后这两个必须改**，否则搜索引擎把权重全算到旧域名，新域名白干 |
-| `og:image` 空 | 分享到微信/Twitter 没图 |
+| `canonical` 还指着 workers.dev | ~~待改~~ **已改**：`index.html`、`articles.html` 的 canonical / `og:url` / JSON-LD，以及 `data/site.json` 的 `seo.siteUrl` 现在全部指向 `https://github.661026.xyz` |
+| `og:image` 空 | **已补**：`og-image.png`（1200×630）+ `/og-image.png` 路由 + `twitter:image` |
 | 大文件走 gzip | `repos.js` 的 br 比 gzip 大 2%，虽然客户端协商你控制不了，但把大文件拆小后 br 的表现会变好（小文件 br 通常更优） |
 
 ---
@@ -269,6 +269,8 @@ if ((request.method === 'GET' || request.method === 'HEAD') && SITE[url.pathname
 ## 附：本报告的落地进度（2026-11-24 傍晚）
 
 - ✅ P0-1 边缘缓存、✅ P0-2 长缓存+ETag、✅ P0-3 数据按 range 拆分、✅ P1-3 修 HEAD —— 代码已改并本地模拟 workers 运行时验证通过，细节与实测见 [优化建议.md](优化建议.md) §7。
-- ⏳ P1-1 数据搬 KV、P1-2 Early Hints、P1-4 `/api/status` 未做（理由见优化建议 §7 末尾）。
+- ✅ P1-4 `/api/status`：两个请求本就并行，本轮加了 60 秒边缘缓存 + 保活/触发更新后自动 purge（细节见 [优化建议.md](优化建议.md) §8）。
+- ⏳ P1-1 数据搬 KV、P1-2 Early Hints 仍未做（理由见优化建议 §8 末尾）。
+- ✅ P2 小项里的 canonical / `og:image` 已改；SW 预取已随 P0-3 只预缓存 meta。
 - ⚠️ 以上改动全部在 `worker.js` 里，**必须在 Cloudflare 重新粘贴部署 Worker 才生效**；数据拆分还需要等一次 Action 跑完。
 - DNS 现状补充：`github.661026.xyz` 是灰色（DNS only）CNAME 到 `github.cloudflare.182682.xyz`，CF 回源时按 SNI 认 zone，因此线上可用；但实测解析出的 5 个 IP 与自建无关域名完全相同（172.66.143.239 / 172.66.215.173 / 172.67.205.252 / 104.25.246.254 / 104.25.253.202），说明并没有换到更快的一组边缘节点——**零收益，且可用性挂在别人的 DNS 记录上**（对方删掉这条记录，你的站立刻解析失败）。真正要快只有两条：自己 zone 里加 A 记录指向实测更快的 CF IP，或上 Cloudflare for SaaS 自定义主机名。
