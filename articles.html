@@ -130,6 +130,7 @@ li.md-task{list-style:none;margin-left:-18px}
 .pwd-modal::backdrop{background:rgba(20,16,10,.45);backdrop-filter:blur(2px)}
 .pm-card{padding:22px 22px 18px}
 .pm-card h3{margin:0 0 6px;font-size:17px;letter-spacing:-.2px}
+  .pm-hint{margin:0 0 10px;padding:10px 12px;border-radius:10px;background:var(--chip);color:var(--text);font-size:13px;line-height:1.7;white-space:pre-wrap}
 .pm-sub{margin:0 0 14px;color:var(--muted);font-size:13px}
 .pm-card input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 13px;font:inherit;color:var(--text)}
 .pm-card input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(176,125,16,.14)}
@@ -244,6 +245,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
   <form class="pm-card" method="dialog" onsubmit="return false">
     <h3>这篇文章需要密码</h3>
     <p class="pm-sub">输入站长设置的访问密码才能阅读正文。</p>
+    <p class="pm-hint" id="pwHint" hidden></p>
     <input type="password" id="pwIn" autocomplete="current-password" placeholder="访问密码">
     <div class="pm-err" id="pwErr"></div>
     <div class="pm-actions">
@@ -366,7 +368,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
 
   function cardHtml(a) {
     var tags = (a.tags || []).slice(0, 3).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
-    return '<a class="acard" href="#' + encodeURIComponent(a.id) + '" data-id="' + esc(a.id) + '">' +
+    return '<a class="acard" href="' + esc(artPath(a)) + '" data-id="' + esc(a.id) + '">' +
       '<h3>' + esc(a.title || '(无标题)') + (a.locked ? ' 🔒' : '') + '</h3>' +
       (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') +
       '<div class="ameta">' +
@@ -455,11 +457,12 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
     var idx = state.arts.indexOf(a);
     var prev = state.arts[idx + 1], next = state.arts[idx - 1];
     $('rNav').innerHTML =
-      (next ? '<a href="#' + encodeURIComponent(next.id) + '">← ' + esc(next.title || '') + '</a>' : '<span></span>') +
-      (prev ? '<a href="#' + encodeURIComponent(prev.id) + '" style="margin-left:auto">' + esc(prev.title || '') + ' →</a>' : '<span></span>');
+      (next ? '<a href="' + esc(artPath(next)) + '">← ' + esc(next.title || '') + '</a>' : '<span></span>') +
+      (prev ? '<a href="' + esc(artPath(prev)) + '" style="margin-left:auto">' + esc(prev.title || '') + ' →</a>' : '<span></span>');
     var body = $('rBody');
     if (a.locked) {
-      body.innerHTML = '<div class="locknote"><p>这篇是加密文章，输入密码后阅读正文。</p>' +
+      var lockHint = (a.unlockHint || (state.site && state.site.article && state.site.article.unlockHint) || '').trim();
+      body.innerHTML = '<div class="locknote"><p>' + (lockHint ? esc(lockHint) : '这篇是加密文章，输入密码后阅读正文。') + '</p>' +
         '<button class="btn primary" id="lockOpen" type="button">输入密码解锁</button></div>';
       $('lockOpen').addEventListener('click', function () { askPassword(a.id); });
       askPassword(a.id);
@@ -481,6 +484,11 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
 
   function askPassword(id) {
     lockId = id;
+    var art = null;
+    (state.arts || []).forEach(function (x) { if (String(x.id) === String(id)) art = x; });
+    var hintText = ((art && art.unlockHint) || (state.site && state.site.article && state.site.article.unlockHint) || '').trim();
+    var hintEl = $('pwHint');
+    if (hintEl) { hintEl.textContent = hintText; hintEl.hidden = !hintText; }
     var dlg = $('pwDlg');
     $('pwIn').value = '';
     $('pwErr').textContent = '';
@@ -511,13 +519,32 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
     }).catch(function () { $('pwGo').disabled = false; err.textContent = '网络错误，稍后再试'; });
   }
 
+  function artPath(a) {
+    return a && a.slug ? '/articles/' + encodeURIComponent(String(a.slug)) : '/articles#' + encodeURIComponent(String((a && a.id) || ''));
+  }
+
+  function pathOf(id) {
+    var hit = null;
+    (state.arts || []).forEach(function (x) { if (String(x.id) === String(id)) hit = x; });
+    return artPath(hit || { id: id });
+  }
+
+  function artFromPath() {
+    var m = /^\/articles\/([A-Za-z0-9-]{1,60})\/?$/.exec(location.pathname || '');
+    if (!m) return null;
+    var slug = decodeURIComponent(m[1]);
+    var hit = null;
+    (state.arts || []).forEach(function (x) { if (x && x.slug === slug) hit = x; });
+    return hit;
+  }
+
   function closeReader() {
     state.open = null;
     $('reader').hidden = true;
     $('listWrap').classList.remove('is-reading');
     $('hero').hidden = false;
     document.title = '文章 · GitHub 热门项目排行榜';
-    if (location.hash) history.replaceState(null, '', location.pathname);
+    history.replaceState(null, '', '/articles');
     renderAds(state.site);
   }
 
@@ -527,7 +554,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
     if (!a) return;
     e.preventDefault();
     var id = a.getAttribute('data-id');
-    history.pushState(null, '', '#' + encodeURIComponent(id));
+    history.pushState(null, '', pathOf(id));
     openReader(id);
   });
   $('rNav').addEventListener('click', function (e) {
@@ -535,7 +562,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
     if (!a) return;
     e.preventDefault();
     var id = decodeURIComponent(String(a.getAttribute('href') || '').replace(/^#/, ''));
-    history.pushState(null, '', '#' + encodeURIComponent(id));
+    history.pushState(null, '', pathOf(id));
     openReader(id);
   });
   $('side').addEventListener('click', function (e) {
@@ -564,7 +591,8 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
   window.addEventListener('hashchange', function () { route(); });
 
   function route() {
-    var id = String(location.hash || '').replace(/^#/, '');
+    var byPath = artFromPath();
+    var id = byPath ? String(byPath.id) : String(location.hash || '').replace(/^#/, '');
     if (id) openReader(decodeURIComponent(id));
     else if (state.open || !$('reader').hidden) closeReader();
   }

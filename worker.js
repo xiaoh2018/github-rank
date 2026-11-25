@@ -67,6 +67,10 @@ export default {
           headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },
         });
       }
+      // /articles/<slug> 也返回文章页（前端按路径里的 slug 打开对应文章，利于收录）
+      if (/^\/articles\/[A-Za-z0-9][A-Za-z0-9-]{0,59}$/.test(url.pathname) && (request.method === 'GET' || request.method === 'HEAD')) {
+        return serveSiteEdge(env, '/articles', SITE['/articles'], request);
+      }
       if (url.pathname === '/sitemap.xml' && (request.method === 'GET' || request.method === 'HEAD')) {
         const seoSite = (await loadSiteRaw(env)).seo;
         const origin = seoSite.siteUrl ? seoSite.siteUrl.replace(/\/+$/, '') : url.origin;
@@ -80,7 +84,8 @@ export default {
         for (const a of list.slice(0, 200)) {
           if (!a || !a.id) continue;
           const lm = a.date ? String(a.date).slice(0, 10) : '';
-          xml += '  <url><loc>' + origin + '/articles#' + encodeURIComponent(String(a.id)) + '</loc>' +
+          const artPath = a.slug ? '/articles/' + encodeURIComponent(String(a.slug)) : '/articles#' + encodeURIComponent(String(a.id));
+          xml += '  <url><loc>' + origin + artPath + '</loc>' +
             (lm ? '<lastmod>' + lm + '</lastmod>' : '') + '<changefreq>monthly</changefreq><priority>0.5</priority></url>\n';
         }
         xml += '</urlset>\n';
@@ -1159,7 +1164,7 @@ async function handleLinks(request, env) {
 const NAV_FILE = 'data/nav.json';
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v48';
+const ASSET_V = 'v49';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1703,6 +1708,7 @@ function defaultSite() {
       html: '',
       slots: emptyAdSlots(),
       ticker: { enabled: false, text: '', speed: 18, link: '', modal: '' },
+      article: { unlockHint: '' },
     },
     layout: { mode: 'auto', side: 'right', users: 'auto', articleSide: 'right' },
     contact: { enabled: false, title: '联系我', wechat: '', qrUrl: '', email: '', note: '' },
@@ -1717,6 +1723,8 @@ function defaultSite() {
 // 读出来的内容统一成标准结构，缺的字段用默认值补齐
 function normalizeSite(o) {
   const d = defaultSite();
+  const art = o && typeof o.article === 'object' && o.article ? o.article : {};
+  d.article = { unlockHint: typeof art.unlockHint === 'string' ? art.unlockHint.slice(0, 300) : '' };
   const ad = o && typeof o.ad === 'object' && o.ad ? o.ad : {};
   const c = o && typeof o.contact === 'object' && o.contact ? o.contact : {};
   const str = (v, fb) => (typeof v === 'string' ? v : fb);
@@ -1821,6 +1829,11 @@ async function readSite(env) {
 function checkSection(section, value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return { ok: false, error: 'value 必须是对象' };
+  }
+  if (section === 'article') {
+    const hint = value && typeof value.unlockHint === 'string' ? value.unlockHint.trim() : '';
+    if (hint.length > 300) return { ok: false, error: '默认密码提示最多 300 字' };
+    return { ok: true, value: { unlockHint: hint } };
   }
   if (section === 'ad') {
     // 结构：{ slots: { '<槽位>': { enabled, html, every, link, modal } }, ticker: {...} }；老结构 { enabled, html } 仍然接受
@@ -2211,10 +2224,31 @@ function publicArticle(a) {
   return out;
 }
 
+// 生成可读 slug：小写、非字母数字折成连字符；纯中文标题会得到空串，由调用方兜底
+function slugify(title) {
+  return String(title || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+
 // 校验一篇文章：title / summary / body 为文字，date 为 YYYY-MM-DD（缺省为今天）
 function checkArticle(v) {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return { ok: false, error: '文章内容必须是对象' };
   const clean = {};
+  const rawSlug = typeof v.slug === 'string' ? v.slug.trim().toLowerCase() : '';
+  if (rawSlug) {
+    if (!/^[a-z0-9][a-z0-9-]{0,59}$/.test(rawSlug)) {
+      return { ok: false, error: '链接别名只能用小写字母、数字和连字符，2–60 位' };
+    }
+    clean.slug = rawSlug;
+  }
+  if (v.unlockHint != null) {
+    const hint = typeof v.unlockHint === 'string' ? v.unlockHint.trim() : '';
+    if (hint.length > 300) return { ok: false, error: '获取密码的提示最多 300 字' };
+    clean.unlockHint = hint;
+  }
   for (const k of ['title', 'summary', 'body']) {
     const s = v[k] == null ? '' : v[k];
     if (typeof s !== 'string') return { ok: false, error: '文章的「' + k + '」必须是文字' };
@@ -2283,6 +2317,11 @@ async function handleArticles(request, env) {
     if (list.length >= ARTICLES_MAX) return json({ ok: false, error: '文章最多 ' + ARTICLES_MAX + ' 篇，请先删除旧文章' }, 400);
     let id = String(Date.now());
     while (list.some((a) => a && String(a.id) === id)) id = String(Number(id) + 1);
+    var baseSlug = c.clean.slug || slugify(c.clean.title) || ('p-' + Date.now().toString(36));
+    var finalSlug = baseSlug;
+    var dup = 2;
+    while (list.some(function (x) { return x && x.slug === finalSlug; })) finalSlug = baseSlug + '-' + dup++;
+    c.clean.slug = finalSlug;
     list.push(Object.assign({ id: id }, c.clean));
   } else {
     const id = body.id == null ? '' : String(body.id);
@@ -2308,6 +2347,11 @@ async function handleArticles(request, env) {
           return json({ ok: false, error: '加密文章要设置访问密码' }, 400);
         }
       }
+      var wantSlug = c.clean.slug || prev.slug || slugify(c.clean.title) || ('p-' + Date.now().toString(36));
+      var finalSlug2 = wantSlug;
+      var dup2 = 2;
+      while (list.some(function (x) { return x && x.slug === finalSlug2 && String(x.id) !== String(id); })) finalSlug2 = wantSlug + '-' + dup2++;
+      c.clean.slug = finalSlug2;
       list[idx] = Object.assign({ id: id }, c.clean);
     }
   }
@@ -3151,6 +3195,8 @@ tr:hover td{background:#fcfbf8}
       <div class="lockrow">
         <label class="toggle inline"><input type="checkbox" id="artLock"> 加密这篇（读者要输密码才能看）</label>
         <input type="password" id="artPw" maxlength="60" autocomplete="new-password" placeholder="访问密码，至少 4 位；编辑时留空 = 沿用原密码">
+        <input id="artSlug" maxlength="60" placeholder="链接别名（留空自动生成，只用小写字母数字和连字符）">
+        <textarea id="artHint" maxlength="300" rows="2" placeholder="怎么拿到密码？例如：加微信 flyfish2026 回复「密码」；留空用站点默认提示"></textarea>
       </div>
       <div class="row-actions">
         <button type="button" class="ghost small" id="artImport">导入 .md</button>
@@ -3616,6 +3662,8 @@ tr:hover td{background:#fcfbf8}
     $('artBody').value = a ? a.body : '';
     $('artLock').checked = !!(a && a.locked);
     $('artPw').value = '';
+    $('artSlug').value = (a && a.slug) || '';
+    $('artHint').value = (a && a.unlockHint) || '';
     $('artErr').textContent = '';
     paintPreview();
     $('artDlg').showModal();
@@ -3630,6 +3678,10 @@ tr:hover td{background:#fcfbf8}
     };
     var lockOn = $('artLock').checked;
     var lockPw = $('artPw').value || '';
+    var artSlug = ($('artSlug').value || '').trim();
+    var artHint = ($('artHint').value || '').trim();
+    article.slug = artSlug;
+    article.unlockHint = artHint;
     article.locked = lockOn;
     if (lockOn) {
       if (lockPw && lockPw.length < 4) { $('artErr').textContent = '访问密码至少 4 位'; return; }
