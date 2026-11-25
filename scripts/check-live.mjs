@@ -79,7 +79,7 @@ push('版本化数据长缓存', metaHead.ok && metaCC.includes('immutable'), me
 
 const artPage = await fetch(base + '/articles?v=' + t);
 const artText = await artPage.text();
-push('/articles 卡片布局', artPage.ok && artText.includes('artgrid'), artPage.status);
+push('/articles 卡片布局', artPage.ok && artText.includes('acard'), artPage.status);
 push('文章封面支持', artText.includes('acover') && artText.includes('a.cover'));
 
 push('问答分类计数', faqText.includes('counts[t]') && faqText.includes("chip b"));
