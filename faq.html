@@ -56,6 +56,8 @@ h1{font-size:26px;margin:6px 0 8px;letter-spacing:-.3px}
 .qa summary:after{content:"+";grid-column:5;justify-self:end;color:var(--muted);font-weight:700;font-size:16px;line-height:1}
 .qa[open] summary:after{content:"−";color:var(--accent)}
 .chip b{font-weight:700;opacity:.62;margin-left:5px;font-variant-numeric:tabular-nums}
+.qa .hitmark{background:rgba(203,145,32,.30);color:inherit;border-radius:3px;padding:0 1px}
+html[data-theme="ink"] .qa .hitmark{background:rgba(240,190,90,.32)}
 
 .qa .ans{padding:14px 20px 18px 52px;color:var(--fg);font-size:14.5px;line-height:1.75}
 .qa .ans p{margin:0 0 10px}
@@ -151,7 +153,7 @@ html[data-theme="notion"]{
 
   // 极简 Markdown：段落 / 列表 / 粗体 / 行内代码 / 链接 / 表格
   function inline(s) {
-    return s
+    return esc(s)
       .replace(/`([^`]+)`/g, '<code>$1</code>')
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
@@ -197,6 +199,46 @@ html[data-theme="notion"]{
     return kw.split(/\s+/).every(function (w) { return s.indexOf(w) >= 0; });
   }
 
+  // 在已渲染好的 DOM 里给命中词加 <mark>：只动文本节点，不会破坏 markdown 生成的标签
+  function highlightNode(root, kw) {
+    if (!kw) return;
+    var words = kw.split(/\s+/).filter(Boolean);
+    if (!words.length) return;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var nodes = [], n;
+    while ((n = walker.nextNode())) {
+      if (!n.nodeValue || !n.nodeValue.trim()) continue;
+      if (n.parentNode && n.parentNode.nodeName === 'MARK') continue;
+      nodes.push(n);
+    }
+    nodes.forEach(function (node) {
+      var txt = node.nodeValue, low = txt.toLowerCase(), ranges = [];
+      words.forEach(function (w) {
+        var at = 0, i;
+        while ((i = low.indexOf(w, at)) !== -1) { ranges.push([i, i + w.length]); at = i + w.length; }
+      });
+      if (!ranges.length) return;
+      ranges.sort(function (a, b) { return a[0] - b[0]; });
+      var merged = [];
+      ranges.forEach(function (r) {
+        var last = merged[merged.length - 1];
+        if (last && r[0] <= last[1]) last[1] = Math.max(last[1], r[1]);
+        else merged.push([r[0], r[1]]);
+      });
+      var frag = document.createDocumentFragment(), pos = 0;
+      merged.forEach(function (r) {
+        if (r[0] > pos) frag.appendChild(document.createTextNode(txt.slice(pos, r[0])));
+        var m = document.createElement('mark');
+        m.className = 'hitmark';
+        m.textContent = txt.slice(r[0], r[1]);
+        frag.appendChild(m);
+        pos = r[1];
+      });
+      if (pos < txt.length) frag.appendChild(document.createTextNode(txt.slice(pos)));
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+
   function render() {
     var kw = (document.getElementById('q').value || '').trim().toLowerCase();
     var list = QA.items.filter(function (it) {
@@ -215,7 +257,10 @@ html[data-theme="notion"]{
           '<div class="ans">' + md(it.a) + '</div></details>';
       }).join('');
     }
-    document.getElementById('count').textContent = '共 ' + QA.items.length + ' 条，当前显示 ' + list.length + ' 条';
+    highlightNode(box, kw);
+    document.getElementById('count').textContent = kw
+      ? '共 ' + QA.items.length + ' 条，命中 ' + list.length + ' 条'
+      : '共 ' + QA.items.length + ' 条，当前显示 ' + list.length + ' 条';
   }
 
   var expandBtn = document.getElementById('expandAll');
