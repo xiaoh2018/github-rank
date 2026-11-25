@@ -212,7 +212,7 @@ push('后台文章面板有分类筛选', admHtml.includes('id="artCatFilter"') 
 push('后台分类筛选有「全部分类」选项', admHtml.includes('全部分类'), '');
 push('后台问答面板有按标签筛选', admHtml.includes('id="qaTagFilter"') && admHtml.includes('fillQaTags'), '');
 push('后台问答筛选能真过滤', admHtml.includes('没有匹配的问答'), '');
-push('导航页有「还没有站点」空态', home.includes('导航页还没有站点'), '');
+push('导航页有「还没有站点」空态', home.includes('class="navempty"') && home.includes('还没有站点'), '');
 push('导航页搜索有高亮（navHl + hitmark）', home.includes('function navHl') && home.includes('class="hitmark"'), '');
 push('导航分组名也参与搜索匹配', home.includes('var gHit=!!q'), '');
 
