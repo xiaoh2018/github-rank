@@ -312,6 +312,17 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var cur = document.documentElement.getAttribute('data-theme') || 'paper';
     applyTheme(THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length]);
   });
+  // 分类显示名：后台分类表里 name → key 的映射（开关打开时显示英文 key）
+  function catDisplay(name) {
+    var n = String(name || '');
+    var site = state.site || {};
+    var cats = (site.article && site.article.categories) || [];
+    var en = !!(site.article && site.article.catEn);
+    for (var i = 0; i < cats.length; i++) {
+      if (cats[i] && (cats[i].name === n || cats[i].key === n)) return en ? cats[i].key : cats[i].name;
+    }
+    return n;
+  }
   // 分类标签：后台开关打开时显示英文（slug 第一段），否则显示原文分类
   function catLabel(a) {
     var en = !!(state.site && state.site.article && state.site.article.catEn);
@@ -447,7 +458,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var names = Object.keys(m).sort(function (a, b) { return m[b] - m[a]; });
     var html = '<button class="chip' + (state.cat === 'all' ? ' is-on' : '') + '" data-cat="all">全部<b>' + state.arts.length + '</b></button>';
     names.forEach(function (n) {
-      html += '<button class="chip' + (state.cat === n ? ' is-on' : '') + '" data-cat="' + esc(n) + '">' + esc(n) + '<b>' + m[n] + '</b></button>';
+      html += '<button class="chip' + (state.cat === n ? ' is-on' : '') + '" data-cat="' + esc(n) + '">' + esc(catDisplay(n)) + '<b>' + m[n] + '</b></button>';
     });
     $('chips').innerHTML = html;
   }
@@ -456,7 +467,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var m = catCount();
     var names = Object.keys(m).sort(function (a, b) { return m[b] - m[a]; });
     $('catList').innerHTML = names.length
-      ? names.map(function (n) { return '<li><a href="#" data-cat="' + esc(n) + '"><span>' + esc(n) + '</span><small>' + m[n] + '</small></a></li>'; }).join('')
+      ? names.map(function (n) { return '<li><a href="#" data-cat="' + esc(n) + '"><span>' + esc(catDisplay(n)) + '</span><small>' + m[n] + '</small></a></li>'; }).join('')
       : '<li><small>暂无分类</small></li>';
     var recent = state.arts.slice().sort(function (a, b) { return String(b.date || '') > String(a.date || '') ? 1 : -1; }).slice(0, 5);
     $('recentList').innerHTML = recent.length
@@ -561,7 +572,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   }
 
   function artPath(a) {
-    if (a && a.slug) return '/articles/' + String(a.slug).split('/').map(encodeURIComponent).join('/');
+    if (a && a.slug) return '/articles/' + String(a.slug).split('/').map(encodeURIComponent).join('/') + '.html';
     return '/articles#' + encodeURIComponent(String((a && a.id) || ''));
   }
 
@@ -572,7 +583,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   }
 
   function artFromPath() {
-    var m = /^\/articles\/([\p{L}\p{N}][\p{L}\p{N}_-]{0,23}(?:\/[\p{L}\p{N}][\p{L}\p{N}_-]{0,29})?)\/?$/u.exec(decodeURIComponent(location.pathname || ''));
+    var p = decodeURIComponent(location.pathname || '').replace(/\.html?$/i, '');
+    var m = /^\/articles\/([\p{L}\p{N}][\p{L}\p{N}_-]{0,23}(?:\/[\p{L}\p{N}][\p{L}\p{N}_-]{0,29})?)\/?$/u.exec(p);
     if (!m) return null;
     var slug = decodeURIComponent(m[1]);
     var hit = null;

@@ -721,5 +721,64 @@ for (const c of secs) {
 const backFinal = await (await hit('/data/site.json')).json();
 ok((backFinal.theme && backFinal.theme.name) === (origin.theme && origin.theme.name), '测试后主题已还原', String(backFinal.theme && backFinal.theme.name));
 
+// ---- 25. 分类管理 + 文章规范地址（.html）----
+console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
+{
+  const catSave = await hit('/api/site', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ password: 'pw', section: 'article', value: { unlockHint: '', catEn: false, categories: [{ key: 'tech', name: '技术', desc: '开发' }, { key: 'note', name: '随笔', desc: '' }] } }),
+  });
+  const cj = await catSave.json();
+  ok(cj.ok === true && cj.site && cj.site.article && cj.site.article.categories.length === 2, '保存分类表（2 个）', JSON.stringify(cj.site && cj.site.article && cj.site.article.categories));
+  const catBack = await (await hit('/data/site.json')).json();
+  ok(catBack.article && catBack.article.categories && catBack.article.categories[0].key === 'tech', '分类立刻回读', JSON.stringify(catBack.article && catBack.article.categories));
+
+  const dup = await hit('/api/site', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ password: 'pw', section: 'article', value: { catEn: false, categories: [{ key: 'tech', name: '技术' }, { key: 'tech', name: '技术2' }] } }),
+  });
+  const dj = await dup.json();
+  ok(dj.ok === false && String(dj.error).indexOf('重复') >= 0, '重复英文词被拒', String(dj.error));
+
+  const bad = await hit('/api/site', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ password: 'pw', section: 'article', value: { catEn: false, categories: [{ key: '技术', name: '技术' }] } }),
+  });
+  const bj = await bad.json();
+  ok(bj.ok === false, '中文当英文词被拒', String(bj.error));
+
+  const addRes = await hit('/api/articles', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ password: 'pw', action: 'add', article: { title: '分类地址测试', summary: 's', body: 'b', category: '技术' } }),
+  });
+  const aj = await addRes.json();
+  const made = (aj.articles || []).filter((a) => a.title === '分类地址测试').pop() || (aj.articles || []).filter((a) => a.slug && a.slug.indexOf('tech/') === 0).pop();
+  ok(!!made, '按分类表生成 slug（tech/N）', made ? made.slug : JSON.stringify(aj.error || ''));
+
+  if (made) {
+    const bare = '/articles/' + String(made.slug).split('/').map(encodeURIComponent).join('/');
+    const r1 = await hit(bare, { redirect: 'manual' });
+    ok(r1.status === 301 && String(r1.headers.get('location') || '').endsWith('.html'), '不带 .html 的地址 301 到规范地址', r1.status + ' ' + r1.headers.get('location'));
+    const r2 = await hit(bare + '.html');
+    ok(r2.status === 200, '规范地址 .html 返回 200', String(r2.status));
+    const del = await hit('/api/articles', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ password: 'pw', action: 'remove', id: made.id }),
+    });
+    const djson = await del.json().catch(() => ({}));
+    ok(del.status === 200 || del.status === 404, '清理测试文章', del.status + ' ' + JSON.stringify(djson.error || ''));
+  }
+
+  const sm = await (await hit('/sitemap.xml')).text();
+  ok(sm.indexOf('.html</loc>') >= 0 || sm.indexOf('.html<') >= 0, '站点地图用 .html 地址', '');
+  const adminHtml2 = await (await hit('/admin')).text();
+  ok(adminHtml2.indexOf('catTbody') >= 0 && adminHtml2.indexOf('catAdd') >= 0, '后台有分类管理表', '');
+}
+
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);

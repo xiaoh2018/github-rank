@@ -70,9 +70,26 @@ export default {
           headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },
         });
       }
-      // /articles/<slug> 也返回文章页（前端按路径里的 slug 打开对应文章，利于收录）
-      if (/^\/articles\/[\p{L}\p{N}][\p{L}\p{N}_-]{0,23}(\/[\p{L}\p{N}][\p{L}\p{N}_-]{0,29})?$/u.test(decodeURIComponent(url.pathname)) && (request.method === 'GET' || request.method === 'HEAD')) {
-        return serveSiteEdge(env, '/articles', SITE['/articles'], request);
+      // 文章规范地址：/articles/<分类>/<序号>.html（旧的 /articles/cat%2F1、不带 .html 的都 301 过来）
+      if ((request.method === 'GET' || request.method === 'HEAD') && url.pathname.indexOf('/articles/') === 0) {
+        let dec = url.pathname;
+        try {
+          dec = decodeURIComponent(url.pathname);
+        } catch (e) {
+          dec = url.pathname;
+        }
+        const segOk = /^\/articles\/[\p{L}\p{N}][\p{L}\p{N}_-]{0,23}(\/[\p{L}\p{N}][\p{L}\p{N}_-]{0,29})?\.html$/u;
+        const bare = dec.replace(/\.html?$/i, '');
+        const canonical = bare + '.html';
+        if (segOk.test(canonical) && /^\/articles\/[^/]+(\/[^/]+)?$/u.test(bare)) {
+          if (dec !== canonical) {
+            return new Response(null, {
+              status: 301,
+              headers: { location: encodeURI(canonical) + (url.search || ''), 'cache-control': 'public, max-age=600' },
+            });
+          }
+          return serveSiteEdge(env, '/articles', SITE['/articles'], request);
+        }
       }
       if (url.pathname === '/sitemap.xml' && (request.method === 'GET' || request.method === 'HEAD')) {
         const seoSite = (await loadSiteRaw(env)).seo;
@@ -89,7 +106,7 @@ export default {
           if (!a || !a.id) continue;
           const lm = a.date ? String(a.date).slice(0, 10) : '';
           const artPath = a.slug
-    ? '/articles/' + String(a.slug).split('/').map(encodeURIComponent).join('/')
+    ? '/articles/' + String(a.slug).split('/').map(encodeURIComponent).join('/') + '.html'
     : '/articles#' + encodeURIComponent(String(a.id));
           xml += '  <url><loc>' + origin + artPath + '</loc>' +
             (lm ? '<lastmod>' + lm + '</lastmod>' : '') + '<changefreq>monthly</changefreq><priority>0.5</priority></url>\n';
@@ -1392,7 +1409,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v54';
+const ASSET_V = 'v55';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1650,7 +1667,7 @@ async function llmsTxt(env, origin) {
   lines.push('');
   lines.push('- 榜单首页：' + root + '/ — 项目榜；可切换「项目榜 / 开发者榜 / 组织榜」「近 7 天 / 近 30 天 / 近 1 年 / 总榜」，可按语言、分类、排序（星标 / 今日增量 / 活跃度 / Fork / 最近更新）筛选');
   lines.push('- 导航页：' + root + '/nav — 常用开发 / AI / 设计 / 学习 / 效率工具站点，分分类展示');
-  lines.push('- 文章页：' + root + '/articles — 站点说明与更新记录（单篇地址 ' + root + '/articles#<文章 id>）');
+  lines.push('- 文章页：' + root + '/articles — 站点说明与更新记录（单篇地址形如 ' + root + '/articles/tech/3.html）');
   lines.push('- 中文界面：首页右上角「English / 中文」可切换，仓库简介会自动翻译成中文（译文有缓存，不会重复翻译）');
   lines.push('');
   lines.push('## 数据来源与口径');
@@ -1690,7 +1707,8 @@ async function llmsTxt(env, origin) {
     lines.push('');
     for (const a of list.slice(0, 50)) {
       if (!a || !a.title) continue;
-      lines.push('- ' + String(a.title) + (a.date ? '（' + String(a.date).slice(0, 10) + '）' : '') +
+      const artUrl = root + '/articles/' + String(a.slug || a.id).split('/').map(encodeURIComponent).join('/') + '.html';
+      lines.push('- [' + String(a.title) + '](' + artUrl + ')' + (a.date ? '（' + String(a.date).slice(0, 10) + '）' : '') +
         (a.summary ? '：' + String(a.summary) : ''));
     }
     lines.push('');
@@ -1799,7 +1817,7 @@ async function handleSubmit(request, env, origin) {
   const arts = await rawJson(env, 'data/articles.json');
   const urls = [root + '/', root + '/articles'];
   (Array.isArray(arts) ? arts : []).slice(0, 100).forEach((a) => {
-    if (a && a.id) urls.push(root + '/articles/' + String(a.slug || a.id).split('/').map(encodeURIComponent).join('/'));
+    if (a && a.id) urls.push(root + '/articles/' + String(a.slug || a.id).split('/').map(encodeURIComponent).join('/') + '.html');
   });
   const want = String(body.action || 'all');
   const out = { ok: true, urls: urls.length, root: root, results: {} };
@@ -1952,7 +1970,14 @@ function defaultSite() {
       ticker: { enabled: false, text: '', speed: 18, link: '', modal: '' },
       article: { unlockHint: '' },
     },
-    article: { unlockHint: '', catEn: false },
+    article: {
+      unlockHint: '',
+      catEn: false,
+      categories: [
+        { key: 'tech', name: '技术', desc: '开发、部署、性能' },
+        { key: 'note', name: '随笔', desc: '零散记录' },
+      ],
+    },
     theme: { name: 'paper', allowUser: true },
     layout: { mode: 'auto', side: 'right', users: 'auto', articleSide: 'right' },
     contact: { enabled: false, title: '联系我', wechat: '', qrUrl: '', email: '', note: '' },
@@ -1972,6 +1997,22 @@ function normalizeSite(o) {
     unlockHint: typeof art.unlockHint === 'string' ? art.unlockHint.slice(0, 300) : '',
     catEn: !!art.catEn,
   };
+  const rawCats = o && o.article && Array.isArray(o.article.categories) ? o.article.categories : null;
+  if (rawCats) {
+    const seen = {};
+    d.article.categories = [];
+    for (const c of rawCats.slice(0, 30)) {
+      if (!c || typeof c !== 'object') continue;
+      const key = String(c.key || '').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24);
+      if (!key || seen[key]) continue;
+      seen[key] = 1;
+      d.article.categories.push({
+        key: key,
+        name: (typeof c.name === 'string' ? c.name : '').trim().slice(0, 24) || key,
+        desc: (typeof c.desc === 'string' ? c.desc : '').trim().slice(0, 80),
+      });
+    }
+  }
   const th = o && typeof o.theme === 'object' && o.theme ? o.theme : {};
   d.theme = {
     name: THEME_NAMES.indexOf(String(th.name || '')) >= 0 ? String(th.name) : 'paper',
@@ -2090,7 +2131,26 @@ function checkSection(section, value) {
   if (section === 'article') {
     const hint = value && typeof value.unlockHint === 'string' ? value.unlockHint.trim() : '';
     if (hint.length > 300) return { ok: false, error: '默认密码提示最多 300 字' };
-    return { ok: true, clean: { unlockHint: hint, catEn: !!value.catEn } };
+    const catsIn = value && Array.isArray(value.categories) ? value.categories : null;
+    const cats = [];
+    if (catsIn) {
+      if (catsIn.length > 30) return { ok: false, error: '分类最多 30 个' };
+      const seen = {};
+      for (const c of catsIn) {
+        if (!c || typeof c !== 'object') continue;
+        const key = String(c.key || '').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24);
+        if (!key) return { ok: false, error: '分类的英文词只能用小写字母、数字和连字符（如 tech）' };
+        if (seen[key]) return { ok: false, error: '分类英文词重复：' + key };
+        seen[key] = 1;
+        const name = (typeof c.name === 'string' ? c.name : '').trim();
+        if (!name) return { ok: false, error: '分类“' + key + '”要填显示名' };
+        if (name.length > 24) return { ok: false, error: '分类显示名最多 24 字' };
+        const desc = (typeof c.desc === 'string' ? c.desc : '').trim();
+        if (desc.length > 80) return { ok: false, error: '分类说明最多 80 字' };
+        cats.push({ key: key, name: name, desc: desc });
+      }
+    }
+    return { ok: true, clean: { unlockHint: hint, catEn: !!value.catEn, categories: cats } };
   }
   if (section === 'theme') {
     const name = String((value && value.name) || '').trim();
@@ -2536,6 +2596,17 @@ function catKeyOf(cat) {
   var s2 = slugify(cat || '').slice(0, 24);
   return s2 || 'cat';
 }
+// 后台分类表：分类名或英文词 -> 英文 key（都匹配不上就退回 slugify）
+function catKeyFrom(site, raw) {
+  const cats = site && site.article && Array.isArray(site.article.categories) ? site.article.categories : [];
+  const s0 = String(raw || '').trim();
+  if (s0) {
+    for (const c of cats) {
+      if (c && (c.key === s0.toLowerCase() || c.name === s0)) return c.key;
+    }
+  }
+  return catKeyOf(s0);
+}
 function nextSeqOf(list, catKey) {
   var max = 0;
   (list || []).forEach(function (x) {
@@ -2633,7 +2704,7 @@ async function handleArticles(request, env) {
     if (list.length >= ARTICLES_MAX) return json({ ok: false, error: '文章最多 ' + ARTICLES_MAX + ' 篇，请先删除旧文章' }, 400);
     let id = String(Date.now());
     while (list.some((a) => a && String(a.id) === id)) id = String(Number(id) + 1);
-    var catKeyNew = catKeyOf(c.clean.category);
+    var catKeyNew = catKeyFrom(await readSite(env).then((x) => x.site).catch(() => null), c.clean.category);
     var baseSlug = c.clean.slug || catKeyNew + '/' + nextSeqOf(list, catKeyNew);
     var finalSlug = baseSlug;
     var dup = 2;
@@ -2664,7 +2735,7 @@ async function handleArticles(request, env) {
           return json({ ok: false, error: '加密文章要设置访问密码' }, 400);
         }
       }
-      var catKeyUp = catKeyOf(c.clean.category || prev.category);
+      var catKeyUp = catKeyFrom(await readSite(env).then((x) => x.site).catch(() => null), c.clean.category || prev.category);
     var wantSlug = c.clean.slug || prev.slug || catKeyUp + '/' + nextSeqOf(list, catKeyUp);
       var finalSlug2 = wantSlug;
       var dup2 = 2;
@@ -3054,7 +3125,7 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
 .slugrow{display:flex;gap:6px;align-items:center;min-width:220px;flex:1}
 .slugrow input{flex:1;min-width:0}
 .slug-sep{color:#9a9285;font-family:ui-monospace,Menlo,Consolas,monospace}
-.slugline{font-size:11.5px;color:#8a8172;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.slugline{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px;font-size:11.5px;color:#8a8172;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
 .art-lock{font-size:11px;padding:1px 6px;border-radius:6px;background:#f6e7c8;color:#7a5a11;font-weight:600;margin-left:6px}
 
 /* UI v4 · 中性纸感：去掉渐变与光晕，只留细线、留白和一种强调色 */
@@ -3408,7 +3479,7 @@ tr:hover td{background:#fcfbf8}
         <section class="pane" id="pane-submit" hidden>
       <div class="bar">
         <div><h1>收录与平台</h1><p class="sub">把新榜单和文章主动告诉搜索引擎与大模型</p></div>
-        <div class="bar-actions"><label class="toggle inline"><input type="checkbox" id="subForce"> 强制再推一次</label><button class="btn primary" type="button" id="subRun">立即提交</button></div>
+        <div class="bar-actions"><label class="toggle inline"><input type="checkbox" id="subForce"> 强制再推一次</label><button class="btn ghost" type="button" id="subRunIN">只推 IndexNow</button><button class="btn ghost" type="button" id="subRunBD">只推百度</button><button class="btn primary" type="button" id="subRun">全部提交</button></div>
       </div>
               <div class="segtabs" data-group="seogeo"><button type="button" class="is-on" data-go="seo">SEO 基础</button><button type="button" data-go="qa">问答（GEO）</button><button type="button" data-go="submit">收录与平台</button></div>
       <p class="intro">提交走 IndexNow（Bing、Yandex、Seznam 共用）和百度主动推送；豆包、通义千问、ChatGPT 这些没有公开的收录接口，靠 robots.txt 放行 + llms.txt + 站点地图被爬到。<b>建议每天点一次，或者交给 Actions 定时。</b></p>
@@ -3555,9 +3626,14 @@ tr:hover td{background:#fcfbf8}
       </div>
       <div class="intro">文章用来沉淀长内容：会被搜索引擎收录，也会被 AI 搜索引用。正文支持 Markdown（标题、列表、代码块、链接、图片），写作时右侧实时预览。保存即发布，刷新文章页即可看到。</div>
       <div class="card">
-        <div class="card-head"><b>分类标签</b><span class="msg">链接里永远用英文（如 /articles/tech/3）</span></div>
-        <label class="toggle"><input type="checkbox" id="artCatEn"> 前台把分类显示成英文（关掉则显示你写的中文分类原文）</label>
-        <div class="hint">中文分类仍会保存在文章数据里，只是不进网址；打开这个开关后，列表和文章页上的分类标签显示成 slug 里的英文词。</div>
+        <div class="card-head"><b>分类管理</b><span class="msg">英文词进网址，显示名给访客看</span></div>
+        <div class="hint">网址永远是 <code>/articles/&lt;英文词&gt;/&lt;序号&gt;.html</code>（如 <code>/articles/tech/3.html</code>）。中文分类名只用来展示，不进链接。</div>
+        <table class="cat-table">
+          <thead><tr><th style="width:170px">英文词（进链接）</th><th style="width:190px">显示名</th><th>说明</th><th style="width:64px">操作</th></tr></thead>
+          <tbody id="catTbody"><tr><td colspan="4" class="empty">加载中…</td></tr></tbody>
+        </table>
+        <div class="toolbar"><button type="button" class="ghost" id="catAdd">＋ 新增分类</button><span class="msg">最多 30 个；改英文词会让老链接失效，慎改</span></div>
+        <label class="toggle"><input type="checkbox" id="artCatEn"> 前台把分类显示成英文（关掉则显示显示名）</label>
       </div>
       <div class="card">
         <div class="card-head"><b>加密文章提示语</b><span class="msg">读者点开加密文章时看到的一句说明</span></div>
@@ -3611,7 +3687,7 @@ tr:hover td{background:#fcfbf8}
         <div><label for="artDate">日期</label><input type="date" id="artDate"></div>
       </div>
       <div class="field-row">
-        <div><label for="artCategory">分类</label><input type="text" id="artCategory" maxlength="24" placeholder="如 技术 / 随笔，会显示在列表与筛选里"></div>
+        <div><label for="artCategory">分类</label><input type="text" id="artCategory" maxlength="24" list="artCatList" placeholder="选已有分类，或直接写新的"><datalist id="artCatList"></datalist></div>
         <div><label for="artCat">链接（分类词/序号）</label>
           <span class="slugrow">
             <input id="artCat" maxlength="24" placeholder="分类词，如 tech">
@@ -3933,6 +4009,7 @@ tr:hover td{background:#fcfbf8}
       for (var ri = 0; ri < radios.length; ri++) radios[ri].checked = radios[ri].value === tn;
       if ($('theme-allow')) $('theme-allow').checked = !(s && s.theme && s.theme.allowUser === false);
       if ($('artCatEn')) $('artCatEn').checked = !!(s && s.article && s.article.catEn);
+      renderCats((s && s.article && s.article.categories) || []);
       if ($('artUnlockHint')) $('artUnlockHint').value = (s && s.article && s.article.unlockHint) || '';
     $('beian-enabled').checked = !!b.enabled;
     var src = { contact: c, beian: b, seo: o, geo: g };
@@ -3950,6 +4027,70 @@ tr:hover td{background:#fcfbf8}
     state.faq = Array.isArray(g.faq) ? g.faq.slice() : [];
     renderFaq();
   }
+  var catState = [];
+  function catRow(c, i) {
+    return '<tr data-ci="' + i + '">' +
+      '<td><input type="text" data-cf="key" maxlength="24" value="' + navEsc(c.key || '') + '" placeholder="tech"></td>' +
+      '<td><input type="text" data-cf="name" maxlength="24" value="' + navEsc(c.name || '') + '" placeholder="技术"></td>' +
+      '<td><input type="text" data-cf="desc" maxlength="80" value="' + navEsc(c.desc || '') + '" placeholder="这一类放什么（可留空）"></td>' +
+      '<td><button type="button" class="ghost small" data-cdel="' + i + '">删</button></td>' +
+      '</tr>';
+  }
+  function renderCats(list) {
+    catState = (Array.isArray(list) ? list : []).map(function (c) {
+      return { key: String(c.key || ''), name: String(c.name || ''), desc: String(c.desc || '') };
+    });
+    var tb = $('catTbody');
+    if (tb) {
+      tb.innerHTML = catState.length
+        ? catState.map(catRow).join('')
+        : '<tr><td colspan="4" class="empty">还没有分类，点下面「新增分类」建一个</td></tr>';
+    }
+    var dl = $('artCatList');
+    if (dl) {
+      dl.innerHTML = catState.map(function (c) {
+        return '<option value="' + navEsc(c.name) + '">' + navEsc(c.key) + '</option>';
+      }).join('');
+    }
+  }
+  function readCats() {
+    var tb = $('catTbody');
+    if (!tb) return catState;
+    var out = [];
+    Array.prototype.forEach.call(tb.querySelectorAll('tr[data-ci]'), function (tr) {
+      var get = function (f) {
+        var el = tr.querySelector('[data-cf="' + f + '"]');
+        return el ? el.value.trim() : '';
+      };
+      var key = get('key');
+      var name = get('name');
+      if (!key && !name) return;
+      out.push({ key: key, name: name || key, desc: get('desc') });
+    });
+    return out;
+  }
+  (function bindCats() {
+    var add = $('catAdd');
+    if (add) {
+      add.addEventListener('click', function () {
+        if (catState.length >= 30) { toast('分类最多 30 个', false); return; }
+        catState = readCats();
+        catState.push({ key: '', name: '', desc: '' });
+        renderCats(catState);
+      });
+    }
+    var tb = $('catTbody');
+    if (tb) {
+      tb.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('[data-cdel]') : null;
+        if (!btn) return;
+        catState = readCats();
+        catState.splice(Number(btn.getAttribute('data-cdel')), 1);
+        renderCats(catState);
+      });
+    }
+  })();
+
   function loadSite() {
     api('/api/site').then(function (r) {
       if (!r.ok) { toast(r.error || '读取站点配置失败', false); return; }
@@ -3964,7 +4105,11 @@ tr:hover td{background:#fcfbf8}
       return { name: pickedTheme, allowUser: $('theme-allow') ? $('theme-allow').checked : true };
     }
     if (sec === 'article') {
-      return { unlockHint: ($('artUnlockHint') && $('artUnlockHint').value) || '', catEn: $('artCatEn') ? $('artCatEn').checked : false };
+      return {
+        unlockHint: ($('artUnlockHint') && $('artUnlockHint').value) || '',
+        catEn: $('artCatEn') ? $('artCatEn').checked : false,
+        categories: readCats(),
+      };
     }
     if (sec === 'runtime') {
       var rawCap = $('rtAiCap').value;
@@ -4104,7 +4249,7 @@ tr:hover td{background:#fcfbf8}
       return '<tr><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b>' +
         (a.locked ? '<span class="art-lock">加密</span>' : '') +
         (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
-        '<div class="slugline">/articles/' + esc(a.slug || a.id) + (a.category ? ' · ' + esc(a.category) : '') + '</div>' +
+        '<div class="slugline">/articles/' + esc(a.slug || a.id) + '.html' + (a.category ? ' · ' + esc(a.category) : '') + '</div>' +
         '</td><td>' + esc(a.summary) +
         '</td><td><button type="button" class="ghost small" data-artedit="' + esc(a.id) + '">编辑</button> ' +
         '<button type="button" class="ghost small" data-artview="' + esc(a.id) + '">预览</button> ' +
@@ -4224,7 +4369,7 @@ tr:hover td{background:#fcfbf8}
         'cat';
       $('artCat').value = cat;
       $('artSeq').value = '';
-      toast('链接：/articles/' + cat + '/<自动序号>（想固定就自己填序号）');
+      toast('链接：/articles/' + cat + '/<自动序号>.html（想固定就自己填序号）');
     });
     $('artFullBtn').addEventListener('click', function () {
       var dlg = $('artDlg');
@@ -4580,16 +4725,18 @@ tr:hover td{background:#fcfbf8}
     $('subStatus').innerHTML = '<p class="empty">读取中…</p>';
     loadSubmit();
   });
-  $('subRun').addEventListener('click', function () {
+  var subAction = 'all';
+  function runSubmit(action) {
+    subAction = action || 'all';
     var btn = $('subRun');
     var out = $('subOut');
     btn.disabled = true;
     btn.textContent = '提交中…';
     out.innerHTML = '<p class="note">正在提交…</p>';
     var forceEl = $('subForce');
-    api('/api/submit', { method: 'POST', body: { password: pw, action: 'all', force: !!(forceEl && forceEl.checked) } }).then(function (r) {
+    api('/api/submit', { method: 'POST', body: { password: pw, action: subAction, force: !!(forceEl && forceEl.checked) } }).then(function (r) {
       btn.disabled = false;
-      btn.textContent = '立即提交';
+      btn.textContent = '全部提交';
       if (!r.ok) {
         out.innerHTML = '<div class="tr-box tr-bad">' + navEsc(trErr(r.error || '提交失败')) +
           (r.wait ? '<br>还剩 ' + r.wait + ' 秒。' : '') + '</div>';
@@ -4603,7 +4750,10 @@ tr:hover td{background:#fcfbf8}
       toast('提交完成', true);
       loadSubmit();
     });
-  });
+  }
+  $('subRun').addEventListener('click', function () { runSubmit('all'); });
+  $('subRunIN').addEventListener('click', function () { runSubmit('indexnow'); });
+  $('subRunBD').addEventListener('click', function () { runSubmit('baidu'); });
 
   // ---------- 分段 tab（SEO/GEO、广告位）----------
   document.addEventListener('click', function (e) {
