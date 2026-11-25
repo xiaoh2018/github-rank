@@ -163,6 +163,9 @@ push('首页文章卡片有阅读时长', home.includes('artcard-min') && home.i
 const artListRes = await fetch(base + '/articles?v=' + t);
 const artListHtml = await artListRes.text();
 push('文章列表页有「相关阅读」', artListHtml.includes('relatedHtml') && artListHtml.includes('.related .rmeta-in'), 'status=' + artListRes.status);
+push('阅读器上/下一篇带方向标记', artListHtml.includes('data-dir="newer"') && artListHtml.includes('data-dir="older"'), '');
+push('阅读器首尾有边界提示', artListHtml.includes('已经是第一篇') && artListHtml.includes('已经是最后一篇') && artListHtml.includes('function flashLim'), '');
+push('阅读器换篇按 slug 解析（findArt）', artListHtml.includes('var hit = findArt(id);'), '');
 push('文章列表页有分页条', artListHtml.includes('id="apager"') && artListHtml.includes('var PER = 9;'), '');
 push('文章搜索有命中片段与高亮', artListHtml.includes('function excerptOf') && artListHtml.includes('mark class="hitmark"') && artListHtml.includes('class="hitsrc"'), '');
 push('文章正文参与搜索匹配', artListHtml.includes('plainOf(a.body)'), '');

@@ -124,6 +124,8 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .hitsrc{display:inline-block;margin-right:6px;padding:1px 6px;border-radius:6px;background:var(--chip);color:var(--muted);font-size:12px}
 mark.hitmark{background:rgba(212,160,23,.30);color:inherit;padding:0 1px;border-radius:3px}
 html[data-theme="ink"] mark.hitmark{background:rgba(240,200,120,.35);color:inherit}
+.rlim{color:var(--muted);font-size:13px;padding-bottom:1px;border-bottom:1px dashed transparent}
+.rlim.is-hit{color:var(--accent);border-bottom-color:var(--accent)}
 .toc summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none}
 .toc summary::-webkit-details-marker{display:none}
 .toc summary::before{content:'▸ ';color:var(--muted)}
@@ -574,6 +576,17 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       '</div></a>';
   }
 
+  function flashLim(dir) {
+    var nav = $('rNav');
+    if (!nav) return;
+    var el = nav.querySelector('.rlim[data-lim="' + (dir === 'newer' ? 'prev' : 'next') + '"]') || nav.querySelector('.rlim[data-lim="both"]');
+    if (!el) return;
+    el.classList.remove('is-hit');
+    void el.offsetWidth;
+    el.classList.add('is-hit');
+    setTimeout(function () { el.classList.remove('is-hit'); }, 700);
+  }
+
   document.addEventListener('keydown', function (e) {
     var r = $('reader');
     if (!r || r.hidden) return;
@@ -591,10 +604,11 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       return;
     }
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-    var links = $('rNav') ? $('rNav').querySelectorAll('a') : [];
-    if (!links.length) return;
-    if (e.key === 'ArrowLeft') { links[0].click(); e.preventDefault(); }
-    else { links[links.length - 1].click(); e.preventDefault(); }
+    var dir = e.key === 'ArrowLeft' ? 'newer' : 'older';
+    var link = $('rNav') ? $('rNav').querySelector('a[data-dir="' + dir + '"]') : null;
+    e.preventDefault();
+    if (link) { link.click(); return; }
+    flashLim(dir);
   });
 
   function renderCards() {
@@ -672,7 +686,17 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   }
 
   function findArt(id) {
-    for (var i = 0; i < state.arts.length; i++) if (String(state.arts[i].id) === String(id)) return state.arts[i];
+    var raw = String(id == null ? '' : id);
+    // 兼容三种写法：纯 id、slug（tech/2）、完整地址（/articles/tech/2.html）
+    var key = raw.replace(/^https?:\/\/[^/]+/i, '').replace(/^\/+/, '');
+    if (key.indexOf('articles/') === 0) key = key.slice('articles/'.length);
+    key = key.replace(/\.html?$/i, '').replace(/\/+$/, '');
+    for (var i = 0; i < state.arts.length; i++) {
+      var a = state.arts[i];
+      if (String(a.id) === raw) return a;
+      var slug = String(a.slug || '').replace(/^\/+/, '').replace(/\.html?$/i, '');
+      if (slug && (slug === key || slug === raw)) return a;
+    }
     return null;
   }
 
@@ -807,9 +831,15 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     $('rMeta').appendChild(copyBtn);
     var idx = state.arts.indexOf(a);
     var prev = state.arts[idx + 1], next = state.arts[idx - 1];
-    $('rNav').innerHTML =
-      (next ? '<a href="' + esc(artPath(next)) + '">← ' + esc(next.title || '') + '</a>' : '<span></span>') +
-      (prev ? '<a href="' + esc(artPath(prev)) + '" style="margin-left:auto">' + esc(prev.title || '') + ' →</a>' : '<span></span>');
+    state.rPrev = prev || null;
+    state.rNext = next || null;
+    if (state.arts.length <= 1) {
+      $('rNav').innerHTML = '<span class="rlim" data-lim="both">只有这一篇，没有上一篇 / 下一篇</span>';
+    } else {
+      $('rNav').innerHTML =
+        (next ? '<a href="' + esc(artPath(next)) + '" data-dir="newer">← ' + esc(next.title || '') + '</a>' : '<span class="rlim" data-lim="prev">已经是第一篇</span>') +
+        (prev ? '<a href="' + esc(artPath(prev)) + '" data-dir="older" style="margin-left:auto">' + esc(prev.title || '') + ' →</a>' : '<span class="rlim" data-lim="next" style="margin-left:auto">已经是最后一篇</span>');
+    }
     var posEl = document.createElement('span');
     posEl.className = 'rpos';
     posEl.textContent = '第 ' + (state.arts.indexOf(a) + 1) + ' / ' + state.arts.length + ' 篇 · ←/→ 翻页';
@@ -884,8 +914,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   }
 
   function pathOf(id) {
-    var hit = null;
-    (state.arts || []).forEach(function (x) { if (String(x.id) === String(id)) hit = x; });
+    // findArt 认得 id / slug / 完整路径三种写法，地址栏和分享链接才不会退化成 /articles#id
+    var hit = findArt(id);
     return artPath(hit || { id: id });
   }
 
