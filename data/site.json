@@ -85,6 +85,10 @@
       "unlockHint": ""
     }
   },
+  "article": {
+    "unlockHint": "",
+    "catEn": false
+  },
   "layout": {
     "mode": "auto",
     "side": "right",
@@ -148,9 +152,11 @@
     "aiCap": null,
     "emails": "52aibox2026@gmail.com,52aibox2026+1@gmail.com,52aibox2026+2@gmail.com,52aibox2026+3@gmail.com,52aibox2026+4@gmail.com,52aibox2026+5@gmail.com",
     "baiduToken": "5NuLyLS9gdg1W6G1",
-    "indexNowKey": "ec5a605317274e188ac2d27c3a3b5822"
-  },
-  "article": {
-    "unlockHint": ""
+    "indexNowKey": "ec5a605317274e188ac2d27c3a3b5822",
+    "verify": {
+      "bytedance": "",
+      "sogou": "",
+      "shenma": ""
+    }
   }
 }

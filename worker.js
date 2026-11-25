@@ -818,7 +818,7 @@ async function serveSiteEdge(env, pathname, entry, request) {
 }
 
 // 后台可以保存的站点配置分组
-const SITE_SECTIONS = ['ad', 'layout', 'contact', 'beian', 'seo', 'geo', 'runtime'];
+const SITE_SECTIONS = ['ad', 'layout', 'contact', 'beian', 'seo', 'geo', 'theme', 'article', 'runtime'];
 
 // 读取仓库 data/site.json（raw 地址，边缘缓存 RAW_TTL 秒），给站点页和 sitemap 用；失败时用默认值
 async function loadSiteRaw(env) {
@@ -1392,7 +1392,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v53';
+const ASSET_V = 'v54';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2090,14 +2090,14 @@ function checkSection(section, value) {
   if (section === 'article') {
     const hint = value && typeof value.unlockHint === 'string' ? value.unlockHint.trim() : '';
     if (hint.length > 300) return { ok: false, error: '默认密码提示最多 300 字' };
-    return { ok: true, value: { unlockHint: hint, catEn: !!value.catEn } };
+    return { ok: true, clean: { unlockHint: hint, catEn: !!value.catEn } };
   }
   if (section === 'theme') {
     const name = String((value && value.name) || '').trim();
     if (THEME_NAMES.indexOf(name) < 0) {
       return { ok: false, error: '主题只能是 ' + THEME_NAMES.join(' / ') };
     }
-    return { ok: true, value: { name: name, allowUser: value.allowUser !== false } };
+    return { ok: true, clean: { name: name, allowUser: value.allowUser !== false } };
   }
   if (section === 'ad') {
     // 结构：{ slots: { '<槽位>': { enabled, html, every, link, modal } }, ticker: {...} }；老结构 { enabled, html } 仍然接受

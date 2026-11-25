@@ -684,5 +684,42 @@ const a22Good = await hit('/api/site', {
 });
 const a22GoodJson = await a22Good.json();
 ok(a22Good.status === 200 && a22GoodJson.ok === true, '验证码可以保存');
+console.log('');
+console.log('== 23. 每个设置板块的保存→回读闭环 ==');
+// 目的：后台每个面板点保存时，值要真的落到 /data/site.json，且前台读到的就是新值。
+// 逐段 POST → 读 POST 响应 → 再 GET /data/site.json 比对，最后把原值写回去，互不污染。
+const secs = [
+  { section: 'contact', value: { enabled: true, title: '联系我', wechat: 'gr-test', email: 'a@b.co', note: 'n' }, path: (j) => j.contact && j.contact.title, want: '联系我' },
+  { section: 'beian', value: { enabled: true, icp: '京ICP备00000000号', text: '备案' }, path: (j) => j.beian && j.beian.icp, want: '京ICP备00000000号' },
+  { section: 'seo', value: { siteName: '测试站', title: 'T', description: 'D', keywords: 'k1,k2' }, path: (j) => j.seo && j.seo.siteName, want: '测试站' },
+  { section: 'geo', value: { summary: '这是测试用的站点摘要' }, path: (j) => j.geo && j.geo.summary, want: '这是测试用的站点摘要' },
+  { section: 'theme', value: { name: 'stripe', allowUser: false }, path: (j) => j.theme && j.theme.name, want: 'stripe' },
+  { section: 'article', value: { catEn: true, unlockHint: '密码找站长要' }, path: (j) => j.article && j.article.unlockHint, want: '密码找站长要' },
+  { section: 'layout', value: { mode: 'double', side: 'right', users: 'single' }, path: (j) => j.layout && j.layout.mode, want: 'double' },
+  { section: 'runtime', value: { aiCap: 321 }, path: (j) => j.runtime && j.runtime.aiCap, want: 321 },
+];
+const origin = await (await hit('/data/site.json')).json();
+for (const c of secs) {
+  const post = await hit('/api/site', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ password: 'pw', section: c.section, value: c.value }),
+  });
+  const pj = await post.json();
+  const back = await (await hit('/data/site.json')).json();
+  ok(pj.ok === true, '保存 ' + c.section + ' 成功', JSON.stringify(pj).slice(0, 120));
+  ok(c.path(back) === c.want, '保存 ' + c.section + ' 后立刻回读是新值', String(c.path(back)));
+  // 还原
+  const restore = {};
+  for (const k of Object.keys(c.value)) restore[k] = (origin[c.section] || {})[k];
+  await hit('/api/site', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ password: 'pw', section: c.section, value: restore }),
+  });
+}
+const backFinal = await (await hit('/data/site.json')).json();
+ok((backFinal.theme && backFinal.theme.name) === (origin.theme && origin.theme.name), '测试后主题已还原', String(backFinal.theme && backFinal.theme.name));
+
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
