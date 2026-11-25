@@ -309,6 +309,22 @@ function ensureRange(name) {
     };
     s.onerror = () => {
       delete rangePending[name];
+      // 总榜文件是后加的：Worker 还没重新部署、或边缘缓存里还是旧 SITE 映射时会 404。
+      // 这时退到仓库里仍然存在的旧 data/repos-all.js，页面不至于空掉。
+      if (file !== 'data/repos-all.js') {
+        const alt = document.createElement('script');
+        alt.src = 'data/repos-all.js' + (meta && meta.generatedAt ? '?v=' + encodeURIComponent(meta.generatedAt) : '');
+        alt.async = true;
+        alt.onload = () => {
+          const map2 = window.__GHRANK_RANGES__ || {};
+          const got = map2[name] || map2.all;
+          if (got && Array.isArray(got.repos)) resolve(got);
+          else reject(new Error('数据文件加载失败'));
+        };
+        alt.onerror = () => reject(new Error('数据文件加载失败'));
+        document.head.appendChild(alt);
+        return;
+      }
       reject(new Error('数据文件加载失败'));
     };
     document.head.appendChild(s);
