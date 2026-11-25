@@ -12,7 +12,7 @@ function readTokenFile() {
   try {
     const raw = fs.readFileSync('apitoken.txt', 'utf8');
     return {
-      token: (raw.match(/cf[a-z]?_[A-Za-z0-9_-]{20,}/) || [])[0] || '',
+      token: (raw.match(/cf[a-z]{1,4}_[A-Za-z0-9_-]{20,}/) || [])[0] || '',
       account: (raw.match(/id[:：]\s*([0-9a-f]{32})/) || [])[1] || '',
     };
   } catch (e) {

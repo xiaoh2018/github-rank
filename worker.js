@@ -301,18 +301,27 @@ async function descZh(request, env, ctx) {
   const body = await request.json().catch(() => null);
   if (!body || !Array.isArray(body.texts)) return json({ ok: false, error: '参数不对' }, 400);
   const list = body.texts.slice(0, 20).map((t) => String(t || '').slice(0, 300)).filter(Boolean);
-  const cache = globalThis.caches.default;
   const items = {};
-  await Promise.all(list.map(async (t) => {
-    const key = new Request(new URL('/__desc_zh/' + encodeURIComponent(t), request.url).toString());
-    const hit = await cache.match(key);
-    if (hit) { items[t] = await hit.text(); return; }
+  // 第一步：所有缓存键并发查一遍（只读，不打外部接口）
+  const keys = list.map((t) => new Request(new URL('/__desc_zh/' + encodeURIComponent(t), request.url).toString()));
+  const hits = await Promise.all(keys.map((k) => EDGE_CACHE.match(k).catch(() => null)));
+  const miss = [];
+  for (let i = 0; i < list.length; i++) {
+    if (hits[i]) {
+      const v = await hits[i].text();
+      if (v) { items[list[i]] = v; continue; }
+    }
+    miss.push(list[i]);
+  }
+  // 第二步：只翻没命中的，限 6 并发，避免一次 20 条把 MyMemory 打出 429
+  await poolMap(miss, 6, async (t) => {
     const zh = await translateText(t, env);
     if (!zh) return;
     items[t] = zh;
-    ctx.waitUntil(cache.put(key, new Response(zh, { headers: { 'cache-control': 'public, max-age=2592000' } })));
-  }));
-  return json({ ok: true, items: items });
+    const key = new Request(new URL('/__desc_zh/' + encodeURIComponent(t), request.url).toString());
+    ctx.waitUntil(EDGE_CACHE.put(key, new Response(zh, { headers: { 'cache-control': 'public, max-age=2592000' } })));
+  });
+  return json({ ok: true, items: items, cached: list.length - miss.length, translated: Object.keys(items).length - (list.length - miss.length) });
 }
 
 // 按段落切分：含代码块、表格、图片、HTML 的段落原样保留；普通文字每段最多 300 字符（MyMemory 单次上限 500 字节）
@@ -325,6 +334,24 @@ function splitForTranslate(md) {
     for (let i = 0; i < t.length; i += 300) out.push({ raw: false, text: t.slice(i, i + 300) });
   }
   return out;
+}
+
+// 并发池：一次最多跑 limit 个异步任务，避免把外部接口打成 429
+async function poolMap(list, limit, fn) {
+  const queue = list.slice();
+  const size = Math.max(1, Math.min(limit, queue.length));
+  const workers = [];
+  for (let i = 0; i < size; i++) {
+    workers.push((async () => {
+      while (queue.length) {
+        const item = queue.shift();
+        try {
+          await fn(item);
+        } catch (e) {}
+      }
+    })());
+  }
+  await Promise.all(workers);
 }
 
 // 长文本按句子切成小块：MyMemory 单次 q 上限约 500 字符，m2m100 太长也会被截断
@@ -558,16 +585,46 @@ async function translateText(text, env) {
 }
 
 // 读取 GitHub Action 预翻译的 README 译文（data/readme-zh.json，格式 {"owner/repo": {partial, text}}）
-async function staticReadmeZh(env, repo) {
-  if (!repoOf(env).owner || !repoOf(env).name) return null;
+// 这张表有 200KB+，每次冷启动都去 raw 拉一遍会白白多花 0.7~1s，所以分三级取：
+//   1) 当前 isolate 内存（最快，10 分钟内复用）
+//   2) 边缘缓存整张表（跨 isolate，命中通常 20~100ms）
+//   3) 回源 raw（只有真正冷启动且边缘也没有时才付这个代价）
+const README_ZH_TTL = 1800;
+let README_ZH_MAP = null;
+let README_ZH_READ_AT = 0;
+async function readmeZhMap(env) {
+  const now = Date.now();
+  if (README_ZH_MAP && now - README_ZH_READ_AT < README_ZH_TTL * 1000) return README_ZH_MAP;
+  const key = new Request(EDGE_KEY_BASE + '/__readme_zh_all');
   try {
-    const r = await fetch('https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/data/readme-zh.json', { cf: { cacheTtl: 300, cacheEverything: true } });
-    if (!r.ok) return null;
-    const map = await r.json();
-    return (map && map[repo]) || null;
+    const hit = await EDGE_CACHE.match(key);
+    if (hit) {
+      README_ZH_MAP = await hit.json();
+      README_ZH_READ_AT = now;
+      return README_ZH_MAP;
+    }
+  } catch (e) {}
+  try {
+    const url = 'https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/data/readme-zh.json';
+    const r = await fetch(url, { cf: { cacheTtl: README_ZH_TTL, cacheEverything: true } });
+    if (!r.ok) return README_ZH_MAP || null;
+    const body = await r.text();
+    README_ZH_MAP = JSON.parse(body);
+    README_ZH_READ_AT = now;
+    EDGE_CACHE.put(key, new Response(body, {
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'cache-control': 'public, max-age=' + README_ZH_TTL,
+      },
+    })).catch(() => {});
+    return README_ZH_MAP;
   } catch (e) {
-    return null;
+    return README_ZH_MAP || null;
   }
+}
+async function staticReadmeZh(env, repo) {
+  const map = await readmeZhMap(env);
+  return (map && map[repo]) || null;
 }
 
 function text(msg, status) {
@@ -664,7 +721,8 @@ function cachePolicy(pathname) {
 }
 
 function cacheControlOf(p, immutable) {
-  if (immutable) return 'public, max-age=31536000, immutable';
+  // 带 ?v= 的内容永不改变，浏览器存一年，边缘也存 7 天（否则每次回源都要多走一跳）
+  if (immutable) return 'public, max-age=31536000, s-maxage=604800, immutable';
   let v = 'public, max-age=' + p.browser;
   if (p.sMaxAge) v += ', s-maxage=' + p.sMaxAge;
   if (p.swr) v += ', stale-while-revalidate=' + p.swr;
