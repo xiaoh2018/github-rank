@@ -106,7 +106,7 @@
     "allowUser": true
   },
   "layout": {
-    "mode": "auto",
+    "mode": "triple",
     "side": "right",
     "users": "triple",
     "articleSide": "right"
