@@ -138,6 +138,9 @@ export default {
       if (url.pathname === '/api/articles' && (request.method === 'GET' || request.method === 'POST')) {
         return handleArticles(request, env);
       }
+      if (url.pathname === '/api/article' && request.method === 'POST') {
+        return handleArticleOpen(request, env);
+      }
       if (url.pathname === '/api/admin/check' && request.method === 'POST') {
         if (!env.ADMIN_PASSWORD) {
           return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
@@ -1519,6 +1522,11 @@ async function handleSubmit(request, env, origin) {
         baiduTokenSource: (rtSubmit && rtSubmit.baiduToken) ? 'admin' : (env.BAIDU_TOKEN ? 'env' : 'none'),
         aiUsage: await aiUsage(env, rtSubmit),
         lastRun: await readLastSubmit(),
+        cooldown: (function (last) {
+          if (!last || !last.at) return { seconds: 0 };
+          const gap = Date.now() - new Date(last.at).getTime();
+          return { seconds: gap < 600000 ? Math.ceil((600000 - gap) / 1000) : 0 };
+        })(await readLastSubmit()),
       },
     });
   }
@@ -1527,6 +1535,18 @@ async function handleSubmit(request, env, origin) {
   if (!body || typeof body !== 'object') return json({ ok: false, error: '请求体必须是 JSON' }, 400);
   if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
     return json({ ok: false, error: '密码不对' }, 403);
+  }
+  const prevRun = await readLastSubmit();
+  if (prevRun && prevRun.at && body.force !== true) {
+    const gap = Date.now() - new Date(prevRun.at).getTime();
+    if (gap < 600000) {
+      const wait = Math.ceil((600000 - gap) / 1000);
+      return json({
+        ok: false,
+        wait: wait,
+        error: '10 分钟内已经推过一次，再推 IndexNow 会回 429（限流）。等 ' + wait + ' 秒，或勾上「强制再推一次」。',
+      }, 429);
+    }
   }
   const site = (await loadSiteRaw(env)).seo || {};
   const root = site.siteUrl ? String(site.siteUrl).replace(/\/+$/, '') : origin;
@@ -1552,13 +1572,15 @@ async function handleSubmit(request, env, origin) {
         headers: { 'content-type': 'application/json; charset=utf-8' },
         body: JSON.stringify({ host: host, key: key, keyLocation: root + '/' + key + '.txt', urlList: urls }),
       });
-      out.results.indexNow = {
-        ok: r.ok || r.status === 202,
-        status: r.status,
-        note: r.ok || r.status === 202
-          ? '已提交给 IndexNow（Bing / Yandex / Seznam / Naver 共用一套）'
-          : 'IndexNow 返回 HTTP ' + r.status,
-      };
+      const rawText = await r.text().catch(() => '');
+      const good = r.ok || r.status === 202;
+      let note;
+      if (good) note = '已收下，等搜索引擎自己来抓（通常几分钟到几小时）';
+      else if (r.status === 429) note = '被限流了：同一批地址短时间内重复提交会这样，等 10 分钟再试，别连点';
+      else if (r.status === 422) note = 'Key 校验没过：确认站点根目录的 key 文件能打开，且提交的 host 与 keyLocation 同域';
+      else if (r.status === 403) note = 'Key 文件打不开或内容不对：先把 Worker 部署到最新版，再回本页点「刷新」看自检那行';
+      else note = 'IndexNow 返回 HTTP ' + r.status + '，见下面的原始返回';
+      out.results.indexNow = { ok: good, status: r.status, note: note, raw: String(rawText || '').slice(0, 300) };
     } catch (e) {
       out.results.indexNow = { ok: false, status: 0, note: '连不上 api.indexnow.org：' + ((e && e.message) || 'network') };
     }
@@ -1574,7 +1596,25 @@ async function handleSubmit(request, env, origin) {
           { method: 'POST', headers: { 'content-type': 'text/plain' }, body: urls.join('\n') }
         );
         const t = await r.text();
-        out.results.baidu = { ok: r.ok, status: r.status, note: String(t).slice(0, 300) };
+        let note = String(t || '').slice(0, 300);
+        let good = r.ok;
+        try {
+          const j = JSON.parse(t);
+          if (j && typeof j === 'object') {
+            if (j.error) {
+              good = false;
+              note = '百度返回错误码 ' + j.error + (j.message ? '：' + j.message : '');
+            } else if (typeof j.success === 'number') {
+              good = true;
+              note = '收下 ' + j.success + ' 条，剩余配额 ' + (j.remain == null ? '未知' : j.remain) + ' 条';
+            }
+          }
+        } catch (e) {
+          /* 不是 JSON，就原样展示 */
+        }
+        if (!good && r.status === 526) note = '百度侧校验证书失败（526）：确认 https://' + host + ' 在浏览器里证书正常、站点地址与百度验证的域名完全一致';
+        if (!good && /^\\s*</.test(String(t || ''))) note = '百度返回的是网页错误页（不是接口 JSON），多半是 token 与站点不匹配或接口被拦，见下面的原始返回';
+        out.results.baidu = { ok: good, status: r.status, note: note, raw: String(t || '').slice(0, 300) };
       } catch (e) {
         out.results.baidu = { ok: false, status: 0, note: '连不上百度推送接口：' + ((e && e.message) || 'network') };
       }
@@ -2099,6 +2139,66 @@ async function writeArticles(env, articles, sha, msg) {
   return { ok: true };
 }
 
+const ART_PBKDF2_ITER = 100000;
+
+function toB64(buf) {
+  const bytes = new Uint8Array(buf);
+  let s = '';
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return btoa(s);
+}
+
+function fromB64(str) {
+  const bin = atob(String(str || ''));
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function artKey(password, salt, iter) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: salt, iterations: iter || ART_PBKDF2_ITER, hash: 'SHA-256' },
+    base,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+// 把明文正文加密成 { v, salt, iv, ct }（都 base64）
+async function encryptBody(text, password) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await artKey(password, salt);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(text));
+  return { v: 1, iter: ART_PBKDF2_ITER, salt: toB64(salt), iv: toB64(iv), ct: toB64(ct) };
+}
+
+// 解密；密码不对返回 null
+async function decryptBody(lock, password) {
+  try {
+    if (!lock || !lock.ct || !lock.salt || !lock.iv) return null;
+    const key = await artKey(password, fromB64(lock.salt), lock.iter);
+    const out = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(lock.iv) }, key, fromB64(lock.ct));
+    return new TextDecoder().decode(out);
+  } catch (e) {
+    return null;
+  }
+}
+
+// 给前端看的公开版本：去掉 lock 细节，只留 locked 标记
+function publicArticle(a) {
+  const out = {};
+  for (const k of Object.keys(a || {})) {
+    if (k === 'lock') continue;
+    out[k] = a[k];
+  }
+  out.locked = !!a.locked;
+  if (a.locked) out.hasLock = !!(a.lock && a.lock.ct);
+  return out;
+}
+
 // 校验一篇文章：title / summary / body 为文字，date 为 YYYY-MM-DD（缺省为今天）
 function checkArticle(v) {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return { ok: false, error: '文章内容必须是对象' };
@@ -2111,6 +2211,20 @@ function checkArticle(v) {
     clean[k] = t;
   }
   if (!clean.title) return { ok: false, error: '文章标题不能为空' };
+  const cat = v.category == null ? '' : String(v.category).trim();
+  if (cat.length > 24) return { ok: false, error: '分类最多 24 个字符' };
+  clean.category = cat;
+  let tags = v.tags;
+  if (typeof tags === 'string') tags = tags.split(/[,\s，、]+/);
+  if (!Array.isArray(tags)) tags = [];
+  tags = tags.map((t) => String(t == null ? '' : t).trim()).filter(Boolean);
+  if (tags.length > 6) return { ok: false, error: '标签最多 6 个' };
+  for (const t of tags) if (t.length > 20) return { ok: false, error: '单个标签最多 20 个字符' };
+  clean.tags = tags;
+  clean.locked = v.locked === true;
+  const pwd = v.password == null ? '' : String(v.password);
+  if (pwd.length > 100) return { ok: false, error: '文章密码最多 100 个字符' };
+  clean.password = pwd;
   const date = v.date == null || v.date === '' ? todayBJ() : String(v.date);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date))) return { ok: false, error: '日期格式应为 YYYY-MM-DD' };
   clean.date = date;
@@ -2122,7 +2236,7 @@ async function handleArticles(request, env) {
   if (request.method === 'GET') {
     const r = await readArticles(env);
     if (!r.ok) return json({ ok: false, error: r.error }, 502);
-    return json({ ok: true, articles: r.articles });
+    return json({ ok: true, articles: r.articles.map(publicArticle) });
   }
 
   if (!env.ADMIN_PASSWORD) {
@@ -2146,6 +2260,14 @@ async function handleArticles(request, env) {
   if (body.action === 'add') {
     const c = checkArticle(body.article);
     if (!c.ok) return json({ ok: false, error: c.error }, 400);
+    const pwd = c.clean.password;
+    delete c.clean.password;
+    if (c.clean.locked) {
+      if (!pwd) return json({ ok: false, error: '加密文章要设置访问密码' }, 400);
+      if (pwd.length < 4) return json({ ok: false, error: '访问密码至少 4 位' }, 400);
+      c.clean.lock = await encryptBody(c.clean.body || '', pwd);
+      c.clean.body = '';
+    }
     if (list.length >= ARTICLES_MAX) return json({ ok: false, error: '文章最多 ' + ARTICLES_MAX + ' 篇，请先删除旧文章' }, 400);
     let id = String(Date.now());
     while (list.some((a) => a && String(a.id) === id)) id = String(Number(id) + 1);
@@ -2159,6 +2281,21 @@ async function handleArticles(request, env) {
     } else {
       const c = checkArticle(body.article);
       if (!c.ok) return json({ ok: false, error: c.error }, 400);
+      const pwd = c.clean.password;
+      delete c.clean.password;
+      const prev = list[idx] || {};
+      if (c.clean.locked) {
+        if (pwd) {
+          if (pwd.length < 4) return json({ ok: false, error: '访问密码至少 4 位' }, 400);
+          c.clean.lock = await encryptBody(c.clean.body || '', pwd);
+          c.clean.body = '';
+        } else if (prev.lock && prev.lock.ct) {
+          c.clean.lock = prev.lock;
+          c.clean.body = '';
+        } else {
+          return json({ ok: false, error: '加密文章要设置访问密码' }, 400);
+        }
+      }
       list[idx] = Object.assign({ id: id }, c.clean);
     }
   }
@@ -2168,6 +2305,54 @@ async function handleArticles(request, env) {
   await purgeEdge(['/articles', '/articles.html', '/data/articles.json']);
   await warmEdge('/data/articles.json', JSON.stringify(list, null, 2) + '\n', 'application/json; charset=utf-8');
   return json({ ok: true, articles: list });
+}
+
+async function readCount(key) {
+  try {
+    const hit = await EDGE_CACHE.match(key);
+    if (!hit) return 0;
+    const j = await hit.json();
+    return Number(j && j.n) || 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+async function bumpCount(key, ttl) {
+  try {
+    const n = (await readCount(key)) + 1;
+    await EDGE_CACHE.put(key, new Response(JSON.stringify({ n: n }), {
+      headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=' + (ttl || 86400) },
+    }));
+    return n;
+  } catch (e) {
+    return 0;
+  }
+}
+
+// POST /api/article { id, password } → 返回正文（加密文章要密码）
+async function handleArticleOpen(request, env) {
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== 'object') return json({ ok: false, error: '请求体必须是 JSON 对象' }, 400);
+  const id = body.id == null ? '' : String(body.id);
+  const password = body.password == null ? '' : String(body.password);
+  const r = await readArticles(env);
+  if (!r.ok) return json({ ok: false, error: r.error }, 502);
+  const a = (r.articles || []).find((x) => x && String(x.id) === id);
+  if (!a) return json({ ok: false, error: '没有找到这篇文章' }, 404);
+  if (!a.locked) return json({ ok: true, body: a.body || '', locked: false });
+  const ip = request.headers.get('cf-connecting-ip') || '0.0.0.0';
+  const key = EDGE_KEY_BASE + '/__unlock/' + ip + '/' + todayBJ();
+  const used = await readCount(key);
+  if (used >= 30) {
+    return json({ ok: false, error: '今天试密码次数已达 30 次，明天再试' }, 429);
+  }
+  const text = await decryptBody(a.lock, password);
+  if (text == null) {
+    await bumpCount(key);
+    return json({ ok: false, error: '密码不对' }, 401);
+  }
+  return json({ ok: true, body: text, locked: true });
 }
 
 const ADMIN_PAGE = `<!doctype html>
@@ -2183,6 +2368,9 @@ const ADMIN_PAGE = `<!doctype html>
 :root{--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--brand:#2563eb;--side:#0f172a;--ok:#16a34a;--warn:#d97706;--bad:#dc2626}
 html,body{margin:0;min-height:100%}
 body{font:15px/1.6 -apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text)}
+#errBar{position:sticky;top:0;z-index:99;background:#fee2e2;color:#991b1b;border-bottom:1px solid #fca5a5;padding:10px 16px;font-size:13.5px;line-height:1.5}
+#errBar b{font-weight:700}
+#errBar code{background:#fff;border:1px solid #fecaca;border-radius:6px;padding:1px 6px;font-size:12px}
 #gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,#0f172a,#1e3a8a)}
 .gbox{background:#fff;border-radius:18px;padding:32px;width:min(380px,100%);box-shadow:0 20px 60px rgba(0,0,0,.3)}
 .gbox h1{margin:0 0 6px;font-size:22px}
@@ -2305,7 +2493,11 @@ th{color:var(--muted);font-weight:600;font-size:13px}
 .kv:last-child{border-bottom:0;padding-bottom:0}
 .kv b{font-family:Consolas,ui-monospace,monospace;font-size:13px}
 .kv span{color:#334155}
-.tr-out{display:grid;gap:10px;margin-top:14px}
+.raw{margin-top:8px}
+    .raw summary{cursor:pointer;font-size:12px;color:#64748b}
+    .raw pre{margin:6px 0 0;padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:11.5px;white-space:pre-wrap;word-break:break-all;max-height:180px;overflow:auto}
+    .toggle.inline{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#475569;white-space:nowrap}
+    .tr-out{display:grid;gap:10px;margin-top:14px}
 .tr-box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px;background:#f8fafc}
 .tr-box h4{margin:0 0 6px;font-size:12px;color:var(--muted);font-weight:600}
 .tr-box p{margin:0;color:var(--text);word-break:break-word;line-height:1.6}
@@ -2380,6 +2572,7 @@ dialog{width:calc(100% - 24px)}
   </form>
 </div>
 
+<div id="errBar" hidden></div>
 <div class="app" id="app" hidden>
   <aside class="side">
     <div class="brand">网站管理后台<small>仅管理员可见</small></div>
@@ -2397,7 +2590,8 @@ dialog{width:calc(100% - 24px)}
     <button type="button" class="nav" data-tab="beian">备案信息</button>
     <div class="navgroup">运维</div>
     <button type="button" class="nav" data-tab="submit">收录提交</button>
-    <button type="button" class="nav" data-tab="translate">翻译与密钥</button>
+    <button type="button" class="nav" data-tab="keys">设置与密钥</button>
+    <button type="button" class="nav" data-tab="translate">翻译</button>
     </aside>
 
   <main class="main">
@@ -2467,49 +2661,66 @@ dialog{width:calc(100% - 24px)}
       </div>
     </section>
 
-      <section class="pane" id="pane-translate" hidden>
-        <div class="bar"><div><h1>翻译与密钥</h1><div class="sub">简介的中文是自动翻的；这里看链路状态、实测一次、确认密钥是否就位</div></div></div>
-        <div class="intro">翻译顺序：<b>先查译文缓存</b>（同一段英文只翻一次，不会重复花钱花额度）→ <b>MyMemory</b>（免费、不需要 Key，带联系邮箱每天约 5 万字符）→ <b>Workers AI</b>（需要在 Cloudflare 绑定，变量名必须是 <b>AI</b>）。长文本会按句子切成小块逐段翻，失败原因会分类显示（网络不通 / 额度用完 / 服务端报错 / 未绑定）。两条链路都不用在后台填任何东西，GitHub Token 也只放在 Cloudflare 的 Variables and Secrets 里。</div>
-        <div class="card">
-          <div class="card-head"><div><h2>链路状态</h2><p class="desc">只显示「有没有」，不会显示任何密钥内容。</p></div><button type="button" class="ghost small" id="trReload">刷新</button></div>
-          <div class="status-list" id="trStatus"><p class="empty">读取中…</p></div>
-        </div>
-        <div class="card">
-          <div class="card-head"><div><h2>运行设置（在这里改，不用去 Cloudflare）</h2><p class="desc">存在 data/site.json 的 runtime 分组；保存后 60 秒内生效。</p></div></div>
-          <label for="rtEmails">MyMemory 联系邮箱（多个用逗号分隔，最多 20 个）</label>
-          <textarea id="rtEmails" rows="2" maxlength="1000" placeholder="you@gmail.com"></textarea>
-          <div class="hint">MyMemory 的免费额度<b>按邮箱</b>算（不带邮箱约 5 千字符/天，带邮箱约 5 万字符/天），一个用尽自动换下一个。Gmail / Outlook 支持 <code>名字+1@gmail.com</code> 这种别名，都进同一个信箱，所以可以点下面的按钮批量加。</div>
-          <div class="actions"><button type="button" class="ghost small" id="rtAlias">按 +别名 生成 5 个</button></div>
-          <label for="rtAiCap">Workers AI 每天最多调用多少次</label>
-          <input type="number" id="rtAiCap" min="0" max="100000" step="1" placeholder="留空 = 用环境变量 AI_DAILY_CAP，或默认 400">
-          <div class="hint">填 <b>0</b> = 不限制（不建议）；可填 1–100000。Workers AI 每天有 10,000 Neurons 免费额度，m2m100 这种小模型一次消耗很小，400 次大约只用到几百 Neuron；真打满这条链路会自己停，不会扣钱。</div>
-          <div class="status-list" id="rtUsage"><p class="empty">读取中…</p></div>
-          <label for="rtBaiduToken">百度准入密钥（BAIDU_TOKEN，可留空）</label>
-          <input type="text" id="rtBaiduToken" maxlength="200" placeholder="从百度搜索资源平台「普通收录 → API 提交」里复制，可留空">
-          <div class="hint">填这里就不必再去 Cloudflare 配变量；两边都填时以这里为准。留空则完全跳过百度推送，不影响其它功能。</div>
-          <label for="rtIndexKey">IndexNow Key（可留空，自动生成）</label>
-          <input type="text" id="rtIndexKey" maxlength="100" placeholder="留空 = 自动用仓库信息生成一个">
-          <div class="hint">IndexNow 要求站点根目录有个 <code>&lt;key&gt;.txt</code> 文件，本站已经自动提供（见「收录提交」页的 Key 文件地址）。想用自己的就在 Bing Webmaster 生成一个填这里。</div>
-          <div class="actions"><button type="button" data-save="runtime">保存运行设置</button></div>
-        </div>
-        <div class="card">
-          <div class="card-head"><div><h2>实测一次</h2><p class="desc">拿一段英文同时打两条链路，看谁给出结果、各花多少毫秒。</p></div></div>
-          <label for="trText">英文原文</label>
-          <textarea id="trText" maxlength="400" spellcheck="false">A fast, static GitHub trending board built on Cloudflare Workers.</textarea>
-          <div class="hint">400 字以内；留空会用默认示例句。</div>
-          <div class="actions"><button type="button" id="trRun">开始实测</button><span class="msg" id="trNote"></span></div>
-          <div id="trOut"></div>
-        </div>
-        <div class="card">
-          <div class="card-head"><div><h2>两个密钥怎么设</h2><p class="desc">都在 Cloudflare 面板 → 你的 Worker → Settings 里改，改完记得 Deploy。</p></div></div>
-          <div class="kv"><b>GITHUB_TOKEN</b><span>Variables and Secrets → 添加 Secret。权限给 Contents: Read and write、Actions: Read and write（保活和工作流状态要用）。</span></div>
-          <div class="kv"><b>Workers AI</b><span>Bindings → + Add → Workers AI，Variable name 填 <b>AI</b>（必须大写），保存后 Deploy。绑定后 MyMemory 限流时自动兜底。</span></div>
-          <div class="kv"><b>TRANSLATE_EMAILS</b><span>可选，逗号分隔多个邮箱（例如 a@x.com,b@y.com）。MyMemory 每个邮箱每天有独立额度，一个用尽会自动换下一个；额度是按邮箱算的，不是按 IP。</span></div>
-          <div class="kv"><b>AI_DAILY_CAP</b><span>可选，Workers AI 每天最多调用多少次，默认 400。到上限就只用 MyMemory + 缓存，不会把你的 AI 额度打光。</span></div>
-          <div class="kv"><b>BAIDU_TOKEN</b><span>可选。百度搜索资源平台的「准入密钥」，配了「收录提交 → 立即提交」才会推百度。</span></div>
-          <div class="kv"><b>这些变量在哪儿改</b><span><a href="https://dash.cloudflare.com/?to=/:account/workers" target="_blank" rel="noopener">Cloudflare → Workers &amp; Pages</a> → 选中你的 Worker → <b>Settings</b> → <b>Variables and Secrets</b>。仓库 Secrets（给自动部署用）在 <a href="https://github.com/xiaoh2018/github-rank/settings/secrets/actions" target="_blank" rel="noopener">GitHub → 仓库 Settings → Secrets and variables → Actions</a>，必须登录且对该仓库有管理员权限，否则会显示 404。</span></div>
-        </div>
-      </section>
+      <section class="pane" id="pane-keys" hidden>
+      <div class="bar">
+        <div><h1>设置与密钥</h1><p class="sub">要填的东西都在这：翻译额度、百度准入密钥、IndexNow Key</p></div>
+        <div class="bar-actions"><button class="btn primary" type="button" data-save="runtime">保存设置</button></div>
+      </div>
+      <p class="intro">这些值存在 <code>data/site.json</code> 的 <code>runtime</code> 分组里，保存后<b>立刻生效</b>，不需要去 Cloudflare 改任何变量。留空的项会自动回落到环境变量或内置默认值。</p>
+      <div class="card">
+        <div class="card-head"><div><h2>服务状态</h2><p class="desc">只显示「有没有」，不会显示任何密钥内容。</p></div><button type="button" class="ghost small" id="trReload">刷新</button></div>
+        <div class="status-list" id="trStatus"><p class="empty">读取中…</p></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h2>翻译额度</h2><p class="desc">MyMemory 按邮箱算额度，Workers AI 按次数封顶。</p></div></div>
+        <label for="rtEmails">MyMemory 联系邮箱（多个用逗号分隔，最多 20 个）</label>
+        <textarea id="rtEmails" rows="2" maxlength="1000" placeholder="you@gmail.com"></textarea>
+        <div class="hint">MyMemory 的免费额度<b>按邮箱</b>算（不带邮箱约 5 千字符/天，带邮箱约 5 万字符/天），一个用尽自动换下一个。Gmail / Outlook 支持 <code>名字+1@gmail.com</code> 这种别名，都进同一个信箱，所以可以点下面的按钮批量加。</div>
+        <div class="actions"><button type="button" class="ghost small" id="rtAlias">按 +别名 生成 5 个</button></div>
+        <label for="rtAiCap">Workers AI 每天最多调用多少次</label>
+        <input type="number" id="rtAiCap" min="0" max="100000" step="1" placeholder="留空 = 用环境变量 AI_DAILY_CAP，或默认 400">
+        <div class="hint">填 <b>0</b> = 不限制（不建议）；可填 1–100000。Workers AI 每天有 10,000 Neurons 免费额度，m2m100 这种小模型一次消耗很小，400 次大约只用到几百 Neuron；到上限只会停掉这条兜底链路，不会扣钱。</div>
+        <div class="status-list" id="rtUsage"><p class="empty">读取中…</p></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h2>收录密钥</h2><p class="desc">填了就会用；留空则跳过对应推送，不影响其它功能。</p></div></div>
+        <label for="rtBaiduToken">百度准入密钥（BAIDU_TOKEN）</label>
+        <input type="text" id="rtBaiduToken" maxlength="200" placeholder="百度搜索资源平台 → 普通收录 → API 提交 → 准入密钥" autocomplete="off">
+        <div class="hint">拿法见「收录提交」页的「百度准入密钥在哪拿」。填这里就不必再去 Cloudflare 配变量；两边都填时以这里为准。</div>
+        <label for="rtIndexKey">IndexNow Key</label>
+        <input type="text" id="rtIndexKey" maxlength="100" placeholder="留空 = 按仓库信息自动生成一个" autocomplete="off">
+        <div class="hint">IndexNow 要求站点根目录有一个 <code>&lt;key&gt;.txt</code>，本站会自动提供（地址在「收录提交」页）。想用 Bing Webmaster 生成的那个，就填这里。</div>
+        <div class="actions"><button type="button" data-save="runtime">保存设置</button><span class="msg" id="rtMsg"></span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h2>还需要的两个环境变量</h2><p class="desc">这两个是密钥，只能放在 Cloudflare 里，后台不保存。</p></div></div>
+        <div class="kv"><b>GITHUB_TOKEN</b><span>Variables and Secrets → 添加 Secret。权限给 Contents: Read and write、Actions: Read and write（保存、保活、看工作流状态都要用）。</span></div>
+        <div class="kv"><b>Workers AI</b><span>这是绑定不是变量：Bindings → + Add → Workers AI，Variable name 必须填 <b>AI</b>，保存后 Deploy。绑定后 MyMemory 限流时自动兜底。</span></div>
+        <div class="kv"><b>在哪儿改</b><span><a href="https://dash.cloudflare.com/?to=/:account/workers" target="_blank" rel="noopener">Cloudflare → Workers &amp; Pages</a> → 选中你的 Worker → <b>Settings</b> → <b>Variables and Secrets</b>。仓库 Secrets（自动部署用）在 <a href="https://github.com/xiaoh2018/github-rank/settings/secrets/actions" target="_blank" rel="noopener">GitHub 仓库 → Settings → Secrets and variables → Actions</a>。</span></div>
+      </div>
+    </section>
+
+    <section class="pane" id="pane-translate" hidden>
+      <div class="bar">
+        <div><h1>翻译</h1><p class="sub">看链路状态、实测一次；邮箱和额度在「设置与密钥」里改</p></div>
+        <div class="bar-actions"><a class="btn" href="#keys" data-goto="keys">去设置与密钥</a></div>
+      </div>
+      <p class="intro">翻译顺序：<b>先查译文缓存</b>（同一段英文只翻一次，不重复花额度）→ <b>MyMemory</b>（免费、不需要 Key）→ <b>Workers AI</b>（需要在 Cloudflare 绑定，变量名必须是 <b>AI</b>）。长文本按句子切块逐段翻，失败原因会分类显示（网络不通 / 额度用完 / 服务端报错 / 未绑定）。</p>
+      <div class="card">
+        <div class="card-head"><div><h2>实测一次</h2><p class="desc">拿一段英文同时打两条链路，看谁给出结果、各花多少毫秒。</p></div></div>
+        <label for="trText">英文原文</label>
+        <textarea id="trText" maxlength="400" spellcheck="false">A fast, static GitHub trending board built on Cloudflare Workers.</textarea>
+        <div class="hint">400 字以内；留空会用默认示例句。</div>
+        <div class="actions"><button type="button" id="trRun">开始实测</button><span class="msg" id="trNote"></span></div>
+        <div id="trOut"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h2>为什么有时候还是英文</h2></div></div>
+        <div class="kv"><b>额度用完</b><span>MyMemory 按邮箱计额，一个邮箱用尽会换下一个；全用完且没绑 Workers AI 时，会先显示英文，等第二天恢复。</span></div>
+        <div class="kv"><b>刚到的新仓库</b><span>仓库简介第一次被抓到时没有译文，自动翻译要一两秒，后台开「翻译 → 实测一次」能立刻看到哪条链路可用。</span></div>
+        <div class="kv"><b>译文缓存</b><span>同一段英文只翻一次，命中缓存时不会产生任何调用，所以第二次几乎立刻变中文。</span></div>
+      </div>
+    </section>
 
 
     <section class="pane" id="pane-layout" hidden>
@@ -2613,7 +2824,7 @@ dialog{width:calc(100% - 24px)}
         <section class="pane" id="pane-submit" hidden>
       <div class="bar">
         <div><h1>收录提交</h1><p class="sub">把新榜单和文章主动告诉搜索引擎与大模型</p></div>
-        <div class="bar-actions"><button class="btn primary" type="button" id="subRun">立即提交</button></div>
+        <div class="bar-actions"><label class="toggle inline"><input type="checkbox" id="subForce"> 强制再推一次</label><button class="btn primary" type="button" id="subRun">立即提交</button></div>
       </div>
       <p class="intro">提交走 IndexNow（Bing、Yandex、Seznam 共用）和百度主动推送；豆包、通义千问、ChatGPT 这些没有公开的收录接口，靠 robots.txt 放行 + llms.txt + 站点地图被爬到。<b>建议每天点一次，或者交给 Actions 定时。</b></p>
       <div class="card">
@@ -2777,7 +2988,7 @@ dialog{width:calc(100% - 24px)}
 (function () {
   'use strict';
   var PW_KEY = 'adminPw';
-  var TABS = ['overview', 'layout', 'articles', 'nav', 'seo', 'links', 'ad', 'contact', 'beian', 'submit', 'translate'];
+  var TABS = ['overview', 'layout', 'articles', 'nav', 'seo', 'links', 'ad', 'contact', 'beian', 'submit', 'keys', 'translate'];
   var FIELDS = {
     ad: ['html'],
     layout: ['mode', 'side', 'users'],
@@ -2851,10 +3062,30 @@ dialog{width:calc(100% - 24px)}
   });
 
   // ---- 标签页 ----
+  function showErr(msg) {
+    var bar = document.getElementById('errBar');
+    if (!bar) return;
+    bar.hidden = false;
+    bar.innerHTML = '<b>后台脚本出错了：</b><code>' + navEsc(msg) + '</code>　（把这条发给我，或刷新再试）';
+  }
+  window.addEventListener('error', function (e) {
+    showErr((e && e.message ? e.message : '未知错误') + (e && e.lineno ? ' @行' + e.lineno : ''));
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e && e.reason;
+    showErr(r && r.message ? r.message : String(r || 'Promise 未处理的错误'));
+  });
+
   function go(tab) {
     if (tab === 'keepalive') tab = 'overview';
     if (TABS.indexOf(tab) < 0) tab = 'overview';
-    TABS.forEach(function (t) { $('pane-' + t).hidden = t !== tab; });
+    var missing = [];
+    TABS.forEach(function (t) {
+      var p = $('pane-' + t);
+      if (!p) { missing.push(t); return; }
+      p.hidden = t !== tab;
+    });
+    if (missing.length) showErr('这些面板在页面里找不到：' + missing.join('、') + '（后台版本和脚本不匹配，重新部署 worker.js 就好）');
     document.querySelectorAll('.nav').forEach(function (b) {
       b.setAttribute('aria-current', b.getAttribute('data-tab') === tab ? 'true' : 'false');
     });
@@ -3567,6 +3798,12 @@ dialog{width:calc(100% - 24px)}
     return '<div class="status-item"><b>' + label + '</b><span' +
       (ok === false ? ' class="tr-bad"' : '') + '>' + value + '</span></div>';
   }
+  function subBox(name, o) {
+    if (!o) return '';
+    var head = '<b>' + name + '</b> · ' + (o.ok ? '成功' : '失败') + (o.status ? '（HTTP ' + o.status + '）' : '');
+    var raw = o.raw ? '<details class="raw"><summary>看原始返回</summary><pre>' + navEsc(o.raw) + '</pre></details>' : '';
+    return '<div class="tr-box' + (o.ok ? '' : ' tr-bad') + '">' + head + '<br>' + navEsc(o.note || '') + raw + '</div>';
+  }
   function loadSubmit() {
     var box = $('subStatus');
     if (!box) return;
@@ -3584,7 +3821,12 @@ dialog{width:calc(100% - 24px)}
         subLine('key 文件自检', s.keyFileOk ? '能访问　' + navEsc(s.keyFileNote || '') : '打不开：' + navEsc(s.keyFileNote || '未知原因') + '（多半是 Worker 未部署到最新版）', !!s.keyFileOk) +
         subLine('百度推送', s.baiduToken ? '已配置准入密钥（来源：' + navEsc(s.baiduTokenSource || 'env') + '），可以主动推' : '没填准入密钥，点提交时会跳过百度', !!s.baiduToken) +
         subLine('Workers AI 今日', s.aiUsage ? (s.aiUsage.used + ' / ' + (s.aiUsage.unlimited ? '不限制' : s.aiUsage.cap) + ' 次' + (s.aiUsage.capSource === 'admin' ? '（上限来自后台）' : '')) : '—', true) +
+        subLine('冷却状态', (s.cooldown && s.cooldown.seconds > 0) ? '还要等 ' + s.cooldown.seconds + ' 秒才能再推（防 IndexNow 429）' : '可以提交', !(s.cooldown && s.cooldown.seconds > 0)) +
         subLine('最近一次提交', last ? (new Date(last.at || Date.now()).toLocaleString() + '　' + ((last.results && last.results.indexNow && last.results.indexNow.ok) ? 'IndexNow 成功' : 'IndexNow 未成功')) : '还没提交过', !!last);
+      if (last && last.results) {
+        box.innerHTML += '<div style="margin-top:10px">' +
+          subBox('上次 IndexNow', last.results.indexNow) + subBox('上次百度', last.results.baidu) + '</div>';
+      }
     });
   }
   $('subReload').addEventListener('click', function () {
@@ -3597,25 +3839,22 @@ dialog{width:calc(100% - 24px)}
     btn.disabled = true;
     btn.textContent = '提交中…';
     out.innerHTML = '<p class="note">正在提交…</p>';
-    api('/api/submit', { method: 'POST', body: { password: pw, action: 'all' } }).then(function (r) {
+    var forceEl = $('subForce');
+    api('/api/submit', { method: 'POST', body: { password: pw, action: 'all', force: !!(forceEl && forceEl.checked) } }).then(function (r) {
       btn.disabled = false;
       btn.textContent = '立即提交';
       if (!r.ok) {
-        out.innerHTML = '<div class="tr-box tr-bad">' + navEsc(trErr(r.error || '提交失败')) + '</div>';
+        out.innerHTML = '<div class="tr-box tr-bad">' + navEsc(trErr(r.error || '提交失败')) +
+          (r.wait ? '<br>还剩 ' + r.wait + ' 秒。' : '') + '</div>';
         return;
       }
       var res = r.results || {};
-      var html = '<div class="tr-box">本次提交 <b>' + (r.urls || 0) + '</b> 个地址（首页 + 文章列表 + 每篇文章）</div>';
-      var keys = [['indexNow', 'IndexNow（Bing / Yandex / Naver）'], ['baidu', '百度普通收录']];
-      keys.forEach(function (kv) {
-        var o = res[kv[0]];
-        if (!o) return;
-        html += '<div class="tr-box' + (o.ok ? '' : ' tr-bad') + '"><b>' + kv[1] + '</b>· ' +
-          (o.ok ? '成功' : '失败') + (o.status ? '（HTTP ' + o.status + '）' : '') +
-          '<br>' + navEsc(o.note || '') + '</div>';
-      });
-      out.innerHTML = html;
+      out.innerHTML = '<div class="tr-box">本次提交 <b>' + (r.urls || 0) + '</b> 个地址（首页 + 文章列表 + 每篇文章）' +
+        (r.root ? '<br>站点地址：<code>' + navEsc(r.root) + '</code>（必须与百度验证、key 文件同域）' : '') + '</div>' +
+        subBox('IndexNow（Bing / Yandex / Naver）', res.indexNow) +
+        subBox('百度普通收录', res.baidu);
       toast('提交完成', true);
+      loadSubmit();
     });
   });
 

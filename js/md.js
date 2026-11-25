@@ -93,7 +93,59 @@
     return '<div class="md-table"><table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table></div>';
   }
 
-  function render(md) {
+  // 把常见 HTML 转成 Markdown（GitHub README、富文本文章里经常混着标签）
+  function html2md(input) {
+    var t = String(input || '');
+    if (t.indexOf('<') < 0) return t;
+    t = t.replace(/<!--[\s\S]*?-->/g, '');
+    t = t.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, '');
+    t = t.replace(/<table\b[\s\S]*?<\/table>/gi, function (tb) {
+      var rows = [];
+      var trRe = /<tr\b[^>]*>([\s\S]*?)<\/tr>/gi;
+      var m;
+      while ((m = trRe.exec(tb))) {
+        var cells = [];
+        var tdRe = /<(t[hd])\b[^>]*>([\s\S]*?)<\/\1>/gi;
+        var c;
+        while ((c = tdRe.exec(m[1]))) cells.push(c[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
+        if (cells.length) rows.push(cells);
+      }
+      if (!rows.length) return '';
+      var lines = ['| ' + rows[0].join(' | ') + ' |', '|' + rows[0].map(function () { return ' --- '; }).join('|') + '|'];
+      for (var r = 1; r < rows.length; r++) lines.push('| ' + rows[r].join(' | ') + ' |');
+      return '\n\n' + lines.join('\n') + '\n\n';
+    });
+    t = t.replace(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi, function (_, n, x) {
+      var hashes = '';
+      for (var k = 0; k < Number(n); k++) hashes += '#';
+      return '\n\n' + hashes + ' ' + x.replace(/<[^>]+>/g, '').trim() + '\n\n';
+    });
+    t = t.replace(/<(strong|b)\b[^>]*>([\s\S]*?)<\/\1>/gi, '**$2**');
+    t = t.replace(/<(em|i)\b[^>]*>([\s\S]*?)<\/\1>/gi, '*$2*');
+    t = t.replace(/<(del|s)\b[^>]*>([\s\S]*?)<\/\1>/gi, '~~$2~~');
+    t = t.replace(/<code\b[^>]*>([\s\S]*?)<\/code>/gi, function (_, x) { return '`' + x.replace(/<[^>]+>/g, '') + '`'; });
+    t = t.replace(/<pre\b[^>]*>([\s\S]*?)<\/pre>/gi, function (_, x) { return '\n\n```\n' + x.replace(/<[^>]+>/g, '') + '\n```\n\n'; });
+    t = t.replace(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, function (_, href, text) {
+      var label = String(text).replace(/<[^>]+>/g, '').trim();
+      return label ? '[' + label + '](' + href + ')' : href;
+    });
+    t = t.replace(/<img\b[^>]*>/gi, function (tag) {
+      var src2 = /src=["']([^"']+)["']/i.exec(tag);
+      var alt = /alt=["']([^"']*)["']/i.exec(tag);
+      return src2 ? '![' + (alt ? alt[1] : '') + '](' + src2[1] + ')' : '';
+    });
+    t = t.replace(/<summary\b[^>]*>([\s\S]*?)<\/summary>/gi, function (_, x) { return '**' + String(x).replace(/<[^>]+>/g, '').trim() + '**\n\n'; });
+    t = t.replace(/<li\b[^>]*>/gi, '\n- ');
+    t = t.replace(/<br\s*\/?>/gi, '\n');
+    t = t.replace(/<hr\s*\/?>/gi, '\n\n---\n\n');
+    t = t.replace(/<\/(p|div|section|article|details|summary|ul|ol|blockquote|figure)>/gi, '\n\n');
+    t = t.replace(/<[^>]+>/g, '');
+    t = t.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+    t = t.replace(/\n{3,}/g, '\n\n');
+    return t;
+  }
+
+  function renderMd(md) {
     var lines = String(md || '').replace(/\r\n?/g, '\n').split('\n');
     var out = [];
     var para = [];
@@ -208,5 +260,9 @@
     return { title: meta.title || '', summary: summary || '', date: date, body: body };
   }
 
-  w.KeeMd = { render: render, parse: parseMd, esc: esc };
+  function render(md) {
+    return renderMd(html2md(md));
+  }
+
+  w.KeeMd = { render: render, parse: parseMd, esc: esc, html2md: html2md };
 })(window);
