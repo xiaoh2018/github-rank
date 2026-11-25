@@ -382,5 +382,37 @@ ok(bundleJs.indexOf("el('pre', 'readme'") < 0, 'README 不再用 <pre> 显示原
 ok(bundleJs.indexOf('中文翻译中') < 0, '去掉了「中文翻译中…」提示');
 ok(bundleJs.indexOf('readmeWrap') > 0, '译文到了只替换 README 块');
 
+// ---- 15. 信息流广告（榜单 / 文章 / 导航卡片之间）----
+console.log('15. 信息流广告');
+const inlAdmin = await hit('/admin');
+const inlAdminHtml = await inlAdmin.text();
+for (const id of ['list-inline', 'article-inline', 'nav-inline']) {
+  ok(inlAdminHtml.indexOf('data-ad-slot="' + id + '"') > 0, '后台有信息流广告位：' + id);
+}
+const inlSave = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'ad', value: { slots: { 'list-inline': { enabled: true, html: '<b>中间广告</b>' } } } })
+});
+const inlSaveJson = await inlSave.json();
+ok(inlSaveJson.ok === true, '信息流广告位可以保存');
+const inlSlots = (inlSaveJson.site && inlSaveJson.site.ad && inlSaveJson.site.ad.slots) || {};
+ok(inlSlots['list-inline'] && inlSlots['list-inline'].enabled === true, '保存响应里 list-inline 已打开', JSON.stringify(inlSlots['list-inline']));
+ok(String((inlSlots['list-inline'] || {}).html).indexOf('中间广告') >= 0, '保存响应里 html 正确');
+ok(inlSlots['nav-inline'] && inlSlots['nav-inline'].enabled === false, '没勾的信息流位置保持关闭');
+const inlHome = await (await hit('/')).text();
+ok(inlHome.indexOf('ghrankMountInline') > 0 || inlHome.indexOf('data-ad-inline') > 0, '首页脚本带信息流挂载逻辑');
+const inlBundle = await (await hit('/js/bundle.js')).text();
+ok(inlBundle.indexOf("'data-ad-inline', 'list'") > 0 || inlBundle.indexOf("data-ad-inline") > 0, '榜单渲染时插入信息流占位');
+ok(inlBundle.indexOf('每 10 个项目') > 0 || inlBundle.indexOf('% 10') > 0, '榜单每 10 条插一条');
+const inlBad = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'ad', value: { slots: { 'nope-inline': { enabled: true, html: 'x' } } } })
+});
+const inlBadJson = await inlBad.json();
+ok(inlBadJson.ok === false, '未知信息流位置被拒绝');
+console.log('');
+
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);

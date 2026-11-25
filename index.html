@@ -135,6 +135,9 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 .viewtabs .tab{min-height:40px;padding:6px 18px;font-weight:600}
 .viewtabs .tab.is-on{background:var(--card);border-color:var(--accent);color:var(--accent);box-shadow:var(--shadow)}
 .navview{margin-top:var(--gap)}
+.ad-inline{display:flex;align-items:center;justify-content:center;min-height:76px;padding:8px;background:var(--card);border:1px dashed var(--border);border-radius:12px;overflow:hidden}
+.ad-inline[hidden]{display:none!important}
+.ad-inline-card{min-height:96px}
 /* 切到「导航」视图时，榜单专属的筛选条、统计卡、文章区都收起来 */
 body[data-page="nav"] #rankBar,
 body[data-page="nav"] #stats,
@@ -636,8 +639,29 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
       if(!html&&!slots&&id==='home-top'&&ad&&ad.enabled===true) html=ad.html;
       mountAd(el,html);
     });
+    // 信息流三位：榜单里的占位由 bundle.js 渲染时插入，文章/导航在自己的渲染里插
+    var anyInline=false;
+    Object.keys(INLINE_SLOTS).forEach(function(kind){
+      var s=slots?slots[INLINE_SLOTS[kind]]:null;
+      inlineHtml[kind]=(s&&s.enabled===true&&typeof s.html==='string')?s.html:'';
+      if(inlineHtml[kind].trim()) anyInline=true;
+    });
+    mountInlineAds();
+    // 榜单可能已经渲染过（占位才会缺），有广告就让它重排一次
+    if(anyInline&&typeof window.__ghrankRenderList==='function') window.__ghrankRenderList();
   }
   function hideAllAds(){ AD_SLOTS.forEach(function(p){ mountAd(document.getElementById(p[1]),''); }); }
+
+  // ---------- 信息流广告：插在列表/文章/导航卡片之间（占位由各处渲染时插入）----------
+  var INLINE_SLOTS={ list:'list-inline', article:'article-inline', nav:'nav-inline' };
+  var inlineHtml={ list:'', article:'', nav:'' };
+  function mountInlineAds(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ad-inline]'),function(el){
+      var kind=el.getAttribute('data-ad-inline');
+      mountAd(el, inlineHtml[kind]||'');
+    });
+  }
+  window.ghrankMountInline=mountInlineAds;
 
     // ---------- 联系方式（site.json 的 contact）：右下角悬浮按钮 + 面板 ----------
     var fab=document.getElementById('contactFab');
@@ -789,7 +813,7 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
       if(!items.length){ hideArticles(); return; }
       items.sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); });
       var frag=document.createDocumentFragment();
-      items.forEach(function(it){
+      items.forEach(function(it,idx){
         var art=document.createElement('article');
         art.className='article-item';
         var h=document.createElement('h3');
@@ -824,9 +848,16 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
           art.appendChild(det);
         }
         frag.appendChild(art);
+        if((idx+1)%2===0){
+          var inlineAd=document.createElement('div');
+          inlineAd.className='ad-inline';
+          inlineAd.setAttribute('data-ad-inline','article');
+          frag.appendChild(inlineAd);
+        }
       });
       wrap.replaceChildren(frag);
       box.hidden=false;
+      if(window.ghrankMountInline) window.ghrankMountInline();
     }
 
 
@@ -894,16 +925,18 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
         shown+=items.length;
         html+='<section class="navgroup"><h3>'+escH(g.name)+'<span class="cnt">'+items.length+' 个</span></h3>'+
           (g.desc?'<p class="gd">'+escH(g.desc)+'</p>':'')+'<div class="navgird">';
-        items.forEach(function(it){
+        items.forEach(function(it,idx){
           html+='<a class="navcard" href="'+escH(it.url)+'" target="_blank" rel="noopener noreferrer">'+
             '<span class="icw">'+(it.icon?'<img src="'+escH(it.icon)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'')+'</span>'+
             '<span class="nb"><b>'+escH(it.name)+'</b>'+
             (it.desc?'<small>'+escH(it.desc)+'</small>':'')+
             '<span class="host">'+escH(navHost(it.url))+'</span></span></a>';
+          if((idx+1)%8===0) html+='<div class="navcard ad-inline-card" data-ad-inline="nav" hidden></div>';
         });
         html+='</div></section>';
       });
       box.innerHTML = html || '<p class="note">没有匹配的站点。</p>';
+      if(window.ghrankMountInline) window.ghrankMountInline();
       var cnt=document.getElementById('navCount');
       if(cnt) cnt.textContent = q ? ('匹配 '+shown+' / '+total+' 个') : ('共 '+total+' 个站点');
     }

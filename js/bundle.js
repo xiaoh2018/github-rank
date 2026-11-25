@@ -1070,8 +1070,18 @@ function renderRepos() {
   const start = (state.page - 1) * size;
   const maxStars = list.length ? Math.max(...list.map(r => r.stars)) : 0;
   $('list').classList.remove('users-view');
-  $('list').replaceChildren(...list.slice(start, start + size)
-    .map((r, i) => renderItem(r, start + i + 1, maxStars, state.trend)));
+  const pageNodes = [];
+  list.slice(start, start + size).forEach((r, i) => {
+    pageNodes.push(renderItem(r, start + i + 1, maxStars, state.trend));
+    if ((i + 1) % 10 === 0) {
+      const ad = document.createElement('li');
+      ad.className = 'item ad-inline';
+      ad.setAttribute('data-ad-inline', 'list');
+      pageNodes.push(ad);
+    }
+  });
+  $('list').replaceChildren(...pageNodes);
+  if (window.ghrankMountInline) window.ghrankMountInline();
 
   renderStats(list);
   renderDist(list);
@@ -1089,6 +1099,9 @@ function renderRepos() {
   $('next').disabled = state.page >= pages;
   translateDescs();
 }
+
+// 广告配置比榜单晚到（site.json 后到）：让首页脚本能要求重排一次，补上信息流占位
+window.__ghrankRenderList = renderRepos;
 
 // 列表简介：当前页没有中文译文的，批量请求 Worker 翻译（免 Key，结果缓存 30 天）。翻过或失败的不重复请求
 const descTried = new Set();

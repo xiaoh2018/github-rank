@@ -1411,6 +1411,9 @@ const AD_SLOTS = [
   { id: 'list-bottom', name: '榜单下方', where: '分页器下面、文章区之前' },
   { id: 'sidebar', name: '侧栏底部', where: '右侧栏「变化」卡片下面；侧栏下沉时跟着走' },
   { id: 'article', name: '文章区上方', where: '首页文章列表上方（文章详情页顶部也用它）' },
+  { id: 'list-inline', name: '榜单信息流', where: '榜单列表里每 10 个项目之间插一条（分页器不受影响）' },
+  { id: 'article-inline', name: '文章信息流', where: '首页文章列表里每 2 篇文章之间插一条' },
+  { id: 'nav-inline', name: '导航信息流', where: '导航页每个分组里每 8 个站点之间插一条' },
 ];
 
 function emptyAdSlots() {
@@ -2074,8 +2077,8 @@ dialog{width:calc(100% - 24px)}
     </section>
 
     <section class="pane" id="pane-ad" hidden>
-      <div class="bar"><div><h1>广告</h1><div class="sub">5 个广告位，各自独立开关</div></div></div>
-      <div class="intro">前台一共有 5 个位置，每个位置单独开关、单独粘代码：勾上并保存就出现在那个位置，不勾就完全不渲染（不会留空占位）。代码直接粘贴 HTML 片段（联盟广告、统计脚本都行），带 <code>&lt;script&gt;</code> 也会执行；每格最多 20000 字符。只粘贴来源可信的代码，拿不准就先别勾。</div>
+      <div class="bar"><div><h1>广告</h1><div class="sub">${AD_SLOTS.length} 个广告位，各自独立开关（含 3 个信息流位）</div></div></div>
+      <div class="intro">前台一共有 ${AD_SLOTS.length} 个位置，每个位置单独开关、单独粘代码：勾上并保存就出现在那个位置，不勾就完全不渲染（不会留空占位）。<b>固定位</b>（home-top / list-top / list-bottom / sidebar / article）是通栏；<b>信息流位</b>（list-inline / article-inline / nav-inline）是插在列表中间的——榜单每 10 个项目一条、文章每 2 篇一条、导航每组每 8 个站点一条，位置会自动跟着数据走。代码直接粘贴 HTML 片段（联盟广告、统计脚本都行），带 <code>&lt;script&gt;</code> 也会执行；每格最多 20000 字符。只粘贴来源可信的代码，拿不准就先别勾。位置示意图见 <code>docs/shots/ad-slots.png</code>。</div>
       <div class="ad-grid">
 ${AD_SLOTS.map(
   (s) => `        <div class="card ad-card">
@@ -2212,6 +2215,15 @@ ${AD_SLOTS.map(
       <div class="card">
         <div class="card-head"><div><h2>提交结果</h2><p class="desc">点右上角「立即提交」会真的发请求出去。</p></div></div>
         <div id="subOut"><p class="note">还没提交过。</p></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h2>这些 Token 在哪拿</h2><p class="desc">全是免费的，点进去按下面一句话操作就行。</p></div></div>
+        <div class="kv"><b>百度推送 token</b><span><a href="https://ziyuan.baidu.com/dailysubmit/index" target="_blank" rel="noopener">百度搜索资源平台 → 普通收录 → API 提交</a>：先加站点并验证，然后复制页面上的「准入密钥」，到 Cloudflare 变量里存成 <code>BAIDU_TOKEN</code>；同一页能看到当天剩余配额（普通账号每天几百条）。</span></div>
+        <div class="kv"><b>IndexNow key（Bing / Yandex）</b><span>不用申请，本站已经自动生成并挂在 <code>/&lt;key&gt;.txt</code> 上（地址见上方「当前状态」）。想看推送记录去 <a href="https://www.bing.com/webmasters/indexnow" target="_blank" rel="noopener">Bing Webmaster Tools → IndexNow</a>；想换 key 就在 Cloudflare 变量里加 <code>INDEXNOW_KEY</code>（32 位字母数字）。</span></div>
+        <div class="kv"><b>Google</b><span><a href="https://search.google.com/search-console" target="_blank" rel="noopener">Search Console</a> → 左侧「站点地图」→ 填 <code>sitemap.xml</code> → 提交。Google 2023 年就关了 ping 接口，只能在这里交，没有 token。</span></div>
+        <div class="kv"><b>Cloudflare API Token（自动部署用）</b><span><a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener">dash.cloudflare.com/profile/api-tokens</a> → 「创建令牌」→ 选「编辑 Cloudflare Workers」模板 → 权限保留 <code>Account · Workers Scripts · Edit</code> 与 <code>Zone · Workers Routes · Edit</code> → 创建后那一串只显示一次，马上复制。</span></div>
+        <div class="kv"><b>Cloudflare Account ID</b><span><a href="https://dash.cloudflare.com/" target="_blank" rel="noopener">dash.cloudflare.com</a> 首页右侧栏「账户 ID」，或者看地址栏 <code>dash.cloudflare.com/&lt;这一串就是&gt;/...</code>。</span></div>
+        <div class="kv"><b>存到哪里</b><span><a href="https://github.com/xiaoh2018/github-rank/settings/secrets/actions" target="_blank" rel="noopener">仓库 Settings → Secrets and variables → Actions</a>，New repository secret：<code>CLOUDFLARE_API_TOKEN</code>、<code>CLOUDFLARE_ACCOUNT_ID</code>（部署用）、<code>BAIDU_TOKEN</code>（百度推送用，也可放 Cloudflare 变量）。配好之后往 main 推代码就自动部署 Worker，不用再手粘代码。</span></div>
       </div>
       <div class="card">
         <div class="card-head"><div><h2>手动入口</h2><p class="desc">自动推送覆盖不到的，去这些地方贴 sitemap 或网址。</p></div></div>

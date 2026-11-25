@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>广告位分布图</title>
+<style>
+  :root{
+    --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --card:#fff; --bg:#f6f7f9;
+    --gold:#c8952a; --red:#e11d48; --redbg:#fff1f2; --blue:#2563eb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;padding:26px 30px 34px}
+  h1{font-size:22px;margin:0 0 4px}
+  .lead{color:var(--muted);font-size:13px;margin:0 0 18px}
+  .wrap{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
+
+  /* ---- 站点骨架 ---- */
+  .page{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px 18px;
+    box-shadow:0 1px 3px rgba(15,23,42,.05)}
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .logo{font-weight:700;font-size:15px}
+  .navbtns{margin-left:auto;display:flex;gap:6px}
+  .chip{border:1px solid var(--line);border-radius:8px;padding:3px 9px;font-size:11px;color:var(--muted);background:#fff}
+  .ctrl{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 10px}
+  .ctrl span{background:#eef1f5;border-radius:6px;padding:3px 9px;font-size:11px;color:#475569}
+
+  .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0}
+  .item{border:1px solid var(--line);border-radius:10px;padding:8px 9px;background:#fff;min-height:56px}
+  .item b{font-size:11.5px;display:block;color:#0f172a}
+  .item i{font-size:10.5px;color:var(--muted);font-style:normal;display:block;margin-top:3px}
+  .pager{display:flex;justify-content:center;gap:6px;margin:10px 0}
+  .pager span{border:1px solid var(--line);border-radius:7px;padding:3px 10px;font-size:11px;color:var(--muted)}
+
+  .ad{border:2px dashed var(--red);background:var(--redbg);color:#be123c;border-radius:10px;
+    font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+  .ad.band{min-height:42px;margin:8px 0;padding:6px}
+  .ad.inline{margin:8px 0;padding:6px;grid-column:1/-1;font-size:11.5px}
+  .ad em{font-style:normal;opacity:.62;font-weight:400;font-size:11px}
+
+  .cols{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:10px;margin-top:6px}
+  .side .block{border:1px solid var(--line);border-radius:10px;padding:7px 8px;margin-bottom:8px;background:#fff}
+  .side .block b{font-size:11px;color:#334155;display:block}
+  .side .bar{height:5px;background:#e8edf3;border-radius:3px;margin-top:5px}
+  .side .bar.s{width:62%;background:#cfd8e3}
+
+  .sec-title{font-size:11.5px;color:var(--muted);letter-spacing:.04em;margin:12px 0 4px;text-transform:uppercase}
+  .art{border:1px solid var(--line);border-radius:10px;padding:7px 9px;margin-bottom:6px;background:#fff}
+  .art b{font-size:11.5px}
+  .art i{font-size:10.5px;color:var(--muted);font-style:normal}
+
+  /* ---- 图例 ---- */
+  .legend{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+    box-shadow:0 1px 3px rgba(15,23,42,.05);position:sticky;top:10px}
+  .legend h2{font-size:14px;margin:0 0 10px}
+  .lg{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;padding:7px 0;border-top:1px dashed var(--line)}
+  .lg:first-of-type{border-top:0}
+  .num{width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:11.5px;
+    font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .lg b{font-size:12px;display:block}
+  .lg code{font-size:11px;background:#f1f5f9;color:#475569;border-radius:5px;padding:1px 5px}
+  .lg p{margin:3px 0 0;font-size:11px;color:var(--muted);line-height:1.5}
+  .tip{margin-top:12px;font-size:11px;color:var(--muted);line-height:1.6;border-top:1px solid var(--line);padding-top:10px}
+  .tip b{color:#334155}
+</style>
+</head>
+<body>
+<h1>GitHub 热门项目排行榜 · 广告位分布图</h1>
+<p class="lead">一共 8 个位置，8 个独立开关（后台 → 广告）。不勾选就不渲染、不留白；信息流广告（③⑦⑧）是插在列表中间的，和 ①②④⑤⑥ 的固定通栏不同。</p>
+
+<div class="wrap">
+  <div class="page">
+    <div class="top">
+      <span class="logo">⭐ GitHub 热门项目排行榜</span>
+      <div class="navbtns"><span class="chip">关于本站</span><span class="chip">文章</span><span class="chip">友情链接</span><span class="chip">设置</span><span class="chip">English</span></div>
+    </div>
+
+    <div class="ad band">① home-top　页头下面 · 通栏 <em>（首页最顶上那条，最贵也最显眼）</em></div>
+
+    <div class="ctrl"><span>项目榜</span><span>近 7 天</span><span>近 30 天</span><span>近 1 年</span><span>总榜</span><span>全部语言</span><span>按星标</span><span>每页 20 条</span></div>
+    <div class="ctrl"><span>全部</span><span>AI / LLM</span><span>工具 / 效率</span><span>前端 / Web</span><span>安全</span></div>
+
+    <div class="ad band">② list-top　筛选栏下面 · 榜单开始之前</div>
+
+    <div class="grid">
+      <div class="item"><b>1 codecrafters-io/build-your-own-x</b><i>从零开始重构你喜爱的技术</i></div>
+      <div class="item"><b>2 xl/dxv_do</b><i>现代 Windows 桌面环境</i></div>
+      <div class="item"><b>3 ELACTED/fas-anything</b><i>把任意网页变成 WebUI</i></div>
+      <div class="item"><b>4 AFX-xurface/arclinux</b><i>面向嵌入式 Linux</i></div>
+      <div class="item"><b>5 4tivery/portwatch-vi</b><i>追踪端口占用</i></div>
+      <div class="item"><b>6 iamajames/neoclipping</b><i>GPU 加速的 4K 截屏</i></div>
+      <div class="item"><b>7 faceLess/victory-fork</b><i>左侧栏里的视觉化工具</i></div>
+      <div class="item"><b>8 ubiquitarian/leonida</b><i>Path of Exile 补丁预览</i></div>
+      <div class="item"><b>9 RY0X0/Windows2Videos</b><i>Windows 上音频复刻</i></div>
+      <div class="item"><b>10 omnixx/boxx-equater</b><i>一键超频与风扇控制</i></div>
+      <div class="ad inline">③ list-inline　榜单信息流 · 每 10 个项目之间插一条（分页不影响）</div>
+      <div class="item"><b>11 0x1e/nospaker</b><i>删除笔记本麦克风静噪</i></div>
+      <div class="item"><b>12 INK-Q/agv-fast</b><i>针对 Google Anthropic 的 MCP 加速</i></div>
+      <div class="item"><b>13 leonprover-community/riemann-hypothesis</b><i>验证丽曼猜想的 Lean 形式化</i></div>
+    </div>
+
+    <div class="pager"><span>上一页</span><span>1 / 25</span><span>下一页</span></div>
+
+    <div class="ad band">④ list-bottom　分页器下面 · 文章区之前</div>
+
+    <div class="ad band">⑥ article　文章区上方（文章详情页顶部也用它）</div>
+
+    <div class="sec-title">文章</div>
+    <div class="art"><b>示例文章 1</b> <i>· 2026-11-21</i></div>
+    <div class="art"><b>示例文章 2</b> <i>· 2026-11-22</i></div>
+    <div class="ad inline">⑦ article-inline　文章信息流 · 每 2 篇文章之间插一条</div>
+    <div class="art"><b>示例文章 3</b> <i>· 2026-11-23</i></div>
+    <div class="art"><b>示例文章 4</b> <i>· 2026-11-24</i></div>
+
+
+
+    <div class="cols">
+      <div>
+        <div class="sec-title">导航页（第二个标签）</div>
+        <div class="art"><b>开发工具 · 10 个</b></div>
+        <div class="grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+          <div class="item"><b>GitHub</b><i>github.com</i></div>
+          <div class="item"><b>MDN</b><i>developer.mozilla.org</i></div>
+          <div class="item"><b>Can I use</b><i>caniuse.com</i></div>
+          <div class="item"><b>Workers 文档</b><i>developers.cloudflare.com</i></div>
+        </div>
+        <div class="ad inline">⑧ nav-inline　导航信息流 · 每个分组每 8 个站点之间插一条</div>
+        <div class="grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+          <div class="item"><b>regex101</b><i>regex101.com</i></div>
+          <div class="item"><b>jsonhero</b><i>jsonhero.io</i></div>
+          <div class="item"><b>GitHub 7</b><i>github.com</i></div>
+          <div class="item"><b>GitHub 8</b><i>github.com</i></div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="block"><b>语言分布</b><div class="bar"></div><div class="bar s"></div></div>
+        <div class="block"><b>上榜最多的作者</b><div class="bar"></div><div class="bar s"></div></div>
+        <div class="block"><b>上次记录以来新变化</b><div class="bar"></div><div class="bar s"></div></div>
+        <div class="ad band" style="margin:8px 0 0">⑤ sidebar<br>侧栏底部</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <h2>8 个位置对照表</h2>
+    <div class="lg"><div class="num">1</div><div><b>首页顶部横幅</b> <code>home-top</code><p>页头下面、统计卡上面，通栏。老数据只有一个位置时自动迁到这里。</p></div></div>
+    <div class="lg"><div class="num">2</div><div><b>榜单上方</b> <code>list-top</code><p>搜索／筛选栏下面、榜单开始之前。</p></div></div>
+    <div class="lg"><div class="num">3</div><div><b>榜单信息流</b> <code>list-inline</code><p>榜单列表里每 10 个项目之间插一条，分页器不受影响。手机上也一样跟着走。</p></div></div>
+    <div class="lg"><div class="num">4</div><div><b>榜单下方</b> <code>list-bottom</code><p>分页器下面、文章区之前。</p></div></div>
+    <div class="lg"><div class="num">5</div><div><b>侧栏底部</b> <code>sidebar</code><p>右侧栏「变化」卡片下面；侧栏下沉到榜单下方时，它也跟着走。</p></div></div>
+    <div class="lg"><div class="num">6</div><div><b>文章区上方</b> <code>article</code><p>首页文章列表上方；文章详情页顶部也用它。</p></div></div>
+    <div class="lg"><div class="num">7</div><div><b>文章信息流</b> <code>article-inline</code><p>首页文章列表每 2 篇之间插一条。</p></div></div>
+    <div class="lg"><div class="num">8</div><div><b>导航信息流</b> <code>nav-inline</code><p>导航页每个分组里每 8 个站点之间插一条。</p></div></div>
+    <div class="tip">
+      <b>后台怎么用：</b>右侧栏「广告」每格一张卡，勾「在这里显示」再贴 HTML，最后点一次「保存全部广告位」。<br>
+      <b>不勾会怎样：</b>该位置完全不渲染，不留空白，也不会占位挤压布局。<br>
+      <b>信息流广告长度建议：</b>横幅类 728×90 / 自适应；信息流类做成和卡片同宽（约 320×100）最自然。<br>
+      <b>生效时间：</b>保存后刷新首页立刻生效（边缘缓存 60 秒内自动刷）。
+    </div>
+  </div>
+</div>
+</body>
+</html>
