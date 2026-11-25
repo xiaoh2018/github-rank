@@ -120,6 +120,21 @@ li.md-task{list-style:none;margin-left:-18px}
 .lockbox input{width:100%;margin:10px 0;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 13px;font:inherit;color:var(--text)}
 .lockbox input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(176,125,16,.14)}
 .lockerr{color:var(--danger);font-size:12.5px;min-height:18px}
+.locknote{max-width:440px;margin:34px auto;text-align:center}
+.locknote p{color:var(--muted);font-size:13.5px;margin-bottom:14px}
+/* 阅读态：主列只留正文，侧栏仍在右边 */
+.blistwrap.is-reading>.btools,.blistwrap.is-reading>.chips,.blistwrap.is-reading>#cards{display:none}
+.blistwrap.is-reading>.reader{margin-top:0}
+/* 密码弹窗 */
+.pwd-modal{border:0;border-radius:16px;padding:0;width:min(420px,calc(100% - 28px));background:var(--card);color:var(--text);box-shadow:0 30px 80px rgba(0,0,0,.32)}
+.pwd-modal::backdrop{background:rgba(20,16,10,.45);backdrop-filter:blur(2px)}
+.pm-card{padding:22px 22px 18px}
+.pm-card h3{margin:0 0 6px;font-size:17px;letter-spacing:-.2px}
+.pm-sub{margin:0 0 14px;color:var(--muted);font-size:13px}
+.pm-card input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 13px;font:inherit;color:var(--text)}
+.pm-card input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(176,125,16,.14)}
+.pm-err{color:var(--danger);font-size:12.5px;min-height:18px;margin:6px 0 2px}
+.pm-actions{display:flex;justify-content:flex-end;gap:8px}
 /* 弹窗（广告） */
 .ad-modal{border:0;border-radius:16px;padding:0;width:min(680px,calc(100% - 28px));box-shadow:0 30px 80px rgba(0,0,0,.35);background:var(--card);color:var(--text)}
 .ad-modal::backdrop{background:rgba(12,16,24,.55)}
@@ -182,6 +197,15 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
       <div class="cards" id="cards">
         <div class="empty">正在加载文章…</div>
       </div>
+
+  <article class="reader" id="reader" hidden>
+    <button class="rback" id="rback" type="button">← 返回文章列表</button>
+    <h1 id="rTitle"></h1>
+    <div class="rmeta" id="rMeta"></div>
+    <div class="abody" id="rBody"></div>
+    <div class="adslot" id="adAPAfter" hidden><div class="ad-inner"></div></div>
+    <div class="rmeta" id="rNav" style="border:0;margin:22px 0 0;padding-top:14px;border-top:1px solid var(--border)"></div>
+  </article>
     </section>
 
     <aside class="bside" id="side">
@@ -210,20 +234,24 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
     </aside>
   </div>
 
-  <article class="reader" id="reader" hidden>
-    <button class="rback" id="rback" type="button">← 返回文章列表</button>
-    <h1 id="rTitle"></h1>
-    <div class="rmeta" id="rMeta"></div>
-    <div class="abody" id="rBody"></div>
-    <div class="adslot" id="adAPAfter" hidden><div class="ad-inner"></div></div>
-    <div class="rmeta" id="rNav" style="border:0;margin:22px 0 0;padding-top:14px;border-top:1px solid var(--border)"></div>
-  </article>
-
   <footer>
     <span>数据与文章由站长维护 · 数据来源 GitHub 公开 API</span>
     <span><a href="/">返回首页</a></span>
   </footer>
 </div>
+
+<dialog class="pwd-modal" id="pwDlg">
+  <form class="pm-card" method="dialog" onsubmit="return false">
+    <h3>这篇文章需要密码</h3>
+    <p class="pm-sub">输入站长设置的访问密码才能阅读正文。</p>
+    <input type="password" id="pwIn" autocomplete="current-password" placeholder="访问密码">
+    <div class="pm-err" id="pwErr"></div>
+    <div class="pm-actions">
+      <button class="btn" type="button" id="pwCancel">取消</button>
+      <button class="btn primary" type="button" id="pwGo">解锁</button>
+    </div>
+  </form>
+</dialog>
 
 <dialog class="ad-modal" id="adModal">
   <div class="am-head"><span>广告</span><button id="adModalX" type="button" aria-label="关闭">×</button></div>
@@ -414,9 +442,8 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
     var a = findArt(id);
     if (!a) { closeReader(); return; }
     state.open = a;
-    $('listWrap').hidden = true;
+    $('listWrap').classList.add('is-reading');
     $('hero').hidden = true;
-    $('blog').hidden = true;
     $('adAPTop').hidden = true;
     $('reader').hidden = false;
     $('rTitle').textContent = a.title || '(无标题)';
@@ -432,12 +459,10 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
       (prev ? '<a href="#' + encodeURIComponent(prev.id) + '" style="margin-left:auto">' + esc(prev.title || '') + ' →</a>' : '<span></span>');
     var body = $('rBody');
     if (a.locked) {
-      body.innerHTML = '<div class="lockbox"><p>这篇文章加了密码，输入后可以看正文。</p>' +
-        '<input type="password" id="lockPw" placeholder="输入密码" autocomplete="current-password">' +
-        '<div class="lockerr" id="lockErr"></div>' +
-        '<button class="btn primary" id="lockGo" type="button">解锁</button></div>';
-      $('lockGo').addEventListener('click', function () { unlock(a.id); });
-      $('lockPw').addEventListener('keydown', function (e) { if (e.key === 'Enter') unlock(a.id); });
+      body.innerHTML = '<div class="locknote"><p>这篇是加密文章，输入密码后阅读正文。</p>' +
+        '<button class="btn primary" id="lockOpen" type="button">输入密码解锁</button></div>';
+      $('lockOpen').addEventListener('click', function () { askPassword(a.id); });
+      askPassword(a.id);
     } else {
       body.innerHTML = md(a.body || '');
       mountAd($('adAPAfter'), adSlot['article-after']);
@@ -446,33 +471,51 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
     document.title = (a.title || '文章') + ' · GitHub 热门项目排行榜';
   }
 
+  var lockId = null;
+
+  $('pwCancel').addEventListener('click', function () { try { $('pwDlg').close(); } catch (e) {} });
+  $('pwGo').addEventListener('click', function () { unlock(lockId); });
+  $('pwIn').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); unlock(lockId); }
+  });
+
+  function askPassword(id) {
+    lockId = id;
+    var dlg = $('pwDlg');
+    $('pwIn').value = '';
+    $('pwErr').textContent = '';
+    $('pwGo').disabled = false;
+    if (dlg && !dlg.open) dlg.showModal();
+    setTimeout(function () { try { $('pwIn').focus(); } catch (e) {} }, 60);
+  }
+
   function unlock(id) {
-    var pw = $('lockPw').value;
-    var err = $('lockErr');
+    var pw = $('pwIn').value;
+    var err = $('pwErr');
     err.textContent = '';
     if (!pw) { err.textContent = '先填密码'; return; }
-    $('lockGo').disabled = true;
+    $('pwGo').disabled = true;
     fetch('/api/article', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ id: id, password: pw }),
     }).then(function (r) { return r.json(); }).then(function (r) {
-      $('lockGo').disabled = false;
+      $('pwGo').disabled = false;
       if (r && r.ok && typeof r.body === 'string') {
         $('rBody').innerHTML = md(r.body);
         mountAd($('adAPAfter'), adSlot['article-after']);
+        try { $('pwDlg').close(); } catch (e) {}
       } else {
         err.textContent = (r && r.error) || '解锁失败';
       }
-    }).catch(function () { $('lockGo').disabled = false; err.textContent = '网络错误，稍后再试'; });
+    }).catch(function () { $('pwGo').disabled = false; err.textContent = '网络错误，稍后再试'; });
   }
 
   function closeReader() {
     state.open = null;
     $('reader').hidden = true;
-    $('listWrap').hidden = false;
+    $('listWrap').classList.remove('is-reading');
     $('hero').hidden = false;
-    $('blog').hidden = false;
     document.title = '文章 · GitHub 热门项目排行榜';
     if (location.hash) history.replaceState(null, '', location.pathname);
     renderAds(state.site);

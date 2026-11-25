@@ -2683,6 +2683,52 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
 .lockrow input[type="password"]{flex:1 1 240px;min-width:0}
 .lockrow .toggle.inline{margin:0;white-space:nowrap}
 .art-lock{font-size:11px;padding:1px 6px;border-radius:6px;background:#f6e7c8;color:#7a5a11;font-weight:600;margin-left:6px}
+
+/* UI v4 · 中性纸感：去掉渐变与光晕，只留细线、留白和一种强调色 */
+:root{--brand:#b07d10;--ok:#1f7a4d;--warn:#a8661a;--bad:#a2341f}
+body{background:#f6f5f2;background-image:none;color:#15171a;-webkit-font-smoothing:antialiased}
+.app{grid-template-columns:236px minmax(0,1fr)}
+.side{background:#141517;background-image:none;box-shadow:none;border-right:1px solid #0c0d0f}
+.navgroup{margin:20px 0 6px;padding:0 12px;font-size:10.5px;letter-spacing:.16em;color:rgba(255,255,255,.34)}
+.nav{background:transparent;background-image:none;border:0;border-radius:8px;box-shadow:none;color:rgba(255,255,255,.7);font-weight:500;padding:9px 12px}
+.nav:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav[aria-current="true"]{background:rgba(255,255,255,.09);background-image:none;color:#fff;box-shadow:inset 2px 0 0 #b07d10}
+.nav-badge{background:#b07d10;color:#151310;box-shadow:none}
+.main{padding:32px 46px 76px}
+.bar{border-bottom:1px solid #e3e1dc;padding-bottom:14px;margin-bottom:22px}
+.bar h1{font-size:22px;font-weight:650;letter-spacing:-.4px}
+.bar .sub{color:#7c7a75;font-size:13px}
+.pane{max-width:1040px}
+.intro{background:#fbfaf7;background-image:none;border:1px solid #e8e5df;border-left:3px solid #b07d10;border-radius:10px;box-shadow:none;color:#413f3a;font-size:13.5px;line-height:1.75}
+.card{background:#fff;border:1px solid #e8e6e1;border-radius:12px;box-shadow:0 1px 2px rgba(20,21,23,.04);padding:18px 20px}
+.card-head b{font-size:14.5px;letter-spacing:-.1px}
+.card-head .slot-id,code.slot-id{background:#f4f2ed;color:#6b6862;border:1px solid #e8e5df}
+label{font-size:12.5px;font-weight:600;color:#5c5a55}
+input,textarea,select{background:#fff;background-image:none;border:1px solid #dcdad4;border-radius:8px;box-shadow:none;color:#15171a}
+input:hover,textarea:hover,select:hover{border-color:#c9c6be}
+input:focus,textarea:focus,select:focus{outline:0;border-color:#b07d10;box-shadow:0 0 0 3px rgba(176,125,16,.13)}
+button{background:#1b1c1f;background-image:none;color:#fff;border:0;border-radius:8px;box-shadow:none;font-weight:600}
+button:hover{background:#000}
+button.ghost{background:#fff;background-image:none;color:#1b1c1f;border:1px solid #dcdad4;box-shadow:none}
+button.ghost:hover{background:#f6f5f1;border-color:#c9c6be}
+button.danger{background:#fff;background-image:none;color:#a2341f;border:1px solid #eecdc6}
+button.danger:hover{background:#fdf3f1}
+button.small{padding:6px 10px;font-size:12.5px;border-radius:7px}
+button:disabled{opacity:.55}
+th{background:#faf9f6;color:#6f6d67;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #e8e6e1}
+td{border-bottom:1px solid #f1efea}
+tr:hover td{background:#fcfbf8}
+.stats .stat,.stat{background:#fff;background-image:none;border:1px solid #e8e6e1;border-radius:12px;box-shadow:none}
+.stat b{font-size:20px;letter-spacing:-.4px}
+.kv{border-bottom:1px dashed #e8e6e1}
+.choice{background:#fff;background-image:none;border:1px solid #e2dfd9;border-radius:10px;box-shadow:none}
+.choice:has(input:checked){background:#fbf7ec;background-image:none;border-color:#c9a94e;box-shadow:0 0 0 3px rgba(176,125,16,.12)}
+.status-item{background:#fff;background-image:none;border:1px solid #e8e6e1}
+.lockrow{background:#fbfaf7;background-image:none;border:1px dashed #e0ddd6;border-radius:10px}
+.toast{background:#1b1c1f;background-image:none;box-shadow:0 12px 32px rgba(0,0,0,.22)}
+#errBar{background:#fdf2f0;background-image:none;color:#a2311f;border-bottom:1px solid #f3cfc8}
+.raw pre{background:#fbfaf7;background-image:none;border:1px solid #ecebe5}
+::-webkit-scrollbar-thumb{background:#d6d3cc;border:2px solid transparent;background-clip:content-box}
 </style>
 </head>
 <body>
