@@ -490,7 +490,7 @@ async function siteRuntime(env) {
 
 async function aiCountKey(env) {
   const d = new Date(Date.now() + 8 * 3600 * 1000); // 北京时间当天
-  return EDGE_KEY_BASE + '/__ai/' + env.REPO_OWNER + '/' + d.toISOString().slice(0, 10);
+  return EDGE_KEY_BASE + '/__ai/' + repoOf(env).owner + '/' + d.toISOString().slice(0, 10);
 }
 
 async function aiUsedToday(env) {
@@ -559,9 +559,9 @@ async function translateText(text, env) {
 
 // 读取 GitHub Action 预翻译的 README 译文（data/readme-zh.json，格式 {"owner/repo": {partial, text}}）
 async function staticReadmeZh(env, repo) {
-  if (!env.REPO_OWNER || !env.REPO_NAME) return null;
+  if (!repoOf(env).owner || !repoOf(env).name) return null;
   try {
-    const r = await fetch('https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/data/readme-zh.json', { cf: { cacheTtl: 300, cacheEverything: true } });
+    const r = await fetch('https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/data/readme-zh.json', { cf: { cacheTtl: 300, cacheEverything: true } });
     if (!r.ok) return null;
     const map = await r.json();
     return (map && map[repo]) || null;
@@ -603,11 +603,11 @@ async function injectVerifyMeta(env, html) {
 }
 
 async function serveSite(env, entry) {
-  if (!env.REPO_OWNER || !env.REPO_NAME) {
+  if (!repoOf(env).owner || !repoOf(env).name) {
     return text('还没配置 REPO_OWNER / REPO_NAME 变量，请按部署说明添加', 503);
   }
   const raw =
-    'https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + entry[0];
+    'https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/' + entry[0];
   const r = await fetch(raw, { cf: { cacheTtl: RAW_TTL, cacheEverything: true } });
   if (!r.ok) {
       return text('读取站点文件失败：' + r.status + '（请确认仓库是公开的，且文件已经推送到 ' + branch(env) + ' 分支）', 502);
@@ -764,8 +764,8 @@ const SITE_SECTIONS = ['ad', 'layout', 'contact', 'beian', 'seo', 'geo', 'runtim
 
 // 读取仓库 data/site.json（raw 地址，边缘缓存 RAW_TTL 秒），给站点页和 sitemap 用；失败时用默认值
 async function loadSiteRaw(env) {
-  if (!env.REPO_OWNER || !env.REPO_NAME) return normalizeSite(null);
-  const u = 'https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + SITE_FILE;
+  if (!repoOf(env).owner || !repoOf(env).name) return normalizeSite(null);
+  const u = 'https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/' + SITE_FILE;
   const r = await fetch(u, { cf: { cacheTtl: RAW_TTL, cacheEverything: true } });
   if (!r.ok) return normalizeSite(null);
   try {
@@ -824,12 +824,22 @@ function filePath(env) {
   return env.FILE_PATH || DEFAULT_FILE;
 }
 
+// 仓库位置：优先读环境变量，读不到就用站点自身的默认值。
+// 这样即使有人部署时把变量清掉了（Cloudflare 部署会整体替换绑定），站点也不会 503。
+const DEFAULT_OWNER = 'xiaoh2018';
+const DEFAULT_REPO = 'github-rank';
+function repoOf(env) {
+  const o = String((env && env.REPO_OWNER) || '').trim() || DEFAULT_OWNER;
+  const n = String((env && env.REPO_NAME) || '').trim() || DEFAULT_REPO;
+  return { owner: o, name: n };
+}
+
 function branch(env) {
   return env.BRANCH || DEFAULT_BRANCH;
 }
 
 function repoApi(env, p) {
-  return 'https://api.github.com/repos/' + env.REPO_OWNER + '/' + env.REPO_NAME + p;
+  return 'https://api.github.com/repos/' + repoOf(env).owner + '/' + repoOf(env).name + p;
 }
 
 function ghHeaders(env, extra) {
@@ -915,7 +925,7 @@ async function maybeRefresh(env) {
   const coolMin = Number(env.COOLDOWN_MINUTES) || 60;
 
   const dataUrl =
-    'https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/data/repos.js';
+    'https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/data/repos.js';
   const dataRes = await fetch(dataUrl, { cf: { cacheTtl: 60, cacheEverything: true } });
   if (!dataRes.ok) return;
   const m = (await dataRes.text()).match(/generatedAt:\s*"([^"]+)"/);
@@ -1539,7 +1549,7 @@ function indexNowKey(env, rt) {
   const custom = rt && typeof rt.indexNowKey === 'string' ? rt.indexNowKey.trim() : '';
   if (custom) return custom;
   if (env.INDEXNOW_KEY && String(env.INDEXNOW_KEY).trim()) return String(env.INDEXNOW_KEY).trim();
-  const seed = String(env.REPO_OWNER || '') + '/' + String(env.REPO_NAME || '') + '/' + branch(env);
+  const seed = String(repoOf(env).owner || '') + '/' + String(repoOf(env).name || '') + '/' + branch(env);
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) {
     h ^= seed.charCodeAt(i);
@@ -1551,10 +1561,10 @@ function indexNowKey(env, rt) {
 }
 
 async function rawJson(env, path) {
-  if (!env.REPO_OWNER || !env.REPO_NAME) return null;
+  if (!repoOf(env).owner || !repoOf(env).name) return null;
   try {
     const r = await fetch(
-      'https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + path,
+      'https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/' + path,
       { cf: { cacheTtl: RAW_TTL, cacheEverything: true } }
     );
     if (!r.ok) return null;

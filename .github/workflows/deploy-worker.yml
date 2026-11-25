@@ -48,11 +48,9 @@ jobs:
         if: steps.creds.outputs.ready == '1'
         run: node scripts/check-worker.mjs
 
-      - name: wrangler deploy
+      - name: 部署（走 Cloudflare API，显式带全变量与 AI 绑定）
         if: steps.creds.outputs.ready == '1'
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN || vars.CF_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || vars.CF_ACCOUNT_ID }}
-          wranglerVersion: '3.90.0'
-          command: deploy
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || vars.CF_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || vars.CF_ACCOUNT_ID }}
+        run: node scripts/deploy-worker.mjs
