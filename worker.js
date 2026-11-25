@@ -1441,7 +1441,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v95';
+const ASSET_V = 'v96';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1930,6 +1930,21 @@ async function handleSubmit(request, env, origin) {
     } catch (e) {
       keyNote = '抓取失败：' + ((e && e.message) || 'network');
     }
+    let urlCount = 2;
+    let urlSample = [origin + '/', origin + '/articles'];
+    try {
+      const avPrev = await readArticles(env);
+      const itemsPrev = (avPrev.articles || []).slice();
+      itemsPrev.slice(0, 100).forEach(function (a) {
+        if (!a || !a.id) return;
+        const pth = a.slug
+          ? '/articles/' + String(a.slug).split('/').map(encodeURIComponent).join('/') + '.html'
+          : '/articles#' + encodeURIComponent(String(a.id));
+        urlSample.push(origin + pth);
+      });
+      urlCount = urlSample.length;
+      urlSample = urlSample.slice(0, 5);
+    } catch (e) {}
     return json({
       ok: true,
       status: {
@@ -1941,6 +1956,8 @@ async function handleSubmit(request, env, origin) {
         indexKeySource: rtSubmit && rtSubmit.indexNowKey ? 'admin' : (env.INDEXNOW_KEY ? 'env' : 'auto'),
         sitemap: origin + '/sitemap.xml',
         llms: origin + '/llms.txt',
+        urlCount: urlCount,
+        urlSample: urlSample,
         baiduToken: !!baiduNow,
         baiduTokenSource: (rtSubmit && rtSubmit.baiduToken) ? 'admin' : (env.BAIDU_TOKEN ? 'env' : 'none'),
         aiUsage: await aiUsage(env, rtSubmit),
@@ -5508,6 +5525,7 @@ tr:hover td{background:#fcfbf8}
         subLine('key 文件内容', s.keyFileMatch ? '与后台填的 key 一致（IndexNow 会来读这个文件校验）' : '和后台填的 key 不一致，Bing 会拒（422）', !!s.keyFileMatch) +
         subLine('百度推送', s.baiduToken ? '已配置准入密钥（来源：' + navEsc(s.baiduTokenSource || 'env') + '），可以主动推' : '没填准入密钥，点提交时会跳过百度', !!s.baiduToken) +
         subLine('Workers AI 今日', s.aiUsage ? (s.aiUsage.used + ' / ' + (s.aiUsage.unlimited ? '不限制' : s.aiUsage.cap) + ' 次' + (s.aiUsage.capSource === 'admin' ? '（上限来自后台）' : '')) : '—', true) +
+        subLine('这次会推送', (s.urlCount ? (s.urlCount + ' 条（含首页、/articles 与前 100 篇文章）') : '—') + (s.urlSample && s.urlSample.length ? '<br><span class="muted">' + s.urlSample.slice(0, 3).map(function (u) { return navEsc(u); }).join('<br>') + '</span>' : ''), !!s.urlCount) +
         subLine('冷却状态', (s.cooldown && s.cooldown.seconds > 0) ? '还要等 ' + s.cooldown.seconds + ' 秒才能再推（防 IndexNow 429）' : '可以提交', !(s.cooldown && s.cooldown.seconds > 0)) +
         subLine('最近一次提交', last ? ((last.at ? new Date(last.at).toLocaleString() : '时间未知（旧记录）') + '　' + ((last.results && last.results.indexNow && last.results.indexNow.ok) ? 'IndexNow 成功' : 'IndexNow 未成功')) : '还没提交过', !!last);
       var cool = (s.cooldown && s.cooldown.seconds) ? s.cooldown.seconds : 0;

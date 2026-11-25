@@ -102,6 +102,11 @@ const rss = await fetch(base + '/rss.xml?v=' + t);
 const rssText = await rss.text();
 push('/rss.xml 订阅源', rss.ok && rssText.indexOf('<rss version="2.0"') > 0 && rssText.indexOf('<channel>') > 0, rss.status + ' ' + rssText.length + 'B');
 
+const subApi = await fetch(base + '/api/submit?v=' + t);
+const subJson = await subApi.json().catch(() => null);
+const subStatus = (subJson && subJson.status) || {};
+push('/api/submit 状态', subApi.ok && typeof subStatus.urlCount === 'number' && subStatus.urlCount > 0, 'urlCount=' + subStatus.urlCount);
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
