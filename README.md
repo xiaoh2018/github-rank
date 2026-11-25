@@ -21,15 +21,27 @@
 - 详情通过 Worker 代理请求 GitHub，访客不需要自己的 Token。访客也可以在「设置」里填写自己的 GitHub Token，用自己的额度刷新。
 
 **文章**
-- 支持 Markdown（标题、列表、代码块、链接、图片链接），可以在后台编辑，也可以导入 `.md` 文件。
+- 支持 Markdown（标题、列表、任务清单、表格、代码块、删除线、链接、图片链接），可以在后台编辑，也可以导入 `.md` 文件；后台写文章是「左边写、右边实时预览」的双栏弹窗。
 - 渲染前会转义 HTML，只放行 http(s) 链接和站内路径，不执行页面里的脚本。
 
+**导航页**
+- 页头有两个标签：榜单 / 导航。导航页按分类展示常用站点卡片（图标 + 名称 + 描述 + 域名），带搜索框，数据来自 `data/nav.json`。
+- 后台可以加分类、加站点；填网址点「自动获取」会把网页标题、描述、图标抓回来（抓不到自己写）。
+
 **后台（`/admin`）**
-- 用管理密码登录，可视化管理：概览（保活状态）、友链、广告位、榜单布局（自动 / 单栏 / 双栏）、联系方式（悬浮按钮）、备案信息、SEO、GEO（摘要与问答）、文章、翻译设置（显示 Cloudflare 里的配置状态；密钥需在 Cloudflare Secret 中设置）。
-- 翻译设置页面只显示 Cloudflare 里是否已配置 GitHub Token，不能在页面上保存密钥。
+- 用管理密码登录，11 个标签按「常用 / 内容 / 站点信息 / 运维」分组：概览、榜单布局、文章、SEO 与 GEO、友链、导航页、广告、联系方式、备案信息、收录提交、翻译与密钥。
+- 广告有 5 个位置（首页顶部、榜单上方、榜单下方、侧栏底部、文章区上方），每个位置独立开关，不勾就不渲染。
+- 收录提交：一键走 IndexNow（Bing / Yandex / Seznam / Naver），配 `BAIDU_TOKEN` 时也会推百度；面板上直接给出 `/sitemap.xml`、`/llms.txt` 与 key 文件的地址。
+- 密钥（GitHub Token、百度 Token 等）只在 Cloudflare 的 Variables and Secrets 里设置，后台只显示「配没配」并可以实测翻译链路。
 
 **翻译**
-- 简介和 README 的中文译文按顺序尝试：仓库里预翻译好的文件 → MyMemory（免 Key，可用邮箱提高额度）→ Workers AI（如果绑定了 AI）。全部失败时显示英文原文。
+- 简介和 README 的中文译文按顺序尝试：仓库里预翻译好的文件 → 边缘缓存里已有的译文 → MyMemory（免 Key，可用邮箱提高额度）→ Workers AI（如果绑定了 AI）。全部失败时显示英文原文。
+- 长文本会自动分段（MyMemory 450 字/段、Workers AI 900 字/段），失败原因会分类显示（网络 / 额度 / HTTP / 解析 / 没绑定）。
+
+**被搜索引擎与 AI 搜索收录**
+- `/robots.txt` 明确放行 18 个 AI 爬虫（GPTBot、ClaudeBot、PerplexityBot、Bytespider、Qwen-Bot、DeepSeek-Bot 等）。
+- `/llms.txt` 是给大模型的站点说明书（页面、最新文章、导航分类、数据来源都写清楚）。
+- `/sitemap.xml` 含首页、文章页和每篇文章的锚点，带 `lastmod`。
 
 ## 整体结构
 
@@ -46,6 +58,10 @@ worker.js           Cloudflare Worker：页面转发、后台、API、保活、�
 scripts/fetch.js    抓取榜单、翻译简介和 README 的脚本（Node 20，无依赖）
 scripts/split-data.js        把旧的合并数据文件拆成按时间范围的新格式（迁移用）
 scripts/make-og-image.ps1    生成 og-image.png（Windows 自带 GDI+，无需额外依赖）
+scripts/check-worker.mjs     本地模拟 Workers 运行时跑 13 组自检（node scripts/check-worker.mjs）
+scripts/dev-server.mjs       本地真的跑 worker.js（http://127.0.0.1:8123，后台密码 dev）
+scripts/preview-admin.mjs    生成后台各面板的预览页（自动用 dev 密码登录，便于截图核对）
+wrangler.toml       Cloudflare 部署配置（路由也在里面，避免部署时丢路由）
 serve.js            本地静态服务（只用于本机预览）
 启动网页.bat         Windows 下双击启动本地预览
 data/
@@ -57,10 +73,12 @@ data/
   repos.js          旧版合并数据，已冻结，仅作新 Worker 部署前的兜底
   desc-zh.json      简介中文译文（Action 和 Worker 共同维护）
   readme-zh.json    README 中文译文（Action 生成）
-  site.json         站点设置：SEO、GEO、广告、联系方式、备案、榜单布局
+  site.json         站点设置：SEO、GEO、广告（5 个位置）、联系方式、备案、榜单布局
   links.json        友情链接
   articles.json     文章
+  nav.json          导航页：分类 + 站点卡片
   .github/workflows/update-data.yml   定时抓取（每 3 小时）
+  .github/workflows/deploy-worker.yml 改了 worker.js 自动部署（需配 CLOUDFLARE_API_TOKEN）
 ```
 
 ## 数据如何流动
