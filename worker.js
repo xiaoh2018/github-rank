@@ -1431,7 +1431,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v92';
+const ASSET_V = 'v93';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3129,6 +3129,10 @@ th{color:var(--muted);font-weight:600;font-size:13px}
 .choice .sw{display:inline-flex;gap:4px;margin-right:10px;vertical-align:middle;flex:none}
 .choice .sw i{width:15px;height:15px;border-radius:5px;display:block;border:1px solid rgba(0,0,0,.08)}
 .choice-t{display:flex;flex-direction:column;font-size:14px;flex:1 1 100%;margin-top:2px}
+.lp{display:flex;gap:3px;width:34px;height:20px;align-items:stretch;flex:none}
+.lp i{flex:1;min-width:0;border-radius:2px;background:currentColor;opacity:.26}
+.lp-hint i{border:1px dashed currentColor;background:transparent;opacity:.5}
+.choice:has(input:checked) .lp i{opacity:.5}
 .choice-t b{font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
 /* ---- 状态清单 / 键值 ---- */
 .status-list{display:grid;gap:8px;margin-top:8px}
@@ -3684,10 +3688,10 @@ tr:hover td{background:#fcfbf8}
         <div class="card">
           <div class="card-head"><div><h2>榜单列数</h2><p class="desc">项目榜、开发者榜、组织榜都用这一档。</p></div></div>
           <div class="choice-grid">
-            <label class="choice"><input type="radio" name="layout-mode" value="auto"><span class="choice-t">自动<b>随屏幕宽度</b></span></label>
-            <label class="choice"><input type="radio" name="layout-mode" value="single"><span class="choice-t">单列<b>一行一个</b></span></label>
-            <label class="choice"><input type="radio" name="layout-mode" value="double"><span class="choice-t">双列<b>900px 以上两栏</b></span></label>
-            <label class="choice"><input type="radio" name="layout-mode" value="triple"><span class="choice-t">三列<b>1280px 以上三栏</b></span></label>
+            <label class="choice"><input type="radio" name="layout-mode" value="auto"><span class="lp lp-hint"><i></i><i></i></span><span class="choice-t">自动<b>随屏幕宽度</b></span></label>
+            <label class="choice"><input type="radio" name="layout-mode" value="single"><span class="lp lp1"><i></i></span><span class="choice-t">单列<b>一行一个</b></span></label>
+            <label class="choice"><input type="radio" name="layout-mode" value="double"><span class="lp lp2"><i></i><i></i></span><span class="choice-t">双列<b>900px 以上两栏</b></span></label>
+            <label class="choice"><input type="radio" name="layout-mode" value="triple"><span class="lp lp3"><i></i><i></i><i></i></span><span class="choice-t">三列<b>1280px 以上三栏</b></span></label>
           </div>
           <h2 style="margin-top:26px">侧栏位置</h2>
           <p class="desc">语言分布、项目最多的作者 / 组织、榜单变化这三块放哪。</p>
@@ -3699,9 +3703,9 @@ tr:hover td{background:#fcfbf8}
           <p class="desc">只影响「开发者榜」「组织榜」两个视图；侧栏放下方时差别最明显。</p>
           <div class="choice-grid">
             <label class="choice"><input type="radio" name="layout-users" value="auto"><span class="choice-t">跟榜单一致<b>默认</b></span></label>
-            <label class="choice"><input type="radio" name="layout-users" value="single"><span class="choice-t">单列</span></label>
-            <label class="choice"><input type="radio" name="layout-users" value="double"><span class="choice-t">双列</span></label>
-            <label class="choice"><input type="radio" name="layout-users" value="triple"><span class="choice-t">三列<b>1280px 以上三栏</b></span></label>
+            <label class="choice"><input type="radio" name="layout-users" value="single"><span class="lp lp1"><i></i></span><span class="choice-t">单列</span></label>
+            <label class="choice"><input type="radio" name="layout-users" value="double"><span class="lp lp2"><i></i><i></i></span><span class="choice-t">双列</span></label>
+            <label class="choice"><input type="radio" name="layout-users" value="triple"><span class="lp lp3"><i></i><i></i><i></i></span><span class="choice-t">三列<b>1280px 以上三栏</b></span></label>
           </div>
           <h2 style="margin-top:26px">文章页侧栏</h2>
           <p class="desc">文章页（/articles）是博客式排版：默认左侧文章列表、右侧关于站点与分类。这里决定侧栏放哪。</p>
