@@ -1431,7 +1431,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v82';
+const ASSET_V = 'v83';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2796,6 +2796,11 @@ function checkArticle(v) {
   const cat = v.category == null ? '' : String(v.category).trim();
   if (cat.length > 24) return { ok: false, error: '分类最多 24 个字符' };
   clean.category = cat;
+  const cover = v.cover == null ? '' : String(v.cover).trim();
+  if (cover && (!/^https?:\/\//i.test(cover) || cover.length > 300)) {
+    return { ok: false, error: '封面图地址必须是 http(s) 链接，且不超过 300 字符' };
+  }
+  clean.cover = cover;
   let tags = v.tags;
   if (typeof tags === 'string') tags = tags.split(/[,\s，、]+/);
   if (!Array.isArray(tags)) tags = [];
@@ -4005,6 +4010,9 @@ tr:hover td{background:#fcfbf8}
           </span>
         </div>
       </div>
+      <label for="artCover">封面图</label>
+      <input type="url" id="artCover" maxlength="300" placeholder="https://…（可选，16:9 横图最好，留空就不显示封面）">
+      <div class="hint">建议 1200×675；放图床或仓库 raw 链接都行。</div>
       <label for="artSummary">摘要</label>
       <textarea id="artSummary" maxlength="300" style="min-height:74px" placeholder="一两句话说清这篇讲什么，会显示在列表里，也会被 AI 搜索引用。"></textarea>
       <div class="lockrow">
@@ -4723,6 +4731,7 @@ tr:hover td{background:#fcfbf8}
     $('artTitleIn').value = a ? a.title : '';
     $('artDate').value = a ? a.date : today();
     $('artSummary').value = a ? a.summary : '';
+    if ($('artCover')) $('artCover').value = a && a.cover ? a.cover : '';
     $('artBody').value = a ? a.body : '';
     $('artLock').checked = !!(a && a.locked);
     $('artPw').value = '';
@@ -4741,6 +4750,7 @@ tr:hover td{background:#fcfbf8}
       title: $('artTitleIn').value,
       date: $('artDate').value || today(),
       summary: $('artSummary').value,
+      cover: $('artCover') ? $('artCover').value.trim() : '',
       body: $('artBody').value
     };
     var lockOn = $('artLock').checked;

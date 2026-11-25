@@ -414,6 +414,7 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
   .artgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
   .artcard{display:flex;flex-direction:column;gap:8px;padding:14px 15px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);transition:border-color .15s,transform .15s,box-shadow .15s}
   .artcard:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow)}
+  .artcard-cover{width:100%;aspect-ratio:16/9;border-radius:8px;background-color:var(--chip);background-position:center;background-size:cover;background-repeat:no-repeat}
   .artcard-top{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
   .artcard-cat{padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--accent);font-weight:600}
   .artcard-top time{margin-left:auto;font-family:Consolas,ui-monospace,monospace}
@@ -1018,6 +1019,12 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       items.forEach(function(it,idx){
         var card=document.createElement('article');
         card.className='artcard';
+        if(it.cover){
+          var cv=document.createElement('div');
+          cv.className='artcard-cover';
+          cv.style.backgroundImage='url("'+String(it.cover).replace(/["'()\\]/g,'')+'")';
+          card.appendChild(cv);
+        }
         var top=document.createElement('div');
         top.className='artcard-top';
         var c=document.createElement('span');
