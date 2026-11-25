@@ -113,6 +113,8 @@ push('导航批量导入支持选文件', adm.includes('id="navImpFile"'));
 
 push('批量改分类是下拉', adm.includes('<select id="artBulkCat"'));
 
+push('前台搜索支持 / 快捷键', home.includes('按 / 快速定位'));
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

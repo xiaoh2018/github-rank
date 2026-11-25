@@ -229,7 +229,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   <div class="blog" id="blog" data-side="right">
     <section class="blistwrap" id="listWrap">
       <div class="btools">
-        <input type="search" id="search" placeholder="搜索标题、摘要、标签…" autocomplete="off">
+        <input type="search" id="search" placeholder="搜索标题、摘要、标签…（按 / 快速定位）" autocomplete="off">
         <select id="sort" aria-label="排序">
           <option value="new">最新在前</option>
           <option value="old">最早在前</option>
@@ -778,6 +778,16 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   });
   $('search').addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { this.value = ''; state.q = ''; renderCards(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target, tag = String((t && t.tagName) || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select' || (t && t.isContentEditable)) return;
+    var box = $('search');
+    if (!box) return;
+    e.preventDefault();
+    box.focus();
+    box.select();
   });
   $('sort').addEventListener('change', function () { state.sort = this.value; renderCards(); });
   window.addEventListener('popstate', function () { route(); });
