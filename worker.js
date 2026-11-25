@@ -1410,7 +1410,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v65';
+const ASSET_V = 'v66';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1791,6 +1791,31 @@ async function handleSubmit(request, env, origin) {
         baiduToken: !!baiduNow,
         baiduTokenSource: (rtSubmit && rtSubmit.baiduToken) ? 'admin' : (env.BAIDU_TOKEN ? 'env' : 'none'),
         aiUsage: await aiUsage(env, rtSubmit),
+        counts: await (async function () {
+          const got = await Promise.all([
+            rawJson(env, 'data/articles.json').catch(function () { return null; }),
+            rawJson(env, 'data/nav.json').catch(function () { return null; }),
+            rawJson(env, 'data/qa.json').catch(function () { return null; }),
+            rawJson(env, 'data/links.json').catch(function () { return null; }),
+            rawJson(env, 'data/site.json').catch(function () { return null; }),
+          ]);
+          const a1 = got[0] || {};
+          const n1 = got[1] || {};
+          const q1 = got[2] || {};
+          const l1 = got[3] || {};
+          const s1 = got[4] || {};
+          let navSites = 0;
+          ((n1.groups || [])).forEach(function (g) { navSites += (g.items || []).length; });
+          const arrOf = function (x) { return Array.isArray(x) ? x : []; };
+          return {
+            articles: arrOf(a1.articles).length,
+            categories: arrOf((function () { try { return normalizeSite(s1).article.categories; } catch (e) { return []; } })()).length,
+            navSites: navSites,
+            navGroups: ((n1.groups || [])).length,
+            qa: arrOf(q1.items).length,
+            links: arrOf(l1.links).length,
+          };
+        })(),
         lastRun: await readLastSubmit(),
         cooldown: (function (last) {
           if (!last || !last.at) return { seconds: 0 };
@@ -1850,6 +1875,7 @@ async function handleSubmit(request, env, origin) {
   if ((want === 'all' || want === 'indexnow') && !sameBatch) {
     const key = keyNow;
     try {
+      const t0 = Date.now();
       const r = await fetch('https://api.indexnow.org/indexnow', {
         method: 'POST',
         headers: { 'content-type': 'application/json; charset=utf-8' },
@@ -1865,7 +1891,7 @@ async function handleSubmit(request, env, origin) {
       else if (r.status === 422) note = 'Key 校验没过：确认站点根目录的 key 文件能打开，且提交的 host 与 keyLocation 同域';
       else if (r.status === 403) note = 'Key 文件打不开或内容不对：先把 Worker 部署到最新版，再回本页点「刷新」看自检那行';
       else note = 'IndexNow 返回 HTTP ' + r.status + '，见下面的原始返回';
-      out.results.indexNow = { ok: good, status: r.status, note: note, raw: String(rawText || '').slice(0, 300) };
+      out.results.indexNow = { ok: good, status: r.status, ms: Date.now() - t0, note: note, raw: String(rawText || '').slice(0, 300) };
     } catch (e) {
       out.results.indexNow = { ok: false, status: 0, note: '连不上 api.indexnow.org：' + ((e && e.message) || 'network') };
     }
@@ -1876,6 +1902,7 @@ async function handleSubmit(request, env, origin) {
       out.results.baidu = { ok: false, status: 0, note: '没填百度准入密钥：后台「收录提交」里填，或配 Cloudflare 变量 BAIDU_TOKEN，二选一即可' };
     } else {
       try {
+        const t1 = Date.now();
         const r = await fetch(
           'http://data.zz.baidu.com/urls?site=' +
             encodeURIComponent(String(root).replace(/^https?:\/\//i, '').replace(/\/.*$/, '')) +
@@ -1903,7 +1930,7 @@ async function handleSubmit(request, env, origin) {
         if (r.status === 526) note = '526 是 Cloudflare 报的「源站证书无效」—— 百度 https 端点握手失败，不是站点没验证；本版已改成走 http 端点（百度自己的文档也用 http）';
         if (String(t||'').indexOf('success') >= 0) note = note + '｜百度已收下：' + String(t||'').slice(0,120);
         if (!good && /^\\s*</.test(String(t || ''))) note = '百度返回的是网页错误页（不是接口 JSON），多半是 token 与站点不匹配或接口被拦，见下面的原始返回';
-        out.results.baidu = { ok: good, status: r.status, note: note, raw: String(t || '').slice(0, 300) };
+        out.results.baidu = { ok: good, status: r.status, ms: Date.now() - t1, note: note, raw: String(t || '').slice(0, 300) };
       } catch (e) {
         out.results.baidu = { ok: false, status: 0, note: '连不上百度推送接口：' + ((e && e.message) || 'network') };
       }
@@ -2030,6 +2057,8 @@ function normalizeSite(o) {
         desc: (typeof c.desc === 'string' ? c.desc : '').trim().slice(0, 80),
       });
     }
+  } else {
+    d.article.categories = defaultSite().article.categories.slice();
   }
   const th = o && typeof o.theme === 'object' && o.theme ? o.theme : {};
   d.theme = {
@@ -3927,6 +3956,10 @@ tr:hover td{background:#fcfbf8}
       rows.push(healthRow('key 文件', !!(sub && sub.keyFileOk), (sub && sub.keyFileOk) ? '能打开，内容' + (sub.keyFileMatch ? '与后台一致' : '与后台不一致（会被 422 拒绝）') : ((sub && sub.keyFileNote) || '打不开')));
       rows.push(healthRow('百度密钥', !!(sub && sub.baiduToken), sub && sub.baiduToken ? '已配置（来源 ' + (sub.baiduTokenSource || 'env') + '）' : '没配，百度推送会跳过'));
       rows.push(healthRow('IndexNow Key', !!(sub && sub.indexNowKey), (sub && sub.indexNowKey) ? '已生成，来源 ' + (sub.indexKeySource || 'derived') : '没生成'));
+      var cnt = sub && sub.counts;
+      if (cnt) {
+        rows.push(healthRow('内容量', true, '文章 ' + (cnt.articles || 0) + ' 篇（分类 ' + (cnt.categories || 0) + ' 个）· 导航 ' + (cnt.navGroups || 0) + ' 组 / ' + (cnt.navSites || 0) + ' 站 · 问答 ' + (cnt.qa || 0) + ' 条 · 友链 ' + (cnt.links || 0) + ' 条'));
+      }
       if (ai && typeof ai.used === 'number') {
         var lim = ai.unlimited ? '不限' : String(ai.cap);
         rows.push(healthRow('Workers AI 今日', ai.unlimited || ai.used < ai.cap, '已用 ' + ai.used + ' / ' + lim + (ai.unlimited ? '' : '（还剩 ' + ai.remaining + '）')));
@@ -4784,7 +4817,7 @@ tr:hover td{background:#fcfbf8}
   }
   function subBox(name, o) {
     if (!o) return '';
-    var head = '<b>' + name + '</b> · ' + (o.ok ? '成功' : '失败') + (o.status ? '（HTTP ' + o.status + '）' : '');
+    var head = '<b>' + name + '</b> · ' + (o.ok ? '成功' : '失败') + (o.status ? '（HTTP ' + o.status + '）' : '') + (typeof o.ms === 'number' ? ' · ' + o.ms + 'ms' : '');
     var raw = o.raw ? '<details class="raw"><summary>看原始返回</summary><pre>' + navEsc(o.raw) + '</pre></details>' : '';
     var urls = '';
     if (o.urlList && o.urlList.length) {

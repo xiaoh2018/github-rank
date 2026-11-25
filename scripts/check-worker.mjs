@@ -798,5 +798,20 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
   ok(adminHtml2.indexOf('catTbody') >= 0 && adminHtml2.indexOf('catAdd') >= 0, '后台有分类管理表', '');
 }
 
+  console.log('== 20. 体检与推送明细 ==');
+  {
+    const sub = await hit('/api/submit');
+    const sj = await sub.json().catch(() => ({}));
+    ok(sub.status === 200 && !!(sj.status && sj.status.counts), '状态接口带内容量', sub.status + '');
+    const c = (sj.status && sj.status.counts) || {};
+    ok(typeof c.articles === 'number' && typeof c.navSites === 'number' && typeof c.qa === 'number', '内容量字段齐全', JSON.stringify(c).slice(0, 90));
+    const adm = await (await hit('/admin')).text();
+    ok(adm.indexOf("typeof o.ms === 'number'") >= 0, '推送结果展示耗时', '');
+    ok(adm.indexOf('内容量') >= 0, '体检卡有内容量一行', '');
+    ok(adm.indexOf('文章 ') >= 0 && adm.indexOf(' 篇（分类 ') >= 0, '内容量文案可读', '');
+    const siteJ = await (await hit('/api/site')).json().catch(() => ({}));
+    const cats = (siteJ.site && siteJ.site.article && siteJ.site.article.categories) || [];
+    ok(Array.isArray(cats) && cats.length >= 1, '默认分类兜底（normalizeSite 不丢 categories）', cats.length + ' 个');
+  }
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
