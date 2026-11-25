@@ -1431,7 +1431,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v81';
+const ASSET_V = 'v82';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2037,6 +2037,7 @@ async function handleSubmit(request, env, origin) {
 
   out.at = new Date().toISOString();
   out.sig = sigNow;
+  if (!out.at) out.at = new Date().toISOString();
   await saveLastSubmit(out);
   return json(out);
 }
@@ -5281,7 +5282,7 @@ tr:hover td{background:#fcfbf8}
         subLine('百度推送', s.baiduToken ? '已配置准入密钥（来源：' + navEsc(s.baiduTokenSource || 'env') + '），可以主动推' : '没填准入密钥，点提交时会跳过百度', !!s.baiduToken) +
         subLine('Workers AI 今日', s.aiUsage ? (s.aiUsage.used + ' / ' + (s.aiUsage.unlimited ? '不限制' : s.aiUsage.cap) + ' 次' + (s.aiUsage.capSource === 'admin' ? '（上限来自后台）' : '')) : '—', true) +
         subLine('冷却状态', (s.cooldown && s.cooldown.seconds > 0) ? '还要等 ' + s.cooldown.seconds + ' 秒才能再推（防 IndexNow 429）' : '可以提交', !(s.cooldown && s.cooldown.seconds > 0)) +
-        subLine('最近一次提交', last ? (new Date(last.at || Date.now()).toLocaleString() + '　' + ((last.results && last.results.indexNow && last.results.indexNow.ok) ? 'IndexNow 成功' : 'IndexNow 未成功')) : '还没提交过', !!last);
+        subLine('最近一次提交', last ? ((last.at ? new Date(last.at).toLocaleString() : '时间未知（旧记录）') + '　' + ((last.results && last.results.indexNow && last.results.indexNow.ok) ? 'IndexNow 成功' : 'IndexNow 未成功')) : '还没提交过', !!last);
       var cool = (s.cooldown && s.cooldown.seconds) ? s.cooldown.seconds : 0;
       (function () {
         var wrap = $('subStatus');
