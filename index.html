@@ -1269,7 +1269,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         html+='</div></section>';
       });
       if(html && jump) html='<div class="navjump">'+jump+'</div>'+html;
-      box.innerHTML = html || '<p class="note">没有匹配的站点。</p>';
+      if(!total) html='<p class="note">导航页还没有站点：到后台「导航页」添加分组和站点，保存后刷新这里就能看到。</p>';
+      box.innerHTML = html || '<p class="note">没有匹配的站点（清空搜索框可看全部）。</p>';
       if(window.ghrankMountInline) window.ghrankMountInline();
       var cnt=document.getElementById('navCount');
       if(cnt) cnt.textContent = q ? ('匹配 '+shown+' / '+total+' 个') : ('共 '+total+' 个站点');

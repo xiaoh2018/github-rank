@@ -1425,8 +1425,8 @@ async function handleLinks(request, env) {
   if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
     return json({ ok: false, error: '密码不对' }, 403);
   }
-  if (body.action !== 'add' && body.action !== 'remove' && body.action !== 'update') {
-    return json({ ok: false, error: 'action 只能是 add、remove 或 update' }, 400);
+  if (body.action !== 'add' && body.action !== 'remove' && body.action !== 'update' && body.action !== 'move') {
+    return json({ ok: false, error: 'action 只能是 add、remove、update 或 move' }, 400);
   }
 
   const cur = await readLinks(env);
@@ -1451,7 +1451,14 @@ async function handleLinks(request, env) {
     return { ok: true, value: { name: name, url: url, desc: desc } };
   };
 
-  if (body.action === 'remove') {
+  if (body.action === 'move') {
+    const bad = (x) => typeof x !== 'number' || !Number.isInteger(x) || x < 0 || x >= links.length;
+    if (bad(body.from) || bad(body.to)) return json({ ok: false, error: '要移动的位置不正确' }, 400);
+    if (body.from !== body.to) {
+      const item = links.splice(body.from, 1)[0];
+      links.splice(body.to, 0, item);
+    }
+  } else if (body.action === 'remove') {
     const idx = body.index;
     if (typeof idx !== 'number' || !Number.isInteger(idx) || idx < 0 || idx >= links.length) {
       return json({ ok: false, error: '序号不正确' }, 400);
@@ -1607,7 +1614,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v111';
+const ASSET_V = 'v112';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3730,14 +3737,14 @@ tr:hover td{background:#fcfbf8}
 .toolbar #navFilter{flex:1 1 320px;min-width:0;max-width:none}
 .toolbar .note{margin-left:auto}
 #linkBody .muted-cell{color:#6b7280;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#linkBody td.row-actions{display:table-cell;white-space:nowrap;width:130px;text-align:right}
+#linkBody td.row-actions{display:table-cell;white-space:nowrap;width:210px;text-align:right}
 #linkBody .row-actions{white-space:nowrap}
 #linkBody .row-actions .btn{margin-left:6px}
 #linkBody{table-layout:fixed;width:100%}
-#linkBody td:nth-child(1){width:20%}
-#linkBody td:nth-child(2){width:40%}
-#linkBody td:nth-child(3){width:26%}
-#linkBody td:nth-child(4){width:14%;white-space:nowrap}
+#linkBody td:nth-child(1){width:18%}
+#linkBody td:nth-child(2){width:36%}
+#linkBody td:nth-child(3){width:24%}
+#linkBody td:nth-child(4){width:22%;white-space:nowrap}
 
 </style>
 </head>
@@ -4645,7 +4652,9 @@ tr:hover td{background:#fcfbf8}
       return '<tr><td>' + esc(l.name) + '</td>' +
         '<td><a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.url) + '</a></td>' +
         '<td class="muted-cell">' + esc(l.desc || '—') + '</td>' +
-        '<td class="row-actions"><button type="button" class="ghost small" data-edit="' + i + '">编辑</button>' +
+        '<td class="row-actions"><button type="button" class="ghost small" data-up="' + i + '" title="上移"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+        '<button type="button" class="ghost small" data-down="' + i + '" title="下移"' + (i === state.links.length - 1 ? ' disabled' : '') + '>↓</button>' +
+        '<button type="button" class="ghost small" data-edit="' + i + '">编辑</button>' +
         '<button type="button" class="danger small" data-del="' + i + '">删除</button></td></tr>';
     }).join('');
   }
@@ -4695,6 +4704,18 @@ tr:hover td{background:#fcfbf8}
     });
   });
   $('linkBody').addEventListener('click', function (e) {
+    var up = e.target.getAttribute && e.target.getAttribute('data-up');
+    var down = e.target.getAttribute && e.target.getAttribute('data-down');
+    if (up != null || down != null) {
+      var from = Number(up != null ? up : down);
+      var to = up != null ? from - 1 : from + 1;
+      if (to < 0 || to >= state.links.length) return;
+      api('/api/links', { method: 'POST', body: { password: pw, action: 'move', from: from, to: to } }).then(function (r) {
+        if (r.ok) { state.links = r.links; renderLinks(); }
+        else { toast(r.error || '移动失败'); }
+      });
+      return;
+    }
     var ed = e.target.getAttribute && e.target.getAttribute('data-edit');
     if (ed != null) { openLinkDlg(Number(ed)); return; }
     var d = e.target.getAttribute && e.target.getAttribute('data-del');
