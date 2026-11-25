@@ -1413,7 +1413,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v79';
+const ASSET_V = 'v80';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3422,6 +3422,20 @@ tr:hover td{background:#fcfbf8}
   .navgroup:first-child .nav{margin-top:0}
   .skip-link{position:absolute;left:-9999px;top:8px;z-index:99;background:#fff;border:1px solid #2563eb;border-radius:8px;padding:8px 12px;font-size:13px}
   .skip-link:focus{left:12px}
+/* 导航表格：固定列宽、单行省略、按钮显式 */
+#navAdmin table{table-layout:fixed;width:100%}
+#navAdmin td:nth-child(1){width:17%}
+#navAdmin td:nth-child(2){width:27%}
+#navAdmin td:nth-child(3){width:22%}
+#navAdmin td:nth-child(4){width:22%}
+#navAdmin td:nth-child(5){width:12%;white-space:nowrap}
+#navAdmin td{padding:6px;vertical-align:middle}
+#navAdmin td input{width:100%;min-width:0;text-overflow:ellipsis}
+#navAdmin td input:focus{text-overflow:clip}
+#navAdmin button[data-ifetch]{white-space:nowrap;font-size:12px;padding:3px 9px;border:1px solid var(--line);background:#fff;color:#4f46e5;font-weight:600;border-radius:8px;cursor:pointer}
+#navAdmin button[data-ifetch]:hover{border-color:#4f46e5;background:#eef2ff}
+.toolbar #navFilter{flex:1 1 320px;min-width:0;max-width:none}
+.toolbar .note{margin-left:auto}
 </style>
 </head>
 <body>
