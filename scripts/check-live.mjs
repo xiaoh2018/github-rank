@@ -156,6 +156,7 @@ push('首页文章卡片有阅读时长', home.includes('artcard-min') && home.i
 const artListRes = await fetch(base + '/articles?v=' + t);
 const artListHtml = await artListRes.text();
 push('文章列表页有「相关阅读」', artListHtml.includes('relatedHtml') && artListHtml.includes('.related .rmeta-in'), 'status=' + artListRes.status);
+push('文章列表页有分页条', artListHtml.includes('id="apager"') && artListHtml.includes('var PER = 9;'), '');
 push('首页文章卡片有置顶徽标代码', home.includes('pinchip'), '');
 const admHtml = await (await fetch(base + '/admin?v=' + t)).text();
 push('后台友链有上移/下移按钮', admHtml.includes('data-up=') && admHtml.includes('data-down='), 'bytes=' + admHtml.length);

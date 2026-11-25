@@ -156,6 +156,8 @@ console.log('== 5. 文章页 canonical ==');
 r = await hit('/articles');
 const art = await r.text();
 ok(art.includes('rel="canonical" href="https://github.661026.xyz/articles"'), 'articles canonical = github.661026.xyz/articles');
+ok(art.includes('id="apager"') && art.includes('var PER = 9;'), '文章列表有分页条（每页 9 篇）');
+ok(art.includes('.apager{display:none!important}'), '打印样式里隐藏分页条');
 
 console.log('== 6. 后台保存后静态文件立刻换新（warmEdge）==');
 // 先访问一次，让 /data/links.json 进成品缓存（内容是仓库里的旧值）
