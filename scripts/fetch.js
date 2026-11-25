@@ -142,6 +142,7 @@ async function fetchUsers(type) {
     login: u.login,
     url: u.html_url,
     avatar: u.avatar_url,
+    followers: typeof u.followers === 'number' ? u.followers : null,
   }));
   console.log(`[users ${type}] 完成，${list.length} 条`);
   return list;

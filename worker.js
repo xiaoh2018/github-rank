@@ -372,7 +372,8 @@ function cachePolicy(pathname) {
   return { ttl: 86400, browser: 604800, sMaxAge: 86400, swr: 604800 };
 }
 
-function cacheControlOf(p) {
+function cacheControlOf(p, immutable) {
+  if (immutable) return 'public, max-age=31536000, immutable';
   let v = 'public, max-age=' + p.browser;
   if (p.sMaxAge) v += ', s-maxage=' + p.sMaxAge;
   if (p.swr) v += ', stale-while-revalidate=' + p.swr;
@@ -419,6 +420,8 @@ async function serveSiteEdge(env, pathname, entry, request) {
   const pol = cachePolicy(pathname);
   // 数据文件前端会带 ?v=generatedAt，让它进不同的缓存键：新数据一发布立刻生效，旧条目自己过期
   const ver = new URL(request.url).searchParams.get('v') || '';
+  // 带 ?v= 的数据/脚本内容永不改变（版本号换了就是另一个 URL），浏览器可以 immutable 存一年
+  const immutable = !!ver && (pathname.indexOf('/data/') === 0 || pathname.indexOf('/js/') === 0);
   const cacheKey = new Request(EDGE_KEY_BASE + pathname + (ver ? '?v=' + encodeURIComponent(ver) : ''), { method: 'GET' });
 
   let hit = null;
@@ -442,9 +445,13 @@ async function serveSiteEdge(env, pathname, entry, request) {
   const buf = status === 200 ? await res.arrayBuffer() : null;
   const headers = new Headers();
   headers.set('content-type', entry[1]);
-  headers.set('cache-control', cacheControlOf(pol));
+  headers.set('cache-control', cacheControlOf(pol, immutable));
   headers.set('x-edge', 'MISS');
   if (buf) headers.set('etag', '"h' + hash32(buf) + '"');
+  // 首页提前告诉浏览器马上要用的两个脚本，少一轮「先拿 HTML 再发现脚本」
+  if (pathname === '/' || pathname === '/index.html') {
+    headers.set('link', '</js/bundle.js>; rel=preload; as=script, </data/repos-meta.js>; rel=preload; as=script');
+  }
 
   if (!buf) {
     return new Response(res.body, { status: status, headers: headers });
@@ -682,13 +689,22 @@ function fmtBJ(d) {
   );
 }
 
+// 翻译链路的自检信息：只回布尔值，不暴露任何密钥内容
+function translatorStatus(env) {
+  return {
+    githubToken: !!env.GITHUB_TOKEN,
+    ai: !!env.AI,
+    contactEmail: !!env.TRANSLATE_EMAIL,
+  };
+}
+
 async function getStatus(env) {
   const now = new Date();
   const next = fmtBJ(nextRunUTC(now)) + '（北京时间）';
 
   const miss = checkConfig(env);
   if (miss.length) {
-    return { configured: false, error: '还没配置变量：' + miss.join('、') + '，请按部署说明添加', next: next };
+    return { configured: false, error: '还没配置变量：' + miss.join('、') + '，请按部署说明添加', next: next, translator: translatorStatus(env) };
   }
 
   const path = filePath(env);
@@ -743,6 +759,7 @@ async function getStatus(env) {
     next: next,
     workflow: workflow,
     workflowError: runs.ok ? null : '读取数据更新任务失败：GitHub 返回 ' + runs.status,
+    translator: translatorStatus(env),
   };
 }
 
@@ -894,7 +911,7 @@ const AD_HTML_MAX = 20000;
 function defaultSite() {
   return {
     ad: { enabled: false, html: '' },
-    layout: { mode: 'auto' },
+    layout: { mode: 'auto', side: 'right', users: 'auto' },
     contact: { enabled: false, title: '联系我', wechat: '', qrUrl: '', email: '', note: '' },
     beian: { enabled: false, icp: '', icpUrl: 'https://beian.miit.gov.cn/', police: '', policeUrl: '', text: '' },
     seo: { siteName: '', title: '', description: '', keywords: '', ogImage: '', siteUrl: '' },
@@ -924,7 +941,9 @@ function normalizeSite(o) {
   d.beian.policeUrl = str(b.policeUrl, '');
   d.beian.text = str(b.text, '');
   const lo = o && typeof o.layout === 'object' && o.layout ? o.layout : {};
-  d.layout.mode = ['auto', 'single', 'double'].indexOf(lo.mode) >= 0 ? lo.mode : 'auto';
+  d.layout.mode = ['auto', 'single', 'double', 'triple'].indexOf(lo.mode) >= 0 ? lo.mode : 'auto';
+  d.layout.side = ['right', 'below'].indexOf(lo.side) >= 0 ? lo.side : 'right';
+  d.layout.users = ['auto', 'single', 'double'].indexOf(lo.users) >= 0 ? lo.users : 'auto';
   const s = o && typeof o.seo === 'object' && o.seo ? o.seo : {};
   for (const k of Object.keys(d.seo)) d.seo[k] = str(s[k], '');
   const g = o && typeof o.geo === 'object' && o.geo ? o.geo : {};
@@ -972,8 +991,14 @@ function checkSection(section, value) {
   }
   if (section === 'layout') {
     const mode = value.mode == null ? '' : value.mode;
-    if (['auto', 'single', 'double'].indexOf(mode) < 0) return { ok: false, error: '榜单布局只能是 auto、single 或 double' };
-    return { ok: true, clean: { mode: mode } };
+    if (['auto', 'single', 'double', 'triple'].indexOf(mode) < 0) {
+      return { ok: false, error: '榜单列数只能是 auto、single、double 或 triple' };
+    }
+    const side = value.side == null ? 'right' : value.side;
+    if (['right', 'below'].indexOf(side) < 0) return { ok: false, error: '侧栏位置只能是 right 或 below' };
+    const users = value.users == null ? 'auto' : value.users;
+    if (['auto', 'single', 'double'].indexOf(users) < 0) return { ok: false, error: '开发者/组织榜列数只能是 auto、single 或 double' };
+    return { ok: true, clean: { mode: mode, side: side, users: users } };
   }
   if (section === 'contact') {
     if (typeof value.enabled !== 'boolean') return { ok: false, error: '联系方式开关必须是 true 或 false' };
@@ -1061,13 +1086,34 @@ async function writeSite(env, site, sha) {
   return { ok: true };
 }
 
-// 翻译设置：GET 只返回是否已配置和区域，不返回密钥；POST 保存（密码校验后加密写入仓库）
-  // 翻译 Key 和 GitHub Token 不再通过后台保存，只读取 Cloudflare 环境变量
+// 翻译与密钥：GET 返回链路状态（只回布尔值）；POST 用一段文字实测两条链路（要管理密码）
   async function handleTranslate(request, env) {
+    const status = translatorStatus(env);
     if (request.method === 'GET') {
-      return json({ ok: true, ghConfigured: !!env.GITHUB_TOKEN });
+      return json({ ok: true, status: status, ghConfigured: status.githubToken });
     }
-    return json({ ok: false, error: '后台已不再保存翻译 Key 和 GitHub Token，请在 Cloudflare 的 Variables and Secrets 里设置 GITHUB_TOKEN；翻译走 MyMemory（免 Key），可绑定 Workers AI（变量名 AI）兜底' }, 410);
+    if (!env.ADMIN_PASSWORD) {
+      return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
+    }
+    const body = await request.json().catch(() => ({}));
+    const pw = body.password == null ? '' : String(body.password);
+    if (!safeEqual(pw, env.ADMIN_PASSWORD)) {
+      return json({ ok: false, error: '密码不对' }, 403);
+    }
+    const text = ((body.text == null ? '' : String(body.text)).trim() || 'A fast, static GitHub trending board built on Cloudflare Workers.').slice(0, 400);
+    const out = { ok: true, text: text, status: status };
+    const t0 = Date.now();
+    const mm = await translateMM(text, env);
+    out.myMemory = { ok: !!mm, text: mm || '', ms: Date.now() - t0, error: mm ? null : '没有拿到结果：可能当天额度用完、网络不通，或这段文字被 MyMemory 判为无效' };
+    if (env.AI) {
+      const t1 = Date.now();
+      const ai = await translateAI(text, env);
+      out.ai = { ok: !!ai, text: ai || '', ms: Date.now() - t1, error: ai ? null : '没有拿到结果：模型调用失败，检查 AI 绑定和账户额度' };
+    } else {
+      out.ai = { ok: false, text: '', ms: 0, error: '没有绑定 Workers AI（绑定变量名必须是 AI）' };
+    }
+    out.effective = out.myMemory.ok ? 'myMemory' : out.ai.ok ? 'ai' : 'none';
+    return json(out);
   }
 
 
@@ -1254,7 +1300,7 @@ body{font:15px/1.6 -apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans
 .bar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px;flex-wrap:wrap}
 .bar h1{margin:0;font-size:24px}
 .bar .sub{color:var(--muted);font-size:14px}
-.pane{max-width:920px}
+.pane{max-width:1040px}
 .intro{background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;border-radius:12px;padding:12px 16px;font-size:14px;margin-bottom:18px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:0 1px 2px rgba(15,23,42,.04);min-width:0}
 .card h2{margin:0 0 2px;font-size:17px}
@@ -1294,6 +1340,73 @@ th{color:var(--muted);font-weight:600;font-size:13px}
 .toast.show{display:block}
 .toast.ok{background:var(--ok)}
 .toast.err{background:var(--bad)}
+/* ---- 导航分组 / 徽标 ---- */
+.navgroup{font-size:11px;letter-spacing:.08em;color:#94a3b8;margin:16px 0 6px;padding:0 14px}
+.navgroup:first-of-type{margin-top:6px}
+.nav-badge{display:inline-block;min-width:20px;margin-left:8px;padding:0 6px;border-radius:999px;background:rgba(255,255,255,.16);font-size:11px;line-height:18px;text-align:center;vertical-align:middle;font-weight:500}
+.nav[aria-current=true] .nav-badge{background:rgba(255,255,255,.3)}
+/* ---- 卡片头 / 工具条 ---- */
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.toolbar input[type=text]{max-width:320px}
+.row-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 4px}
+/* ---- 单选卡片（布局设置） ---- */
+.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;margin:10px 0 4px}
+.choice{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0;cursor:pointer;background:#fff;font-weight:600;color:var(--text)}
+.choice:hover{border-color:#94a3b8}
+.choice input{width:18px;height:18px;margin:0;flex:none}
+.choice:has(input:checked){border-color:var(--brand);background:#eff6ff;box-shadow:0 0 0 1px var(--brand) inset}
+.choice-t{display:flex;flex-direction:column;font-size:14px}
+.choice-t b{font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
+/* ---- 状态清单 / 键值 ---- */
+.status-list{display:grid;gap:8px;margin-top:8px}
+.status-item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
+.status-item .dot{margin:0}
+.status-item small{color:var(--muted);margin-left:auto;font-size:12px;text-align:right}
+.kv{display:grid;grid-template-columns:132px minmax(0,1fr);gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+.kv:last-child{border-bottom:0;padding-bottom:0}
+.kv b{font-family:Consolas,ui-monospace,monospace;font-size:13px}
+.kv span{color:#334155}
+.tr-out{display:grid;gap:10px;margin-top:14px}
+.tr-box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px;background:#f8fafc}
+.tr-box h4{margin:0 0 6px;font-size:12px;color:var(--muted);font-weight:600}
+.tr-box p{margin:0;color:var(--text);word-break:break-word;line-height:1.6}
+.tr-bad{border-color:#fecaca;background:#fef2f2}
+/* ---- 宽弹窗（写文章） ---- */
+dialog.wide{width:min(1120px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:0;overflow:hidden}
+dialog.wide[open]{display:grid;grid-template-rows:auto minmax(0,1fr)}
+dialog.wide.full{width:calc(100% - 16px);max-height:calc(100dvh - 16px)}
+.dlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 22px;border-bottom:1px solid var(--line)}
+.dlg-head h3{margin:0 0 2px}
+.dlg-head .msg{margin:0;font-size:13px}
+.dlg-head-actions{display:flex;gap:8px;flex:none}
+.art-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.92fr);min-height:0}
+.art-grid.preview-off{grid-template-columns:minmax(0,1fr)}
+.art-grid.preview-off .art-prev-col{display:none}
+.art-col{padding:16px 22px 0;overflow:auto;max-height:none;display:flex;flex-direction:column}
+.art-col>.actions{position:sticky;bottom:0;margin-top:auto;padding:12px 0 16px;background:#fff;border-top:1px solid var(--line);z-index:2}
+.art-body{min-height:min(44vh,420px);font-family:Consolas,ui-monospace,monospace;font-size:13px;line-height:1.6}
+.art-prev-col{border-left:1px solid var(--line);background:#f8fafc;display:flex;flex-direction:column;min-height:0}
+.art-prev-head{padding:10px 16px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);font-weight:600}
+.art-prev{padding:16px 18px;overflow:auto;flex:1;min-height:0;font-size:14px;line-height:1.75}
+.art-prev h1,.art-prev h2,.art-prev h3{margin:14px 0 8px;font-size:17px;line-height:1.35}
+.art-prev p{margin:8px 0}
+.art-prev pre{background:#0f172a;color:#e2e8f0;padding:10px 12px;border-radius:8px;overflow:auto;font-size:12px}
+.art-prev code{font-family:Consolas,ui-monospace,monospace;font-size:.92em}
+.art-prev img{max-width:100%;border-radius:8px}
+.art-prev blockquote{margin:8px 0;padding-left:12px;border-left:3px solid var(--line);color:var(--muted)}
+.field-row{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:12px;align-items:start}
+@media (max-width:900px){
+.art-grid{grid-template-columns:1fr}
+.art-prev-col{border-left:0;border-top:1px solid var(--line)}
+.art-col{max-height:none}
+.art-prev{max-height:320px}
+.field-row{grid-template-columns:1fr}
+.kv{grid-template-columns:1fr}
+.dlg-head{padding:14px 16px}
+.art-col{padding:14px 16px 18px}
+}
+
 dialog{border:0;border-radius:16px;padding:24px;width:min(480px,calc(100% - 32px));color:var(--text);background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 dialog::backdrop{background:rgba(15,23,42,.5)}
 dialog h3{margin:0 0 4px;font-size:18px}
@@ -1325,15 +1438,19 @@ dialog{width:calc(100% - 24px)}
 <div class="app" id="app" hidden>
   <aside class="side">
     <div class="brand">网站管理后台<small>仅管理员可见</small></div>
+    <div class="navgroup">常用</div>
     <button type="button" class="nav" data-tab="overview">概览</button>
+    <button type="button" class="nav" data-tab="layout">榜单布局</button>
+    <button type="button" class="nav" data-tab="articles">文章<span class="nav-badge" id="navArtCount" hidden>0</span></button>
+    <div class="navgroup">内容</div>
+    <button type="button" class="nav" data-tab="seo">SEO 与 GEO</button>
     <button type="button" class="nav" data-tab="links">友链</button>
     <button type="button" class="nav" data-tab="ad">广告</button>
-    <button type="button" class="nav" data-tab="layout">榜单布局</button>
-      <button type="button" class="nav" data-tab="contact">联系方式</button>
+    <div class="navgroup">站点信息</div>
+    <button type="button" class="nav" data-tab="contact">联系方式</button>
     <button type="button" class="nav" data-tab="beian">备案信息</button>
-    <button type="button" class="nav" data-tab="seo">SEO</button>
-    <button type="button" class="nav" data-tab="geo">GEO 与文章</button>
-    <button type="button" class="nav" data-tab="translate">翻译设置</button>
+    <div class="navgroup">运维</div>
+    <button type="button" class="nav" data-tab="translate">翻译与密钥</button>
     </aside>
 
   <main class="main">
@@ -1386,22 +1503,53 @@ dialog{width:calc(100% - 24px)}
     </section>
 
       <section class="pane" id="pane-translate" hidden>
-        <div class="bar"><div><h1>翻译设置</h1><div class="sub">翻译用 MyMemory（免 Key），可绑定 Workers AI（变量名 AI）兜底；GitHub Token 只放在 Cloudflare 环境变量里</div></div></div>
-        <div class="intro">为了安全，GitHub Token 不在后台保存，也不写进仓库。在 Cloudflare 里设置即可，设置后刷新本页查看状态。</div>
+        <div class="bar"><div><h1>翻译与密钥</h1><div class="sub">简介的中文是自动翻的；这里看链路状态、实测一次、确认密钥是否就位</div></div></div>
+        <div class="intro">翻译顺序：先 MyMemory（免费、不需要 Key，每天约 5 万字符），拿不到再用 Workers AI（需要在 Cloudflare 绑定，变量名必须是 <b>AI</b>）。两条链路都不用在后台填任何东西，GitHub Token 也只放在 Cloudflare 的 Variables and Secrets 里。</div>
         <div class="card">
-          <div class="hint" id="gh-status">读取中…</div>
-          <div class="hint">同一位置添加 Secret：<b>GITHUB_TOKEN</b>。用于前台「立即刷新」和详情读取，只读公开数据即可。</div>
+          <div class="card-head"><div><h2>链路状态</h2><p class="desc">只显示「有没有」，不会显示任何密钥内容。</p></div><button type="button" class="ghost small" id="trReload">刷新</button></div>
+          <div class="status-list" id="trStatus"><p class="empty">读取中…</p></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h2>实测一次</h2><p class="desc">拿一段英文同时打两条链路，看谁给出结果、各花多少毫秒。</p></div></div>
+          <label for="trText">英文原文</label>
+          <textarea id="trText" maxlength="400" spellcheck="false">A fast, static GitHub trending board built on Cloudflare Workers.</textarea>
+          <div class="hint">400 字以内；留空会用默认示例句。</div>
+          <div class="actions"><button type="button" id="trRun">开始实测</button><span class="msg" id="trNote"></span></div>
+          <div id="trOut"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h2>两个密钥怎么设</h2><p class="desc">都在 Cloudflare 面板 → 你的 Worker → Settings 里改，改完记得 Deploy。</p></div></div>
+          <div class="kv"><b>GITHUB_TOKEN</b><span>Variables and Secrets → 添加 Secret。权限给 Contents: Read and write、Actions: Read and write（保活和工作流状态要用）。</span></div>
+          <div class="kv"><b>Workers AI</b><span>Bindings → + Add → Workers AI，Variable name 填 <b>AI</b>（必须大写），保存后 Deploy。绑定后 MyMemory 限流时自动兜底。</span></div>
+          <div class="kv"><b>TRANSLATE_EMAIL</b><span>可选。填邮箱后 MyMemory 每日额度从 5000 字符提到 50000。</span></div>
         </div>
       </section>
 
 
     <section class="pane" id="pane-layout" hidden>
-        <div class="bar"><div><h1>榜单布局</h1><div class="sub">决定榜单是单列还是双列</div></div></div>
+        <div class="bar"><div><h1>榜单布局</h1><div class="sub">榜单几列、侧栏放哪、开发者 / 组织榜怎么排</div></div></div>
+        <div class="intro">这三项都只影响排版，不影响数据。保存后刷新首页立刻生效；移动端一律单列，避免挤成一条。</div>
         <div class="card">
-          <label class="toggle"><input type="radio" name="layout-mode" value="auto">自动（桌面宽屏双栏，窄屏单栏）</label>
-          <label class="toggle"><input type="radio" name="layout-mode" value="single">单栏（任何宽度都单列）</label>
-          <label class="toggle"><input type="radio" name="layout-mode" value="double">双栏（屏宽 900px 以上双列，窄屏单列）</label>
-          <div class="hint">只影响站点上榜单的排列方式，默认自动。</div>
+          <div class="card-head"><div><h2>榜单列数</h2><p class="desc">项目榜、开发者榜、组织榜都用这一档。</p></div></div>
+          <div class="choice-grid">
+            <label class="choice"><input type="radio" name="layout-mode" value="auto"><span class="choice-t">自动<b>随屏幕宽度</b></span></label>
+            <label class="choice"><input type="radio" name="layout-mode" value="single"><span class="choice-t">单列<b>一行一个</b></span></label>
+            <label class="choice"><input type="radio" name="layout-mode" value="double"><span class="choice-t">双列<b>900px 以上两栏</b></span></label>
+            <label class="choice"><input type="radio" name="layout-mode" value="triple"><span class="choice-t">三列<b>1280px 以上三栏</b></span></label>
+          </div>
+          <h2 style="margin-top:26px">侧栏位置</h2>
+          <p class="desc">语言分布、项目最多的作者 / 组织、榜单变化这三块放哪。</p>
+          <div class="choice-grid">
+            <label class="choice"><input type="radio" name="layout-side" value="right"><span class="choice-t">右侧<b>桌面常见</b></span></label>
+            <label class="choice"><input type="radio" name="layout-side" value="below"><span class="choice-t">榜单下方<b>整行铺开、可并排</b></span></label>
+          </div>
+          <h2 style="margin-top:26px">开发者 / 组织榜列数</h2>
+          <p class="desc">只影响「开发者榜」「组织榜」两个视图；侧栏放下方时差别最明显。</p>
+          <div class="choice-grid">
+            <label class="choice"><input type="radio" name="layout-users" value="auto"><span class="choice-t">跟榜单一致<b>默认</b></span></label>
+            <label class="choice"><input type="radio" name="layout-users" value="single"><span class="choice-t">单列</span></label>
+            <label class="choice"><input type="radio" name="layout-users" value="double"><span class="choice-t">双列</span></label>
+          </div>
           <div class="actions"><button type="button" data-save="layout">保存榜单布局</button></div>
         </div>
       </section>
@@ -1455,8 +1603,8 @@ dialog{width:calc(100% - 24px)}
     </section>
 
     <section class="pane" id="pane-seo" hidden>
-      <div class="bar"><div><h1>SEO</h1><div class="sub">搜索引擎与分享卡片</div></div></div>
-      <div class="intro">这些内容会写进页面标题和 meta 标签，决定搜索结果和微信、微博分享时显示的样子。全部留空时保持页面原样；填写后保存，刷新首页立刻生效（浏览器若还留着旧页面，Ctrl+F5 一次即可）。</div>
+      <div class="bar"><div><h1>SEO 与 GEO</h1><div class="sub">搜索结果、分享卡片，以及给 AI 搜索看的摘要与问答</div></div></div>
+      <div class="intro">上半部分写进标题和 meta 标签，决定搜索结果与微信、微博分享卡片的样子；下半部分是给 AI 搜索（ChatGPT、Perplexity 等）看的摘要和问答。两块都在同一个标签里，保存后刷新首页立刻生效（浏览器若还留着旧页面，Ctrl+F5 一次即可）。</div>
       <div class="card">
         <label for="seo-siteName">站点名称</label>
         <input type="text" id="seo-siteName" maxlength="60" placeholder="GitHub 项目排行榜">
@@ -1478,29 +1626,33 @@ dialog{width:calc(100% - 24px)}
         <div class="hint">填完整的 https 网址，末尾不带斜杠。用于规范链接（canonical）和站点地图，填错会影响收录。</div>
         <div class="actions"><button type="button" data-save="seo">保存 SEO 设置</button></div>
       </div>
-    </section>
-
-    <section class="pane" id="pane-geo" hidden>
-      <div class="bar"><div><h1>GEO 与文章</h1><div class="sub">给 AI 搜索和读者看的内容</div></div></div>
-      <div class="intro">GEO 摘要和问答会帮助 AI 搜索（如 ChatGPT、Perplexity）准确理解并引用网站。文章用来沉淀长内容，也会被搜索引擎收录。两块都可以留空，留空时不影响网站正常访问。</div>
       <div class="card">
-        <h2>GEO 摘要</h2>
-        <p class="desc">2–3 句话说清网站是什么、收录了什么、多久更新一次。</p>
-        <textarea id="geo-summary" maxlength="500" placeholder="本站每周自动抓取 GitHub 热门开源项目……"></textarea>
+        <div class="card-head"><div><h2>GEO 摘要</h2><p class="desc">2–3 句话说清网站是什么、收录了什么、多久更新一次，AI 搜索更容易引用。</p></div></div>
+        <textarea id="geo-summary" maxlength="500" placeholder="本站每 3 小时自动抓取 GitHub 热门开源项目，按星标数、今日增量、语言分类整理成排行榜……"></textarea>
         <div class="hint">500 字以内。</div>
-        <h2 style="margin-top:20px">常见问答</h2>
+        <h2 style="margin-top:22px">常见问答</h2>
         <p class="desc">写访客最常问的问题和简短回答，最多 20 条。</p>
         <div id="faqList"></div>
-        <div class="actions"><button type="button" class="ghost" id="faqAdd">新增一条</button></div>
-        <div class="actions"><button type="button" data-save="geo">保存 GEO 设置</button></div>
+        <div class="actions">
+          <button type="button" class="ghost" id="faqAdd">新增一条</button>
+          <button type="button" data-save="geo">保存 GEO 设置</button>
+        </div>
       </div>
+    </section>
+
+    <section class="pane" id="pane-articles" hidden>
+      <div class="bar">
+        <div><h1>文章</h1><div class="sub">共 <span id="artCount">0</span> 篇，标题、摘要、正文会显示在站点的文章页</div></div>
+        <button type="button" id="artNew">写新文章</button>
+      </div>
+      <div class="intro">文章用来沉淀长内容：会被搜索引擎收录，也会被 AI 搜索引用。正文支持 Markdown（标题、列表、代码块、链接、图片），写作时右侧实时预览。保存即发布，刷新文章页即可看到。</div>
       <div class="card">
-        <div class="bar" style="margin-bottom:6px">
-          <div><h2>文章</h2><p class="desc">共 <span id="artCount">0</span> 篇。标题、摘要、正文会显示在文章页。</p></div>
-          <button type="button" id="artNew">新增文章</button>
+        <div class="toolbar">
+          <input type="text" id="artSearch" placeholder="搜索标题、摘要或正文…">
+          <span class="msg" id="artSearchNote"></span>
         </div>
         <table>
-          <thead><tr><th>标题</th><th style="width:110px">日期</th><th>摘要</th><th style="width:130px">操作</th></tr></thead>
+          <thead><tr><th style="width:96px">日期</th><th>标题</th><th>摘要</th><th style="width:170px">操作</th></tr></thead>
           <tbody id="artTbody"><tr><td colspan="4" class="empty">加载中…</td></tr></tbody>
         </table>
       </div>
@@ -1526,24 +1678,39 @@ dialog{width:calc(100% - 24px)}
   <div class="err" id="delErr"></div>
   <div class="actions"><button type="button" class="ghost" data-close="delDlg">取消</button><button type="button" class="danger" id="delSubmit">确定删除</button></div>
 </dialog>
-<dialog id="artDlg">
-  <h3 id="artTitle">新增文章</h3>
-  <p class="msg">标题必填；日期留空默认今天；正文段落之间空一行。</p>
-  <label for="artTitleIn">标题</label>
-  <input type="text" id="artTitleIn" maxlength="100">
-  <div class="hint">100 字以内。</div>
-  <label for="artDate">日期</label>
-  <input type="date" id="artDate">
-  <label for="artSummary">摘要</label>
-  <textarea id="artSummary" maxlength="300"></textarea>
-  <div class="hint">300 字以内，显示在文章列表里，也会被 AI 搜索引用。</div>
-  <div class="actions" style="justify-content:flex-start;margin:6px 0"><button type="button" class="ghost small" id="artImport">导入 .md 文件</button><button type="button" class="ghost small" id="artPreviewBtn">预览 / 收起</button><input type="file" id="artFile" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden></div>
-    <label for="artBody">正文（Markdown）</label>
-  <textarea id="artBody" maxlength="20000" style="min-height:200px"></textarea>
-    <div id="artPrev" hidden style="border:1px solid #ddd;padding:10px;border-radius:8px;max-height:320px;overflow:auto;margin-top:8px;font-size:13px"></div>
-  <div class="hint">20000 字以内。支持 Markdown：标题、列表、代码块、链接；图片写成 ![说明](图片网址)。不支持 HTML 标签。</div>
-  <div class="err" id="artErr"></div>
-  <div class="actions"><button type="button" class="ghost" data-close="artDlg">取消</button><button type="button" id="artSubmit">保存文章</button></div>
+<dialog id="artDlg" class="wide">
+  <div class="dlg-head">
+    <div><h3 id="artTitle">写新文章</h3><p class="msg">标题必填；日期留空默认今天；正文支持 Markdown，段落之间空一行。</p></div>
+    <div class="dlg-head-actions">
+      <button type="button" class="ghost small" id="artFullBtn" title="铺满窗口">⤢ 放大</button>
+      <button type="button" class="ghost small" data-close="artDlg">关闭</button>
+    </div>
+  </div>
+  <div class="art-grid">
+    <div class="art-col">
+      <div class="field-row">
+        <div><label for="artTitleIn">标题</label><input type="text" id="artTitleIn" maxlength="100" placeholder="例如：2026 年 11 月值得关注的 10 个项目"></div>
+        <div><label for="artDate">日期</label><input type="date" id="artDate"></div>
+      </div>
+      <label for="artSummary">摘要</label>
+      <textarea id="artSummary" maxlength="300" style="min-height:74px" placeholder="一两句话说清这篇讲什么，会显示在列表里，也会被 AI 搜索引用。"></textarea>
+      <div class="row-actions">
+        <button type="button" class="ghost small" id="artImport">导入 .md</button>
+        <button type="button" class="ghost small" id="artPreviewBtn">隐藏预览</button>
+        <span class="msg" id="artLen"></span>
+        <input type="file" id="artFile" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
+      </div>
+      <label for="artBody">正文（Markdown）</label>
+      <textarea id="artBody" maxlength="20000" class="art-body" spellcheck="false"></textarea>
+      <div class="hint">20000 字以内。支持标题、列表、代码块、链接；图片写成 ![说明](图片网址)。不支持 HTML 标签。</div>
+      <div class="err" id="artErr"></div>
+      <div class="actions"><button type="button" class="ghost" data-close="artDlg">取消</button><button type="button" id="artSubmit">保存文章</button></div>
+    </div>
+    <div class="art-prev-col">
+      <div class="art-prev-head">实时预览</div>
+      <div id="artPrev" class="art-prev"><p class="empty">左边写正文，这里实时显示渲染效果</p></div>
+    </div>
+  </div>
 </dialog>
 <div class="toast" id="toast" role="status"></div>
 <script src="/js/md.js"></script>
@@ -1552,10 +1719,10 @@ dialog{width:calc(100% - 24px)}
 (function () {
   'use strict';
   var PW_KEY = 'adminPw';
-  var TABS = ['overview', 'links', 'ad', 'layout', 'contact', 'beian', 'seo', 'geo', 'translate'];
+  var TABS = ['overview', 'layout', 'articles', 'seo', 'links', 'ad', 'contact', 'beian', 'translate'];
   var FIELDS = {
     ad: ['html'],
-    layout: ['mode'],
+    layout: ['mode', 'side', 'users'],
     contact: ['title', 'wechat', 'qrUrl', 'email', 'note'],
     beian: ['icp', 'icpUrl', 'police', 'policeUrl', 'text'],
     seo: ['siteName', 'title', 'description', 'keywords', 'ogImage', 'siteUrl'],
@@ -1781,8 +1948,11 @@ dialog{width:calc(100% - 24px)}
         if (el) el.value = src[sec][k] || '';
       });
     });
-    var lm = (s.layout && s.layout.mode) || 'auto';
-    document.querySelectorAll('input[name="layout-mode"]').forEach(function (r) { r.checked = r.value === lm; });
+    var lay = s.layout || {};
+    var picked = { 'layout-mode': lay.mode || 'auto', 'layout-side': lay.side || 'right', 'layout-users': lay.users || 'auto' };
+    Object.keys(picked).forEach(function (name) {
+      document.querySelectorAll('input[name="' + name + '"]').forEach(function (r) { r.checked = r.value === picked[name]; });
+    });
     state.faq = Array.isArray(g.faq) ? g.faq.slice() : [];
     renderFaq();
   }
@@ -1794,8 +1964,11 @@ dialog{width:calc(100% - 24px)}
   }
   function collect(sec) {
     if (sec === 'layout') {
-      var checked = document.querySelector('input[name="layout-mode"]:checked');
-      return { mode: checked ? checked.value : 'auto' };
+      var pick = function (name, dflt) {
+        var r = document.querySelector('input[name="' + name + '"]:checked');
+        return r ? r.value : dflt;
+      };
+      return { mode: pick('layout-mode', 'auto'), side: pick('layout-side', 'right'), users: pick('layout-users', 'auto') };
     }
     var v = {};
     if (sec !== 'seo' && sec !== 'geo') v.enabled = $(sec + '-enabled').checked;
@@ -1849,15 +2022,28 @@ dialog{width:calc(100% - 24px)}
 
   // ---- 文章 ----
   function renderArticles() {
-    var list = state.articles.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
-    $('artCount').textContent = list.length;
+    var box = $('artSearch');
+    var q = (box && box.value || '').trim().toLowerCase();
+    var all = state.articles.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+    $('artCount').textContent = all.length;
+    var badge = $('navArtCount');
+    if (badge) { badge.textContent = all.length; badge.hidden = !all.length; }
+    var list = q ? all.filter(function (a) {
+      return (String(a.title) + ' ' + String(a.summary) + ' ' + String(a.body)).toLowerCase().indexOf(q) >= 0;
+    }) : all;
+    if ($('artSearchNote')) $('artSearchNote').textContent = q ? '匹配 ' + list.length + ' / ' + all.length + ' 篇' : '';
+    if (!all.length) {
+      $('artTbody').innerHTML = '<tr><td colspan="4" class="empty">还没有文章，右上角「写新文章」开始</td></tr>';
+      return;
+    }
     if (!list.length) {
-      $('artTbody').innerHTML = '<tr><td colspan="4" class="empty">还没有文章，点「新增文章」开始写</td></tr>';
+      $('artTbody').innerHTML = '<tr><td colspan="4" class="empty">没有匹配的文章</td></tr>';
       return;
     }
     $('artTbody').innerHTML = list.map(function (a) {
-      return '<tr><td>' + esc(a.title) + '</td><td>' + esc(a.date) + '</td><td>' + esc(a.summary) +
+      return '<tr><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b></td><td>' + esc(a.summary) +
         '</td><td><button type="button" class="ghost small" data-artedit="' + esc(a.id) + '">编辑</button> ' +
+        '<button type="button" class="ghost small" data-artview="' + esc(a.id) + '">预览</button> ' +
         '<button type="button" class="danger small" data-artdel="' + esc(a.id) + '">删除</button></td></tr>';
     }).join('');
   }
@@ -1873,12 +2059,13 @@ dialog{width:calc(100% - 24px)}
   }
   function openArt(a) {
     editingId = a ? a.id : null;
-    $('artTitle').textContent = a ? '编辑文章' : '新增文章';
+    $('artTitle').textContent = a ? '编辑文章' : '写新文章';
     $('artTitleIn').value = a ? a.title : '';
     $('artDate').value = a ? a.date : today();
     $('artSummary').value = a ? a.summary : '';
     $('artBody').value = a ? a.body : '';
     $('artErr').textContent = '';
+    paintPreview();
     $('artDlg').showModal();
   }
   $('artNew').addEventListener('click', function () { openArt(null); });
@@ -1925,18 +2112,34 @@ dialog{width:calc(100% - 24px)}
       };
       rd.readAsText(f, 'utf-8');
     });
+    function paintPreview() {
+      var body = $('artBody').value;
+      if ($('artLen')) $('artLen').textContent = body.length ? body.length + ' / 20000 字' : '';
+      $('artPrev').innerHTML = body.trim() ? KeeMd.render(body) : '<p class="empty">左边写正文，这里实时显示渲染效果</p>';
+    }
+    $('artBody').addEventListener('input', paintPreview);
     $('artPreviewBtn').addEventListener('click', function () {
-      var box = $('artPrev');
-      box.innerHTML = KeeMd.render($('artBody').value);
-      box.hidden = !box.hidden;
+      var grid = document.querySelector('#artDlg .art-grid');
+      grid.classList.toggle('preview-off');
+      this.textContent = grid.classList.contains('preview-off') ? '显示预览' : '隐藏预览';
     });
+    $('artFullBtn').addEventListener('click', function () {
+      var dlg = $('artDlg');
+      dlg.classList.toggle('full');
+      this.textContent = dlg.classList.contains('full') ? '⤡ 还原' : '⤢ 放大';
+    });
+    if ($('artSearch')) $('artSearch').addEventListener('input', renderArticles);
     $('artTbody').addEventListener('click', function (e) {
     var t = e.target;
     var ed = t.getAttribute && t.getAttribute('data-artedit');
     var dl = t.getAttribute && t.getAttribute('data-artdel');
+    var vw = t.getAttribute && t.getAttribute('data-artview');
     if (ed != null) {
       var a = state.articles.filter(function (x) { return String(x.id) === ed; })[0];
       if (a) openArt(a);
+    } else if (vw != null) {
+      var av = state.articles.filter(function (x) { return String(x.id) === vw; })[0];
+      if (av) { openArt(av); var grid = document.querySelector('#artDlg .art-grid'); if (grid.classList.contains('preview-off')) grid.classList.remove('preview-off'); }
     } else if (dl != null) {
       var art = state.articles.filter(function (x) { return String(x.id) === dl; })[0];
       askConfirm('删除文章', '确定删除《' + (art ? art.title : '') + '》吗？', function () {
@@ -1952,14 +2155,47 @@ dialog{width:calc(100% - 24px)}
     }
   });
 
-    // ---- 翻译设置（Key 和 Token 只在 Cloudflare 环境变量里，后台只显示状态）----
+    // ---- 翻译与密钥：只显示状态；实测会真的打两条翻译链路 ----
+    function paintTranslate(st) {
+      st = st || {};
+      var rows = [
+        ['GitHub Token', !!st.githubToken, st.githubToken ? '已配置，前台「立即刷新」与保活可用' : '未配置：前台刷新和保活会失败'],
+        ['Workers AI', !!st.ai, st.ai ? '已绑定，MyMemory 限流时自动兜底' : '未绑定：只有 MyMemory 一条链路'],
+        ['MyMemory', true, st.contactEmail ? '可用（已填联系邮箱，额度更高）' : '可用（免 Key；填 TRANSLATE_EMAIL 可提额）']
+      ];
+      $('trStatus').innerHTML = rows.map(function (r) {
+        return '<div class="status-item"><span class="dot ' + (r[1] ? 'ok' : 'warn') + '"></span><b>' + esc(r[0]) +
+          '</b><small>' + esc(r[2]) + '</small></div>';
+      }).join('');
+    }
     function loadTranslate() {
       api('/api/translate').then(function (r) {
-        if (!r.ok) { $('gh-status').textContent = r.error || '读取失败'; return; }
-        $('gh-status').textContent = r.ghConfigured ? '已在 Cloudflare 配置 GitHub Token，前台立即刷新可直接使用' : '还没有在 Cloudflare 配置 GitHub Token';
+        if (!r.ok) { $('trStatus').innerHTML = '<p class="empty">' + esc(r.error || '读取失败') + '</p>'; return; }
+        paintTranslate(r.status);
       });
     }
-
+    $('trReload').addEventListener('click', loadTranslate);
+    $('trRun').addEventListener('click', function () {
+      var btn = this, note = $('trNote'), out = $('trOut');
+      btn.disabled = true; note.textContent = '请求中…'; out.innerHTML = '';
+      api('/api/translate', { method: 'POST', body: { password: pw, text: $('trText').value } }).then(function (r) {
+        btn.disabled = false;
+        if (!r.ok) {
+          note.textContent = '';
+          out.innerHTML = '<div class="tr-box tr-bad">' + esc(r.error || '实测失败') + '</div>';
+          return;
+        }
+        var eff = { myMemory: 'MyMemory', ai: 'Workers AI', none: '两条都没通' }[r.effective] || r.effective;
+        note.textContent = '实际生效：' + eff;
+        function box(name, o) {
+          if (!o) return '';
+          return '<div class="tr-box' + (o.ok ? '' : ' tr-bad') + '"><h4>' + esc(name) + ' · ' + (o.ok ? '成功' : '失败') +
+            ' · ' + esc(String(o.ms)) + ' ms</h4><p>' + esc(o.ok ? o.text : (o.error || '')) + '</p></div>';
+        }
+        out.innerHTML = box('MyMemory', r.myMemory) + box('Workers AI', r.ai);
+        paintTranslate(r.status);
+      });
+    });
 
   // ---- 启动 ----
   var saved = sessionStorage.getItem(PW_KEY);

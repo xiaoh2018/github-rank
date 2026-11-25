@@ -983,6 +983,7 @@ function renderRepos() {
   if (state.page > pages) state.page = pages;
   const start = (state.page - 1) * size;
   const maxStars = list.length ? Math.max(...list.map(r => r.stars)) : 0;
+  $('list').classList.remove('users-view');
   $('list').replaceChildren(...list.slice(start, start + size)
     .map((r, i) => renderItem(r, start + i + 1, maxStars, state.trend)));
 
@@ -1035,7 +1036,9 @@ async function translateDescs() {
 }
 
 function renderUsers() {
-  const kindLabel = state.view === 'orgs' ? '组织' : '开发者';
+  const isOrg = state.view === 'orgs';
+  const kindLabel = isOrg ? '组织' : '开发者';
+  $('list').classList.add('users-view');
   $('list').replaceChildren(...state.users.map((u, i) => {
     const li = el('li', 'item user-item');
     li.append(el('div', 'rank', String(i + 1).padStart(2, '0')));
@@ -1045,8 +1048,12 @@ function renderUsers() {
     const body = el('div');
     const a = el('a', 'name', u.login);
     a.href = u.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
-    body.append(a, el('p', 'desc', kindLabel + ' · 按粉丝数从高到低'));
-    li.append(img, body);
+    const meta = el('p', 'desc');
+    meta.textContent = kindLabel + ' · ' + (u.followers != null ? fmt(u.followers) + ' 粉丝' : '按粉丝数从高到低');
+    body.append(a, meta);
+    const home = el('a', 'mini', '主页 ↗');
+    home.href = u.url; home.target = '_blank'; home.rel = 'noopener noreferrer';
+    li.append(img, body, home);
     return li;
   }));
   setStatus(state.users.length ? '' : '暂无数据。');

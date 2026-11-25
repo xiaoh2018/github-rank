@@ -182,6 +182,59 @@ ok(secondEdge === 'HIT', '二次访问命中边缘缓存', secondEdge);
 r = await hit('/nope');
 ok(r.status === 404, '未知路径 → 404', String(r.status));
 
+console.log('== 9. 后台改版（SEO+GEO 合并 / 文章独立 / 翻译页）==');
+r = await hit('/admin');
+const adminHtml = await r.text();
+ok(r.status === 200, 'GET /admin → 200', String(r.status));
+ok(adminHtml.indexOf('pane-articles') >= 0, '文章已有独立面板（pane-articles）');
+ok(adminHtml.indexOf('pane-geo') < 0, '旧的 GEO 独立面板已并进 SEO');
+ok(adminHtml.indexOf('id="geo-summary"') >= 0, 'GEO 摘要在 SEO 面板里');
+ok(adminHtml.indexOf('navgroup') >= 0, '侧栏按 常用/内容/站点信息/运维 分组');
+ok(adminHtml.indexOf('id="artDlg" class="wide"') >= 0, '写文章弹窗已放大（wide）');
+ok(adminHtml.indexOf('id="artSearch"') >= 0, '文章列表带搜索框');
+ok(adminHtml.indexOf('id="trStatus"') >= 0, '翻译页显示密钥与绑定状态');
+
+r = await hit('/api/status');
+const st9 = await r.json();
+ok(st9.translator && typeof st9.translator.ai === 'boolean', '/api/status 报告 Workers AI 是否绑定', JSON.stringify(st9.translator));
+
+r = await hit('/api/translate');
+const trGet = await r.json();
+ok(trGet.ok === true && trGet.status && typeof trGet.status.ai === 'boolean', 'GET /api/translate 返回翻译能力状态', JSON.stringify(trGet).slice(0, 120));
+
+r = await hit('/api/translate', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', text: 'hello world' }),
+});
+const trPost = await r.json();
+ok(trPost.ok === true && trPost.myMemory && trPost.ai, 'POST /api/translate 同时试 MyMemory 与 Workers AI', JSON.stringify(trPost).slice(0, 140));
+
+console.log('== 10. 榜单布局三档 + 缓存细节 ==');
+r = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'layout', value: { mode: 'triple', side: 'below', users: 'double' } }),
+});
+const layRes = await r.json();
+const lay = (layRes.site && layRes.site.layout) || {};
+ok(layRes.ok === true && lay.mode === 'triple' && lay.side === 'below' && lay.users === 'double', '布局可存 三列 / 侧栏下沉 / 用户榜两列', JSON.stringify(lay));
+
+r = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'layout', value: { mode: 'quad' } }),
+});
+const badLay = await r.json();
+ok(badLay.ok === false, '非法布局值被拒绝', JSON.stringify(badLay).slice(0, 80));
+
+r = await hit('/data/repos-week.js?v=test123');
+const immCC = r.headers.get('cache-control') || '';
+ok(/immutable/.test(immCC), '带 ?v= 的数据文件一年 immutable', immCC);
+
+r = await hit('/?t=' + Date.now());
+ok((r.headers.get('link') || '').indexOf('rel=preload') >= 0, '首页带 Link: preload 头', r.headers.get('link'));
+
 console.log('');
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
