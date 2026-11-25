@@ -1,18 +1,23 @@
 # Cloudflare Worker 部署配置（wrangler）。
 # 目的：让 GitHub Actions 能直接 `wrangler deploy`，省掉每次手粘代码。
-# 前提：仓库 Secrets 里配好 CLOUDFLARE_API_TOKEN（权限：Workers Scripts:Edit）与 CLOUDFLARE_ACCOUNT_ID。
-# 路由写在下面，deploy 时不会丢；如果你的 Worker 名字不叫 github-rank，改 name 与 routes 即可。
+# 凭据：仓库 Secrets 里配 CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID，
+#       或者用仓库变量 CF_API_TOKEN / CF_ACCOUNT_ID（工作流支持两者，secrets 优先）。
 name = "github-rank"
 main = "worker.js"
 compatibility_date = "2024-11-01"
 
-# 这两个变量必须在这里声明：wrangler deploy 会用 wrangler.toml 整体替换
-# Worker 的变量绑定，漏写就会像 2026-11-25 那次一样把线上 REPO_OWNER/REPO_NAME 清掉，
-# 站点立刻 503「还没配置 REPO_OWNER / REPO_NAME」。
+routes = [
+  { pattern = "github.661026.xyz/*", zone_name = "661026.xyz" }
+]
+
+# ⚠️ wrangler deploy 会用本文件整体替换 Worker 的变量/绑定，漏写就会把线上配置清掉：
+#    2026-11-25 就因为少了下面这两个变量，线上 REPO_OWNER/REPO_NAME 被清空，
+#    站点立刻 503「还没配置 REPO_OWNER / REPO_NAME」。改这个文件时别删它们。
 [vars]
 REPO_OWNER = "xiaoh2018"
 REPO_NAME = "github-rank"
 
-routes = [
-  { pattern = "github.661026.xyz/*", zone_name = "661026.xyz" }
-]
+# Workers AI 绑定（免费额度：每天 10,000 Neurons）。漏掉这一段同样会被 deploy 删掉，
+# 翻译就只剩 MyMemory（无 Key，但按邮箱限额度）。
+[ai]
+binding = "AI"
