@@ -150,6 +150,17 @@ const site = JSON.parse(fs.readFileSync('data/site.json', 'utf8'));
   ok(!slug || !sm2.includes('/articles/' + slug + '.html'), 'sitemap 里已移除');
 }
 
+// 12) 体检接口与红条
+{
+  const sub = await (await fetch(BASE + '/api/submit')).json();
+  ok(sub.status && typeof sub.status.keyFileOk === 'boolean', '体检接口给出 key 文件可读性', 'keyFileOk=' + (sub.status && sub.status.keyFileOk));
+  const ai = await (await fetch(BASE + '/api/ai-usage')).json();
+  const usage = ai.usage || ai;
+  ok(typeof usage.used === 'number' && typeof usage.cap === 'number', 'AI 用量接口给出已用/上限', 'used=' + usage.used + ' cap=' + usage.cap);
+  const admin = await (await fetch(BASE + '/admin')).text();
+  ok(admin.includes('id="healthBar"'), '后台概览有体检红条容器');
+}
+
 // 还原
 for (const [f, buf] of snapshot) fs.writeFileSync(f, buf);
 console.log(fail === 0 ? '\n全部通过（已还原数据）' : '\n' + fail + ' 项失败（已还原数据）');

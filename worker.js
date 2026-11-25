@@ -1410,7 +1410,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v62';
+const ASSET_V = 'v63';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3254,6 +3254,7 @@ tr:hover td{background:#fcfbf8}
     <section class="pane" id="pane-overview">
       <div class="bar"><div><h1>概览</h1><div class="sub">保活状态与定时任务</div></div></div>
       <div class="intro">这里显示仓库的保活状态。GitHub 连续 60 天没有提交，定时任务就会被停用，所以系统每周自动写入一次时间戳。平时不需要操作；如果状态是「注意」或「有风险」，点下方按钮立即保活一次。</div>
+      <div id="healthBar" class="err" hidden></div>
       <div class="card">
         <h2><span class="dot" id="stDot"></span><span id="stState">加载中…</span></h2>
         <p class="desc" id="stNote"></p>
@@ -3921,6 +3922,16 @@ tr:hover td{background:#fcfbf8}
       }
       rows.push(healthRow('上次提交', true, (sub && sub.lastRun && sub.lastRun.at) ? new Date(sub.lastRun.at).toLocaleString() : '还没提交过'));
       rows.push(healthRow('冷却', !(sub && sub.cooldown && sub.cooldown.seconds > 0), (sub && sub.cooldown && sub.cooldown.seconds > 0) ? '还要等 ' + sub.cooldown.seconds + ' 秒' : '可以提交'));
+      var bad = [];
+      if (sub && sub.keyFileOk === false) bad.push('key 文件打不开（' + String((sub && sub.keyFileNote) || '').slice(0, 60) + '）');
+      if (sub && sub.keyFileOk && sub.keyFileMatch === false) bad.push('key 文件内容与后台不一致，IndexNow 会被 422 拒绝');
+      if (sub && !sub.baiduToken) bad.push('没配百度准入密钥，百度推送会被跳过');
+      if (ai && !ai.unlimited && typeof ai.used === 'number' && ai.used >= ai.cap) bad.push('Workers AI 今日额度已用完，翻译会退回 MyMemory');
+      var bar = $('healthBar');
+      if (bar) {
+        if (bad.length) { bar.hidden = false; bar.textContent = '体检有 ' + bad.length + ' 项要处理：' + bad.join('；'); }
+        else { bar.hidden = true; bar.textContent = ''; }
+      }
       box.innerHTML = rows.join('');
     }).catch(function () {
       box.innerHTML = '<div class="empty">体检数据没取到，点「刷新体检」再试。</div>';
