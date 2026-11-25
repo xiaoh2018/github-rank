@@ -79,6 +79,17 @@ async function main() {
     const errs = logs.slice(before);
     console.log(t.padEnd(10), r, errs.length ? '| ' + errs.join(' || ') : '');
   }
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 900, deviceScaleFactor: 1, mobile: true });
+  await sleep(700);
+  for (const t of ['articles', 'submit', 'ad']) {
+    await evalJs(`document.querySelector('.nav[data-tab="${t}"]').click();`);
+    await sleep(450);
+    const m = await evalJs(`(function(){var d=document.documentElement;var side=document.querySelector('.side');return JSON.stringify({vw:d.clientWidth,sw:d.scrollWidth,sideH:Math.round(side.getBoundingClientRect().height)});})()`);
+    let verdict = 'UNKNOWN';
+    try { const o = JSON.parse(m); verdict = o.sw === o.vw ? 'OK' : 'OVERFLOW'; } catch (e) {}
+    console.log('MOBILE    ' + t.padEnd(10) + m + ' | ' + verdict);
+  }
+
   try { await send('Browser.close'); } catch (e) {}
   child.kill();
 }

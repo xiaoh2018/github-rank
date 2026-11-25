@@ -818,10 +818,16 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
     const homeHtml = await (await hit('/')).text();
     ok(homeHtml.indexOf('html[data-theme="ink"] .article-body tbody tr:nth-child(even)') >= 0, '首页表格斑马纹适配深色主题', '');
     const artHtml = await (await hit('/articles')).text();
+    const artToc = artHtml;
     ok(artHtml.indexOf('html[data-theme="ink"] .abody tbody tr:nth-child(even)') >= 0, '文章页表格斑马纹适配深色主题', '');
     const admMobile = await (await hit('/admin')).text();
     ok(admMobile.indexOf('overflow-x:hidden;max-width:100%') >= 0, '后台移动端无横向溢出保护', '');
     ok(admMobile.indexOf('.grid2,.ad-grid,.art-grid{grid-template-columns:1fr}') >= 0, '后台移动端单列', '');
+    ok(artToc.indexOf('a.is-cur') >= 0 && artToc.indexOf('spyToc') >= 0, '文章页目录随滚动高亮', '');
+    ok(artToc.indexOf('scroll-margin-top:18px') >= 0, '文章页标题滚动留白', '');
+    ok(admMobile.indexOf('.side .nav:focus-visible') >= 0, '后台键盘焦点环', '');
+    ok(admMobile.indexOf('skip-link') >= 0, '后台跳到内容链接', '');
+    ok(homeHtml.indexOf('@keyframes cardIn') >= 0, '首页卡片入场动画', '');
   }
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);

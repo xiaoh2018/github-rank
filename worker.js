@@ -1410,7 +1410,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v68';
+const ASSET_V = 'v69';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3286,9 +3286,15 @@ tr:hover td{background:#fcfbf8}
   #navAdmin td input{font-size:12.5px;padding:6px 8px}
   .faq-row{grid-template-columns:1fr}
 }
+  :focus-visible{outline:2px solid #2563eb;outline-offset:2px;border-radius:6px}
+  .side .nav:focus-visible{outline-offset:-2px;box-shadow:0 0 0 3px rgba(37,99,235,.25)}
+  .navgroup:first-child .nav{margin-top:0}
+  .skip-link{position:absolute;left:-9999px;top:8px;z-index:99;background:#fff;border:1px solid #2563eb;border-radius:8px;padding:8px 12px;font-size:13px}
+  .skip-link:focus{left:12px}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#app">跳到内容</a>
 <div id="gate">
   <form class="gbox" id="loginForm">
     <h1>网站管理后台</h1>

@@ -98,6 +98,10 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .toc li.lv3{margin-left:14px;list-style:circle}
 .toc a{color:var(--text);text-decoration:none}
 .toc a:hover{color:var(--accent);text-decoration:underline}
+.toc a.is-cur{color:var(--accent);font-weight:600}
+.toc a.is-cur::before{content:"▸ ";font-size:12px}
+.abody h3,.abody h4,.abody h5,.abody h6{scroll-margin-top:18px}
+html{scroll-behavior:smooth}
 .abody pre{position:relative}
 .abody pre .cp{position:absolute;top:8px;right:8px;font:500 11px/1 var(--font,system-ui);padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;opacity:.85}
 .abody pre .cp:hover{opacity:1;color:var(--accent)}
@@ -528,6 +532,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         toc.hidden = false;
       }
     }
+    spyToc(body);
     Array.prototype.forEach.call(body.querySelectorAll('pre'), function (pre) {
       if (pre.querySelector('.cp')) return;
       var btn = document.createElement('button');
@@ -542,6 +547,35 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       });
       pre.appendChild(btn);
     });
+  }
+
+  var tocItems = [], tocSpying = false;
+
+  function markToc() {
+    if (!tocItems.length) return;
+    var cur = null;
+    for (var i = 0; i < tocItems.length; i++) {
+      var r = tocItems[i].h.getBoundingClientRect();
+      if (r.top <= 140) cur = tocItems[i];
+    }
+    if (!cur) cur = tocItems[0];
+    tocItems.forEach(function (it) { if (it.a) it.a.classList.toggle('is-cur', it === cur); });
+  }
+
+  function spyToc(body) {
+    tocItems = Array.prototype.map.call(body.querySelectorAll('h3,h4,h5,h6'), function (h) {
+      return { h: h, a: document.querySelector('.toc a[href="#' + h.id + '"]') };
+    });
+    if (!tocSpying) {
+      tocSpying = true;
+      var tick = false;
+      document.addEventListener('scroll', function () {
+        if (tick) return;
+        tick = true;
+        requestAnimationFrame(function () { tick = false; markToc(); });
+      }, true);
+    }
+    markToc();
   }
 
   function openReader(id) {
