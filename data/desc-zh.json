@@ -4213,5 +4213,13 @@
  "defeating fuse security on ga100 with pico 2(and some wires)": "使用 Pico 2（和一些导线）绕过 GA100 的保险丝安全装置",
  "A full-duplex real-time interaction system with live audio and vision, continuous conversation, and background tool use.": "一种全双工实时互动系统，具备实时音频和视频、持续对话以及后台工具使用功能。",
  "All your AI agents, one app. Use the Claude Code, Codex and other agents you already pay for: run several at once, reach your other computers and your phone, put them on a schedule. Mac, Windows, Linux and iPhone; self-hosted.": "您的所有 AI 代理，尽在一款应用中。使用您已付费的 Claude Code、Codex 和其他代理：同时运行多个代理，访问您的其他电脑和手机，并为它们安排运行时间。Mac、Windows、Linux 和 iPhone；自托管。",
- "Self-hosted enterprise platform for DeepSeek Harness (DSH): connect company systems and knowledge, build AI micro-apps, and ship them reviewed and permissioned to every employee. 面向 DSH 的自托管企业平台": "面向 DeepSeek Harness (DSH) 的自托管企业平台：连接公司系统和知识，构建 AI 微应用，并经过审核和授权后将其交付给每位员工。面向 DSH 的自托管企业平台"
+ "Self-hosted enterprise platform for DeepSeek Harness (DSH): connect company systems and knowledge, build AI micro-apps, and ship them reviewed and permissioned to every employee. 面向 DSH 的自托管企业平台": "面向 DeepSeek Harness (DSH) 的自托管企业平台：连接公司系统和知识，构建 AI 微应用，并经过审核和授权后将其交付给每位员工。面向 DSH 的自托管企业平台",
+ "Automatically maintained tracking site for PC ports of the GTA VI Xbox Build. This repository is managed autonomously by Claude Fable 5.2.": "自动维护的跟踪网站，用于跟踪《GTA VI》Xbox版本的PC移植版。此代码仓库由Claude Fable 5.2自主管理。",
+ "Attempting to run GTA VI on macOS.": "尝试在 macOS 上运行《GTA VI》。",
+ "Content Skills for AI Agents: create videos, edit videos, full video editor, write scripts, 100+ themes & effects, post to social media, and create DM automations to turn views into sales.": "面向 AI 智能体的内容技能：制作视频、编辑视频、全功能视频编辑器、撰写脚本、100 多个主题和特效、发布到社交媒体，以及创建私信自动化，将观看量转化为销售额。",
+ "An attempt to make the proof of the Riemann hypothesis human readable": "试图使黎曼猜想的证明易于人类阅读",
+ "47 agent skills from shipping three live products: decide what to build, build it with Claude Code or Codex, have a second model review it, release it.": "通过发布三款上线产品获得的47项代理技能：决定要构建什么，使用Claude Code或Codex进行构建，让另一个模型进行审核，然后发布。",
+ "Games, 3D worlds and web pages built with Claude Fable 5.2 that you can actually open — 245 live works (every link checked) + 156 video demos, each with a GIF preview and creator credit. Updated daily.": "使用Claude Fable 5.2构建的游戏、3D世界和网页，您可以真正打开它们——245个实时作品（每个链接都经过检查）+ 156个视频演示，每个都带有GIF预览和创作者署名。每日更新。",
+ "List of Permanent Free LLM API  (API Keys)": "永久免费 LLM API 列表（API 密钥）",
+ "Prettier is an opinionated code formatter.": "Prettier 是一款具有鲜明风格的formatter。"
 }
