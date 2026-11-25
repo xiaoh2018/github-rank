@@ -1607,7 +1607,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v109';
+const ASSET_V = 'v110';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3042,6 +3042,8 @@ function checkArticle(v) {
     return { ok: false, error: '封面图地址必须是 http(s) 链接，且不超过 300 字符' };
   }
   clean.cover = cover;
+  // 置顶：首页/文章页把置顶的排在最前（同一天多篇时也算数）
+  clean.pinned = v.pinned === true;
   let tags = v.tags;
   if (typeof tags === 'string') tags = tags.split(/[,\s，、]+/);
   if (!Array.isArray(tags)) tags = [];
@@ -3605,6 +3607,8 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
 .slug-sep{color:#9a9285;font-family:ui-monospace,Menlo,Consolas,monospace}
 .slugline{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px;font-size:11.5px;color:#8a8172;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
 .cthumb{display:inline-block;width:38px;height:21px;vertical-align:-4px;margin-right:7px;border-radius:4px;border:1px solid var(--line);background:var(--chip) center/cover no-repeat}
+.pinchip{display:inline-block;padding:0 6px;margin-right:6px;border-radius:999px;font-size:11px;
+  line-height:17px;color:#8a4b00;background:#fff1d6;border:1px solid #f0c887;font-weight:600}
 .art-lock{display:inline-block;white-space:nowrap;font-size:11px;padding:1px 6px;border-radius:6px;background:#f6e7c8;color:#7a5a11;font-weight:600;margin-left:6px;vertical-align:middle}
 
 /* UI v4 · 中性纸感：去掉渐变与光晕，只留细线、留白和一种强调色 */
@@ -4310,6 +4314,7 @@ tr:hover td{background:#fcfbf8}
       <label for="artCover">封面图</label>
       <input type="url" id="artCover" maxlength="300" placeholder="https://…（可选，16:9 横图最好，留空就不显示封面）">
       <div class="hint">建议 1200×675；放图床或仓库 raw 链接都行。</div>
+      <label class="toggle inline"><input type="checkbox" id="artPinned"> 置顶这篇（排在列表最前面）</label>
       <label for="artSummary">摘要</label>
       <textarea id="artSummary" maxlength="300" style="min-height:74px" placeholder="一两句话说清这篇讲什么，会显示在列表里，也会被 AI 搜索引用。"></textarea>
       <div class="lockrow">
@@ -5092,6 +5097,7 @@ tr:hover td{background:#fcfbf8}
     $('artDate').value = a ? a.date : today();
     $('artSummary').value = a ? a.summary : '';
     if ($('artCover')) $('artCover').value = a && a.cover ? a.cover : '';
+    if ($('artPinned')) $('artPinned').checked = !!(a && a.pinned);
     $('artBody').value = a ? a.body : '';
     $('artLock').checked = !!(a && a.locked);
     $('artPw').value = '';
@@ -5111,6 +5117,7 @@ tr:hover td{background:#fcfbf8}
       date: $('artDate').value || today(),
       summary: $('artSummary').value,
       cover: $('artCover') ? $('artCover').value.trim() : '',
+      pinned: $('artPinned') ? $('artPinned').checked : false,
       body: $('artBody').value
     };
     var lockOn = $('artLock').checked;
