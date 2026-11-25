@@ -120,6 +120,14 @@ push('后台无重复 id', (adm.match(/id="qaMsg"/g) || []).length === 1);
 
 push('文章面板有保存按钮', adm.includes('data-save="article"') && adm.includes('id="artSaveMsg"'));
 
+const pubRes = await fetch(base + '/data/articles.json?v=' + t);
+const pubText = await pubRes.text();
+let pubArr = null;
+try { pubArr = JSON.parse(pubText); } catch (e) {}
+push('文章列表不外发密文', pubRes.status === 200 && !/"lock"\s*:/.test(pubText), 'status=' + pubRes.status);
+push('文章列表带 hasLock', Array.isArray(pubArr) && pubArr.every((x) => typeof x.hasLock === 'boolean'), Array.isArray(pubArr) ? pubArr.length + ' 条' : 'not array');
+push('首页文章卡片有阅读时长', home.includes('artcard-min') && home.includes('readMins'));
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

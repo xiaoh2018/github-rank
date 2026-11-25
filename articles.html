@@ -446,6 +446,15 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     return list;
   }
 
+  // 估算阅读时长：中文按 400 字/分钟，英文按 200 词/分钟放宽一点，最少 1 分钟
+  function readMins(a) {
+    var body = String((a && a.body) || '');
+    if (!body) return 0;
+    var cjk = (body.match(/[\u4e00-\u9fa5]/g) || []).length;
+    var words = body.replace(/[\u4e00-\u9fa5]/g, ' ').split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.round(cjk / 400 + words / 200));
+  }
+
   function cardHtml(a) {
     var tags = (a.tags || []).slice(0, 3).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
     var cover = a.cover
@@ -457,7 +466,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       '<div class="ameta">' +
         (catLabel(a) ? '<span class="tag">' + esc(catLabel(a)) + '</span>' : '') + tags +
         '<span>' + esc(String(a.date || '').slice(0, 10)) + '</span>' +
-        (a.locked ? '<span>加密</span>' : '') +
+        (readMins(a) ? '<span>约 ' + readMins(a) + ' 分钟</span>' : '') +
+        (a.locked ? (a.hasLock !== false ? '<span>加密</span>' : '<span>旧数据未加密</span>') : '') +
       '</div></a>';
   }
 
