@@ -626,6 +626,19 @@ await hit('/api/articles', {
 });
 
 console.log('');
+console.log('§20b 文章列表公开投影（不外发密文）');
+
+const pubRes = await hit('/data/articles.json');
+const pubTxt = await pubRes.text();
+ok(pubRes.status === 200, '/data/articles.json 能取到');
+let pubArr = null;
+try { pubArr = JSON.parse(pubTxt); } catch (e) { pubArr = null; }
+ok(Array.isArray(pubArr), '/data/articles.json 是数组');
+ok(!/"lock"\s*:/.test(pubTxt), '投影里不含 lock（密文/盐不外发，防离线爆破）');
+ok(Array.isArray(pubArr) && pubArr.every((x) => typeof x.hasLock === 'boolean'), '每条都带 hasLock 布尔，前端据此判断能不能解');
+ok((pubRes.headers.get('cache-control') || '').indexOf('max-age=60') >= 0, '/data/articles.json 走 60 秒配置档');
+
+console.log('');
 console.log('§21 问答（GEO）');
 
 const qaAdmin = await (await hit('/admin')).text();

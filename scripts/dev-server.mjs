@@ -122,6 +122,14 @@ http
     for await (const c of req) chunks.push(c);
     const body = chunks.length ? Buffer.concat(chunks) : undefined;
     const url = 'http://127.0.0.1:' + port + req.url;
+    // 仅本地测试用：清掉进程内的假边缘缓存。门禁脚本会改数据再还原，
+    // 不清缓存的话后续门禁会读到"测试数据"（nav 只剩 1 条之类）。
+    if ((new URL(url).pathname) === '/__purge') {
+      store.clear();
+      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+      res.end(JSON.stringify({ ok: true, purged: true }));
+      return;
+    }
     const headers = {};
     for (const [k, v] of Object.entries(req.headers)) headers[k] = Array.isArray(v) ? v.join(', ') : v;
     let out;

@@ -163,5 +163,8 @@ const site = JSON.parse(fs.readFileSync('data/site.json', 'utf8'));
 
 // 还原
 for (const [f, buf] of snapshot) fs.writeFileSync(f, buf);
+// 还原后还要清掉 dev-server 进程内的假边缘缓存：warmEdge 把测试数据写进缓存了，
+// 不清的话接下来跑 check-front-flows 会看到「导航只剩 1 条」这种假数据。
+try { await fetch(BASE + '/__purge'); } catch (e) {}
 console.log(fail === 0 ? '\n全部通过（已还原数据）' : '\n' + fail + ' 项失败（已还原数据）');
 process.exit(fail === 0 ? 0 : 1);

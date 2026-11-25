@@ -48,6 +48,9 @@ export default {
     const url = new URL(request.url);
     try {
       // HEAD 也放行：监控探针、链接预检、社交平台抓取大量使用 HEAD，只认 GET 会被当成死链
+      if ((request.method === 'GET' || request.method === 'HEAD') && url.pathname === '/data/articles.json') {
+        return serveArticlesPublic(env, request);
+      }
       if ((request.method === 'GET' || request.method === 'HEAD') && SITE[url.pathname]) {
         if (url.pathname === '/' || url.pathname === '/index.html') {
           ctx.waitUntil(maybeRefresh(env).catch((e) => console.log('auto refresh error: ' + String(e))));
@@ -848,6 +851,49 @@ async function serveSiteEdge(env, pathname, entry, request) {
   return new Response(buf, { status: status, headers: headers });
 }
 
+// 对外的文章列表：只发公开字段。lock（PBKDF2 盐 + AES-GCM 密文）留在仓库里，
+// 不往外发——否则任何人都能拿密文离线爆破密码。locked 的文章用 hasLock 告诉前端"能不能解"。
+function publicArticlesJson(list) {
+  const arr = Array.isArray(list) ? list.slice() : [];
+  fillArticleSlugs(arr);
+  return JSON.stringify(arr.map(publicArticle));
+}
+
+async function serveArticlesPublic(env, request) {
+  const pathname = '/data/articles.json';
+  const pol = cachePolicy(pathname);
+  const ver = new URL(request.url).searchParams.get('v') || '';
+  const cacheKey = new Request(EDGE_KEY_BASE + pathname + (ver ? '?v=' + encodeURIComponent(ver) : ''), { method: 'GET' });
+
+  let hit = null;
+  if (pol.ttl > 0) {
+    try { hit = await EDGE_CACHE.match(cacheKey); } catch (e) { hit = null; }
+  }
+  if (hit) {
+    const headers = new Headers(hit.headers);
+    headers.set('x-edge', 'HIT');
+    const etag = headers.get('etag');
+    if (etag && request.headers.get('if-none-match') === etag) return new Response(null, { status: 304, headers: headers });
+    if (request.method === 'HEAD') return new Response(null, { status: hit.status, headers: headers });
+    return new Response(await hit.arrayBuffer(), { status: hit.status, headers: headers });
+  }
+
+  const cur = await readArticles(env);
+  if (!cur.ok) return serveSiteEdge(env, pathname, SITE[pathname], request);
+
+  const buf = new TextEncoder().encode(publicArticlesJson(cur.articles)).buffer;
+  const headers = new Headers();
+  headers.set('content-type', 'application/json; charset=utf-8');
+  headers.set('cache-control', cacheControlOf(pol, false));
+  headers.set('x-edge', 'MISS');
+  headers.set('etag', '"h' + hash32(buf) + '"');
+  if (pol.ttl > 0) {
+    try { await EDGE_CACHE.put(cacheKey, new Response(buf, { status: 200, headers: new Headers(headers) })); } catch (e) {}
+  }
+  if (request.method === 'HEAD') return new Response(null, { status: 200, headers: headers });
+  return new Response(buf, { status: 200, headers: headers });
+}
+
 // 后台可以保存的站点配置分组
 const SITE_SECTIONS = ['ad', 'layout', 'contact', 'beian', 'seo', 'geo', 'theme', 'article', 'runtime'];
 
@@ -1441,7 +1487,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v103';
+const ASSET_V = 'v104';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2800,7 +2846,8 @@ function publicArticle(a) {
     out[k] = a[k];
   }
   out.locked = !!a.locked;
-  if (a.locked) out.hasLock = !!(a.lock && a.lock.ct);
+  // 一律带上 hasLock：前端据此判断"标了加密但解不开"的旧数据，不必自己猜
+  out.hasLock = !!(a.lock && a.lock.ct);
   return out;
 }
 
@@ -2927,7 +2974,7 @@ async function handleArticles(request, env) {
     const w = await writeArticles(env, next, cur.sha, 'chore: 撤销一次批量操作');
     if (!w.ok) return json({ ok: false, error: w.error }, 500);
     await purgeEdge(['/articles', '/articles.html', '/data/articles.json', '/sitemap.xml']);
-    await warmEdge('/data/articles.json', JSON.stringify(next, null, 2) + '\n', 'application/json; charset=utf-8');
+    await warmEdge('/data/articles.json', publicArticlesJson(next), 'application/json; charset=utf-8');
     return json({ ok: true, articles: next.map(publicArticle) });
   }
 
@@ -2954,7 +3001,7 @@ async function handleArticles(request, env) {
     const w = await writeArticles(env, next, cur.sha, msg);
     if (!w.ok) return json({ ok: false, error: w.error }, 500);
     await purgeEdge(['/articles', '/articles.html', '/data/articles.json', '/sitemap.xml']);
-    await warmEdge('/data/articles.json', JSON.stringify(next, null, 2) + '\n', 'application/json; charset=utf-8');
+    await warmEdge('/data/articles.json', publicArticlesJson(next), 'application/json; charset=utf-8');
     return json({ ok: true, removed: removed, changed: changed, articles: next.map(publicArticle) });
   }
 
@@ -3016,7 +3063,7 @@ async function handleArticles(request, env) {
   const w = await writeArticles(env, list, cur.sha, 'chore: update articles');
   if (!w.ok) return json({ ok: false, error: w.error }, 500);
   await purgeEdge(['/articles', '/articles.html', '/data/articles.json']);
-  await warmEdge('/data/articles.json', JSON.stringify(list, null, 2) + '\n', 'application/json; charset=utf-8');
+  await warmEdge('/data/articles.json', publicArticlesJson(list), 'application/json; charset=utf-8');
   return json({ ok: true, articles: list.map(publicArticle) });
 }
 

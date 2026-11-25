@@ -145,6 +145,7 @@ li.md-task{list-style:none;margin-left:-18px}
 .lockerr{color:var(--danger);font-size:12.5px;min-height:18px}
 .locknote{max-width:440px;margin:34px auto;text-align:center}
 .locknote p{color:var(--muted);font-size:13.5px;margin-bottom:14px}
+  .locknote-stale{margin:0 0 18px;padding:10px 14px;border-radius:10px;background:var(--chip);color:var(--muted);font-size:13px;line-height:1.7;border-left:3px solid var(--accent)}
 /* 阅读态：主列只留正文，侧栏仍在右边 */
 .blistwrap.is-reading>.btools,.blistwrap.is-reading>.chips,.blistwrap.is-reading>#cards{display:none}
 .blistwrap.is-reading>.reader{margin-top:0}
@@ -451,7 +452,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       ? '<span class="acover" style="display:block;width:100%;aspect-ratio:16/9;border-radius:10px;background:var(--chip) center/cover no-repeat url(' + "'" + String(a.cover).replace(/['"()\\]/g, '') + "'" + ')"></span>'
       : '';
     return '<a class="acard" href="' + esc(artPath(a)) + '" data-id="' + esc(a.id) + '">' + cover +
-      '<h3>' + esc(a.title || '(无标题)') + (a.locked ? ' 🔒' : '') + '</h3>' +
+      '<h3>' + esc(a.title || '(无标题)') + (a.locked && a.hasLock !== false ? ' 🔒' : '') + '</h3>' +
       (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') +
       '<div class="ameta">' +
         (catLabel(a) ? '<span class="tag">' + esc(catLabel(a)) + '</span>' : '') + tags +
@@ -618,7 +619,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       '<span>' + esc(String(a.date || '').slice(0, 10)) + '</span>' +
       (catLabel(a) ? '<span class="tag">' + esc(catLabel(a)) + '</span>' : '') +
       (a.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') +
-      (a.locked ? '<span>🔒 加密文章</span>' : '');
+      (a.locked && a.hasLock !== false ? '<span>🔒 加密文章</span>' : '');
     var copyBtn = document.createElement('button');
     copyBtn.type = 'button';
     copyBtn.className = 'ghost mini';
@@ -641,14 +642,16 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     posEl.textContent = '第 ' + (state.arts.indexOf(a) + 1) + ' / ' + state.arts.length + ' 篇 · ←/→ 翻页';
     $('rNav').appendChild(posEl);
     var body = $('rBody');
-    if (a.locked) {
+    var reallyLocked = !!(a.locked && a.hasLock !== false);
+    if (reallyLocked) {
       var lockHint = (a.unlockHint || (state.site && state.site.article && state.site.article.unlockHint) || '').trim();
       body.innerHTML = readerCover(a) + '<div class="locknote"><p>' + (lockHint ? esc(lockHint) : '这篇是加密文章，输入密码后阅读正文。') + '</p>' +
         '<button class="btn primary" id="lockOpen" type="button">输入密码解锁</button></div>';
       $('lockOpen').addEventListener('click', function () { askPassword(a.id); });
       askPassword(a.id);
     } else {
-      body.innerHTML = readerCover(a) + md(a.body || '');
+      var staleNote = a.locked ? '<p class="locknote-stale">这篇以前标记过加密，但服务端没有加密正文（旧数据）。在后台重新保存一次并设置密码就会正常加密。</p>' : '';
+      body.innerHTML = readerCover(a) + staleNote + md(a.body || '');
       enhanceBody(body);
       mountAd($('adAPAfter'), adSlot['article-after']);
     }

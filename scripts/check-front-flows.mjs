@@ -4,6 +4,8 @@
 import { spawn } from 'node:child_process';
 
 const BASE = 'http://127.0.0.1:8123';
+// 开跑前清掉 dev-server 里的假边缘缓存，保证看到的是仓库里的真实数据
+try { await fetch(BASE + '/__purge'); } catch (e) {}
 const chrome = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const port = 9700 + Math.floor(Math.random() * 150);
 const dir = 'C:\\Windows\\Temp\\cdpfront' + Date.now();
@@ -158,7 +160,19 @@ try {
   check('导航页清空搜索恢复', navBackAll === navAll, `${navFiltered} → ${navBackAll}（原 ${navAll}）`);
 
   // ---------- 9) 加锁文章：解锁弹窗 + 错误密码提示 ----------
-  await nav(BASE + '/articles', 2800);
+  // 自己造一篇带锁文章再点，不依赖仓库里恰好有带密文的文章（旧数据可能是"标了锁但没密文"）
+  const lockTitle = '__gate__前台加锁';
+  const lockPost = async (body) => {
+    const r = await fetch(BASE + '/api/articles', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    let j = null;
+    try { j = await r.json(); } catch (e) {}
+    return j;
+  };
+  const lockAdd = await lockPost({ password: 'dev', action: 'add', article: { title: lockTitle, summary: '前台门禁用', body: '机密正文-GATE-1', locked: true, password: 'gate-pass-123', category: 'gate' } });
+  const lockOne = lockAdd && Array.isArray(lockAdd.articles) ? lockAdd.articles.filter((a) => a && a.title === lockTitle)[0] : null;
+  const lockId = lockOne ? lockOne.id : null;
+
+  await nav(BASE + '/articles?v=' + Date.now(), 2800);
   const lockClick = await ev("(function(){var cs=document.querySelectorAll('#cards .acard'); for(var i=0;i<cs.length;i++){ if(/🔒/.test(cs[i].textContent||'')){ cs[i].click(); return 'locked'; } } return 'no locked card';})()");
   await sleep(1200);
   const pwShown = await ev("JSON.stringify({open: !!document.getElementById('pwDlg') && document.getElementById('pwDlg').open, err: (document.getElementById('pwErr')||{}).textContent || ''})");
@@ -166,12 +180,13 @@ try {
   await ev("(function(){var i=document.getElementById('pwIn'); i.value='definitely-wrong-pw'; document.getElementById('pwGo').click(); return 'ok';})()");
   await sleep(2200);
   const pwErr = await ev("(document.getElementById('pwErr')||{}).textContent || ''");
-  check('加锁文章弹出解锁框', lockClick === 'locked' && pw.open === true, `点击结果 ${lockClick}`);
-  check('错误密码有提示', String(pwErr).trim().length > 0, `提示「${String(pwErr).trim().slice(0, 30)}」`);
+  check('加锁文章弹出解锁框', !!lockId && lockClick === 'locked' && pw.open === true, '点击结果 ' + lockClick);
+  check('错误密码有提示', String(pwErr).trim().length > 0, '提示「' + String(pwErr).trim().slice(0, 30) + '」');
   await ev("(function(){try{document.getElementById('pwCancel').click();}catch(e){} return 'ok';})()");
   await sleep(600);
   const pwClosed = await ev("!!document.getElementById('pwDlg') && document.getElementById('pwDlg').open");
   check('取消关闭解锁框', pwClosed === false);
+  if (lockId) await lockPost({ password: 'dev', action: 'remove', id: lockId });
 
 } finally {
   try { await send('Browser.close'); } catch (e) {}
