@@ -37,9 +37,12 @@ for (const m of page.matchAll(/getElementById\('([^']+)'\)/g)) {
 const dyn = new Set();
 for (const m of page.matchAll(/id=\\?["'`]?([A-Za-z][\w-]*)["'`]?\s*\$/g)) dyn.add(m[1]);
 
+// 运行时用 createElement 建出来的 id（静态 HTML 里没有）
+const RUNTIME_IDS = new Set(['subCool']);
+
 const missing = [];
 for (const [id, n] of refs) {
-  if (ids.has(id) || dyn.has(id)) continue;
+  if (ids.has(id) || dyn.has(id) || RUNTIME_IDS.has(id)) continue;
   missing.push({ id, n });
 }
 missing.sort((a, b) => b.n - a.n);
