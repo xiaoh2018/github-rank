@@ -107,6 +107,14 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
   .lb-close:hover{background:rgba(255,255,255,.26)}
   .lb-close:focus-visible{outline:2px solid #fff;outline-offset:2px}
   .lb-hint{position:fixed;bottom:18px;left:0;right:0;text-align:center;color:rgba(255,255,255,.72);font-size:12px}
+.lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);color:#fff;font-size:24px;line-height:1;cursor:pointer}
+.lb-nav:hover{background:rgba(255,255,255,.28)}
+.lb-nav[hidden]{display:none}
+.lb-nav:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.lb-prev{left:20px}
+.lb-next{right:20px}
+.lb-count{position:fixed;top:22px;left:50%;transform:translateX(-50%);padding:4px 12px;border-radius:999px;background:rgba(0,0,0,.42);color:#fff;font-size:13px;line-height:1.6}
+.lb-count[hidden]{display:none}
   body.lb-open{overflow:hidden}
 
 @media print{
@@ -763,7 +771,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       img.setAttribute('aria-label', (img.alt || '文章配图') + '，按回车放大');
       function openIt() {
         var src = img.currentSrc || img.src || '';
-        if (/^https?:/i.test(src)) openLb(src, img.alt);
+        if (/^https?:/i.test(src)) openLb(src, img.alt, img);
       }
       img.addEventListener('click', openIt);
       img.addEventListener('keydown', function (e) {
@@ -772,15 +780,50 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     });
   }
 
-  function openLb(src, alt) {
+  var lbList = [], lbIdx = 0;
+
+  function openLb(src, alt, from) {
     var lb = $('lightbox');
     if (!lb || !src) return;
+    lbList = [];
+    lbIdx = 0;
+    var all = Array.prototype.slice.call(document.querySelectorAll('#rBody img'));
+    all = all.filter(function (i) { return !!(i.currentSrc || i.src); });
+    if (from) {
+      lbIdx = Math.max(0, all.indexOf(from));
+      lbList = all;
+    } else {
+      lbList = all.length ? all : [];
+    }
     $('lbImg').src = src;
     $('lbImg').alt = alt || '文章配图';
     lb.hidden = false;
+    paintLb();
     bindLb();
     document.body.classList.add('lb-open');
     setTimeout(function () { var c = $('lbClose'); if (c) c.focus(); }, 30);
+  }
+
+  function paintLb() {
+    var n = $('lbCount'), p = $('lbPrev'), q = $('lbNext');
+    if (n) {
+      if (lbList.length > 1) { n.hidden = false; n.textContent = (lbIdx + 1) + " / " + lbList.length; }
+      else { n.hidden = true; n.textContent = ''; }
+    }
+    if (p) p.hidden = !(lbList.length > 1 && lbIdx > 0);
+    if (q) q.hidden = !(lbList.length > 1 && lbIdx < lbList.length - 1);
+  }
+
+  function lbStep(d) {
+    var lb = $('lightbox');
+    if (!lb || lb.hidden || lbList.length < 2) return;
+    var i = lbIdx + d;
+    if (i < 0 || i >= lbList.length) return;
+    lbIdx = i;
+    var img = lbList[i];
+    $('lbImg').src = img.currentSrc || img.src || '';
+    $('lbImg').alt = img.alt || '文章配图';
+    paintLb();
   }
 
   function closeLb() {
@@ -797,12 +840,23 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     lb.__bound = true;
     var c = $('lbClose');
     if (c) c.addEventListener('click', closeLb);
+    var pv = $('lbPrev'), nx = $('lbNext');
+    if (pv) pv.addEventListener('click', function (e) { e.stopPropagation(); lbStep(-1); });
+    if (nx) nx.addEventListener('click', function (e) { e.stopPropagation(); lbStep(1); });
     lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
     document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Escape') return;
-      if (lb.hidden) return;
-      e.stopPropagation();
-      closeLb();
+      if (e.key === 'Escape') {
+        if (lb.hidden) return;
+        e.stopPropagation();
+        closeLb();
+        return;
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        if (lb.hidden) return;
+        e.stopPropagation();
+        e.preventDefault();
+        lbStep(e.key === 'ArrowLeft' ? -1 : 1);
+      }
     }, true);
   }
 
@@ -1185,8 +1239,11 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
 <button class="totop" id="totop" type="button" aria-label="返回顶部" hidden>↑</button>
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="查看文章配图">
   <button class="lb-close" id="lbClose" type="button" aria-label="关闭图片">×</button>
+  <button class="lb-nav lb-prev" id="lbPrev" type="button" aria-label="上一张" hidden>‹</button>
   <img id="lbImg" alt="">
-  <div class="lb-hint">点空白处或按 Esc 关闭</div>
+  <button class="lb-nav lb-next" id="lbNext" type="button" aria-label="下一张" hidden>›</button>
+  <div class="lb-count" id="lbCount" hidden></div>
+  <div class="lb-hint">← → 切换图片，点空白处或按 Esc 关闭</div>
 </div>
 <div class="rprogress" id="rprogress" hidden></div>
 </body>

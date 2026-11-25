@@ -86,6 +86,7 @@ const artPage = await fetch(base + '/articles?v=' + t);
 const artText = await artPage.text();
 push('文章配图可放大（灯箱标记）', artText.includes('id="lightbox"') && artText.includes('class="lb-close"'), '');
 push('灯箱有开关函数且 Esc 不冒泡', artText.includes('function openLb') && artText.includes('function closeLb'), '');
+push('灯箱支持多图左右切换', artText.includes('id="lbPrev"') && artText.includes('id="lbCount"') && artText.includes('function lbStep'), '');
 push('/articles 卡片布局', artPage.ok && artText.includes('acard'), artPage.status);
 push('文章封面支持', artText.includes('acover') && artText.includes('a.cover'));
 
