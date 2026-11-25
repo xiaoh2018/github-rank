@@ -107,6 +107,7 @@ html{scroll-behavior:smooth}
 .abody pre{position:relative}
 .abody pre .cp{position:absolute;top:8px;right:8px;font:500 11px/1 var(--font,system-ui);padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;opacity:.85}
 .abody pre .cp:hover{opacity:1;color:var(--accent)}
+.rcover{aspect-ratio:16/9;background-size:cover;background-position:center;border-radius:14px;margin:0 auto 18px;max-width:72ch;box-shadow:var(--shadow)}
 .abody{font-size:15.5px;line-height:1.9;color:var(--text);overflow-wrap:anywhere;max-width:72ch;margin:0 auto}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 .abody h1,.abody h2,.abody h3,.abody h4,.abody h5,.abody h6{line-height:1.4;margin:1.6em 0 .6em;letter-spacing:-.2px}
@@ -596,6 +597,13 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     markToc();
   }
 
+  function readerCover(a) {
+    var c = String(a.cover || '').trim();
+    if (!/^https?:\/\//i.test(c)) return '';
+    c = c.replace(/['"()\\s]/g, '');
+    return '<div class="rcover" style="background-image:url(\'' + c + '\')"></div>';
+  }
+
   function openReader(id) {
     var a = findArt(id);
     if (!a) { closeReader(); return; }
@@ -610,6 +618,18 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       (catLabel(a) ? '<span class="tag">' + esc(catLabel(a)) + '</span>' : '') +
       (a.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') +
       (a.locked ? '<span>🔒 加密文章</span>' : '');
+    var copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'ghost mini';
+    copyBtn.textContent = '复制链接';
+    copyBtn.style.marginLeft = '8px';
+    copyBtn.addEventListener('click', function () {
+      var link = location.origin + artPath(a);
+      var done = function () { copyBtn.textContent = '已复制'; setTimeout(function () { copyBtn.textContent = '复制链接'; }, 1500); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done, function () { window.prompt('复制这个链接', link); });
+      else window.prompt('复制这个链接', link);
+    });
+    $('rMeta').appendChild(copyBtn);
     var idx = state.arts.indexOf(a);
     var prev = state.arts[idx + 1], next = state.arts[idx - 1];
     $('rNav').innerHTML =
@@ -622,12 +642,12 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var body = $('rBody');
     if (a.locked) {
       var lockHint = (a.unlockHint || (state.site && state.site.article && state.site.article.unlockHint) || '').trim();
-      body.innerHTML = '<div class="locknote"><p>' + (lockHint ? esc(lockHint) : '这篇是加密文章，输入密码后阅读正文。') + '</p>' +
+      body.innerHTML = readerCover(a) + '<div class="locknote"><p>' + (lockHint ? esc(lockHint) : '这篇是加密文章，输入密码后阅读正文。') + '</p>' +
         '<button class="btn primary" id="lockOpen" type="button">输入密码解锁</button></div>';
       $('lockOpen').addEventListener('click', function () { askPassword(a.id); });
       askPassword(a.id);
     } else {
-      body.innerHTML = md(a.body || '');
+      body.innerHTML = readerCover(a) + md(a.body || '');
       enhanceBody(body);
       mountAd($('adAPAfter'), adSlot['article-after']);
     }
@@ -671,7 +691,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     }).then(function (r) { return r.json(); }).then(function (r) {
       $('pwGo').disabled = false;
       if (r && r.ok && typeof r.body === 'string') {
-        $('rBody').innerHTML = md(r.body);
+        $('rBody').innerHTML = readerCover(state.open || r) + md(r.body);
         enhanceBody($('rBody'));
         mountAd($('adAPAfter'), adSlot['article-after']);
         try { $('pwDlg').close(); } catch (e) {}
