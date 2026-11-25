@@ -4146,5 +4146,8 @@
  "Fast local LLM inference on plain CPUs. No GPU, 8 GB of RAM. OpenAI-compatible server.": "在普通CPU上进行快速本地LLM推理。无GPU，8 GB RAM。OpenAI兼容服务器。",
  "Robotic Skills Library Developed By Silicon Valley Company Runtime.si": "由硅谷公司Runtime.si开发的机器人技能库",
  "StikSound — Ponle sonido de hasta 5 segundos a tus stickers PNG y GIFs animados para WhatsApp (Windows, macOS & Chrome Extension, 100% local sin instalar nada extra)": "StikSound — 为您的 WhatsApp PNG 和动画 GIF 贴纸添加长达 5 秒的音效（Windows、macOS 和 Chrome 扩展程序，100% 本地，无需安装任何额外内容）",
- "Quick, precise, versatile Humanoid Mimic": "快速、精准、多功能的人形仿生机器人"
+ "Quick, precise, versatile Humanoid Mimic": "快速、精准、多功能的人形仿生机器人",
+ "For GTA 6 files are not yet released but you can check for updates here : https://x.com/RainReachDetail": "《GTA 6》的文件尚未发布，但您可以在此处查看更新：https://x.com/RainReachDetail",
+ "Experimental Apple Silicon (ARM macOS) compatibility layer for XCL using CrossOver, Rosetta 2 and D3DMetal. Native ARM64 runtime is not implemented; retail gameplay is unverified.": "使用CrossOver、Rosetta 2和D3DMetal的XCL实验性Apple Silicon（ARM macOS）兼容层。未实现原生ARM64运行时；零售版游戏体验未经验证。",
+ "Turn any idea, plan, or codebase into an interactive diagram or one-page answer: 10 diagram types, Architecture Diagnosis, Story video and PR walkthroughs. An Agent Skill for Claude Code, Codex, Cursor and more.": "将任何想法、计划或代码库转化为交互式图表或一页式答案：10 种图表类型、架构诊断、故事视频和 PR 演练。适用于 Claude Code、Codex、Cursor 等的 Agent Skill。"
 }

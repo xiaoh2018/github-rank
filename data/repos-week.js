@@ -7,10 +7,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/Marvisak/VIctory",
       desc: "An attempt at running GTA VI on PC",
       lang: "Rust",
-      stars: 12081,
-      forks: 1808,
-      issues: 1525,
-      updated: "2026-11-25T13:19:10Z",
+      stars: 12172,
+      forks: 1822,
+      issues: 1575,
+      updated: "2026-11-25T14:27:54Z",
       pushed: "2026-11-25T01:39:21Z",
       created: "2026-11-23T21:47:25Z",
       license: "GPL-3.0",
@@ -22,11 +22,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/xcl-dev/xcl",
       desc: "Xbox Series compatibility layer for Windows - runs console game code natively, reimplements the console system libraries and recompiles RDNA2 shaders to DXIL",
       lang: "Rust",
-      stars: 8125,
-      forks: 1099,
-      issues: 1481,
-      updated: "2026-11-25T13:18:43Z",
-      pushed: "2026-11-25T13:19:52Z",
+      stars: 8154,
+      forks: 1104,
+      issues: 1489,
+      updated: "2026-11-25T14:28:07Z",
+      pushed: "2026-11-25T13:42:19Z",
       created: "2026-11-20T20:03:21Z",
       license: "GPL-2.0",
       topics: [
@@ -42,10 +42,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/EL4CTEO/fast-anything",
       desc: "Don't rewrite it in Rust. Rewrite the 5% that's slow: profile Python, Node or Ruby apps, port the hot functions with your coding agent, prove they behave the same.",
       lang: "Rust",
-      stars: 3815,
-      forks: 273,
+      stars: 3833,
+      forks: 274,
       issues: 17,
-      updated: "2026-11-25T13:19:15Z",
+      updated: "2026-11-25T14:26:41Z",
       pushed: "2026-11-24T15:28:28Z",
       created: "2026-11-21T14:40:27Z",
       license: "MIT",
@@ -63,11 +63,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/AFK-surf/xnulinux",
       desc: "XNU as a loadable kernel module inside Linux (macOS personality for arm64 Linux)",
       lang: "C",
-      stars: 3747,
-      forks: 176,
-      issues: 6,
-      updated: "2026-11-25T13:20:47Z",
-      pushed: "2026-11-25T13:08:37Z",
+      stars: 3778,
+      forks: 177,
+      issues: 7,
+      updated: "2026-11-25T14:26:55Z",
+      pushed: "2026-11-25T13:29:12Z",
       created: "2026-11-20T10:18:31Z",
       license: "NOASSERTION",
       topics: [],
@@ -78,11 +78,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/4lwayz/portwatch-vi",
       desc: "Does GTA VI run on PC yet? A live tracker of community recompilation and emulation efforts, updated daily.",
       lang: "JavaScript",
-      stars: 3377,
-      forks: 95,
-      issues: 80,
-      updated: "2026-11-25T13:20:31Z",
-      pushed: "2026-11-25T12:28:22Z",
+      stars: 3460,
+      forks: 96,
+      issues: 84,
+      updated: "2026-11-25T14:27:44Z",
+      pushed: "2026-11-25T13:45:29Z",
       created: "2026-11-21T23:16:41Z",
       license: "",
       topics: [],
@@ -93,10 +93,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/fxceless/victory-fork",
       desc: "Work-in-progress fork of VIctory: getting an Xbox Series title to render and run on a Windows PC. No game files.",
       lang: "Rust",
-      stars: 2737,
-      forks: 726,
-      issues: 867,
-      updated: "2026-11-25T13:21:11Z",
+      stars: 2792,
+      forks: 742,
+      issues: 900,
+      updated: "2026-11-25T14:28:31Z",
       pushed: "2026-11-25T12:43:41Z",
       created: "2026-11-24T18:02:37Z",
       license: "GPL-3.0",
@@ -108,10 +108,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/iamajmeena/neonclipping",
       desc: "Paste a link, get captioned 9:16 clips in ~2 min. Free, local, open-source clipping engine (audio-first, YouTube captions, local LLM).",
       lang: "Python",
-      stars: 2573,
+      stars: 2586,
       forks: 162,
       issues: 40,
-      updated: "2026-11-25T13:12:15Z",
+      updated: "2026-11-25T14:25:08Z",
       pushed: "2026-11-24T13:27:46Z",
       created: "2026-11-19T10:00:43Z",
       license: "AGPL-3.0",
@@ -129,11 +129,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/ubiquitarianism/leonida",
       desc: "A continuation of Leonida, the Xbox > PC port interface for GTA VI",
       lang: "Python",
-      stars: 2153,
-      forks: 474,
-      issues: 1307,
-      updated: "2026-11-25T13:21:28Z",
-      pushed: "2026-11-25T13:15:49Z",
+      stars: 2186,
+      forks: 483,
+      issues: 1329,
+      updated: "2026-11-25T14:28:26Z",
+      pushed: "2026-11-25T13:55:52Z",
       created: "2026-11-23T23:54:39Z",
       license: "GPL-3.0",
       topics: [],
@@ -144,11 +144,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/R0Y00/Xbox2Windows",
       desc: "Static recompilation research for Xbox Series X|S software on x64 Windows, with source-built CPU and GPU tests. Full-game startup is unverified.",
       lang: "Python",
-      stars: 1937,
-      forks: 224,
-      issues: 240,
-      updated: "2026-11-25T13:00:53Z",
-      pushed: "2026-11-25T13:14:36Z",
+      stars: 1940,
+      forks: 225,
+      issues: 197,
+      updated: "2026-11-25T14:19:39Z",
+      pushed: "2026-11-25T14:28:22Z",
       created: "2026-11-20T17:43:52Z",
       license: "MIT",
       topics: [
@@ -165,11 +165,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/omonkeyz/xbox-emulator",
       desc: "Progress notes for running Xbox Series X|S builds on PC (TomBox + rage9)",
       lang: "Rust",
-      stars: 1837,
+      stars: 1840,
       forks: 120,
-      issues: 114,
-      updated: "2026-11-25T13:06:12Z",
-      pushed: "2026-11-25T13:07:22Z",
+      issues: 39,
+      updated: "2026-11-25T14:27:11Z",
+      pushed: "2026-11-25T13:47:56Z",
       created: "2026-11-21T08:08:39Z",
       license: "GPL-3.0",
       topics: [],
@@ -180,10 +180,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/os6/nospeaker",
       desc: "make your macbook's trackpad talk using its haptic motor",
       lang: "Swift",
-      stars: 1830,
-      forks: 97,
+      stars: 1839,
+      forks: 98,
       issues: 19,
-      updated: "2026-11-25T13:18:12Z",
+      updated: "2026-11-25T14:26:23Z",
       pushed: "2026-11-24T02:43:05Z",
       created: "2026-11-22T12:05:54Z",
       license: "MIT",
@@ -196,15 +196,30 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "使用触觉马达让您的MacBook触控板发出声音"
     },
     {
+      name: "Zettrox/ztrx",
+      url: "https://github.com/Zettrox/ztrx",
+      desc: "Run the Xbox Series build of the game natively on Windows PCs with NVIDIA GPUs",
+      lang: "Rust",
+      stars: 1463,
+      forks: 278,
+      issues: 138,
+      updated: "2026-11-25T14:27:33Z",
+      pushed: "2026-11-25T01:12:15Z",
+      created: "2026-11-25T01:12:08Z",
+      license: "GPL-3.0",
+      topics: [],
+      desc_zh: "在配备 NVIDIA GPU 的 Windows PC 上以原生方式运行游戏的 Xbox Series 版本"
+    },
+    {
       name: "INK-Q/agy-fast",
       url: "https://github.com/INK-Q/agy-fast",
       desc: "Non-invasive MCP accelerator plugin for Google Antigravity (CLI/Desktop/IDE): cuts LLM turns (-34%), token quota (-31%), and upload traffic (-40%) without affecting native UI or diffs.",
       lang: "TypeScript",
-      stars: 1429,
+      stars: 1444,
       forks: 83,
-      issues: 33,
-      updated: "2026-11-25T13:20:32Z",
-      pushed: "2026-11-25T07:11:50Z",
+      issues: 29,
+      updated: "2026-11-25T14:20:50Z",
+      pushed: "2026-11-25T14:01:33Z",
       created: "2026-11-19T04:58:46Z",
       license: "MIT",
       topics: [
@@ -215,21 +230,6 @@ window.__GHRANK_RANGES__["week"] = {
         "antigravity-ide"
       ],
       desc_zh: "适用于 Google Antigravity 的非侵入式 MCP 加速插件（CLI/桌面/IDE）：在不影响原生 UI 或差异的情况下，减少 LLM 轮次（-34%）、令牌配额（-31%）和上传流量（-40%）。"
-    },
-    {
-      name: "Zettrox/ztrx",
-      url: "https://github.com/Zettrox/ztrx",
-      desc: "Run the Xbox Series build of the game natively on Windows PCs with NVIDIA GPUs",
-      lang: "Rust",
-      stars: 1428,
-      forks: 263,
-      issues: 124,
-      updated: "2026-11-25T13:20:09Z",
-      pushed: "2026-11-25T01:12:15Z",
-      created: "2026-11-25T01:12:08Z",
-      license: "GPL-3.0",
-      topics: [],
-      desc_zh: "在配备 NVIDIA GPU 的 Windows PC 上以原生方式运行游戏的 Xbox Series 版本"
     },
     {
       name: "Indigo-0167/universal-game-mod-manager",
@@ -251,6 +251,21 @@ window.__GHRANK_RANGES__["week"] = {
         "game-engine"
       ],
       desc_zh: "免费的 Windows 游戏模组管理器，用于发现、安装、更新和管理通用的 Unity 和虚幻引擎模组。"
+    },
+    {
+      name: "Belobug/VIctory-Belobug-AMD",
+      url: "https://github.com/Belobug/VIctory-Belobug-AMD",
+      desc: "",
+      lang: "Rust",
+      stars: 1275,
+      forks: 215,
+      issues: 112,
+      updated: "2026-11-25T14:28:28Z",
+      pushed: "2026-11-25T14:01:08Z",
+      created: "2026-11-25T09:41:37Z",
+      license: "GPL-3.0",
+      topics: [],
+      desc_zh: ""
     },
     {
       name: "Umbra9179/clipboard-history-manager-windows",
@@ -278,11 +293,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/leanprover-community/riemann-hypothesis",
       desc: "Lean formalization of the Riemann Hypothesis (Alpöge, 2026-11-20) being cleaned up by members of the Lean community.",
       lang: "Lean",
-      stars: 1153,
-      forks: 465,
-      issues: 635,
-      updated: "2026-11-25T13:08:42Z",
-      pushed: "2026-11-25T13:03:42Z",
+      stars: 1164,
+      forks: 467,
+      issues: 676,
+      updated: "2026-11-25T14:21:19Z",
+      pushed: "2026-11-25T14:16:53Z",
       created: "2026-11-20T14:47:49Z",
       license: "",
       topics: [],
@@ -293,11 +308,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/Avaneesh-Inamdar/Stream-Tube-Desktop",
       desc: "Native YouTube client for Windows in Rust, with SponsorBlock, DeArrow and Return YouTube Dislike built in",
       lang: "Rust",
-      stars: 1088,
-      forks: 80,
-      issues: 40,
-      updated: "2026-11-25T13:00:16Z",
-      pushed: "2026-11-25T13:20:19Z",
+      stars: 1113,
+      forks: 81,
+      issues: 47,
+      updated: "2026-11-25T14:27:42Z",
+      pushed: "2026-11-25T13:25:11Z",
       created: "2026-11-22T18:50:17Z",
       license: "MIT",
       topics: [
@@ -335,10 +350,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/zero5122/offline-file-converter-windows",
       desc: "Free offline file converter for Windows – convert PDF, documents, images, audio and video privately.",
       lang: "Python",
-      stars: 1060,
+      stars: 1062,
       forks: 1,
       issues: 0,
-      updated: "2026-11-25T11:16:19Z",
+      updated: "2026-11-25T14:17:32Z",
       pushed: "2026-11-23T21:39:16Z",
       created: "2026-11-23T21:38:47Z",
       license: "MIT",
@@ -352,14 +367,29 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 的免费离线文件转换器 – 私密地转换 PDF、文档、图像、音频和视频。"
     },
     {
+      name: "crhywun/g1-acq",
+      url: "https://github.com/crhywun/g1-acq",
+      desc: "",
+      lang: "JavaScript",
+      stars: 1049,
+      forks: 272,
+      issues: 4,
+      updated: "2026-11-25T14:26:57Z",
+      pushed: "2026-11-25T12:07:11Z",
+      created: "2026-11-22T10:53:17Z",
+      license: "",
+      topics: [],
+      desc_zh: ""
+    },
+    {
       name: "kai415-debug/ffmpeg-video-audio-converter",
       url: "https://github.com/kai415-debug/ffmpeg-video-audio-converter",
       desc: "Free Windows FFmpeg GUI for video and audio conversion, batch transcoding, and multimedia format encoding.",
       lang: "C++",
-      stars: 1024,
+      stars: 1025,
       forks: 0,
       issues: 0,
-      updated: "2026-11-25T07:50:20Z",
+      updated: "2026-11-25T14:19:09Z",
       pushed: "2026-11-23T21:33:23Z",
       created: "2026-11-23T21:32:56Z",
       license: "MIT",
@@ -373,29 +403,14 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "免费的 Windows FFmpeg 图形用户界面，用于视频和音频转换、批量转码以及多媒体格式编码。"
     },
     {
-      name: "crhywun/g1-acq",
-      url: "https://github.com/crhywun/g1-acq",
-      desc: "",
-      lang: "JavaScript",
-      stars: 1006,
-      forks: 265,
-      issues: 4,
-      updated: "2026-11-25T13:20:08Z",
-      pushed: "2026-11-25T12:07:11Z",
-      created: "2026-11-22T10:53:17Z",
-      license: "",
-      topics: [],
-      desc_zh: ""
-    },
-    {
       name: "deterministic-machines/deslop-please",
       url: "https://github.com/deterministic-machines/deslop-please",
       desc: "Bring (back) sanity to your code",
       lang: "Rust",
-      stars: 989,
+      stars: 999,
       forks: 47,
       issues: 4,
-      updated: "2026-11-25T13:17:48Z",
+      updated: "2026-11-25T14:28:17Z",
       pushed: "2026-11-24T06:40:42Z",
       created: "2026-11-22T05:36:03Z",
       license: "MIT",
@@ -403,29 +418,14 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "让您的代码（恢复）正常"
     },
     {
-      name: "Belobug/VIctory-Belobug-AMD",
-      url: "https://github.com/Belobug/VIctory-Belobug-AMD",
-      desc: "",
-      lang: "Rust",
-      stars: 967,
-      forks: 160,
-      issues: 71,
-      updated: "2026-11-25T13:21:02Z",
-      pushed: "2026-11-25T11:43:07Z",
-      created: "2026-11-25T09:41:37Z",
-      license: "GPL-3.0",
-      topics: [],
-      desc_zh: ""
-    },
-    {
       name: "qianyiai/kurocat",
       url: "https://github.com/qianyiai/kurocat",
       desc: "KuroCat — Free open-source desktop typing cat pet & OBS overlay (Bongo Cat alternative, Tauri v2 + Rust + MCP)｜轻量级透明置顶桌面打字小黑猫伴侣（6款猫咪+鲸鱼娘大肥鱼 / 输密码防偷窥 / OBS透明源 / AI捏猫 / Win·Mac·Linux·Android）",
       lang: "TypeScript",
-      stars: 888,
+      stars: 904,
       forks: 141,
-      issues: 49,
-      updated: "2026-11-25T13:17:50Z",
+      issues: 50,
+      updated: "2026-11-25T14:16:05Z",
       pushed: "2026-11-25T08:39:56Z",
       created: "2026-11-21T15:49:31Z",
       license: "MIT",
@@ -437,6 +437,27 @@ window.__GHRANK_RANGES__["week"] = {
         "desktop-pet"
       ],
       desc_zh: "KuroCat — 免费开源的桌面打字小黑猫宠物和 OBS 叠加层（Bongo Cat 替代品，Tauri v2 + Rust + MCP）｜轻量级透明置顶桌面打字小黑猫伴侣（6 款猫咪 + 鲸鱼娘大肥鱼 / 输密码防偷窥 / OBS 透明源 / AI 捏猫 / Win·Mac·Linux·Android）"
+    },
+    {
+      name: "danielwh2/sprite-stacking",
+      url: "https://github.com/danielwh2/sprite-stacking",
+      desc: "Agent skill: turn four pixel art views into fake-3D sprites you can spin. Works with Claude Code, Codex, Cursor, OpenCode, Gemini CLI, Pi.",
+      lang: "HTML",
+      stars: 874,
+      forks: 72,
+      issues: 1,
+      updated: "2026-11-25T14:27:31Z",
+      pushed: "2026-11-24T13:12:08Z",
+      created: "2026-11-20T14:32:43Z",
+      license: "MIT",
+      topics: [
+        "agent-skills",
+        "claude-code",
+        "codex",
+        "cursor",
+        "fake-3d"
+      ],
+      desc_zh: "Agent 技能：将四个像素艺术视图转换为可以旋转的伪 3D 精灵。可与 Claude Code、Codex、Cursor、OpenCode、Gemini CLI、Pi 配合使用。"
     },
     {
       name: "rowanbyte3329/stardew-valley-mod-manager",
@@ -460,36 +481,15 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于Windows的免费开源《星露谷物语》模组管理器，支持SMAPI、模组更新和自定义模组配置文件。"
     },
     {
-      name: "danielwh2/sprite-stacking",
-      url: "https://github.com/danielwh2/sprite-stacking",
-      desc: "Agent skill: turn four pixel art views into fake-3D sprites you can spin. Works with Claude Code, Codex, Cursor, OpenCode, Gemini CLI, Pi.",
-      lang: "HTML",
-      stars: 867,
-      forks: 72,
-      issues: 1,
-      updated: "2026-11-25T13:14:16Z",
-      pushed: "2026-11-24T13:12:08Z",
-      created: "2026-11-20T14:32:43Z",
-      license: "MIT",
-      topics: [
-        "agent-skills",
-        "claude-code",
-        "codex",
-        "cursor",
-        "fake-3d"
-      ],
-      desc_zh: "Agent 技能：将四个像素艺术视图转换为可以旋转的伪 3D 精灵。可与 Claude Code、Codex、Cursor、OpenCode、Gemini CLI、Pi 配合使用。"
-    },
-    {
       name: "sous-labs/songe",
       url: "https://github.com/sous-labs/songe",
       desc: "A training engine for your local model, using your idle compute",
       lang: "Python",
-      stars: 806,
+      stars: 817,
       forks: 70,
-      issues: 27,
-      updated: "2026-11-25T13:18:08Z",
-      pushed: "2026-11-25T13:21:18Z",
+      issues: 34,
+      updated: "2026-11-25T14:16:14Z",
+      pushed: "2026-11-25T14:06:08Z",
       created: "2026-11-20T11:01:20Z",
       license: "Apache-2.0",
       topics: [
@@ -506,10 +506,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/sybil-solutions/skill-distill",
       desc: "Distill a good Claude Code / Codex session into a skill an open-weight model can follow to reproduce the task",
       lang: "Python",
-      stars: 780,
+      stars: 786,
       forks: 64,
       issues: 1,
-      updated: "2026-11-25T12:58:56Z",
+      updated: "2026-11-25T14:22:28Z",
       pushed: "2026-11-21T03:48:01Z",
       created: "2026-11-21T01:43:00Z",
       license: "MIT",
@@ -521,10 +521,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/nataphong-lab/Open-Source-Face-Recognition-Ultimate",
       desc: "Face Recognition, Face Liveness Detection, Face Anti-Spoofing, Face Detection, Face Landmarks, Face Compare, Face Matching, Face Pose, Face Expression, Face Attributes, Face Templates Extraction, Face Landmarks",
       lang: "Python",
-      stars: 742,
+      stars: 743,
       forks: 613,
       issues: 0,
-      updated: "2026-11-25T11:11:43Z",
+      updated: "2026-11-25T13:35:13Z",
       pushed: "2026-11-25T09:05:40Z",
       created: "2026-11-19T10:40:46Z",
       license: "Apache-2.0",
@@ -545,6 +545,27 @@ window.__GHRANK_RANGES__["week"] = {
       license: "MIT",
       topics: [],
       desc_zh: "FastUnlock：Windows 屏幕阅读器锁屏绕过 0day 漏洞"
+    },
+    {
+      name: "Ahmet-Dedeler/awesome-gta6-reverse-engineering",
+      url: "https://github.com/Ahmet-Dedeler/awesome-gta6-reverse-engineering",
+      desc: "Curated list of open-source GTA VI (GTA 6) reverse engineering tools, RAGE 9 / RPF9 archive explorers, TTPF texture & ADAT/AWC audio decoders, format docs, and Xbox Series / PS5 translation layers.",
+      lang: "HTML",
+      stars: 725,
+      forks: 37,
+      issues: 0,
+      updated: "2026-11-25T14:19:22Z",
+      pushed: "2026-11-25T14:26:17Z",
+      created: "2026-11-21T17:08:48Z",
+      license: "NOASSERTION",
+      topics: [
+        "awesome",
+        "awesome-list",
+        "game-preservation",
+        "grand-theft-auto-vi",
+        "gta-6"
+      ],
+      desc_zh: "精选的开源 GTA VI（GTA 6）逆向工程工具、RAGE 9/RPF9 存档浏览器、TTPF 纹理和 ADAT/AWC 音频解码器、格式文档以及 Xbox Series/PS5 转换层。"
     },
     {
       name: "olive527/steam-library-manager-windows",
@@ -568,35 +589,14 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "免费的 Windows 游戏库管理器和备份工具，适用于 Steam、Origin 和 Ubisoft Connect，支持多个游戏库。"
     },
     {
-      name: "Ahmet-Dedeler/awesome-gta6-reverse-engineering",
-      url: "https://github.com/Ahmet-Dedeler/awesome-gta6-reverse-engineering",
-      desc: "Curated list of open-source GTA VI (GTA 6) reverse engineering tools, RAGE 9 / RPF9 archive explorers, TTPF texture & ADAT/AWC audio decoders, format docs, and Xbox Series / PS5 translation layers.",
-      lang: "HTML",
-      stars: 717,
-      forks: 38,
-      issues: 5,
-      updated: "2026-11-25T12:24:28Z",
-      pushed: "2026-11-24T19:00:55Z",
-      created: "2026-11-21T17:08:48Z",
-      license: "NOASSERTION",
-      topics: [
-        "awesome",
-        "awesome-list",
-        "game-preservation",
-        "grand-theft-auto-vi",
-        "gta-6"
-      ],
-      desc_zh: "精选的开源 GTA VI（GTA 6）逆向工程工具、RAGE 9/RPF9 存档浏览器、TTPF 纹理和 ADAT/AWC 音频解码器、格式文档以及 Xbox Series/PS5 转换层。"
-    },
-    {
       name: "ItsNotRexed/Hookshot",
       url: "https://github.com/ItsNotRexed/Hookshot",
       desc: "Hookshot Is A Native PC Recompilation Of The Switch 2 Ocarina Of Time Remake",
       lang: "C++",
-      stars: 717,
+      stars: 722,
       forks: 37,
       issues: 12,
-      updated: "2026-11-25T12:51:27Z",
+      updated: "2026-11-25T14:15:04Z",
       pushed: "2026-11-22T19:13:49Z",
       created: "2026-11-20T20:06:20Z",
       license: "GPL-3.0",
@@ -650,10 +650,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/xikhar/papercraft",
       desc: "Agent skill to build games, interactive scenes, web pages and animations in a handcrafted pop-up papercraft style",
       lang: "JavaScript",
-      stars: 675,
-      forks: 71,
+      stars: 679,
+      forks: 72,
       issues: 2,
-      updated: "2026-11-25T13:19:15Z",
+      updated: "2026-11-25T14:28:30Z",
       pushed: "2026-11-21T17:37:19Z",
       created: "2026-11-21T00:29:56Z",
       license: "MIT",
@@ -665,10 +665,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/erkamyaman/safe-anything",
       desc: "Find the holes before someone else does. A fast, 100% Rust vulnerability scanner: XSS, SQL injection, leaked secrets, dependency CVEs and AI agent setups.",
       lang: "Rust",
-      stars: 669,
-      forks: 62,
-      issues: 11,
-      updated: "2026-11-25T13:19:40Z",
+      stars: 674,
+      forks: 64,
+      issues: 12,
+      updated: "2026-11-25T14:28:10Z",
       pushed: "2026-11-25T13:17:27Z",
       created: "2026-11-22T16:44:10Z",
       license: "MIT",
@@ -686,10 +686,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/ThreatDefence/agentic-attack-detections",
       desc: "Detection rules and IOCs for AI agent attack frameworks: ARTEX, Cairn, PentAGI, HexStrike, CyberStrikeAI, Strix, Hermes Agent, Agent Zero, RedAmon, Xalgorix, Pentest Swarm AI. KQL hunts for Microsoft Sentinel and Defender XDR, Sigma, Suricata, Zeek, YARA, Splunk, Elastic, STIX 2.1.",
       lang: "Python",
-      stars: 661,
-      forks: 139,
+      stars: 667,
+      forks: 140,
       issues: 3,
-      updated: "2026-11-25T13:08:54Z",
+      updated: "2026-11-25T14:24:35Z",
       pushed: "2026-11-25T07:20:48Z",
       created: "2026-11-20T00:06:24Z",
       license: "MIT",
@@ -707,10 +707,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/Developing-Gamer/agent-sim",
       desc: "iOS simulators for AI agents, on Linux. The agent layer for x86Sim.",
       lang: "Rust",
-      stars: 584,
+      stars: 585,
       forks: 62,
       issues: 20,
-      updated: "2026-11-25T13:19:24Z",
+      updated: "2026-11-25T14:00:43Z",
       pushed: "2026-11-25T00:26:34Z",
       created: "2026-11-21T20:26:12Z",
       license: "Apache-2.0",
@@ -728,10 +728,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/w01fb0ss/PiBot",
       desc: "Open-source, local-first AI agent team for your desktop: multi-agent group chats, computer use, browser, MCP, routines and approvals. macOS, Windows, Linux + Android. Built on pi.",
       lang: "TypeScript",
-      stars: 582,
+      stars: 584,
       forks: 87,
       issues: 9,
-      updated: "2026-11-25T13:11:32Z",
+      updated: "2026-11-25T14:14:57Z",
       pushed: "2026-11-25T03:00:50Z",
       created: "2026-11-21T06:54:24Z",
       license: "Apache-2.0",
@@ -806,11 +806,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/chanke17/KuroCat",
       desc: "KuroCat — Free open-source native desktop cat pet & OBS overlay (Bongo Cat alternative, Swift/C++, 802 KB)｜开源免费原生桌面萌猫（全平台 macOS·Win·Linux·UOS / 2.5D转头捕猎 / 数位板 / OBS透明绿幕 / 在线皮肤工坊 / 零按键上传）",
       lang: "C++",
-      stars: 494,
-      forks: 49,
-      issues: 16,
-      updated: "2026-11-25T13:18:50Z",
-      pushed: "2026-11-25T11:26:16Z",
+      stars: 497,
+      forks: 50,
+      issues: 18,
+      updated: "2026-11-25T14:12:27Z",
+      pushed: "2026-11-25T14:27:11Z",
       created: "2026-11-23T01:06:18Z",
       license: "MIT",
       topics: [
@@ -827,11 +827,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/GGBondLab/OpenHC",
       desc: "兼容 HICAR 安卓车机接收端",
       lang: "Kotlin",
-      stars: 484,
+      stars: 489,
       forks: 99,
-      issues: 31,
-      updated: "2026-11-25T13:13:35Z",
-      pushed: "2026-11-24T13:40:51Z",
+      issues: 18,
+      updated: "2026-11-25T13:55:16Z",
+      pushed: "2026-11-25T13:43:22Z",
       created: "2026-11-20T13:21:21Z",
       license: "GPL-3.0",
       topics: [],
@@ -857,10 +857,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/sshkeda/minecraft-server-on-orange-cloud",
       desc: "Run a Minecraft Java server entirely on Cloudflare. Sleeps when nobody's playing.",
       lang: "TypeScript",
-      stars: 435,
+      stars: 436,
       forks: 10,
       issues: 1,
-      updated: "2026-11-25T12:20:27Z",
+      updated: "2026-11-25T13:45:11Z",
       pushed: "2026-11-21T08:57:40Z",
       created: "2026-11-21T02:36:03Z",
       license: "MIT",
@@ -893,10 +893,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/tweak-for-me/impulse",
       desc: "Lightweight alternative Windows client for game trainers: hotkeys, overlay and phone control.",
       lang: "Rust",
-      stars: 429,
-      forks: 181,
+      stars: 430,
+      forks: 182,
       issues: 9,
-      updated: "2026-11-25T13:06:20Z",
+      updated: "2026-11-25T13:35:52Z",
       pushed: "2026-11-24T23:37:42Z",
       created: "2026-11-20T15:17:55Z",
       license: "GPL-3.0",
@@ -914,10 +914,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/ProjectLeonidaL/leonida",
       desc: "Continuation of Project Leonida, aiming to bring GTA VI from Xbox to PC through static recompilation.",
       lang: "Python",
-      stars: 420,
+      stars: 422,
       forks: 51,
       issues: 9,
-      updated: "2026-11-25T13:16:47Z",
+      updated: "2026-11-25T14:16:12Z",
       pushed: "2026-11-25T05:54:54Z",
       created: "2026-11-24T02:20:14Z",
       license: "GPL-3.0",
@@ -935,10 +935,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/bikini/minecraft2shell",
       desc: "Minecraft to native RCE",
       lang: "Python",
-      stars: 401,
-      forks: 33,
+      stars: 409,
+      forks: 35,
       issues: 4,
-      updated: "2026-11-25T13:10:58Z",
+      updated: "2026-11-25T14:15:18Z",
       pushed: "2026-11-22T08:07:32Z",
       created: "2026-11-22T08:02:45Z",
       license: "",
@@ -950,10 +950,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/cyb3rl00m/prune-debloater",
       desc: "An opensource tool for Android devices to debloat and optimize them. Enhancing speed and privacy.",
       lang: "Kotlin",
-      stars: 394,
+      stars: 395,
       forks: 12,
       issues: 1,
-      updated: "2026-11-25T12:51:50Z",
+      updated: "2026-11-25T13:29:30Z",
       pushed: "2026-11-24T07:39:58Z",
       created: "2026-11-19T12:37:08Z",
       license: "GPL-3.0",
@@ -965,10 +965,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/SulphurS16/Regaliant",
       desc: "Unofficial Windows PC port of Demon's Souls (2020), Bluepoint's PS5 remake. Runs your own copy of the PS5 game (PPSA01341, version 1.07). No game files included.",
       lang: "Rust",
-      stars: 368,
+      stars: 372,
       forks: 2,
       issues: 18,
-      updated: "2026-11-25T13:17:55Z",
+      updated: "2026-11-25T14:06:48Z",
       pushed: "2026-11-25T06:29:11Z",
       created: "2026-11-23T12:11:38Z",
       license: "GPL-3.0",
@@ -982,14 +982,29 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "《恶魔之魂》（2020）的非官方Windows PC移植版，由Bluepoint负责PS5重制。运行您自己的 PS5 游戏（PPSA01341，版本 1.07）。不包含游戏文件。"
     },
     {
+      name: "sohzm/winedroid",
+      url: "https://github.com/sohzm/winedroid",
+      desc: "run android apps on web, linux, macOS and windows",
+      lang: "Rust",
+      stars: 366,
+      forks: 16,
+      issues: 9,
+      updated: "2026-11-25T14:18:00Z",
+      pushed: "2026-11-20T19:16:27Z",
+      created: "2026-11-20T19:14:05Z",
+      license: "NOASSERTION",
+      topics: [],
+      desc_zh: "在 Web、Linux、macOS 和 Windows 上运行安卓应用"
+    },
+    {
       name: "boykopovar/AnyBox",
       url: "https://github.com/boykopovar/AnyBox",
       desc: "Compatibility layer for Xbox Series apps on Windows",
       lang: "C++",
-      stars: 360,
+      stars: 364,
       forks: 12,
       issues: 16,
-      updated: "2026-11-25T12:57:43Z",
+      updated: "2026-11-25T14:09:42Z",
       pushed: "2026-11-25T08:23:51Z",
       created: "2026-11-23T18:14:00Z",
       license: "GPL-2.0",
@@ -1003,30 +1018,15 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Windows 上 Xbox Series 应用的兼容层"
     },
     {
-      name: "sohzm/winedroid",
-      url: "https://github.com/sohzm/winedroid",
-      desc: "run android apps on web, linux, macOS and windows",
-      lang: "Rust",
-      stars: 360,
-      forks: 15,
-      issues: 9,
-      updated: "2026-11-25T12:09:45Z",
-      pushed: "2026-11-20T19:16:27Z",
-      created: "2026-11-20T19:14:05Z",
-      license: "NOASSERTION",
-      topics: [],
-      desc_zh: "在 Web、Linux、macOS 和 Windows 上运行安卓应用"
-    },
-    {
       name: "brcly/TuxBox",
       url: "https://github.com/brcly/TuxBox",
       desc: "TuxBox is a new, native-first compatibility layer for running unpacked, decrypted Xbox Series X|S games on x86-64 Linux and Windows.",
       lang: "Rust",
-      stars: 352,
-      forks: 36,
-      issues: 13,
-      updated: "2026-11-25T12:40:35Z",
-      pushed: "2026-11-25T13:10:39Z",
+      stars: 354,
+      forks: 38,
+      issues: 5,
+      updated: "2026-11-25T14:17:55Z",
+      pushed: "2026-11-25T14:21:39Z",
       created: "2026-11-21T12:07:28Z",
       license: "Apache-2.0",
       topics: [],
@@ -1125,7 +1125,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T14:35:48Z",
-      pushed: "2026-11-25T03:15:02Z",
+      pushed: "2026-11-25T13:43:29Z",
       created: "2026-11-21T13:14:54Z",
       license: "MIT",
       topics: [
@@ -1293,7 +1293,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T14:36:25Z",
-      pushed: "2026-11-25T03:26:35Z",
+      pushed: "2026-11-25T13:54:50Z",
       created: "2026-11-21T13:00:47Z",
       license: "MIT",
       topics: [
@@ -1314,7 +1314,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T14:36:27Z",
-      pushed: "2026-11-25T03:18:03Z",
+      pushed: "2026-11-25T13:47:01Z",
       created: "2026-11-21T13:16:10Z",
       license: "MIT",
       topics: [
@@ -1335,7 +1335,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T08:59:16Z",
-      pushed: "2026-11-25T03:26:42Z",
+      pushed: "2026-11-25T13:54:25Z",
       created: "2026-11-21T13:04:14Z",
       license: "MIT",
       topics: [
@@ -1440,7 +1440,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:01:01Z",
-      pushed: "2026-11-25T03:26:12Z",
+      pushed: "2026-11-25T13:53:55Z",
       created: "2026-11-21T14:06:16Z",
       license: "MIT",
       topics: [
@@ -1537,27 +1537,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 的专业多轨视频编辑套件，支持 4K/8K 导出"
     },
     {
-      name: "rockford007/xyplorer-file-manager",
-      url: "https://github.com/rockford007/xyplorer-file-manager",
-      desc: "XYplorer File Manager: Advanced Tabbed Browsing Dual-Pane Workflow for Desktop",
-      lang: "HTML",
-      stars: 337,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-22T09:02:25Z",
-      pushed: "2026-11-25T05:07:12Z",
-      created: "2026-11-21T17:20:56Z",
-      license: "MIT",
-      topics: [
-        "automation",
-        "desktop",
-        "developer-tools",
-        "open-source",
-        "python"
-      ],
-      desc_zh: "XYplorer文件管理器：适用于桌面的高级标签式浏览双窗格工作流"
-    },
-    {
       name: "official00shivansh-eng/ultra-iso",
       url: "https://github.com/official00shivansh-eng/ultra-iso",
       desc: "Ultra ISO: Desktop Disc Image Authoring, Mounting, and Conversion Toolkit",
@@ -1577,6 +1556,27 @@ window.__GHRANK_RANGES__["week"] = {
         "iso-image"
       ],
       desc_zh: "Ultra ISO：桌面光盘映像制作、挂载和转换工具包"
+    },
+    {
+      name: "rockford007/xyplorer-file-manager",
+      url: "https://github.com/rockford007/xyplorer-file-manager",
+      desc: "XYplorer File Manager: Advanced Tabbed Browsing Dual-Pane Workflow for Desktop",
+      lang: "HTML",
+      stars: 337,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-22T09:02:25Z",
+      pushed: "2026-11-25T05:07:12Z",
+      created: "2026-11-21T17:20:56Z",
+      license: "MIT",
+      topics: [
+        "automation",
+        "desktop",
+        "developer-tools",
+        "open-source",
+        "python"
+      ],
+      desc_zh: "XYplorer文件管理器：适用于桌面的高级标签式浏览双窗格工作流"
     },
     {
       name: "Buntee-tech/exitlag-utility",
@@ -1644,7 +1644,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:03:26Z",
-      pushed: "2026-11-25T03:28:13Z",
+      pushed: "2026-11-25T13:55:22Z",
       created: "2026-11-21T13:28:55Z",
       license: "",
       topics: [
@@ -1665,7 +1665,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:05:38Z",
-      pushed: "2026-11-25T03:21:29Z",
+      pushed: "2026-11-25T13:52:07Z",
       created: "2026-11-21T12:50:59Z",
       license: "",
       topics: [
@@ -1791,7 +1791,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:20:29Z",
-      pushed: "2026-11-25T03:28:18Z",
+      pushed: "2026-11-25T13:55:07Z",
       created: "2026-11-21T13:19:23Z",
       license: "",
       topics: [
@@ -1833,7 +1833,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-24T17:19:02Z",
-      pushed: "2026-11-25T03:23:29Z",
+      pushed: "2026-11-25T13:53:19Z",
       created: "2026-11-21T14:49:58Z",
       license: "MIT",
       topics: [
@@ -1854,7 +1854,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 1,
       issues: 0,
       updated: "2026-11-22T09:10:36Z",
-      pushed: "2026-11-25T03:21:42Z",
+      pushed: "2026-11-25T13:52:28Z",
       created: "2026-11-21T13:35:19Z",
       license: "MIT",
       topics: [
@@ -1896,7 +1896,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:02:57Z",
-      pushed: "2026-11-25T03:17:56Z",
+      pushed: "2026-11-25T13:47:28Z",
       created: "2026-11-21T13:16:28Z",
       license: "MIT",
       topics: [
@@ -1938,7 +1938,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:21:44Z",
-      pushed: "2026-11-25T03:17:02Z",
+      pushed: "2026-11-25T13:46:01Z",
       created: "2026-11-21T12:51:58Z",
       license: "",
       topics: [
@@ -1959,7 +1959,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:06:04Z",
-      pushed: "2026-11-25T13:03:31Z",
+      pushed: "2026-11-25T14:03:43Z",
       created: "2026-11-21T13:22:28Z",
       license: "",
       topics: [
@@ -2148,7 +2148,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:18:17Z",
-      pushed: "2026-11-25T03:15:52Z",
+      pushed: "2026-11-25T13:43:45Z",
       created: "2026-11-21T13:19:21Z",
       license: "MIT",
       topics: [
@@ -2190,7 +2190,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 1,
       issues: 1,
       updated: "2026-11-22T09:12:40Z",
-      pushed: "2026-11-25T03:26:33Z",
+      pushed: "2026-11-25T13:53:41Z",
       created: "2026-11-21T14:10:26Z",
       license: "MIT",
       topics: [
@@ -2253,7 +2253,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:03:08Z",
-      pushed: "2026-11-25T03:28:20Z",
+      pushed: "2026-11-25T13:55:55Z",
       created: "2026-11-21T12:48:36Z",
       license: "",
       topics: [
@@ -2274,7 +2274,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:04:00Z",
-      pushed: "2026-11-25T03:18:13Z",
+      pushed: "2026-11-25T13:48:35Z",
       created: "2026-11-21T14:30:49Z",
       license: "MIT",
       topics: [
@@ -2295,7 +2295,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:23:59Z",
-      pushed: "2026-11-25T03:18:01Z",
+      pushed: "2026-11-25T13:49:16Z",
       created: "2026-11-21T12:32:46Z",
       license: "MIT",
       topics: [
@@ -2337,7 +2337,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:07:10Z",
-      pushed: "2026-11-25T03:30:08Z",
+      pushed: "2026-11-25T13:58:43Z",
       created: "2026-11-21T12:54:02Z",
       license: "MIT",
       topics: [
@@ -2358,7 +2358,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-24T13:45:15Z",
-      pushed: "2026-11-25T03:18:00Z",
+      pushed: "2026-11-25T13:47:12Z",
       created: "2026-11-21T14:26:42Z",
       license: "MIT",
       topics: [
@@ -2400,7 +2400,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T08:54:30Z",
-      pushed: "2026-11-25T12:54:39Z",
+      pushed: "2026-11-25T14:06:06Z",
       created: "2026-11-21T17:16:14Z",
       license: "MIT",
       topics: [
@@ -2442,7 +2442,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:03:56Z",
-      pushed: "2026-11-25T03:20:11Z",
+      pushed: "2026-11-25T13:50:33Z",
       created: "2026-11-21T13:36:14Z",
       license: "",
       topics: [
@@ -2463,7 +2463,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 1,
       updated: "2026-11-22T09:04:33Z",
-      pushed: "2026-11-25T03:14:55Z",
+      pushed: "2026-11-25T13:43:27Z",
       created: "2026-11-21T14:13:00Z",
       license: "MIT",
       topics: [
@@ -2505,7 +2505,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:04:17Z",
-      pushed: "2026-11-25T03:30:39Z",
+      pushed: "2026-11-25T13:56:38Z",
       created: "2026-11-21T12:34:32Z",
       license: "MIT",
       topics: [
@@ -2526,7 +2526,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:04:11Z",
-      pushed: "2026-11-25T03:20:44Z",
+      pushed: "2026-11-25T13:50:50Z",
       created: "2026-11-21T12:58:01Z",
       license: "",
       topics: [
@@ -2589,7 +2589,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:10:41Z",
-      pushed: "2026-11-25T03:18:08Z",
+      pushed: "2026-11-25T13:48:16Z",
       created: "2026-11-21T13:28:07Z",
       license: "",
       topics: [
@@ -2631,7 +2631,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:00:08Z",
-      pushed: "2026-11-25T03:16:12Z",
+      pushed: "2026-11-25T13:44:01Z",
       created: "2026-11-21T13:52:06Z",
       license: "MIT",
       topics: [
@@ -2694,7 +2694,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:14:54Z",
-      pushed: "2026-11-25T03:16:05Z",
+      pushed: "2026-11-25T13:43:47Z",
       created: "2026-11-21T13:21:17Z",
       license: "MIT",
       topics: [
@@ -2705,27 +2705,6 @@ window.__GHRANK_RANGES__["week"] = {
         "crashplan-bypass"
       ],
       desc_zh: "图形套件：矢量插图和版面桌面软件安装"
-    },
-    {
-      name: "dimensionsierre/capcut-windows",
-      url: "https://github.com/dimensionsierre/capcut-windows",
-      desc: "CapCut Windows: Desktop Suite Integrated Installation Tools",
-      lang: "HTML",
-      stars: 336,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-24T23:22:36Z",
-      pushed: "2026-11-25T03:24:41Z",
-      created: "2026-11-21T13:10:54Z",
-      license: "",
-      topics: [
-        "automation",
-        "capcut-activated",
-        "capcut-crack-2026",
-        "capcut-cracked-2026",
-        "capcut-exe"
-      ],
-      desc_zh: "CapCut Windows：桌面套件集成安装工具"
     },
     {
       name: "kiwiqaaustralia/tenorshare-4ukey-utility",
@@ -2757,7 +2736,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T15:27:45Z",
-      pushed: "2026-11-25T03:25:09Z",
+      pushed: "2026-11-25T13:53:31Z",
       created: "2026-11-21T13:18:28Z",
       license: "",
       topics: [
@@ -2768,6 +2747,27 @@ window.__GHRANK_RANGES__["week"] = {
         "claude-jailbreak-sonnet"
       ],
       desc_zh: "Claude Prompt Studio：用于结构化 AI 提示工程的桌面环境"
+    },
+    {
+      name: "dimensionsierre/capcut-windows",
+      url: "https://github.com/dimensionsierre/capcut-windows",
+      desc: "CapCut Windows: Desktop Suite Integrated Installation Tools",
+      lang: "HTML",
+      stars: 336,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-24T23:22:36Z",
+      pushed: "2026-11-25T13:53:09Z",
+      created: "2026-11-21T13:10:54Z",
+      license: "",
+      topics: [
+        "automation",
+        "capcut-activated",
+        "capcut-crack-2026",
+        "capcut-cracked-2026",
+        "capcut-exe"
+      ],
+      desc_zh: "CapCut Windows：桌面套件集成安装工具"
     },
     {
       name: "BratzieTiffany/imobie-anytrans",
@@ -2820,7 +2820,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:09:30Z",
-      pushed: "2026-11-25T03:28:43Z",
+      pushed: "2026-11-25T13:56:21Z",
       created: "2026-11-21T14:22:58Z",
       license: "",
       topics: [
@@ -2904,7 +2904,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-24T02:14:39Z",
-      pushed: "2026-11-25T03:24:50Z",
+      pushed: "2026-11-25T13:53:26Z",
       created: "2026-11-21T13:31:26Z",
       license: "MIT",
       topics: [
@@ -2967,7 +2967,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:19:23Z",
-      pushed: "2026-11-25T03:17:59Z",
+      pushed: "2026-11-25T13:49:04Z",
       created: "2026-11-21T12:50:09Z",
       license: "MIT",
       topics: [
@@ -3030,7 +3030,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:03:07Z",
-      pushed: "2026-11-25T03:24:23Z",
+      pushed: "2026-11-25T13:53:45Z",
       created: "2026-11-21T14:35:04Z",
       license: "",
       topics: [
@@ -3240,7 +3240,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:11:35Z",
-      pushed: "2026-11-25T03:17:50Z",
+      pushed: "2026-11-25T13:47:37Z",
       created: "2026-11-21T13:19:58Z",
       license: "MIT",
       topics: [
@@ -3303,7 +3303,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:03:38Z",
-      pushed: "2026-11-25T12:02:01Z",
+      pushed: "2026-11-25T14:22:57Z",
       created: "2026-11-21T15:06:13Z",
       license: "",
       topics: [
@@ -3324,7 +3324,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:06:00Z",
-      pushed: "2026-11-25T03:20:45Z",
+      pushed: "2026-11-25T13:50:54Z",
       created: "2026-11-21T13:37:59Z",
       license: "",
       topics: [
@@ -3513,7 +3513,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:00:38Z",
-      pushed: "2026-11-25T03:17:53Z",
+      pushed: "2026-11-25T13:47:26Z",
       created: "2026-11-21T12:30:57Z",
       license: "MIT",
       topics: [
@@ -3534,7 +3534,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T08:56:43Z",
-      pushed: "2026-11-25T03:14:51Z",
+      pushed: "2026-11-25T13:43:32Z",
       created: "2026-11-21T13:23:44Z",
       license: "",
       topics: [
@@ -3545,6 +3545,27 @@ window.__GHRANK_RANGES__["week"] = {
         "datagrip-2026"
       ],
       desc_zh: "Grip Utility：桌面和处理工具"
+    },
+    {
+      name: "djoaoag/drfone-launch-tool",
+      url: "https://github.com/djoaoag/drfone-launch-tool",
+      desc: "Drfone Launch Tool: Desktop Utility with Feature Set and Streamlined Setup",
+      lang: "HTML",
+      stars: 335,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-22T09:06:06Z",
+      pushed: "2026-11-25T13:42:57Z",
+      created: "2026-11-21T13:38:35Z",
+      license: "MIT",
+      topics: [
+        "android-recovery",
+        "automation",
+        "desktop",
+        "developer-tools",
+        "dr-fone-mobile"
+      ],
+      desc_zh: "Drfone 启动工具：具备功能集和简化设置的桌面实用工具"
     },
     {
       name: "Pepelolopepeofkfjfjhf/fortnite-skin-swapper",
@@ -3566,27 +3587,6 @@ window.__GHRANK_RANGES__["week"] = {
         "fortnite-crashes-on-launch-pc"
       ],
       desc_zh: "《堡垒之夜》皮肤切换器设置：自信的桌面游戏增强"
-    },
-    {
-      name: "djoaoag/drfone-launch-tool",
-      url: "https://github.com/djoaoag/drfone-launch-tool",
-      desc: "Drfone Launch Tool: Desktop Utility with Feature Set and Streamlined Setup",
-      lang: "HTML",
-      stars: 335,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-22T09:06:06Z",
-      pushed: "2026-11-25T03:14:58Z",
-      created: "2026-11-21T13:38:35Z",
-      license: "MIT",
-      topics: [
-        "android-recovery",
-        "automation",
-        "desktop",
-        "developer-tools",
-        "dr-fone-mobile"
-      ],
-      desc_zh: "Drfone 启动工具：具备功能集和简化设置的桌面实用工具"
     },
     {
       name: "iampristus/robux-generator",
@@ -3828,7 +3828,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:15:50Z",
-      pushed: "2026-11-25T03:21:44Z",
+      pushed: "2026-11-25T13:51:43Z",
       created: "2026-11-21T14:47:31Z",
       license: "MIT",
       topics: [
@@ -3849,7 +3849,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:22:53Z",
-      pushed: "2026-11-25T03:18:13Z",
+      pushed: "2026-11-25T13:49:04Z",
       created: "2026-11-21T14:38:09Z",
       license: "MIT",
       topics: [
@@ -3912,7 +3912,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:00:10Z",
-      pushed: "2026-11-25T03:18:01Z",
+      pushed: "2026-11-25T13:47:33Z",
       created: "2026-11-21T13:04:35Z",
       license: "",
       topics: [
@@ -3954,7 +3954,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:03:57Z",
-      pushed: "2026-11-25T03:18:15Z",
+      pushed: "2026-11-25T13:48:49Z",
       created: "2026-11-21T13:01:09Z",
       license: "MIT",
       topics: [
@@ -3996,7 +3996,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:07:15Z",
-      pushed: "2026-11-25T03:24:07Z",
+      pushed: "2026-11-25T13:53:23Z",
       created: "2026-11-21T12:58:16Z",
       license: "MIT",
       topics: [
@@ -4059,7 +4059,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:01:12Z",
-      pushed: "2026-11-25T03:16:28Z",
+      pushed: "2026-11-25T13:46:01Z",
       created: "2026-11-21T13:04:32Z",
       license: "MIT",
       topics: [
@@ -4175,6 +4175,27 @@ window.__GHRANK_RANGES__["week"] = {
         "izotope-rx-latest"
       ],
       desc_zh: "Ozone 12 Utility：完整的桌面配置和管理工具集"
+    },
+    {
+      name: "LooperSalty/AnyXboxX",
+      url: "https://github.com/LooperSalty/AnyXboxX",
+      desc: "AnyXboxX — prototype d'émulateur Xbox Series X (HLE du GDK sur Unicorn)",
+      lang: "Python",
+      stars: 333,
+      forks: 47,
+      issues: 29,
+      updated: "2026-11-25T14:06:58Z",
+      pushed: "2026-11-25T14:22:28Z",
+      created: "2026-11-21T00:18:13Z",
+      license: "GPL-3.0",
+      topics: [
+        "emulator",
+        "gdk",
+        "grand-theft-auto-vi",
+        "gta-6",
+        "gta-vi"
+      ],
+      desc_zh: "AnyXboxX — Xbox Series X 模拟器原型（Unicorn 上的 GDK HLE）"
     },
     {
       name: "Glennnnnty/ads-blocker",
@@ -4311,7 +4332,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:22:56Z",
-      pushed: "2026-11-25T03:19:09Z",
+      pushed: "2026-11-25T13:49:45Z",
       created: "2026-11-21T13:01:36Z",
       license: "MIT",
       topics: [
@@ -4332,7 +4353,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-22T09:05:17Z",
-      pushed: "2026-11-25T03:16:48Z",
+      pushed: "2026-11-25T13:46:12Z",
       created: "2026-11-21T12:57:58Z",
       license: "MIT",
       topics: [
@@ -4345,36 +4366,15 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "AION 2 Enhancer：桌面版提示词工程"
     },
     {
-      name: "LooperSalty/AnyXboxX",
-      url: "https://github.com/LooperSalty/AnyXboxX",
-      desc: "AnyXboxX — prototype d'émulateur Xbox Series X (HLE du GDK sur Unicorn)",
-      lang: "Python",
-      stars: 327,
-      forks: 45,
-      issues: 58,
-      updated: "2026-11-25T12:59:25Z",
-      pushed: "2026-11-25T13:20:15Z",
-      created: "2026-11-21T00:18:13Z",
-      license: "GPL-3.0",
-      topics: [
-        "emulator",
-        "gdk",
-        "grand-theft-auto-vi",
-        "gta-6",
-        "gta-vi"
-      ],
-      desc_zh: "AnyXboxX — Xbox Series X 模拟器原型（Unicorn 上的 GDK HLE）"
-    },
-    {
       name: "ZigZagBoi1/ScarlettPort",
       url: "https://github.com/ZigZagBoi1/ScarlettPort",
       desc: "Native PC port layer for an Xbox Series X|S title: the game's x64 code runs on your CPU and its RDNA2 GPU code is recompiled for your graphics card. Bring your own files.",
       lang: "Rust",
-      stars: 326,
-      forks: 16,
-      issues: 3,
-      updated: "2026-11-25T13:06:48Z",
-      pushed: "2026-11-25T13:17:31Z",
+      stars: 330,
+      forks: 15,
+      issues: 5,
+      updated: "2026-11-25T14:25:57Z",
+      pushed: "2026-11-25T13:26:12Z",
       created: "2026-11-24T09:36:26Z",
       license: "NOASSERTION",
       topics: [
@@ -4422,7 +4422,7 @@ window.__GHRANK_RANGES__["week"] = {
       desc: "Turn a car's dashcam footage into a 3D world you can drive through again: Gaussian splats, a 1 cm road atlas, tracked vehicles and a diffusion-repaired chase view.",
       lang: "Python",
       stars: 305,
-      forks: 55,
+      forks: 56,
       issues: 2,
       updated: "2026-11-25T11:49:47Z",
       pushed: "2026-11-22T21:13:32Z",
@@ -4466,10 +4466,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/httpdone/magpie-aws-quick",
       desc: "Use your own AWS Quick account in Magpie-在 magpie 里用你自己的 Amazon Quick（AWS Quick）账号 ",
       lang: "JavaScript",
-      stars: 266,
-      forks: 49,
-      issues: 2,
-      updated: "2026-11-25T10:45:32Z",
+      stars: 267,
+      forks: 50,
+      issues: 5,
+      updated: "2026-11-25T14:23:57Z",
       pushed: "2026-11-25T07:25:38Z",
       created: "2026-11-21T18:19:59Z",
       license: "MIT",
@@ -4488,11 +4488,32 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 128,
       issues: 0,
       updated: "2026-11-25T10:09:26Z",
-      pushed: "2026-11-25T12:45:32Z",
+      pushed: "2026-11-25T13:46:22Z",
       created: "2026-11-23T11:09:09Z",
       license: "",
       topics: [],
       desc_zh: "一个通用游戏中心，适用于以下游戏：CS2、《反恐精英 2》、GTA V、《堡垒之夜》、《彩虹六号：围攻》、Roblox、《漫威争锋》、《Apex 英雄》、《原神》、《RUST》、《无畏契约》、Riot、《使命召唤》《ARC Raiders》《绝地求生》《Dota 2》《我的世界》，作弊，作弊，作弊，外挂，外挂，开挂，皮肤更换器，脚本，绕过，欺骗器，外部，未被检测到，Lua，模组。"
+    },
+    {
+      name: "EL4CTEO/shrink-anything",
+      url: "https://github.com/EL4CTEO/shrink-anything",
+      desc: "Less code, same tests passing: delete the dead code, files, dependencies and assets in any codebase, and keep each cut only if your own tests still pass.",
+      lang: "Rust",
+      stars: 255,
+      forks: 16,
+      issues: 1,
+      updated: "2026-11-25T14:11:38Z",
+      pushed: "2026-11-23T19:47:16Z",
+      created: "2026-11-23T15:55:48Z",
+      license: "MIT",
+      topics: [
+        "ai-agents",
+        "bundle-size",
+        "claude-code",
+        "cli",
+        "code-cleanup"
+      ],
+      desc_zh: "更少的代码，通过相同的测试：删除任何代码库中的死代码、文件、依赖项和资产，并且仅在您自己的测试仍然通过的情况下才保留每次裁剪。"
     },
     {
       name: "jaredfreellm/FREELLM_INSTALL",
@@ -4510,35 +4531,14 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "一个兼容OpenAI的端点，适用于多个免费LLM层级。添加您自己的提供商密钥，路由器将为每个请求选择一个运行正常的模型，当某个模型受到速率限制时进行故障转移，并跟踪每个密钥的使用情况，以便您始终在每个配额的限制范围内。自托管，密钥在静态时加密。适用于个人实验。"
     },
     {
-      name: "EL4CTEO/shrink-anything",
-      url: "https://github.com/EL4CTEO/shrink-anything",
-      desc: "Less code, same tests passing: delete the dead code, files, dependencies and assets in any codebase, and keep each cut only if your own tests still pass.",
-      lang: "Rust",
-      stars: 248,
-      forks: 15,
-      issues: 1,
-      updated: "2026-11-25T13:09:31Z",
-      pushed: "2026-11-23T19:47:16Z",
-      created: "2026-11-23T15:55:48Z",
-      license: "MIT",
-      topics: [
-        "ai-agents",
-        "bundle-size",
-        "claude-code",
-        "cli",
-        "code-cleanup"
-      ],
-      desc_zh: "更少的代码，通过相同的测试：删除任何代码库中的死代码、文件、依赖项和资产，并且仅在您自己的测试仍然通过的情况下才保留每次裁剪。"
-    },
-    {
       name: "tensorfish/squid5090",
       url: "https://github.com/tensorfish/squid5090",
       desc: "Highly Optimized Inference Engine for Inkling Mini 2 on NVIDIA 5090",
       lang: "Cuda",
-      stars: 239,
+      stars: 241,
       forks: 31,
       issues: 5,
-      updated: "2026-11-25T13:02:32Z",
+      updated: "2026-11-25T13:58:26Z",
       pushed: "2026-11-25T07:12:26Z",
       created: "2026-11-23T06:39:43Z",
       license: "NOASSERTION",
@@ -4595,7 +4595,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 12,
       issues: 9,
       updated: "2026-11-25T11:14:16Z",
-      pushed: "2026-11-25T00:36:55Z",
+      pushed: "2026-11-25T14:02:29Z",
       created: "2026-11-20T00:25:27Z",
       license: "GPL-3.0",
       topics: [
@@ -4623,6 +4623,21 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "火柴人视频导演 Muse 技能——火柴人故事视频制作技能（场景生成、旁白、背景音乐、剪辑）"
     },
     {
+      name: "Cinderella-Man/how-to-enable-p2p-on-nvidia-gpus",
+      url: "https://github.com/Cinderella-Man/how-to-enable-p2p-on-nvidia-gpus",
+      desc: "Notes on enabling GPU-to-GPU (p2p) data exchange",
+      lang: "Cuda",
+      stars: 223,
+      forks: 31,
+      issues: 1,
+      updated: "2026-11-25T14:25:29Z",
+      pushed: "2026-11-25T14:07:34Z",
+      created: "2026-11-23T08:25:48Z",
+      license: "",
+      topics: [],
+      desc_zh: "关于启用 GPU 到 GPU (p2p) 数据交换的注意事项"
+    },
+    {
       name: "rambailiffhaul/sims4-updater-unlocker-dlc",
       url: "https://github.com/rambailiffhaul/sims4-updater-unlocker-dlc",
       desc: "",
@@ -4638,32 +4653,17 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: ""
     },
     {
-      name: "Cinderella-Man/how-to-enable-p2p-on-nvidia-gpus",
-      url: "https://github.com/Cinderella-Man/how-to-enable-p2p-on-nvidia-gpus",
-      desc: "Notes on enabling GPU-to-GPU (p2p) data exchange",
-      lang: "Cuda",
-      stars: 218,
-      forks: 30,
-      issues: 1,
-      updated: "2026-11-25T12:47:12Z",
-      pushed: "2026-11-25T11:11:18Z",
-      created: "2026-11-23T08:25:48Z",
-      license: "",
-      topics: [],
-      desc_zh: "关于启用 GPU 到 GPU (p2p) 数据交换的注意事项"
-    },
-    {
       name: "ElloboDK/KeyCat",
       url: "https://github.com/ElloboDK/KeyCat",
       desc: "菜单栏桌面宠物黑猫：跟着键盘动爪、跟着鼠标转头，烦躁时甩尾捶桌（macOS 13+，通用二进制）",
-      lang: "",
-      stars: 218,
+      lang: "JavaScript",
+      stars: 219,
       forks: 35,
-      issues: 16,
-      updated: "2026-11-25T13:17:34Z",
-      pushed: "2026-11-25T05:58:47Z",
+      issues: 15,
+      updated: "2026-11-25T14:20:53Z",
+      pushed: "2026-11-25T14:28:36Z",
       created: "2026-11-23T02:46:10Z",
-      license: "NOASSERTION",
+      license: "GPL-3.0",
       topics: [],
       desc_zh: "菜单栏桌面宠物黑猫：跟着键盘动爪、跟着鼠标转头，烦躁时甩尾捶桌（macOS 13+，通用二进制）"
     },
@@ -4674,9 +4674,9 @@ window.__GHRANK_RANGES__["week"] = {
       lang: "C#",
       stars: 214,
       forks: 13,
-      issues: 5,
+      issues: 6,
       updated: "2026-11-25T13:02:19Z",
-      pushed: "2026-11-25T13:13:43Z",
+      pushed: "2026-11-25T14:02:09Z",
       created: "2026-11-23T09:57:42Z",
       license: "GPL-3.0",
       topics: [],
@@ -4774,7 +4774,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 4,
       issues: 1,
       updated: "2026-11-25T11:18:17Z",
-      pushed: "2026-11-25T03:54:51Z",
+      pushed: "2026-11-25T13:58:49Z",
       created: "2026-11-24T09:10:18Z",
       license: "NOASSERTION",
       topics: [
@@ -4917,10 +4917,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/KJGX66F/unikraft-xray-node",
       desc: "Unikraft Cloud xray VLESS node: WS primary + XHTTP backup, direct + Cloudflare dual links. GitHub Actions builds the image to GHCR; fork and build your own.",
       lang: "Shell",
-      stars: 203,
-      forks: 379,
+      stars: 204,
+      forks: 380,
       issues: 1,
-      updated: "2026-11-25T10:59:35Z",
+      updated: "2026-11-25T14:02:45Z",
       pushed: "2026-11-19T09:17:57Z",
       created: "2026-11-19T05:03:25Z",
       license: "MIT",
@@ -4989,10 +4989,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/cloudflare/oxlint-config",
       desc: "Shared Oxlint rules for Cloudflare JavaScript and TypeScript projects",
       lang: "JavaScript",
-      stars: 196,
+      stars: 197,
       forks: 6,
       issues: 0,
-      updated: "2026-11-25T12:50:25Z",
+      updated: "2026-11-25T14:03:10Z",
       pushed: "2026-11-23T09:58:45Z",
       created: "2026-11-19T06:52:05Z",
       license: "Apache-2.0",
@@ -5019,6 +5019,21 @@ window.__GHRANK_RANGES__["week"] = {
         "cdp"
       ],
       desc_zh: "零依赖浏览器 CDP + 隐身 Hook 捕获与逆向工程 AI 技能/BitBrowser、AdsPower 和 Chrome/VisibleV8 的 CLI"
+    },
+    {
+      name: "open-goat/pequalnp-proofs",
+      url: "https://github.com/open-goat/pequalnp-proofs",
+      desc: "Lean 4 proofs from the public AI attempt at P vs NP (pequalnp.com). Open gaps welcome pull requests.",
+      lang: "Lean",
+      stars: 194,
+      forks: 3027,
+      issues: 943,
+      updated: "2026-11-25T14:28:32Z",
+      pushed: "2026-11-25T14:28:18Z",
+      created: "2026-11-22T21:56:30Z",
+      license: "Apache-2.0",
+      topics: [],
+      desc_zh: "来自公众人工智能尝试解决 P 对比 NP 问题（pequalnp.com）的 Lean 4 证明。欢迎针对未解决的问题提交拉取请求。"
     },
     {
       name: "PaulSchaefer86202/cs2-cheat-external-esp-triggerbot-v2",
@@ -5072,21 +5087,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "配色・书体・余白・构图を题材から决める日本語のフロントエンドデザインスキル。247作品の調査データと単体HTMLの映画祭作例を収録。"
     },
     {
-      name: "open-goat/pequalnp-proofs",
-      url: "https://github.com/open-goat/pequalnp-proofs",
-      desc: "Lean 4 proofs from the public AI attempt at P vs NP (pequalnp.com). Open gaps welcome pull requests.",
-      lang: "Lean",
-      stars: 189,
-      forks: 2975,
-      issues: 1002,
-      updated: "2026-11-25T13:17:09Z",
-      pushed: "2026-11-25T13:20:30Z",
-      created: "2026-11-22T21:56:30Z",
-      license: "Apache-2.0",
-      topics: [],
-      desc_zh: "来自公众人工智能尝试解决 P 对比 NP 问题（pequalnp.com）的 Lean 4 证明。欢迎针对未解决的问题提交拉取请求。"
-    },
-    {
       name: "spacestate1/albw-native",
       url: "https://github.com/spacestate1/albw-native",
       desc: "Native Linux port of A Link Between Worlds built from decompiled code (bring your own ROM; no game data included)",
@@ -5095,7 +5095,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 11,
       issues: 13,
       updated: "2026-11-25T06:54:53Z",
-      pushed: "2026-11-25T06:13:47Z",
+      pushed: "2026-11-25T14:03:20Z",
       created: "2026-11-19T03:43:34Z",
       license: "MIT",
       topics: [],
@@ -5167,7 +5167,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 19,
       issues: 2,
       updated: "2026-11-25T11:18:21Z",
-      pushed: "2026-11-25T04:11:08Z",
+      pushed: "2026-11-25T14:19:32Z",
       created: "2026-11-24T21:10:30Z",
       license: "NOASSERTION",
       topics: [
@@ -5241,10 +5241,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/AyushRajSinghParihar/weaponized-curiosity",
       desc: "Portable Agent Skill for evidence-driven research, experimentation, and bounded optimization",
       lang: "Python",
-      stars: 177,
+      stars: 178,
       forks: 11,
       issues: 0,
-      updated: "2026-11-25T11:15:51Z",
+      updated: "2026-11-25T14:15:21Z",
       pushed: "2026-11-23T22:25:00Z",
       created: "2026-11-23T20:59:13Z",
       license: "MIT",
@@ -5256,6 +5256,21 @@ window.__GHRANK_RANGES__["week"] = {
         "experimentation"
       ],
       desc_zh: "用于证据驱动型研究、实验和有界优化的便携式代理技能"
+    },
+    {
+      name: "virtualonno/lain",
+      url: "https://github.com/virtualonno/lain",
+      desc: "A matching decompilation of Serial Experiments Lain for PS1",
+      lang: "C",
+      stars: 177,
+      forks: 10,
+      issues: 0,
+      updated: "2026-11-25T14:01:01Z",
+      pushed: "2026-11-24T14:15:37Z",
+      created: "2026-11-23T13:26:46Z",
+      license: "NOASSERTION",
+      topics: [],
+      desc_zh: "《迷失东京》PS1版的匹配反编译"
     },
     {
       name: "kprice417/rust-recoil-script-esp-macro-2026",
@@ -5287,7 +5302,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 10,
       issues: 2,
       updated: "2026-11-25T11:18:19Z",
-      pushed: "2026-11-25T03:48:48Z",
+      pushed: "2026-11-25T13:38:07Z",
       created: "2026-11-24T09:53:24Z",
       license: "NOASSERTION",
       topics: [
@@ -5298,6 +5313,21 @@ window.__GHRANK_RANGES__["week"] = {
         "solana-copy-trading-bot"
       ],
       desc_zh: "Raydium狙击机器人和Solana跟单交易机器人[2026] — 亚毫秒级Yellowstone gRPC和Jito MEV执行器"
+    },
+    {
+      name: "nbald/volta-forever",
+      url: "https://github.com/nbald/volta-forever",
+      desc: "Your Tesla V100 is not dead: run unmodified CUDA 13 programs (PyTorch, vLLM, SGLang, llama.cpp) on Volta (sm_70). A compatibility layer in front of NVIDIA's driver library.",
+      lang: "Rust",
+      stars: 175,
+      forks: 14,
+      issues: 2,
+      updated: "2026-11-25T14:27:53Z",
+      pushed: "2026-11-25T08:42:57Z",
+      created: "2026-11-20T22:16:46Z",
+      license: "Apache-2.0",
+      topics: [],
+      desc_zh: "您的 Tesla V100 并没有寿终正寝：在 Volta (sm_70) 上运行未修改的 CUDA 13 程序（PyTorch、vLLM、SGLang、llama.cpp）。NVIDIA 驱动程序库前端的兼容层。"
     },
     {
       name: "marek8606/hollow-knight-silksong-map-crest-tracker",
@@ -5319,6 +5349,42 @@ window.__GHRANK_RANGES__["week"] = {
         "silksong-map"
       ],
       desc_zh: "《空洞骑士：丝之歌》法鲁姆互动地图叠加层、徽章构建规划器和100%存档分析器（2026）"
+    },
+    {
+      name: "zou172866/Antigravity-agy-dart",
+      url: "https://github.com/zou172866/Antigravity-agy-dart",
+      desc: "Google Antigravity plugin that improves cache hits, keeps cache warm automatically, protects context quota, shows live context usage, rescues crashed sessions, and saves tokens.",
+      lang: "JavaScript",
+      stars: 173,
+      forks: 6,
+      issues: 2,
+      updated: "2026-11-25T14:13:39Z",
+      pushed: "2026-11-25T13:12:13Z",
+      created: "2026-11-20T12:39:45Z",
+      license: "MIT",
+      topics: [
+        "ai-coding",
+        "antigravity",
+        "antigravity-plugin",
+        "context-management",
+        "context-window"
+      ],
+      desc_zh: "Google Antigravity 插件可提高缓存命中率、自动保持缓存热度、保护上下文配额、显示实时上下文使用情况、挽救崩溃的会话并保存令牌。"
+    },
+    {
+      name: "poisonhs/HGhub-Plugin",
+      url: "https://github.com/poisonhs/HGhub-Plugin",
+      desc: "HGhub 的插件集",
+      lang: "JavaScript",
+      stars: 173,
+      forks: 29,
+      issues: 0,
+      updated: "2026-11-25T13:43:09Z",
+      pushed: "2026-11-24T16:59:22Z",
+      created: "2026-11-19T03:56:41Z",
+      license: "",
+      topics: [],
+      desc_zh: "HGhub 的插件集"
     },
     {
       name: "JisungDiaz447/blox-fruits-script-keyless-2026",
@@ -5420,80 +5486,14 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Jupiter套利机器人和Solana DEX原子MEV机器人[2026] — V6报价路由器、闪电贷和Jito打包器"
     },
     {
-      name: "virtualonno/lain",
-      url: "https://github.com/virtualonno/lain",
-      desc: "A matching decompilation of Serial Experiments Lain for PS1",
-      lang: "C",
-      stars: 171,
-      forks: 9,
-      issues: 0,
-      updated: "2026-11-25T13:14:49Z",
-      pushed: "2026-11-24T14:15:37Z",
-      created: "2026-11-23T13:26:46Z",
-      license: "NOASSERTION",
-      topics: [],
-      desc_zh: "《迷失东京》PS1版的匹配反编译"
-    },
-    {
-      name: "nbald/volta-forever",
-      url: "https://github.com/nbald/volta-forever",
-      desc: "Your Tesla V100 is not dead: run unmodified CUDA 13 programs (PyTorch, vLLM, SGLang, llama.cpp) on Volta (sm_70). A compatibility layer in front of NVIDIA's driver library.",
-      lang: "Rust",
-      stars: 171,
-      forks: 14,
-      issues: 2,
-      updated: "2026-11-25T13:08:49Z",
-      pushed: "2026-11-25T08:42:57Z",
-      created: "2026-11-20T22:16:46Z",
-      license: "Apache-2.0",
-      topics: [],
-      desc_zh: "您的 Tesla V100 并没有寿终正寝：在 Volta (sm_70) 上运行未修改的 CUDA 13 程序（PyTorch、vLLM、SGLang、llama.cpp）。NVIDIA 驱动程序库前端的兼容层。"
-    },
-    {
-      name: "poisonhs/HGhub-Plugin",
-      url: "https://github.com/poisonhs/HGhub-Plugin",
-      desc: "HGhub 的插件集",
-      lang: "JavaScript",
-      stars: 170,
-      forks: 28,
-      issues: 0,
-      updated: "2026-11-25T13:13:04Z",
-      pushed: "2026-11-24T16:59:22Z",
-      created: "2026-11-19T03:56:41Z",
-      license: "",
-      topics: [],
-      desc_zh: "HGhub 的插件集"
-    },
-    {
-      name: "alexturkey/VideoTurko",
-      url: "https://github.com/alexturkey/VideoTurko",
-      desc: "MiniMax H3 on a 4 GB GTX 1050 Ti: stable-diffusion.cpp memory patches, up to 209 frames (8.7 s) in one pass",
-      lang: "Python",
-      stars: 170,
-      forks: 38,
-      issues: 6,
-      updated: "2026-11-25T12:46:53Z",
-      pushed: "2026-11-24T20:10:03Z",
-      created: "2026-11-19T22:28:23Z",
-      license: "MIT",
-      topics: [
-        "gtx-1050-ti",
-        "image-to-video",
-        "local-ai",
-        "low-vram",
-        "minimax-h3"
-      ],
-      desc_zh: "MiniMax H3 在 4 GB GTX 1050 Ti 上：stable-diffusion.cpp 内存补丁，一次性处理多达 209 帧（8.7 秒）"
-    },
-    {
       name: "replit/amuse",
       url: "https://github.com/replit/amuse",
       desc: "Self-hosted personal AI agent: research, a live browser, reminders and small apps, with approvals before actions. Runs on your own computer with an OpenAI key.",
       lang: "TypeScript",
-      stars: 170,
+      stars: 171,
       forks: 34,
       issues: 1,
-      updated: "2026-11-25T12:12:39Z",
+      updated: "2026-11-25T14:10:14Z",
       pushed: "2026-11-24T15:39:03Z",
       created: "2026-11-19T04:34:09Z",
       license: "Apache-2.0",
@@ -5505,6 +5505,27 @@ window.__GHRANK_RANGES__["week"] = {
         "postgresql"
       ],
       desc_zh: "自托管个人 AI 代理：研究、实时浏览器、提醒和小应用程序，在执行操作前需要批准。使用 OpenAI 密钥在您自己的计算机上运行。"
+    },
+    {
+      name: "alexturkey/VideoTurko",
+      url: "https://github.com/alexturkey/VideoTurko",
+      desc: "MiniMax H3 on a 4 GB GTX 1050 Ti: stable-diffusion.cpp memory patches, up to 209 frames (8.7 s) in one pass",
+      lang: "Python",
+      stars: 170,
+      forks: 38,
+      issues: 6,
+      updated: "2026-11-25T12:46:53Z",
+      pushed: "2026-11-25T14:27:47Z",
+      created: "2026-11-19T22:28:23Z",
+      license: "MIT",
+      topics: [
+        "gtx-1050-ti",
+        "image-to-video",
+        "local-ai",
+        "low-vram",
+        "minimax-h3"
+      ],
+      desc_zh: "MiniMax H3 在 4 GB GTX 1050 Ti 上：stable-diffusion.cpp 内存补丁，一次性处理多达 209 帧（8.7 秒）"
     },
     {
       name: "dorothyyou08781/bip39-mnemonic-seed-balance-scanner-keyless",
@@ -5528,27 +5549,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "助记词检查器和钱包助记词检查器 [2026] — BIP39 多链 ETH/SOL/BTC/USDT 余额扫描器"
     },
     {
-      name: "zou172866/Antigravity-agy-dart",
-      url: "https://github.com/zou172866/Antigravity-agy-dart",
-      desc: "Google Antigravity plugin that improves cache hits, keeps cache warm automatically, protects context quota, shows live context usage, rescues crashed sessions, and saves tokens.",
-      lang: "JavaScript",
-      stars: 169,
-      forks: 6,
-      issues: 2,
-      updated: "2026-11-25T13:20:44Z",
-      pushed: "2026-11-25T13:12:13Z",
-      created: "2026-11-20T12:39:45Z",
-      license: "MIT",
-      topics: [
-        "ai-coding",
-        "antigravity",
-        "antigravity-plugin",
-        "context-management",
-        "context-window"
-      ],
-      desc_zh: "Google Antigravity 插件可提高缓存命中率、自动保持缓存热度、保护上下文配额、显示实时上下文使用情况、挽救崩溃的会话并保存令牌。"
-    },
-    {
       name: "RijuliXiye39/grow-a-garden-script-roblox-macro",
       url: "https://github.com/RijuliXiye39/grow-a-garden-script-roblox-macro",
       desc: "Grow a Garden Script Roblox [2026] — Keyless Auto Plant, Instant Harvest, Seed Shop Sniper & Weather Macro",
@@ -5570,13 +5570,28 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Grow a Garden 脚本 Roblox [2026] — 无钥匙自动种植、即时收获、种子商店狙击手和天气宏"
     },
     {
+      name: "mattpocock/cookout",
+      url: "https://github.com/mattpocock/cookout",
+      desc: "",
+      lang: "TypeScript",
+      stars: 168,
+      forks: 14,
+      issues: 82,
+      updated: "2026-11-25T14:25:21Z",
+      pushed: "2026-11-25T14:21:11Z",
+      created: "2026-11-22T12:20:23Z",
+      license: "",
+      topics: [],
+      desc_zh: ""
+    },
+    {
       name: "alesha-pro/maya-inkling-mini",
       url: "https://github.com/alesha-pro/maya-inkling-mini",
       desc: "Inkling 2 Mini on one RTX 3090: 128 tok/s, 344K context, images and tools. A Project Maya engine (maya-ik2) with every expert in VRAM.",
       lang: "Cuda",
       stars: 167,
       forks: 29,
-      issues: 19,
+      issues: 20,
       updated: "2026-11-25T12:33:16Z",
       pushed: "2026-11-23T21:55:20Z",
       created: "2026-11-21T11:02:11Z",
@@ -5593,7 +5608,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 29,
       issues: 1,
       updated: "2026-11-25T08:24:22Z",
-      pushed: "2026-11-25T12:57:57Z",
+      pushed: "2026-11-25T14:10:59Z",
       created: "2026-11-25T00:45:31Z",
       license: "NOASSERTION",
       topics: [
@@ -5690,6 +5705,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "《漫威争锋》作弊透视自瞄 PC 版 [2026] — 独立版 Windows 10/11 (x64) 发布、安装和配置"
     },
     {
+      name: "shnfatih-hash/devlet-arsivleri-soykutugu",
+      url: "https://github.com/shnfatih-hash/devlet-arsivleri-soykutugu",
+      desc: "e-Devlet Alt-Üst Soy Bilgisi + T.C. Cumhurbaşkanlığı Devlet Arşivleri (Osmanlı & Cumhuriyet) üzerinden 1500'lere kadar 1:1 kanıtlı soy kütüğü ve köy tarihi araştırma becerisi (Google Antigravity / Claude / MCP Skill)",
+      lang: "Python",
+      stars: 159,
+      forks: 12,
+      issues: 0,
+      updated: "2026-11-25T13:40:48Z",
+      pushed: "2026-11-24T12:07:32Z",
+      created: "2026-11-22T10:51:47Z",
+      license: "MIT",
+      topics: [
+        "agent-skills",
+        "antigravity",
+        "chrome-devtools-mcp",
+        "devlet-arsivleri",
+        "edevlet"
+      ],
+      desc_zh: "通过e-Devlet Alt-Üst Soy Bilgisi + T.C. Cumhurbaşkanlığı Devlet Arşivleri（奥斯曼帝国与共和国）提供追溯至1500年代的1:1证据族谱及村庄历史研究能力（Google Antigravity / Claude / MCP Skill）"
+    },
+    {
       name: "799953468/cloudreve-mac",
       url: "https://github.com/799953468/cloudreve-mac",
       desc: "",
@@ -5710,33 +5746,12 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: ""
     },
     {
-      name: "shnfatih-hash/devlet-arsivleri-soykutugu",
-      url: "https://github.com/shnfatih-hash/devlet-arsivleri-soykutugu",
-      desc: "e-Devlet Alt-Üst Soy Bilgisi + T.C. Cumhurbaşkanlığı Devlet Arşivleri (Osmanlı & Cumhuriyet) üzerinden 1500'lere kadar 1:1 kanıtlı soy kütüğü ve köy tarihi araştırma becerisi (Google Antigravity / Claude / MCP Skill)",
-      lang: "Python",
-      stars: 158,
-      forks: 12,
-      issues: 0,
-      updated: "2026-11-25T13:15:17Z",
-      pushed: "2026-11-24T12:07:32Z",
-      created: "2026-11-22T10:51:47Z",
-      license: "MIT",
-      topics: [
-        "agent-skills",
-        "antigravity",
-        "chrome-devtools-mcp",
-        "devlet-arsivleri",
-        "edevlet"
-      ],
-      desc_zh: "通过e-Devlet Alt-Üst Soy Bilgisi + T.C. Cumhurbaşkanlığı Devlet Arşivleri（奥斯曼帝国与共和国）提供追溯至1500年代的1:1证据族谱及村庄历史研究能力（Google Antigravity / Claude / MCP Skill）"
-    },
-    {
       name: "avivetech/Leonida",
       url: "https://github.com/avivetech/Leonida",
       desc: "Leonida (GPL-3.0), continued here after ItsNotRexed/Leonida went offline on 2026-11-24. main = last upstream main; forge/* = the original maintainers' integration forge (git.notrexed.dev/enx/leonida).",
       lang: "Python",
       stars: 158,
-      forks: 33,
+      forks: 32,
       issues: 3,
       updated: "2026-11-25T12:27:51Z",
       pushed: "2026-11-24T00:52:11Z",
@@ -5767,6 +5782,21 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "自动将冗长的《GTA 6》直播内容转变为爆款 9:16 短视频。免费、本地化，可在 Claude 和 ChatGPT 中使用。"
     },
     {
+      name: "mccorvie/riemann-masullo",
+      url: "https://github.com/mccorvie/riemann-masullo",
+      desc: "Lean 4 formalization of A. M. Masullo, The Music of the Primes",
+      lang: "Lean",
+      stars: 157,
+      forks: 144,
+      issues: 366,
+      updated: "2026-11-25T14:17:34Z",
+      pushed: "2026-11-25T10:53:05Z",
+      created: "2026-11-20T18:43:51Z",
+      license: "Apache-2.0",
+      topics: [],
+      desc_zh: "A. M. Masullo《质数的音乐》的Lean 4形式化"
+    },
+    {
       name: "bjekuipers2004/Crypto-Miner-Silent",
       url: "https://github.com/bjekuipers2004/Crypto-Miner-Silent",
       desc: "Configurable CPU/GPU mining engine with multi-algorithm support and smart resource controls. Build cross-platform miners with live performance monitoring, persistent sessions, thermal throttling, scheduling, and hashrate tuning for transparent, authorized operation.",
@@ -5775,7 +5805,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 32,
       issues: 0,
       updated: "2026-11-21T14:02:19Z",
-      pushed: "2026-11-25T12:52:27Z",
+      pushed: "2026-11-25T14:27:17Z",
       created: "2026-11-20T04:41:19Z",
       license: "MIT",
       topics: [
@@ -5786,21 +5816,6 @@ window.__GHRANK_RANGES__["week"] = {
         "miner"
       ],
       desc_zh: "可配置的 CPU/GPU 挖矿引擎，支持多算法和智能资源控制。构建跨平台矿工，具备实时性能监控、持久会话、温度调节、调度和算力调整功能，以实现透明、合规的运营。"
-    },
-    {
-      name: "mccorvie/riemann-masullo",
-      url: "https://github.com/mccorvie/riemann-masullo",
-      desc: "Lean 4 formalization of A. M. Masullo, The Music of the Primes",
-      lang: "Lean",
-      stars: 156,
-      forks: 143,
-      issues: 356,
-      updated: "2026-11-25T12:16:26Z",
-      pushed: "2026-11-25T10:53:05Z",
-      created: "2026-11-20T18:43:51Z",
-      license: "Apache-2.0",
-      topics: [],
-      desc_zh: "A. M. Masullo《质数的音乐》的Lean 4形式化"
     },
     {
       name: "Elenar74/fl-studio-2026-producer-unlocked-x64",
@@ -5822,6 +5837,21 @@ window.__GHRANK_RANGES__["week"] = {
         "vst3-plugins"
       ],
       desc_zh: "FL Studio 2026 Producer 破解版 X64 [2026] — 独立版 Windows 10/11 (x64) 版本、安装与配置"
+    },
+    {
+      name: "uiliannn/VItoriaBr",
+      url: "https://github.com/uiliannn/VItoriaBr",
+      desc: "VItoriaBr - Native Windows Xbox Series X|S runtime & D3D12/DXIL shader translator (PT-BR / EN)",
+      lang: "Rust",
+      stars: 154,
+      forks: 24,
+      issues: 9,
+      updated: "2026-11-25T14:26:02Z",
+      pushed: "2026-11-25T14:23:22Z",
+      created: "2026-11-24T10:05:17Z",
+      license: "GPL-3.0",
+      topics: [],
+      desc_zh: "VItoriaBr - 原生 Windows Xbox Series X|S 运行时和 D3D12/DXIL 着色器转换器（葡萄牙语（巴西）/英语）"
     },
     {
       name: "Dksie09/unfold",
@@ -5864,10 +5894,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/ghosundict/dict",
       desc: "",
       lang: "HTML",
-      stars: 150,
+      stars: 152,
       forks: 19,
       issues: 0,
-      updated: "2026-11-25T12:56:08Z",
+      updated: "2026-11-25T14:05:50Z",
       pushed: "2026-11-25T12:57:36Z",
       created: "2026-11-23T22:45:27Z",
       license: "MIT",
@@ -5883,7 +5913,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 13,
       issues: 1,
       updated: "2026-11-25T11:18:20Z",
-      pushed: "2026-11-25T03:12:20Z",
+      pushed: "2026-11-25T13:38:15Z",
       created: "2026-11-24T19:03:01Z",
       license: "NOASSERTION",
       topics: [
@@ -5896,29 +5926,29 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Wave Keyless Executor [2026] — 独立版 Windows 10/11 (x64) 版本、安装和配置"
     },
     {
-      name: "uiliannn/VItoriaBr",
-      url: "https://github.com/uiliannn/VItoriaBr",
-      desc: "VItoriaBr - Native Windows Xbox Series X|S runtime & D3D12/DXIL shader translator (PT-BR / EN)",
-      lang: "Rust",
-      stars: 148,
-      forks: 21,
-      issues: 7,
-      updated: "2026-11-25T13:18:22Z",
-      pushed: "2026-11-25T12:50:12Z",
-      created: "2026-11-24T10:05:17Z",
-      license: "GPL-3.0",
+      name: "chuspeeism/xiaozao-os",
+      url: "https://github.com/chuspeeism/xiaozao-os",
+      desc: "大师的AI小灶官网：模拟桌面操作系统的个人主页",
+      lang: "JavaScript",
+      stars: 149,
+      forks: 35,
+      issues: 0,
+      updated: "2026-11-25T14:24:43Z",
+      pushed: "2026-11-19T06:10:40Z",
+      created: "2026-11-19T05:57:40Z",
+      license: "MIT",
       topics: [],
-      desc_zh: "VItoriaBr - 原生 Windows Xbox Series X|S 运行时和 D3D12/DXIL 着色器转换器（葡萄牙语（巴西）/英语）"
+      desc_zh: "大师的AI小灶官网：模拟桌面操作系统的个人主页"
     },
     {
       name: "jasonxu114514/aws-quickwork-2api",
       url: "https://github.com/jasonxu114514/aws-quickwork-2api",
       desc: " QuickWork / Amazon Quick → OpenAI API  把 Amazon Quick（QuickWork）桌面端的聊天能力转换成 **OpenAI 兼容的 HTTP API**。  项目是单一 Go 可执行文件：原生 OAuth 登录、账号存储、token 刷新和反代全部由 Go 完成，不需要 Python，也不用启动官方桌面应用或 outpost 进程。登录后由反代把 `/v1/chat/completions` 请求转换为 QuickWork WebSocket 帧，并把结果转回普通 JSON 或 SSE。",
       lang: "Go",
-      stars: 146,
+      stars: 147,
       forks: 52,
       issues: 7,
-      updated: "2026-11-25T09:17:21Z",
+      updated: "2026-11-25T13:57:50Z",
       pushed: "2026-11-25T05:54:49Z",
       created: "2026-11-21T17:25:14Z",
       license: "GPL-3.0",
@@ -6214,14 +6244,35 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Robrun 的游戏内训练师菜单，显示实时玩家和世界信息。"
     },
     {
+      name: "ferloom/Wireless-Device-Battery-Monitor",
+      url: "https://github.com/ferloom/Wireless-Device-Battery-Monitor",
+      desc: "BatteryHub - Rewriten in Rust",
+      lang: "Rust",
+      stars: 144,
+      forks: 19,
+      issues: 42,
+      updated: "2026-11-25T14:20:22Z",
+      pushed: "2026-11-24T23:33:25Z",
+      created: "2026-11-22T16:20:58Z",
+      license: "GPL-3.0",
+      topics: [
+        "battery",
+        "dualsense",
+        "logitech",
+        "razer",
+        "rust"
+      ],
+      desc_zh: "BatteryHub - 以 Rust 语言重写"
+    },
+    {
       name: "brainintelli/BioSignal-Guided-LLM-Reinforcement-Learning",
       url: "https://github.com/brainintelli/BioSignal-Guided-LLM-Reinforcement-Learning",
       desc: "Biosignal-guided reinforcement learning for LLM agents: offline organoid neural recordings as policy inputs in a Godot survival game, with paired evaluation.",
       lang: "Python",
-      stars: 142,
+      stars: 144,
       forks: 27,
       issues: 0,
-      updated: "2026-11-25T04:49:17Z",
+      updated: "2026-11-25T14:02:18Z",
       pushed: "2026-11-24T11:13:51Z",
       created: "2026-11-24T02:39:01Z",
       license: "MIT",
@@ -6239,10 +6290,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/jianghao-jianghao-jianghao/newHoldem",
       desc: "Velvet Hold'em — Self-hosted 3D multiplayer Texas Hold'em club with CPU-only GTO/CFR solver, Bayesian opponent profiling & AI hand review | 开源 3D 德州扑克私人牌室（免 GPU · GTO 推演 · 贝叶斯对手画像 · 实时复盘）",
       lang: "TypeScript",
-      stars: 140,
+      stars: 142,
       forks: 6,
       issues: 0,
-      updated: "2026-11-25T12:40:47Z",
+      updated: "2026-11-25T14:25:19Z",
       pushed: "2026-11-25T01:27:28Z",
       created: "2026-11-20T14:13:10Z",
       license: "NOASSERTION",
@@ -6256,14 +6307,35 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Velvet Hold'em — 自托管3D多人德州扑克俱乐部，配备纯CPU GTO/CFR求解器、贝叶斯对手画像和AI牌局复盘 | 开源3D德州扑克私人牌室（免GPU · GTO推演 · 贝叶斯对手画像 · 实时复盘）"
     },
     {
+      name: "matheusmongarde/garimpo",
+      url: "https://github.com/matheusmongarde/garimpo",
+      desc: "Prospecção open source do Google Maps ao Pix: acha negócios no Maps, gera um site-prévia com o nome de cada um, conversa no WhatsApp e cobra por Pix, Mercado Pago ou Stripe. Pagou, fecha sozinho. Roda no seu PC, VPS ou Vercel, com API para agentes (Claude Code, Codex, n8n).",
+      lang: "TypeScript",
+      stars: 141,
+      forks: 43,
+      issues: 2,
+      updated: "2026-11-25T14:27:08Z",
+      pushed: "2026-11-25T00:22:01Z",
+      created: "2026-11-24T23:58:18Z",
+      license: "MIT",
+      topics: [
+        "ai-agents",
+        "brasil",
+        "claude-code",
+        "google-maps",
+        "google-maps-scraper"
+      ],
+      desc_zh: "从 Google 地图到 Pix 的开源客户开发工具：在地图上查找商家，为每个商家生成一个带有其名称的预览网站，通过 WhatsApp 进行沟通，并通过 Pix、Mercado Pago 或 Stripe 收款。付款后即可自行完成。可在您的个人电脑、VPS 或 Vercel 上运行，并提供适用于代理的 API（Claude Code、Codex、n8n）。"
+    },
+    {
       name: "Allencake/mit-trader-skill",
       url: "https://github.com/Allencake/mit-trader-skill",
       desc: "把 MIT 18.S096 公开课里的量化方法做成 Claude skill：回测三关 + GARCH 止损 + Kelly 仓位 + VaR，默认模拟账本",
       lang: "Python",
-      stars: 139,
+      stars: 140,
       forks: 45,
       issues: 0,
-      updated: "2026-11-25T13:16:27Z",
+      updated: "2026-11-25T14:03:45Z",
       pushed: "2026-11-24T03:15:37Z",
       created: "2026-11-24T03:13:53Z",
       license: "MIT",
@@ -6271,25 +6343,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "将 MIT 18.S096 公开课中的量化方法做成 Claude skill：回测三关 + GARCH 止损 + Kelly 仓位 + VaR，默认模拟账本"
     },
     {
-      name: "ferloom/Wireless-Device-Battery-Monitor",
-      url: "https://github.com/ferloom/Wireless-Device-Battery-Monitor",
-      desc: "BatteryHub - Rewriten in Rust",
-      lang: "Rust",
+      name: "chiefhamim/noorjahan-qbittorrent",
+      url: "https://github.com/chiefhamim/noorjahan-qbittorrent",
+      desc: "A calmer, evenly spaced Light & Dark theme for qBittorrent on Windows, with a matching Web UI.",
+      lang: "Python",
       stars: 139,
-      forks: 19,
-      issues: 97,
-      updated: "2026-11-25T13:18:35Z",
-      pushed: "2026-11-24T23:33:25Z",
-      created: "2026-11-22T16:20:58Z",
-      license: "GPL-3.0",
+      forks: 3,
+      issues: 0,
+      updated: "2026-11-25T14:12:12Z",
+      pushed: "2026-11-23T19:37:33Z",
+      created: "2026-11-20T16:58:48Z",
+      license: "GPL-2.0",
       topics: [
-        "battery",
-        "dualsense",
-        "logitech",
-        "razer",
-        "rust"
+        "dark-theme",
+        "light-theme",
+        "qbittorrent",
+        "qbittorrent-theme",
+        "qbittorrent-webui"
       ],
-      desc_zh: "BatteryHub - 以 Rust 语言重写"
+      desc_zh: "适用于 Windows 版 qBittorrent 的更平和、间距均匀的浅色和深色主题，并附有与之相匹配的 Web UI。"
     },
     {
       name: "aishadiaodeqishui/agy-monitor",
@@ -6307,25 +6379,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "AGY 控制台：Antigravity 零侵入侧边控制台插件（上下文遥测/多 Agent 掌握协作网/主题与整机壁纸美化）"
     },
     {
-      name: "chiefhamim/noorjahan-qbittorrent",
-      url: "https://github.com/chiefhamim/noorjahan-qbittorrent",
-      desc: "A calmer, evenly spaced Light & Dark theme for qBittorrent on Windows, with a matching Web UI.",
-      lang: "Python",
+      name: "ranveersoni98/Xenora",
+      url: "https://github.com/ranveersoni98/Xenora",
+      desc: "An experimental Xbox Series X|S recompilation framework for Apple Silicon, targeting native ARM64 execution and RDNA-to-Metal graphics translation through XenoMetal.",
+      lang: "Rust",
       stars: 138,
-      forks: 3,
-      issues: 0,
-      updated: "2026-11-25T11:03:29Z",
-      pushed: "2026-11-23T19:37:33Z",
-      created: "2026-11-20T16:58:48Z",
-      license: "GPL-2.0",
+      forks: 25,
+      issues: 99,
+      updated: "2026-11-25T14:26:23Z",
+      pushed: "2026-11-25T13:54:18Z",
+      created: "2026-11-22T03:52:19Z",
+      license: "GPL-3.0",
       topics: [
-        "dark-theme",
-        "light-theme",
-        "qbittorrent",
-        "qbittorrent-theme",
-        "qbittorrent-webui"
+        "aarch64",
+        "apple-silicon",
+        "arm64",
+        "emulation",
+        "gpu"
       ],
-      desc_zh: "适用于 Windows 版 qBittorrent 的更平和、间距均匀的浅色和深色主题，并附有与之相匹配的 Web UI。"
+      desc_zh: "一个面向 Apple Silicon 的实验性 Xbox Series X|S 重新编译框架，旨在通过 XenoMetal 实现原生 ARM64 执行和 RDNA 到 Metal 的图形转换。"
     },
     {
       name: "MaryCache/tsuzuri",
@@ -6347,6 +6419,57 @@ window.__GHRANK_RANGES__["week"] = {
         "writing"
       ],
       desc_zh: "Claude Code・Codex・Antigravity などの AI コーディングエージェントに、执笔意图と文機能つきで一文ずつ日本語の文章を执笔・レビューさせるスキルと閲覧アプリ"
+    },
+    {
+      name: "ReachProject-Git/Reach-Project-Emulator-For-GTA-6",
+      url: "https://github.com/ReachProject-Git/Reach-Project-Emulator-For-GTA-6",
+      desc: "For GTA 6 files are not yet released but you can check for updates here : https://x.com/RainReachDetail",
+      lang: "",
+      stars: 138,
+      forks: 4,
+      issues: 4,
+      updated: "2026-11-25T14:28:35Z",
+      pushed: "2026-11-25T10:18:04Z",
+      created: "2026-11-25T09:59:32Z",
+      license: "",
+      topics: [],
+      desc_zh: "《GTA 6》的文件尚未发布，但您可以在此处查看更新：https://x.com/RainReachDetail"
+    },
+    {
+      name: "lhoyer/spectral-explorer",
+      url: "https://github.com/lhoyer/spectral-explorer",
+      desc: "Open USB optical spectrometer (400–650 nm, up to 1 nm resolution). 3D-printable hardware + desktop software for science education and experiments.",
+      lang: "C++",
+      stars: 136,
+      forks: 26,
+      issues: 2,
+      updated: "2026-11-25T14:08:17Z",
+      pushed: "2026-11-20T22:40:34Z",
+      created: "2026-11-20T18:24:34Z",
+      license: "NOASSERTION",
+      topics: [
+        "3d-printing",
+        "freecad",
+        "science-education",
+        "spectrometer",
+        "spectrometry"
+      ],
+      desc_zh: "开放式 USB 光谱仪（400–650 nm，最高分辨率 1 nm）。用于科学教育和实验的3D打印硬件 + 台式机软件。"
+    },
+    {
+      name: "memoryoffish/film-director-skill-plugin",
+      url: "https://github.com/memoryoffish/film-director-skill-plugin",
+      desc: "Agent as Director: cuts, Blender proxies and sound, from script to film. One skill and one plugin for coding agents.",
+      lang: "Python",
+      stars: 136,
+      forks: 21,
+      issues: 0,
+      updated: "2026-11-25T14:15:23Z",
+      pushed: "2026-11-24T08:12:10Z",
+      created: "2026-11-22T12:01:39Z",
+      license: "Apache-2.0",
+      topics: [],
+      desc_zh: "代理作为导演：剪辑、Blender 代理和声音，从剧本到影片。一种技能和一个插件，用于编码代理。"
     },
     {
       name: "AI4XE/ai4ai",
@@ -6391,84 +6514,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "🔥 探索 Robrun 项目复制实用程序——一款专为项目复制设计的强大工具。了解其功能，学习其工作原理，及时掌握最新动态，并在我们的官方页面上查看所有详情！⚡🎯🚀"
     },
     {
-      name: "matheusmongarde/garimpo",
-      url: "https://github.com/matheusmongarde/garimpo",
-      desc: "Prospecção open source do Google Maps ao Pix: acha negócios no Maps, gera um site-prévia com o nome de cada um, conversa no WhatsApp e cobra por Pix, Mercado Pago ou Stripe. Pagou, fecha sozinho. Roda no seu PC, VPS ou Vercel, com API para agentes (Claude Code, Codex, n8n).",
-      lang: "TypeScript",
-      stars: 135,
-      forks: 41,
-      issues: 0,
-      updated: "2026-11-25T13:11:29Z",
-      pushed: "2026-11-25T00:22:01Z",
-      created: "2026-11-24T23:58:18Z",
-      license: "MIT",
-      topics: [
-        "ai-agents",
-        "brasil",
-        "claude-code",
-        "google-maps",
-        "google-maps-scraper"
-      ],
-      desc_zh: "从 Google 地图到 Pix 的开源客户开发工具：在地图上查找商家，为每个商家生成一个带有其名称的预览网站，通过 WhatsApp 进行沟通，并通过 Pix、Mercado Pago 或 Stripe 收款。付款后即可自行完成。可在您的个人电脑、VPS 或 Vercel 上运行，并提供适用于代理的 API（Claude Code、Codex、n8n）。"
-    },
-    {
-      name: "memoryoffish/film-director-skill-plugin",
-      url: "https://github.com/memoryoffish/film-director-skill-plugin",
-      desc: "Agent as Director: cuts, Blender proxies and sound, from script to film. One skill and one plugin for coding agents.",
-      lang: "Python",
-      stars: 135,
-      forks: 21,
-      issues: 0,
-      updated: "2026-11-25T10:48:23Z",
-      pushed: "2026-11-24T08:12:10Z",
-      created: "2026-11-22T12:01:39Z",
-      license: "Apache-2.0",
-      topics: [],
-      desc_zh: "代理作为导演：剪辑、Blender 代理和声音，从剧本到影片。一种技能和一个插件，用于编码代理。"
-    },
-    {
-      name: "lhoyer/spectral-explorer",
-      url: "https://github.com/lhoyer/spectral-explorer",
-      desc: "Open USB optical spectrometer (400–650 nm, up to 1 nm resolution). 3D-printable hardware + desktop software for science education and experiments.",
-      lang: "C++",
-      stars: 134,
-      forks: 26,
-      issues: 2,
-      updated: "2026-11-25T10:26:34Z",
-      pushed: "2026-11-20T22:40:34Z",
-      created: "2026-11-20T18:24:34Z",
-      license: "NOASSERTION",
-      topics: [
-        "3d-printing",
-        "freecad",
-        "science-education",
-        "spectrometer",
-        "spectrometry"
-      ],
-      desc_zh: "开放式 USB 光谱仪（400–650 nm，最高分辨率 1 nm）。用于科学教育和实验的3D打印硬件 + 台式机软件。"
-    },
-    {
-      name: "ranveersoni98/Xenora",
-      url: "https://github.com/ranveersoni98/Xenora",
-      desc: "An experimental Xbox Series X|S recompilation framework for Apple Silicon, targeting native ARM64 execution and RDNA-to-Metal graphics translation through XenoMetal.",
-      lang: "Rust",
-      stars: 134,
-      forks: 25,
-      issues: 103,
-      updated: "2026-11-25T13:09:37Z",
-      pushed: "2026-11-25T13:14:04Z",
-      created: "2026-11-22T03:52:19Z",
-      license: "GPL-3.0",
-      topics: [
-        "aarch64",
-        "apple-silicon",
-        "arm64",
-        "emulation",
-        "gpu"
-      ],
-      desc_zh: "一个面向 Apple Silicon 的实验性 Xbox Series X|S 重新编译框架，旨在通过 XenoMetal 实现原生 ARM64 执行和 RDNA 到 Metal 的图形转换。"
-    },
-    {
       name: "Noniv/atlantis",
       url: "https://github.com/Noniv/atlantis",
       desc: "A procedural Atlantis you can fly through in the browser: a marble garden city with crystal towers, canals and mountains at golden hour. One 95 KB HTML file with no images, models or libraries, rendered with WebGPU. Built with Claude Code.",
@@ -6492,7 +6537,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 3,
       issues: 8,
       updated: "2026-11-25T11:22:29Z",
-      pushed: "2026-11-25T11:18:43Z",
+      pushed: "2026-11-25T14:16:53Z",
       created: "2026-11-24T20:30:30Z",
       license: "GPL-3.0",
       topics: [
@@ -6503,6 +6548,27 @@ window.__GHRANK_RANGES__["week"] = {
         "gta-vi"
       ],
       desc_zh: "VIPort：基于VIctory代码库的独立社区项目。在Windows上运行GTA VI（Xbox）。尚不可玩，可运行至第一个过场动画。没有游戏数据。需要帮助。"
+    },
+    {
+      name: "w1ccc/sap-data-mcp",
+      url: "https://github.com/w1ccc/sap-data-mcp",
+      desc: "Read-only MCP servers that let AI assistants query SAP S/4HANA through RFC/BAPI, private-cloud OData and public-cloud released APIs. Every call audited; credentials stay local.",
+      lang: "Python",
+      stars: 132,
+      forks: 0,
+      issues: 1,
+      updated: "2026-11-25T14:28:25Z",
+      pushed: "2026-11-24T13:00:49Z",
+      created: "2026-11-20T15:15:23Z",
+      license: "MIT",
+      topics: [
+        "ai-agents",
+        "bapi",
+        "erp",
+        "llm",
+        "mcp"
+      ],
+      desc_zh: "只读MCP服务器，让AI助手通过RFC/BAPI、私有云OData和公有云发布的API查询SAP S/4HANA。每次调用都会经过审计；凭据保留在本地。"
     },
     {
       name: "dianenelson33/kalshi-polymarket-cross-exchange-arb-bot",
@@ -6526,6 +6592,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Kalshi Polymarket跨交易所套利机器人[2026] — 独立Windows 10/11 (x64)版本、安装和配置"
     },
     {
+      name: "SilverFeit/StikSound",
+      url: "https://github.com/SilverFeit/StikSound",
+      desc: "StikSound — Ponle sonido de hasta 5 segundos a tus stickers PNG y GIFs animados para WhatsApp (Windows, macOS & Chrome Extension, 100% local sin instalar nada extra)",
+      lang: "TypeScript",
+      stars: 132,
+      forks: 19,
+      issues: 1,
+      updated: "2026-11-25T14:26:38Z",
+      pushed: "2026-11-25T14:27:07Z",
+      created: "2026-11-24T21:55:25Z",
+      license: "Apache-2.0",
+      topics: [
+        "audio-sticker",
+        "chrome-extension",
+        "desktop-app",
+        "gif-to-video",
+        "macos"
+      ],
+      desc_zh: "StikSound — 为您的 WhatsApp PNG 和动画 GIF 贴纸添加长达 5 秒的音效（Windows、macOS 和 Chrome 扩展程序，100% 本地，无需安装任何额外内容）"
+    },
+    {
       name: "paulamatsumoto3093/wardogs-fps-tactical-overlay",
       url: "https://github.com/paulamatsumoto3093/wardogs-fps-tactical-overlay",
       desc: "Wardogs FPS Tactical Overlay [2026] — Standalone Windows 10/11 (x64) Release, Setup & Config",
@@ -6545,21 +6632,6 @@ window.__GHRANK_RANGES__["week"] = {
         "wardogs-2026"
       ],
       desc_zh: "《战犬》FPS战术叠加 [2026] — 独立版Windows 10/11 (x64)发布、安装和配置"
-    },
-    {
-      name: "chuspeeism/xiaozao-os",
-      url: "https://github.com/chuspeeism/xiaozao-os",
-      desc: "大师的AI小灶官网：模拟桌面操作系统的个人主页",
-      lang: "JavaScript",
-      stars: 131,
-      forks: 29,
-      issues: 0,
-      updated: "2026-11-25T13:21:07Z",
-      pushed: "2026-11-19T06:10:40Z",
-      created: "2026-11-19T05:57:40Z",
-      license: "MIT",
-      topics: [],
-      desc_zh: "大师的AI小灶官网：模拟桌面操作系统的个人主页"
     },
     {
       name: "pinargomez/pinokio-ai-browser-portable-installer",
@@ -6709,6 +6781,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Krypolybot Polymarket Mcp 大户交易机器人 [2026] — 独立版 Windows 10/11 (x64) 版本、安装和配置"
     },
     {
+      name: "mgreen5197/PClabs",
+      url: "https://github.com/mgreen5197/PClabs",
+      desc: "",
+      lang: "TypeScript",
+      stars: 130,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T14:28:27Z",
+      pushed: "2026-11-25T12:07:08Z",
+      created: "2026-11-25T12:06:44Z",
+      license: "BSD-3-Clause",
+      topics: [
+        "clipping",
+        "gta6-preload",
+        "tiktok"
+      ],
+      desc_zh: ""
+    },
+    {
       name: "kCosta0362/krita-ai-diffusion-comfyui-portable-pack",
       url: "https://github.com/kCosta0362/krita-ai-diffusion-comfyui-portable-pack",
       desc: "Krita AI Diffusion Comfyui Portable Pack [2026] — Standalone Windows 10/11 (x64) Release, Setup & Config",
@@ -6751,12 +6842,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "《深海迷航2》联机模式管理器 [2026] — 独立版 Windows 10/11 (x64) 发布、安装与配置"
     },
     {
+      name: "mallahyari/tiny-ava",
+      url: "https://github.com/mallahyari/tiny-ava",
+      desc: "tiny-ava: 4.5M-parameter Persian (Farsi) TTS models (PyTorch & ONNX, 24 kHz, 38-77x real-time on CPU)",
+      lang: "Kotlin",
+      stars: 130,
+      forks: 9,
+      issues: 3,
+      updated: "2026-11-25T14:25:30Z",
+      pushed: "2026-11-24T20:16:36Z",
+      created: "2026-11-23T05:22:20Z",
+      license: "Apache-2.0",
+      topics: [],
+      desc_zh: "tiny-ava：450 万参数的波斯语（波斯语）TTS 模型（PyTorch 和 ONNX，24 kHz，CPU 上 38-77 倍实时速度）"
+    },
+    {
       name: "lbc9168/antigravity-codex-worker",
       url: "https://github.com/lbc9168/antigravity-codex-worker",
       desc: "Antigravity Skill to orchestrate local OpenAI Codex CLI as a sandboxed coding worker while Gemini/Opus acts as Architect & Reviewer",
       lang: "PowerShell",
       stars: 130,
-      forks: 2,
+      forks: 3,
       issues: 0,
       updated: "2026-11-25T09:10:01Z",
       pushed: "2026-11-22T12:06:20Z",
@@ -6770,21 +6876,6 @@ window.__GHRANK_RANGES__["week"] = {
         "openai-codex"
       ],
       desc_zh: "反重力技能，将本地 OpenAI Codex CLI 安排为沙盒编码工作者，而 Gemini/Opus 则充当架构师和审阅者"
-    },
-    {
-      name: "mattpocock/cookout",
-      url: "https://github.com/mattpocock/cookout",
-      desc: "",
-      lang: "TypeScript",
-      stars: 130,
-      forks: 14,
-      issues: 81,
-      updated: "2026-11-25T13:16:19Z",
-      pushed: "2026-11-25T13:19:43Z",
-      created: "2026-11-22T12:20:23Z",
-      license: "",
-      topics: [],
-      desc_zh: ""
     },
     {
       name: "mywilliam211/blender-5-3-zbrush-2027-3dcg-modeling-suite-ja",
@@ -6850,27 +6941,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Ableton Live 12 4 Suite VST3 工作室配置 [2026] — 独立版 Windows 10/11 (x64) 版本与配置"
     },
     {
-      name: "w1ccc/sap-data-mcp",
-      url: "https://github.com/w1ccc/sap-data-mcp",
-      desc: "Read-only MCP servers that let AI assistants query SAP S/4HANA through RFC/BAPI, private-cloud OData and public-cloud released APIs. Every call audited; credentials stay local.",
-      lang: "Python",
-      stars: 129,
-      forks: 0,
-      issues: 1,
-      updated: "2026-11-25T13:10:02Z",
-      pushed: "2026-11-24T13:00:49Z",
-      created: "2026-11-20T15:15:23Z",
-      license: "MIT",
-      topics: [
-        "ai-agents",
-        "bapi",
-        "erp",
-        "llm",
-        "mcp"
-      ],
-      desc_zh: "只读MCP服务器，让AI助手通过RFC/BAPI、私有云OData和公有云发布的API查询SAP S/4HANA。每次调用都会经过审计；凭据保留在本地。"
-    },
-    {
       name: "bettysuzuki/okx-agent-trade-kit-mcp-grid-dca-bot",
       url: "https://github.com/bettysuzuki/okx-agent-trade-kit-mcp-grid-dca-bot",
       desc: "Okx Agent Trade Kit Mcp Grid Dca Bot [2026] — Standalone Windows 10/11 (x64) Release, Setup & Config",
@@ -6890,6 +6960,21 @@ window.__GHRANK_RANGES__["week"] = {
         "okx-agent-bundler"
       ],
       desc_zh: "OKX代理交易工具包MCP网格DCA机器人[2026] — 独立Windows 10/11（x64）版本、安装和配置"
+    },
+    {
+      name: "oguz463/OLEDTextFix",
+      url: "https://github.com/oguz463/OLEDTextFix",
+      desc: "",
+      lang: "C++",
+      stars: 129,
+      forks: 1,
+      issues: 0,
+      updated: "2026-11-25T13:47:10Z",
+      pushed: "2026-11-23T19:19:16Z",
+      created: "2026-11-21T13:30:20Z",
+      license: "MIT",
+      topics: [],
+      desc_zh: ""
     },
     {
       name: "terry-holmes71/devlabs",
@@ -6997,21 +7082,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Shadps4 0 21 Pcsx2 便携式游戏模拟器包中文版 [2026] — 独立版 Windows 10/11 (x64) 版本及配置"
     },
     {
-      name: "mallahyari/tiny-ava",
-      url: "https://github.com/mallahyari/tiny-ava",
-      desc: "tiny-ava: 4.5M-parameter Persian (Farsi) TTS models (PyTorch & ONNX, 24 kHz, 38-77x real-time on CPU)",
-      lang: "Kotlin",
-      stars: 128,
-      forks: 9,
-      issues: 3,
-      updated: "2026-11-25T12:58:28Z",
-      pushed: "2026-11-24T20:16:36Z",
-      created: "2026-11-23T05:22:20Z",
-      license: "Apache-2.0",
-      topics: [],
-      desc_zh: "tiny-ava：450 万参数的波斯语（波斯语）TTS 模型（PyTorch 和 ONNX，24 kHz，CPU 上 38-77 倍实时速度）"
-    },
-    {
       name: "robertmar-work47/davinci-resolve-studio-21-premiere-2026-video-suite-ko",
       url: "https://github.com/robertmar-work47/davinci-resolve-studio-21-premiere-2026-video-suite-ko",
       desc: "Davinci Resolve Studio 21 Premiere 2026 Video Suite Ko [2026] — Standalone Windows 10/11 (x64) Release & Config",
@@ -7020,7 +7090,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 7,
       issues: 1,
       updated: "2026-11-25T08:24:26Z",
-      pushed: "2026-11-25T12:48:24Z",
+      pushed: "2026-11-25T14:02:28Z",
       created: "2026-11-25T00:53:10Z",
       license: "NOASSERTION",
       topics: [
@@ -7033,21 +7103,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Davinci Resolve Studio 21 Premiere 2026 视频套件 Ko [2026] — 独立版 Windows 10/11 (x64) 版本和配置"
     },
     {
-      name: "oguz463/OLEDTextFix",
-      url: "https://github.com/oguz463/OLEDTextFix",
-      desc: "",
-      lang: "C++",
-      stars: 128,
-      forks: 1,
-      issues: 0,
-      updated: "2026-11-25T12:45:16Z",
-      pushed: "2026-11-23T19:19:16Z",
-      created: "2026-11-21T13:30:20Z",
-      license: "MIT",
-      topics: [],
-      desc_zh: ""
-    },
-    {
       name: "susantayl-notes74/fl-studio-2026-ableton-12-pakiet-konfiguracji-vst3-pl",
       url: "https://github.com/susantayl-notes74/fl-studio-2026-ableton-12-pakiet-konfiguracji-vst3-pl",
       desc: "Fl Studio 2026 Ableton 12 Pakiet Konfiguracji VST3 Pl [2026] — Standalone Windows 10/11 (x64) Release & Config",
@@ -7056,7 +7111,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 6,
       issues: 1,
       updated: "2026-11-25T05:38:52Z",
-      pushed: "2026-11-25T12:52:33Z",
+      pushed: "2026-11-25T14:05:40Z",
       created: "2026-11-25T00:51:34Z",
       license: "NOASSERTION",
       topics: [
@@ -7116,7 +7171,7 @@ window.__GHRANK_RANGES__["week"] = {
       desc: "HGhub 黄果插件",
       lang: "JavaScript",
       stars: 127,
-      forks: 15,
+      forks: 16,
       issues: 0,
       updated: "2026-11-25T13:04:19Z",
       pushed: "2026-11-19T08:27:31Z",
@@ -7176,7 +7231,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 15,
       issues: 1,
       updated: "2026-11-25T11:18:35Z",
-      pushed: "2026-11-25T12:26:26Z",
+      pushed: "2026-11-25T13:49:42Z",
       created: "2026-11-25T00:50:06Z",
       license: "NOASSERTION",
       topics: [
@@ -7275,7 +7330,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 8,
       issues: 1,
       updated: "2026-11-25T11:18:36Z",
-      pushed: "2026-11-25T12:21:43Z",
+      pushed: "2026-11-25T13:45:32Z",
       created: "2026-11-25T00:53:59Z",
       license: "NOASSERTION",
       topics: [
@@ -7485,7 +7540,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 5,
       issues: 1,
       updated: "2026-11-25T08:24:27Z",
-      pushed: "2026-11-25T12:04:43Z",
+      pushed: "2026-11-25T13:24:44Z",
       created: "2026-11-25T00:54:41Z",
       license: "NOASSERTION",
       topics: [
@@ -7695,7 +7750,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 5,
       issues: 1,
       updated: "2026-11-25T11:18:37Z",
-      pushed: "2026-11-25T12:26:25Z",
+      pushed: "2026-11-25T13:48:27Z",
       created: "2026-11-25T00:53:59Z",
       license: "NOASSERTION",
       topics: [
@@ -7863,7 +7918,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 12,
       issues: 1,
       updated: "2026-11-25T11:18:36Z",
-      pushed: "2026-11-25T12:08:31Z",
+      pushed: "2026-11-25T13:31:30Z",
       created: "2026-11-25T00:53:10Z",
       license: "NOASSERTION",
       topics: [
@@ -7939,27 +7994,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Koboldcpp Lm Studio 本地 Llm 日语套件 Ja [2026] — 独立版 Windows 10/11 (x64) 版本和配置"
     },
     {
-      name: "richardmo-lab301/blender-5-3-studio-portable-pakiet-renderowania-3d-pl",
-      url: "https://github.com/richardmo-lab301/blender-5-3-studio-portable-pakiet-renderowania-3d-pl",
-      desc: "Blender 5 3 Studio Portable Pakiet Renderowania 3d Pl [2026] — Standalone Windows 10/11 (x64) Release & Config",
-      lang: "Python",
-      stars: 124,
-      forks: 8,
-      issues: 1,
-      updated: "2026-11-25T11:18:35Z",
-      pushed: "2026-11-25T12:05:32Z",
-      created: "2026-11-25T00:50:41Z",
-      license: "NOASSERTION",
-      topics: [
-        "blender-5-2026",
-        "blender-5-3",
-        "blender-5-3-2026",
-        "blender-5-3-pc",
-        "blender-5-3-studio-portable-pakiet"
-      ],
-      desc_zh: "Blender 5 3 Studio 便携式 3D 渲染包 中文版 [2026] — 独立版 Windows 10/11 (x64) 版本和配置"
-    },
-    {
       name: "patriciaj372/cc-video-desktop-davinci-resolve-21-video-kurgu-paketi-tr",
       url: "https://github.com/patriciaj372/cc-video-desktop-davinci-resolve-21-video-kurgu-paketi-tr",
       desc: "Cc Video Desktop Davinci Resolve 21 Video Kurgu Paketi Tr [2026] — Standalone Windows 10/11 (x64) Release & Config",
@@ -7979,6 +8013,27 @@ window.__GHRANK_RANGES__["week"] = {
         "cc-video-desktop-pc"
       ],
       desc_zh: "Cc 视频桌面 Davinci Resolve 21 视频剪辑软件包中文版 [2026] — 独立版 Windows 10/11 (x64) 版本与配置"
+    },
+    {
+      name: "richardmo-lab301/blender-5-3-studio-portable-pakiet-renderowania-3d-pl",
+      url: "https://github.com/richardmo-lab301/blender-5-3-studio-portable-pakiet-renderowania-3d-pl",
+      desc: "Blender 5 3 Studio Portable Pakiet Renderowania 3d Pl [2026] — Standalone Windows 10/11 (x64) Release & Config",
+      lang: "Python",
+      stars: 124,
+      forks: 8,
+      issues: 1,
+      updated: "2026-11-25T11:18:35Z",
+      pushed: "2026-11-25T13:27:16Z",
+      created: "2026-11-25T00:50:41Z",
+      license: "NOASSERTION",
+      topics: [
+        "blender-5-2026",
+        "blender-5-3",
+        "blender-5-3-2026",
+        "blender-5-3-pc",
+        "blender-5-3-studio-portable-pakiet"
+      ],
+      desc_zh: "Blender 5 3 Studio 便携式 3D 渲染包 中文版 [2026] — 独立版 Windows 10/11 (x64) 版本和配置"
     },
     {
       name: "corelabstar32/heidisql",
@@ -8178,7 +8233,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 16,
       issues: 1,
       updated: "2026-11-25T05:38:49Z",
-      pushed: "2026-11-25T12:40:40Z",
+      pushed: "2026-11-25T13:57:44Z",
       created: "2026-11-25T00:45:32Z",
       license: "NOASSERTION",
       topics: [
@@ -8403,7 +8458,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 10,
       issues: 1,
       updated: "2026-11-25T11:18:33Z",
-      pushed: "2026-11-25T12:10:58Z",
+      pushed: "2026-11-25T13:38:51Z",
       created: "2026-11-25T00:48:19Z",
       license: "NOASSERTION",
       topics: [
@@ -8414,27 +8469,6 @@ window.__GHRANK_RANGES__["week"] = {
         "davinci-resolve-portable"
       ],
       desc_zh: "Davinci Resolve Studio 21 Edicao Video Cinema Pt [2026] — 独立版 Windows 10/11 (x64) 版本与配置"
-    },
-    {
-      name: "SilverFeit/StikSound",
-      url: "https://github.com/SilverFeit/StikSound",
-      desc: "StikSound — Ponle sonido de hasta 5 segundos a tus stickers PNG y GIFs animados para WhatsApp (Windows, macOS & Chrome Extension, 100% local sin instalar nada extra)",
-      lang: "TypeScript",
-      stars: 121,
-      forks: 18,
-      issues: 2,
-      updated: "2026-11-25T13:17:37Z",
-      pushed: "2026-11-25T11:57:12Z",
-      created: "2026-11-24T21:55:25Z",
-      license: "Apache-2.0",
-      topics: [
-        "audio-sticker",
-        "chrome-extension",
-        "desktop-app",
-        "gif-to-video",
-        "macos"
-      ],
-      desc_zh: "StikSound — 为您的 WhatsApp PNG 和动画 GIF 贴纸添加长达 5 秒的音效（Windows、macOS 和 Chrome 扩展程序，100% 本地，无需安装任何额外内容）"
     },
     {
       name: "dungkumar71/autodesk-flame",
@@ -8540,6 +8574,21 @@ window.__GHRANK_RANGES__["week"] = {
         "mobile-automation"
       ],
       desc_zh: "汽水音乐安卓自动化脚本 | 改造自 @wei6718189 的 iOS 版 | 基于 AScript"
+    },
+    {
+      name: "uxpilot-ai/user-interview-skill",
+      url: "https://github.com/uxpilot-ai/user-interview-skill",
+      desc: "Free agent skill that writes neutral 1:1 user interview guides for Claude Code, Codex and Cursor",
+      lang: "",
+      stars: 120,
+      forks: 5,
+      issues: 0,
+      updated: "2026-11-25T14:15:19Z",
+      pushed: "2026-11-24T19:49:56Z",
+      created: "2026-11-23T17:35:42Z",
+      license: "Apache-2.0",
+      topics: [],
+      desc_zh: "免费代理技能，用于为 Claude Code、Codex 和 Cursor 撰写中立的 1 对 1 用户访谈指南"
     },
     {
       name: "GirishSystems1994/reverso-context",
@@ -8794,21 +8843,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Hotspot Shield。通过虚拟专用网络加密您的连接，隐藏您的 IP 地址并保护公共 Wi-Fi 会话的安全，让您能够私密浏览并访问受区域限制的网站。"
     },
     {
-      name: "uxpilot-ai/user-interview-skill",
-      url: "https://github.com/uxpilot-ai/user-interview-skill",
-      desc: "Free agent skill that writes neutral 1:1 user interview guides for Claude Code, Codex and Cursor",
-      lang: "",
-      stars: 119,
-      forks: 5,
-      issues: 0,
-      updated: "2026-11-25T08:24:35Z",
-      pushed: "2026-11-24T19:49:56Z",
-      created: "2026-11-23T17:35:42Z",
-      license: "Apache-2.0",
-      topics: [],
-      desc_zh: "免费代理技能，用于为 Claude Code、Codex 和 Cursor 撰写中立的 1 对 1 用户访谈指南"
-    },
-    {
       name: "Lbhatia05/fooocus",
       url: "https://github.com/Lbhatia05/fooocus",
       desc: "Fooocus for Windows 10/11. Generates images from text prompts using Stable Diffusion, letting you refine results with styles, upscaling and inpainting, all without needing complex settings or a powerful GPU.",
@@ -8828,6 +8862,42 @@ window.__GHRANK_RANGES__["week"] = {
         "fooocus-app"
       ],
       desc_zh: "适用于 Windows 10/11 的 Fooocus。使用 Stable Diffusion 根据文本提示生成图像，让您通过风格、放大和修补来优化结果，而无需复杂的设置或强大的 GPU。"
+    },
+    {
+      name: "aykhanium/MacBox",
+      url: "https://github.com/aykhanium/MacBox",
+      desc: "Experimental Apple Silicon (ARM macOS) compatibility layer for XCL using CrossOver, Rosetta 2 and D3DMetal. Native ARM64 runtime is not implemented; retail gameplay is unverified.",
+      lang: "Rust",
+      stars: 119,
+      forks: 7,
+      issues: 3,
+      updated: "2026-11-25T14:27:41Z",
+      pushed: "2026-11-25T13:18:08Z",
+      created: "2026-11-24T19:18:26Z",
+      license: "GPL-2.0",
+      topics: [
+        "apple-silicon",
+        "arm64",
+        "compatibility-layer",
+        "crossover",
+        "d3dmetal"
+      ],
+      desc_zh: "使用CrossOver、Rosetta 2和D3DMetal的XCL实验性Apple Silicon（ARM macOS）兼容层。未实现原生ARM64运行时；零售版游戏体验未经验证。"
+    },
+    {
+      name: "shallow-seek-nothing/mihome-pc-unofficial",
+      url: "https://github.com/shallow-seek-nothing/mihome-pc-unofficial",
+      desc: "Unofficial community desktop client for Mi Home devices",
+      lang: "Python",
+      stars: 119,
+      forks: 32,
+      issues: 0,
+      updated: "2026-11-25T14:27:58Z",
+      pushed: "2026-11-24T12:12:19Z",
+      created: "2026-11-21T06:24:07Z",
+      license: "NOASSERTION",
+      topics: [],
+      desc_zh: "小米智能家居设备的非官方社区桌面客户端"
     },
     {
       name: "na-castro85/gameloop",
@@ -9019,6 +9089,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Ubisoft Connect。启动并管理您的育碧游戏库，跟踪成就和奖励，并让您与好友建立联系，以便在多款游戏中进行合作游戏和挑战。"
     },
     {
+      name: "GF007/game-rebuild-kit",
+      url: "https://github.com/GF007/game-rebuild-kit",
+      desc: "AI-assisted game analysis and reconstruction, working toward one-click workflows for any game.",
+      lang: "",
+      stars: 118,
+      forks: 31,
+      issues: 0,
+      updated: "2026-11-25T13:52:20Z",
+      pushed: "2026-11-20T05:06:07Z",
+      created: "2026-11-20T04:14:12Z",
+      license: "MIT",
+      topics: [
+        "agent-skills",
+        "ai-agents",
+        "computer-graphics",
+        "game-development",
+        "reverse-engineering"
+      ],
+      desc_zh: "借助人工智能进行游戏分析和重构，致力于实现适用于任何游戏的“一键式”工作流程。"
+    },
+    {
       name: "greyeastblack52/fusion-360-manage",
       url: "https://github.com/greyeastblack52/fusion-360-manage",
       desc: "Fusion 360 Manage for Windows 10/11. Tracks product lifecycles, engineering changes, bills of materials and supplier workflows in one workspace, helping teams manage design data, approvals and releases from concept through production.",
@@ -9208,27 +9299,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 UNetbootin。写入可引导的 U 盘，并从 ISO 文件或下载的发行版创建 Live 盘，让您无需刻录 DVD 即可安装 Linux 或运行恢复工具。"
     },
     {
-      name: "Gustavocode48/clickup-desktop",
-      url: "https://github.com/Gustavocode48/clickup-desktop",
-      desc: "Clickup Desktop for Windows 10/11. Plans projects, assigns tasks and tracks team goals across lists, boards and docs, then reviews progress in dashboards and reports from one workspace.",
-      lang: "",
-      stars: 118,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T08:06:34Z",
-      pushed: "2026-11-25T11:43:21Z",
-      created: "2026-11-24T10:39:26Z",
-      license: "NOASSERTION",
-      topics: [
-        "clickup",
-        "clickup-2",
-        "clickup-2025",
-        "clickup-2026",
-        "clickup-alternative"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Clickup 桌面版。跨列表、看板和文档规划项目、分配任务和跟踪团队目标，然后在同一个工作空间中的仪表板和报告中查看进度。"
-    },
-    {
       name: "najindal22/oeksound-bloom",
       url: "https://github.com/najindal22/oeksound-bloom",
       desc: "Oeksound Bloom for Windows 10/11. Reshapes and balances audio tracks with adaptive tone shaping, letting producers and mixers dial in warmth, clarity and presence on vocals, instruments and full mixes.",
@@ -9248,6 +9318,27 @@ window.__GHRANK_RANGES__["week"] = {
         "oeksound-soothe-2-standalone"
       ],
       desc_zh: "Oeksound Bloom，适用于 Windows 10/11。通过自适应音色塑形来重塑和平衡音频轨道，让制作人和混音师能够为人声、乐器和完整混音赋予温暖感、清晰度和存在感。"
+    },
+    {
+      name: "Gustavocode48/clickup-desktop",
+      url: "https://github.com/Gustavocode48/clickup-desktop",
+      desc: "Clickup Desktop for Windows 10/11. Plans projects, assigns tasks and tracks team goals across lists, boards and docs, then reviews progress in dashboards and reports from one workspace.",
+      lang: "",
+      stars: 118,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T08:06:34Z",
+      pushed: "2026-11-25T11:43:21Z",
+      created: "2026-11-24T10:39:26Z",
+      license: "NOASSERTION",
+      topics: [
+        "clickup",
+        "clickup-2",
+        "clickup-2025",
+        "clickup-2026",
+        "clickup-alternative"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Clickup 桌面版。跨列表、看板和文档规划项目、分配任务和跟踪团队目标，然后在同一个工作空间中的仪表板和报告中查看进度。"
     },
     {
       name: "lakebuild/eventide-blackhole",
@@ -9292,6 +9383,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Marmoset Toolbag 4。将法线贴图、环境光遮挡贴图和曲率贴图从高面数雕刻烘焙到游戏就绪的网格上，然后使用实时 PBR 材质和光照渲染旋转展示和特写镜头。"
     },
     {
+      name: "mr-Native/PSWloader",
+      url: "https://github.com/mr-Native/PSWloader",
+      desc: "Native Windows 11 on PS5",
+      lang: "C",
+      stars: 118,
+      forks: 4,
+      issues: 8,
+      updated: "2026-11-25T12:45:55Z",
+      pushed: "2026-11-25T03:19:06Z",
+      created: "2026-11-20T17:34:35Z",
+      license: "NOASSERTION",
+      topics: [
+        "acpi",
+        "amd",
+        "bare-metal",
+        "bootloader",
+        "edk2"
+      ],
+      desc_zh: "PS5 上的原生 Windows 11"
+    },
+    {
       name: "dennis5heikh/native-instruments-massive-x",
       url: "https://github.com/dennis5heikh/native-instruments-massive-x",
       desc: "Native Instruments Massive X for Windows 10/11. Designs and shapes synth patches with wavetable oscillators, drag-and-drop modulation and routing, then saves presets for use in your DAW productions.",
@@ -9332,27 +9444,6 @@ window.__GHRANK_RANGES__["week"] = {
         "windows"
       ],
       desc_zh: "适用于 Windows 10/11 的 Tower Git For Windows。通过可视化界面浏览仓库、暂存和提交更改、解决合并冲突以及推送分支，使复杂的 Git 工作流更易于遵循。"
-    },
-    {
-      name: "mr-Native/PSWloader",
-      url: "https://github.com/mr-Native/PSWloader",
-      desc: "Native Windows 11 on PS5",
-      lang: "C",
-      stars: 118,
-      forks: 4,
-      issues: 8,
-      updated: "2026-11-25T12:45:55Z",
-      pushed: "2026-11-25T03:19:06Z",
-      created: "2026-11-20T17:34:35Z",
-      license: "NOASSERTION",
-      topics: [
-        "acpi",
-        "amd",
-        "bare-metal",
-        "bootloader",
-        "edk2"
-      ],
-      desc_zh: "PS5 上的原生 Windows 11"
     },
     {
       name: "jasonpro258/bitdefender-premium-security",
@@ -9437,21 +9528,6 @@ window.__GHRANK_RANGES__["week"] = {
         "obsidian-desktop"
       ],
       desc_zh: "适用于 Windows 10/11 的 Obsidian。在纯文本 Markdown 文件中撰写和链接笔记，使用反向链接、标签和图视图构建个人知识库，并可离线工作。"
-    },
-    {
-      name: "shallow-seek-nothing/mihome-pc-unofficial",
-      url: "https://github.com/shallow-seek-nothing/mihome-pc-unofficial",
-      desc: "Unofficial community desktop client for Mi Home devices",
-      lang: "Python",
-      stars: 118,
-      forks: 32,
-      issues: 0,
-      updated: "2026-11-25T12:43:12Z",
-      pushed: "2026-11-24T12:12:19Z",
-      created: "2026-11-21T06:24:07Z",
-      license: "NOASSERTION",
-      topics: [],
-      desc_zh: "小米智能家居设备的非官方社区桌面客户端"
     },
     {
       name: "branluca65/hwinfo",
@@ -9910,27 +9986,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Boris Fx Sapphire。将数百种 GPU 加速的视觉效果、转场和光照预设应用于视频素材，让剪辑师和动态艺术家在其主时间轴中添加辉光、镜头光晕和风格化外观。"
     },
     {
-      name: "eric-watson1398/katana",
-      url: "https://github.com/eric-watson1398/katana",
-      desc: "Katana for Windows 10/11. Organizes notes, snippets and reference files in a searchable outliner, letting you link items together and build reusable knowledge bases for projects and research.",
-      lang: "",
-      stars: 117,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T08:31:53Z",
-      pushed: "2026-11-25T11:51:03Z",
-      created: "2026-11-24T11:49:05Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "install-katana",
-        "katana",
-        "productivity",
-        "software"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Katana。在可搜索的大纲中整理笔记、代码片段和参考文件，让您能够将各项内容关联起来，并为项目和研究构建可重复使用的知识库。"
-    },
-    {
       name: "Lisakozlov/matlab-simulink",
       url: "https://github.com/Lisakozlov/matlab-simulink",
       desc: "Matlab Simulink for Windows 10/11. Builds block diagrams to model control systems, signal processing and embedded logic, then simulates behavior and generates code for hardware deployment.",
@@ -9952,6 +10007,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Matlab Simulink。构建框图以建模控制系统、信号处理和嵌入式逻辑，然后模拟行为并生成用于硬件部署的代码。"
     },
     {
+      name: "eric-watson1398/katana",
+      url: "https://github.com/eric-watson1398/katana",
+      desc: "Katana for Windows 10/11. Organizes notes, snippets and reference files in a searchable outliner, letting you link items together and build reusable knowledge bases for projects and research.",
+      lang: "",
+      stars: 117,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T08:31:53Z",
+      pushed: "2026-11-25T11:51:03Z",
+      created: "2026-11-24T11:49:05Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "install-katana",
+        "katana",
+        "productivity",
+        "software"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Katana。在可搜索的大纲中整理笔记、代码片段和参考文件，让您能够将各项内容关联起来，并为项目和研究构建可重复使用的知识库。"
+    },
+    {
       name: "hilldev1997/webex-meetings",
       url: "https://github.com/hilldev1997/webex-meetings",
       desc: "Webex Meetings for Windows 10/11. Joins video meetings, shares screens and records calls, letting teams present slides, chat with participants and schedule sessions from the desktop app.",
@@ -9971,90 +10047,6 @@ window.__GHRANK_RANGES__["week"] = {
         "productivity"
       ],
       desc_zh: "适用于 Windows 10/11 的 Webex 会议。加入视频会议、共享屏幕和录制通话，让团队能够通过桌面应用程序展示幻灯片、与参会者聊天并安排会议。"
-    },
-    {
-      name: "kimberlymedina66/softube-weiss-mm-1",
-      url: "https://github.com/kimberlymedina66/softube-weiss-mm-1",
-      desc: "Softube Weiss Mm 1 for Windows 10/11. Mixes and masters tracks with the Weiss MM-1 mastering compressor, shaping dynamics and loudness on individual stems or full mixes for release-ready audio.",
-      lang: "",
-      stars: 117,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T08:33:32Z",
-      pushed: "2026-11-25T11:54:42Z",
-      created: "2026-11-24T12:13:47Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "guide-setup-softube-weiss-mm-1",
-        "how-to-install-softube-weiss-mm-1",
-        "softube",
-        "softube-2026"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Softube Weiss Mm 1。使用 Weiss MM-1 母带压缩器混音和母带处理轨道，对单个音轨或完整混音的动态和响度进行塑形，打造可直接发布的音频。"
-    },
-    {
-      name: "Dediarora2008/enscape",
-      url: "https://github.com/Dediarora2008/enscape",
-      desc: "Enscape for Windows 10/11. Renders architectural scenes into real-time walkthroughs inside Revit, SketchUp, Rhino and ArchiCAD, letting designers explore lighting and materials live while clients review changes on the fly.",
-      lang: "",
-      stars: 117,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T08:36:34Z",
-      pushed: "2026-11-25T11:41:34Z",
-      created: "2026-11-24T12:29:51Z",
-      license: "NOASSERTION",
-      topics: [
-        "chaos-enscape",
-        "desktop-app",
-        "enscape-collection",
-        "enscape-desktop",
-        "enscape-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Enscape。在 Revit、SketchUp、Rhino 和 ArchiCAD 中将建筑场景渲染为实时漫游，让设计师能够实时探索光照和材质，同时让客户能够即时查看更改。"
-    },
-    {
-      name: "barnes4895/powertoys",
-      url: "https://github.com/barnes4895/powertoys",
-      desc: "Powertoys for Windows 10/11. Snaps and arranges windows into custom layouts, remaps keyboard shortcuts, resizes images in bulk and launches tools like a color picker or text extractor from a quick overlay.",
-      lang: "",
-      stars: 116,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T08:34:54Z",
-      pushed: "2026-11-25T11:47:16Z",
-      created: "2026-11-24T11:17:53Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "powertoys",
-        "powertoys-command-palette",
-        "powertoys-desktop",
-        "powertoys-download"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Powertoys。将窗口对齐并排列成自定义布局，重新映射键盘快捷键，批量调整图像大小，并通过快速叠加层启动取色器或文本提取器等工具。"
-    },
-    {
-      name: "Coreide28/shortlyai",
-      url: "https://github.com/Coreide28/shortlyai",
-      desc: "Shortlyai for Windows 10/11. Drafts and rewrites essays, emails and articles in a distraction-free editor, generating paragraphs on command and tightening your own text before you copy it out.",
-      lang: "",
-      stars: 116,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T08:33:24Z",
-      pushed: "2026-11-25T11:41:22Z",
-      created: "2026-11-24T10:12:11Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "productivity",
-        "software",
-        "software-engineering",
-        "utilities"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Shortlyai。在无干扰编辑器中起草和改写论文、电子邮件和文章，按指令生成段落，并在您复制文本之前对其进行精简。"
     }
   ]
 };
