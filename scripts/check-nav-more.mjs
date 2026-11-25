@@ -13,6 +13,9 @@ const shotOut = shotArg > -1 ? process.argv[shotArg + 1] : '';
 const GNAME = '__门禁__大分组';
 const N = 15;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// 门禁会真的写一次 data/nav.json（保存链路），跑完还原成本次开始前的内容，避免只差 updatedAt 的噪声提交
+const navFile = 'data/nav.json';
+const navOrig = fs.existsSync(navFile) ? fs.readFileSync(navFile) : null;
 
 let fails = 0;
 const ok = (name, cond, detail) => { console.log((cond ? '  PASS  ' : '  FAIL  ') + name + (cond ? '' : '  [' + (detail == null ? '' : detail) + ']')); if (!cond) fails++; };
@@ -122,5 +125,9 @@ try {
   console.log('还原导航：' + (back && back.ok ? 'ok' : '失败') + '，当前 ' + now.groups.length + ' 个分组，残留门禁分组 ' + now.groups.filter((g) => g.name === GNAME).length);
 }
 
+if (navOrig && fs.existsSync(navFile) && !fs.readFileSync(navFile).equals(navOrig)) {
+  fs.writeFileSync(navFile, navOrig);
+  console.log('已把 data/nav.json 还原成跑之前的内容（只差 updatedAt 也不留噪声）');
+}
 console.log(fails ? '\n' + fails + ' 项失败' : '\n全部通过');
 process.exit(fails ? 1 : 0);
