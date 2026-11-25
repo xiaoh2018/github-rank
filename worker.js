@@ -579,7 +579,10 @@ async function serveSite(env, entry) {
       return text('读取站点文件失败：' + r.status + '（请确认仓库是公开的，且文件已经推送到 ' + branch(env) + ' 分支）', 502);
     }
     if (entry[0] === 'index.html') {
-      const html = applySeo(await r.text(), (await loadSiteRaw(env)).seo);
+      let html = applySeo(await r.text(), (await loadSiteRaw(env)).seo);
+      html = html.replace(/(["'])(\/?js\/[\w.-]+\.js)(["'])/g, function (m, q1, p1, q2) {
+        return q1 + p1 + '?v=' + ASSET_V + q2;
+      });
       return new Response(html, {
         headers: { 'content-type': entry[1], 'cache-control': 'public, max-age=300' },
       });
@@ -611,7 +614,7 @@ function cachePolicy(pathname) {
     return { ttl: 600, browser: 300, sMaxAge: 600, swr: 3600 };
   }
   // js / css / 图标 / manifest 这类 shell 文件几个月才变一次，浏览器可以放心长缓存
-  return { ttl: 86400, browser: 604800, sMaxAge: 86400, swr: 604800 };
+  return { ttl: 86400, browser: 300, sMaxAge: 86400, swr: 604800 };
 }
 
 function cacheControlOf(p, immutable) {
@@ -1154,6 +1157,9 @@ async function handleLinks(request, env) {
 // ---------- 导航页（data/nav.json）----------
 // 结构：{ updatedAt, groups:[ {id, name, desc, items:[{name, url, desc, icon}]} ] }
 const NAV_FILE = 'data/nav.json';
+// 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
+// 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
+const ASSET_V = 'v48';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
