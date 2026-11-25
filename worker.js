@@ -1592,7 +1592,7 @@ async function handleSubmit(request, env, origin) {
     } else {
       try {
         const r = await fetch(
-          'https://data.zz.baidu.com/urls?site=' + encodeURIComponent(root) + '&token=' + encodeURIComponent(baiduNow),
+          'http://data.zz.baidu.com/urls?site=' + encodeURIComponent(root) + '&token=' + encodeURIComponent(baiduNow),
           { method: 'POST', headers: { 'content-type': 'text/plain' }, body: urls.join('\n') }
         );
         const t = await r.text();
@@ -1612,7 +1612,8 @@ async function handleSubmit(request, env, origin) {
         } catch (e) {
           /* 不是 JSON，就原样展示 */
         }
-        if (!good && r.status === 526) note = '百度返回 526：站点校验没通过。去 ziyuan.baidu.com 的「站点管理」把这个域名验证掉（HTML 标签已经内建），然后到「普通收录 → API 提交」页把那里的 token 填进「设置与密钥」；推送的域名必须和验证过的一级域名完全一致';
+        if (r.status === 526) note = '526 是 Cloudflare 报的「源站证书无效」—— 百度 https 端点握手失败，不是站点没验证；本版已改成走 http 端点（百度自己的文档也用 http）';
+        if (String(t||'').indexOf('success') >= 0) note = note + '｜百度已收下：' + String(t||'').slice(0,120);
         if (!good && /^\\s*</.test(String(t || ''))) note = '百度返回的是网页错误页（不是接口 JSON），多半是 token 与站点不匹配或接口被拦，见下面的原始返回';
         out.results.baidu = { ok: good, status: r.status, note: note, raw: String(t || '').slice(0, 300) };
       } catch (e) {
