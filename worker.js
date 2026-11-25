@@ -3051,7 +3051,7 @@ dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
   </div>
 </dialog>
 <div class="toast" id="toast" role="status"></div>
-<script src="/js/md.js"></script>
+<script src="/js/md.js?v=9"></script>
 
 <script>
 (function () {
@@ -3534,12 +3534,17 @@ dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
         $('artBody').value = p.body;
         $('artErr').textContent = '';
         toast('已导入，请检查后保存', true);
+        paintPreview();
       };
       rd.readAsText(f, 'utf-8');
     });
     function paintPreview() {
       var body = $('artBody').value;
       if ($('artLen')) $('artLen').textContent = body.length ? body.length + ' / 20000 字' : '';
+      if (!window.KeeMd || typeof window.KeeMd.render !== 'function') {
+        $('artPrev').innerHTML = '<p class="empty">渲染器没加载出来（md.js 被缓存了旧的），按 Ctrl+F5 强制刷新一下本页</p>';
+        return;
+      }
       $('artPrev').innerHTML = body.trim() ? KeeMd.render(body) : '<p class="empty">左边写正文，这里实时显示渲染效果</p>';
     }
     $('artBody').addEventListener('input', paintPreview);
