@@ -1441,7 +1441,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v96';
+const ASSET_V = 'v97';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3153,6 +3153,9 @@ th{color:var(--muted);font-weight:600;font-size:13px}
 .toolbar input[type=text]{max-width:320px}
 .main a.ghost{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text);text-decoration:none;font-size:12.5px;line-height:1;vertical-align:middle}
 .main a.ghost:hover{border-color:#c7d2fe;color:var(--accent)}
+.secret{display:flex;gap:8px;align-items:center}
+.secret input{flex:1;min-width:0}
+.secret .ghost{flex:none}
 .row-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 4px}
     /* ---- 广告位 ---- */
     .ad-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-bottom:14px}
@@ -3712,10 +3715,10 @@ tr:hover td{background:#fcfbf8}
       <div class="card">
         <div class="card-head"><div><h2>收录密钥</h2><p class="desc">填了就会用；留空则跳过对应推送，不影响其它功能。</p></div></div>
         <label for="rtBaiduToken">百度准入密钥（BAIDU_TOKEN）</label>
-        <input type="text" id="rtBaiduToken" maxlength="200" placeholder="百度搜索资源平台 → 普通收录 → API 提交 → 准入密钥" autocomplete="off">
+        <div class="secret"><input type="password" id="rtBaiduToken" maxlength="200" placeholder="百度搜索资源平台 → 普通收录 → API 提交 → 准入密钥" autocomplete="off"><button type="button" class="ghost small" data-eye="rtBaiduToken">显示</button></div>
         <div class="hint">拿法见「收录提交」页的「百度准入密钥在哪拿」。填这里就不必再去 Cloudflare 配变量；两边都填时以这里为准。</div>
         <label for="rtIndexKey">IndexNow Key</label>
-        <input type="text" id="rtIndexKey" maxlength="100" placeholder="留空 = 按仓库信息自动生成一个" autocomplete="off">
+        <div class="secret"><input type="password" id="rtIndexKey" maxlength="100" placeholder="留空 = 按仓库信息自动生成一个" autocomplete="off"><button type="button" class="ghost small" data-eye="rtIndexKey">显示</button></div>
         <div class="vf-grid">
           <div><label for="vfBytedance">字节 / 豆包 验证码</label><input type="text" id="vfBytedance" data-vf="bytedance" maxlength="200" placeholder="字节搜索资源平台的 meta content" autocomplete="off"></div>
           <div><label for="vfSogou">搜狗 / 元宝 验证码</label><input type="text" id="vfSogou" data-vf="sogou" maxlength="200" placeholder="搜狗站长平台的 meta content" autocomplete="off"></div>
@@ -5426,6 +5429,16 @@ tr:hover td{background:#fcfbf8}
   });
 
   // ---- 收录提交 ----
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-eye]') : null;
+    if (!btn) return;
+    var inp = document.getElementById(btn.getAttribute('data-eye'));
+    if (!inp) return;
+    var show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.textContent = show ? '隐藏' : '显示';
+  });
+
   function todoRow(ok, text, tab, tabText) {
     var el = document.createElement('div');
     el.className = 'status-item';

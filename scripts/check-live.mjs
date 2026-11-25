@@ -107,6 +107,8 @@ const subJson = await subApi.json().catch(() => null);
 const subStatus = (subJson && subJson.status) || {};
 push('/api/submit 状态', subApi.ok && typeof subStatus.urlCount === 'number' && subStatus.urlCount > 0, 'urlCount=' + subStatus.urlCount);
 
+push('密钥输入默认遮罩', adm.includes('data-eye') && adm.includes('type="password"'));
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

@@ -130,7 +130,7 @@
   "seo": {
     "siteName": "GitHub 热门项目排行榜",
     "title": "GitHub 热门项目排行榜 - 按星标、增速发现热门开源项目",
-    "description": "GitHub 热门项目排行榜，按近 7 天、近 30 天、近 1 年、全部时间查看星标最多的开源仓库，并提供今日增量、语言分布、热门开发者与组织榜。数据每 3 小时更新。",
+    "description": "GitHub 热门项目排行榜，按近 7 天、近 30 天、近 1 年，以及 GitHub 全站总榜（星标前 500）查看热门开源仓库，并提供今日增量、语言分布、热门开发者与组织榜。数据每 3 小时更新。",
     "keywords": "GitHub 排行榜,GitHub 热门项目,GitHub Trending,开源项目,星标排行,热门开发者,GitHub 组织,语言分布",
     "ogImage": "https://github.661026.xyz/og-image.png",
     "siteUrl": "https://github.661026.xyz"
