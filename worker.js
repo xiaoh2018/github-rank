@@ -96,6 +96,7 @@ export default {
         const origin = seoSite.siteUrl ? seoSite.siteUrl.replace(/\/+$/, '') : url.origin;
         const arts = await rawJson(env, 'data/articles.json');
         const list = Array.isArray(arts) ? arts : [];
+        fillArticleSlugs(list);
         let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
         const today = todayBJ().slice(0, 10);
         xml += '  <url><loc>' + origin + '/</loc><lastmod>' + today + '</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>\n';
@@ -1773,6 +1774,7 @@ async function handleSubmit(request, env, origin) {
         keyFile: origin + '/' + keyNow + '.txt',
         keyFileOk: keyOk,
         keyFileNote: keyNote,
+        keyFileMatch: keyOk && String(keyNote).indexOf(keyNow) >= 0,
         indexKeySource: rtSubmit && rtSubmit.indexNowKey ? 'admin' : (env.INDEXNOW_KEY ? 'env' : 'auto'),
         sitemap: origin + '/sitemap.xml',
         llms: origin + '/llms.txt',
@@ -1820,7 +1822,11 @@ async function handleSubmit(request, env, origin) {
     if (a && a.id) urls.push(root + '/articles/' + String(a.slug || a.id).split('/').map(encodeURIComponent).join('/') + '.html');
   });
   const want = String(body.action || 'all');
-  const out = { ok: true, urls: urls.length, root: root, results: {} };
+  if (body.test === true) {
+    urls.length = 0;
+    urls.push(root + '/');
+  }
+  const out = { ok: true, urls: urls.length, root: root, host: host, keyLocation: root + '/' + keyNow + '.txt', test: body.test === true, results: {} };
 
   const sigNow = urls.join('\n');
   const sameBatch = !!(prevRun && prevRun.sig === sigNow && body.force !== true);
@@ -1842,7 +1848,9 @@ async function handleSubmit(request, env, origin) {
       const rawText = await r.text().catch(() => '');
       const good = r.ok || r.status === 202;
       let note;
-      if (good) note = '已收下，等搜索引擎自己来抓（通常几分钟到几小时）';
+      if (good) note = r.status === 202
+        ? '已接收（202）：Bing / Yandex 收下了。要在 Bing 站长工具的「IndexNow」页看到记录，必须先在 Bing 站长工具里添加并验证本站；实际抓取通常 24–72 小时内反馈'
+        : '已接收（200）：等搜索引擎自己来抓（通常几分钟到几小时）';
       else if (r.status === 429) note = '被限流了（TooManyRequests）：IndexNow 对同一批地址有频率限制，等 10 分钟再试；本站下次会自动跳过重复批次';
       else if (r.status === 422) note = 'Key 校验没过：确认站点根目录的 key 文件能打开，且提交的 host 与 keyLocation 同域';
       else if (r.status === 403) note = 'Key 文件打不开或内容不对：先把 Worker 部署到最新版，再回本页点「刷新」看自检那行';
@@ -2455,29 +2463,9 @@ function todayBJ() {
   return new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
 }
 
-// 从仓库读 data/articles.json：文件不存在视为 []
-async function readArticles(env) {
-  const miss = checkConfig(env);
-  if (miss.length) return { ok: false, status: 500, error: '还没配置变量：' + miss.join('、') };
-  const cur = await gh(env, '/contents/' + ARTICLES_FILE + '?ref=' + encodeURIComponent(branch(env)));
-  if (cur.status === 404) return { ok: true, status: 404, articles: [], sha: null };
-  if (!cur.ok || !cur.data) {
-    return { ok: false, status: cur.status, error: '读取文章失败：' + cur.status + ' ' + cur.text.slice(0, 200) };
-  }
-  let articles = [];
-  try {
-    const bin = atob(String(cur.data.content || '').replace(/\n/g, ''));
-    const txt = new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
-    if (txt.trim()) {
-      const parsed = JSON.parse(txt);
-      if (!Array.isArray(parsed)) throw new Error('not array');
-      articles = parsed;
-    }
-  } catch (e) {
-    return { ok: false, status: 500, error: 'data/articles.json 不是合法的 JSON 数组，请先在仓库里修正' };
-  }
-  if (articles.length) {
-    var catMax = {};
+// 给没有 slug 的文章补「分类词/序号」，并保证同批不重名
+function fillArticleSlugs(articles) {
+  var catMax = {};
     articles.forEach(function (a) {
       if (!a || !a.slug) return;
       var parts = String(a.slug).split('/');
@@ -2500,7 +2488,30 @@ async function readArticles(env) {
       if (usedSlug[a.slug]) a.slug = a.slug + '-' + (usedSlug[a.slug] + 1);
       usedSlug[a.slug] = (usedSlug[a.slug] || 0) + 1;
     });
+}
+
+// 从仓库读 data/articles.json：文件不存在视为 []
+async function readArticles(env) {
+  const miss = checkConfig(env);
+  if (miss.length) return { ok: false, status: 500, error: '还没配置变量：' + miss.join('、') };
+  const cur = await gh(env, '/contents/' + ARTICLES_FILE + '?ref=' + encodeURIComponent(branch(env)));
+  if (cur.status === 404) return { ok: true, status: 404, articles: [], sha: null };
+  if (!cur.ok || !cur.data) {
+    return { ok: false, status: cur.status, error: '读取文章失败：' + cur.status + ' ' + cur.text.slice(0, 200) };
   }
+  let articles = [];
+  try {
+    const bin = atob(String(cur.data.content || '').replace(/\n/g, ''));
+    const txt = new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+    if (txt.trim()) {
+      const parsed = JSON.parse(txt);
+      if (!Array.isArray(parsed)) throw new Error('not array');
+      articles = parsed;
+    }
+  } catch (e) {
+    return { ok: false, status: 500, error: 'data/articles.json 不是合法的 JSON 数组，请先在仓库里修正' };
+  }
+  fillArticleSlugs(articles);
   return { ok: true, status: 200, articles: articles, sha: cur.data.sha || null };
 }
 
@@ -3479,7 +3490,7 @@ tr:hover td{background:#fcfbf8}
         <section class="pane" id="pane-submit" hidden>
       <div class="bar">
         <div><h1>收录与平台</h1><p class="sub">把新榜单和文章主动告诉搜索引擎与大模型</p></div>
-        <div class="bar-actions"><label class="toggle inline"><input type="checkbox" id="subForce"> 强制再推一次</label><button class="btn ghost" type="button" id="subRunIN">只推 IndexNow</button><button class="btn ghost" type="button" id="subRunBD">只推百度</button><button class="btn primary" type="button" id="subRun">全部提交</button></div>
+        <div class="bar-actions"><label class="toggle inline"><input type="checkbox" id="subForce"> 强制再推一次</label><button class="btn ghost" type="button" id="subTest">试推 1 条</button><button class="btn ghost" type="button" id="subRunIN">只推 IndexNow</button><button class="btn ghost" type="button" id="subRunBD">只推百度</button><button class="btn primary" type="button" id="subRun">全部提交</button></div>
       </div>
               <div class="segtabs" data-group="seogeo"><button type="button" class="is-on" data-go="seo">SEO 基础</button><button type="button" data-go="qa">问答（GEO）</button><button type="button" data-go="submit">收录与平台</button></div>
       <p class="intro">提交走 IndexNow（Bing、Yandex、Seznam 共用）和百度主动推送；豆包、通义千问、ChatGPT 这些没有公开的收录接口，靠 robots.txt 放行 + llms.txt + 站点地图被爬到。<b>建议每天点一次，或者交给 Actions 定时。</b></p>
@@ -4711,6 +4722,7 @@ tr:hover td{background:#fcfbf8}
         subLine('站点地图', '<a href="' + navEsc(s.sitemap) + '" target="_blank" rel="noopener">' + navEsc(s.sitemap) + '</a>', true) +
         subLine('大模型说明', '<a href="' + navEsc(s.llms) + '" target="_blank" rel="noopener">' + navEsc(s.llms) + '</a>（llms.txt，抓到就是最新榜单）', true) +
         subLine('key 文件自检', s.keyFileOk ? '能访问　' + navEsc(s.keyFileNote || '') : '打不开：' + navEsc(s.keyFileNote || '未知原因') + '（多半是 Worker 未部署到最新版）', !!s.keyFileOk) +
+        subLine('key 文件内容', s.keyFileMatch ? '与后台填的 key 一致（IndexNow 会来读这个文件校验）' : '和后台填的 key 不一致，Bing 会拒（422）', !!s.keyFileMatch) +
         subLine('百度推送', s.baiduToken ? '已配置准入密钥（来源：' + navEsc(s.baiduTokenSource || 'env') + '），可以主动推' : '没填准入密钥，点提交时会跳过百度', !!s.baiduToken) +
         subLine('Workers AI 今日', s.aiUsage ? (s.aiUsage.used + ' / ' + (s.aiUsage.unlimited ? '不限制' : s.aiUsage.cap) + ' 次' + (s.aiUsage.capSource === 'admin' ? '（上限来自后台）' : '')) : '—', true) +
         subLine('冷却状态', (s.cooldown && s.cooldown.seconds > 0) ? '还要等 ' + s.cooldown.seconds + ' 秒才能再推（防 IndexNow 429）' : '可以提交', !(s.cooldown && s.cooldown.seconds > 0)) +
@@ -4726,7 +4738,7 @@ tr:hover td{background:#fcfbf8}
     loadSubmit();
   });
   var subAction = 'all';
-  function runSubmit(action) {
+  function runSubmit(action, isTest) {
     subAction = action || 'all';
     var btn = $('subRun');
     var out = $('subOut');
@@ -4734,7 +4746,7 @@ tr:hover td{background:#fcfbf8}
     btn.textContent = '提交中…';
     out.innerHTML = '<p class="note">正在提交…</p>';
     var forceEl = $('subForce');
-    api('/api/submit', { method: 'POST', body: { password: pw, action: subAction, force: !!(forceEl && forceEl.checked) } }).then(function (r) {
+    api('/api/submit', { method: 'POST', body: { password: pw, action: subAction, test: !!isTest, force: !!(forceEl && forceEl.checked) } }).then(function (r) {
       btn.disabled = false;
       btn.textContent = '全部提交';
       if (!r.ok) {
@@ -4752,6 +4764,7 @@ tr:hover td{background:#fcfbf8}
     });
   }
   $('subRun').addEventListener('click', function () { runSubmit('all'); });
+  if ($('subTest')) $('subTest').addEventListener('click', function () { runSubmit('all', true); });
   $('subRunIN').addEventListener('click', function () { runSubmit('indexnow'); });
   $('subRunBD').addEventListener('click', function () { runSubmit('baidu'); });
 
