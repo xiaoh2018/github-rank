@@ -325,14 +325,14 @@ function json(obj, status) {
   });
 }
 
-// 从仓库 raw 地址读取站点文件，边缘缓存 5 分钟
+// 从仓库 raw 地址读取站点文件，边缘缓存 RAW_TTL 秒（后台保存后靠 warmEdge 立刻换新）
 async function serveSite(env, entry) {
   if (!env.REPO_OWNER || !env.REPO_NAME) {
     return text('还没配置 REPO_OWNER / REPO_NAME 变量，请按部署说明添加', 503);
   }
   const raw =
     'https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + entry[0];
-  const r = await fetch(raw, { cf: { cacheTtl: 300, cacheEverything: true } });
+  const r = await fetch(raw, { cf: { cacheTtl: RAW_TTL, cacheEverything: true } });
   if (!r.ok) {
       return text('读取站点文件失败：' + r.status + '（请确认仓库是公开的，且文件已经推送到 ' + branch(env) + ' 分支）', 502);
     }
@@ -353,6 +353,9 @@ async function serveSite(env, entry) {
 // 命中时既不发子请求也不重组页面，TTFB 从 300~440ms 降到 20~50ms。
 const EDGE_CACHE = caches.default;
 const EDGE_KEY_BASE = 'https://edge.ghrank.internal';
+// 回源 raw.githubusercontent 时 CF 给子请求的缓存时长。以前是 300s，等于后台保存后
+// 最多还要旧 5 分钟才换新；压到 60s，再用 warmEdge 主动换新，改完基本立刻生效。
+const RAW_TTL = 60;
 
 // ttl=边缘保留秒数；browser=浏览器 max-age；swr=stale-while-revalidate
 function cachePolicy(pathname) {
@@ -386,6 +389,25 @@ async function purgeEdge(paths) {
     await Promise.all(paths.map((p) => EDGE_CACHE.delete(new Request(EDGE_KEY_BASE + p))));
   } catch (e) {
     console.log('purge edge cache failed: ' + String(e));
+  }
+}
+
+// 只 purge 还不够：purge 清的是「成品响应」缓存，清不掉 Cloudflare 给
+// raw.githubusercontent 那次子请求的缓存（还能旧 RAW_TTL 秒）。所以保存成功后
+// 直接把新内容写成成品响应塞回去，下一次请求立刻拿到新值，不必等回源。
+async function warmEdge(pathname, body, type) {
+  const pol = cachePolicy(pathname);
+  if (!pol.ttl) return;
+  const buf = new TextEncoder().encode(body);
+  const headers = new Headers();
+  headers.set('content-type', type);
+  headers.set('cache-control', cacheControlOf(pol));
+  headers.set('x-edge', 'WARM');
+  headers.set('etag', '"h' + hash32(buf) + '"');
+  try {
+    await EDGE_CACHE.put(new Request(EDGE_KEY_BASE + pathname, { method: 'GET' }), new Response(buf, { status: 200, headers: headers }));
+  } catch (e) {
+    console.log('warm edge failed: ' + String(e));
   }
 }
 
@@ -438,11 +460,11 @@ async function serveSiteEdge(env, pathname, entry, request) {
 // 后台可以保存的站点配置分组
 const SITE_SECTIONS = ['ad', 'layout', 'contact', 'beian', 'seo', 'geo'];
 
-// 读取仓库 data/site.json（raw 地址，边缘缓存 5 分钟），给站点页和 sitemap 用；失败时用默认值
+// 读取仓库 data/site.json（raw 地址，边缘缓存 RAW_TTL 秒），给站点页和 sitemap 用；失败时用默认值
 async function loadSiteRaw(env) {
   if (!env.REPO_OWNER || !env.REPO_NAME) return normalizeSite(null);
   const u = 'https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + SITE_FILE;
-  const r = await fetch(u, { cf: { cacheTtl: 300, cacheEverything: true } });
+  const r = await fetch(u, { cf: { cacheTtl: RAW_TTL, cacheEverything: true } });
   if (!r.ok) return normalizeSite(null);
   try {
     return normalizeSite(JSON.parse(await r.text()));
@@ -856,6 +878,8 @@ async function handleLinks(request, env) {
 
   const w = await writeLinks(env, links, cur.sha, 'chore: update friend links');
   if (!w.ok) return json({ ok: false, error: w.error }, 500);
+  await purgeEdge(['/data/links.json']);
+  await warmEdge('/data/links.json', JSON.stringify(links, null, 2) + '\n', 'application/json; charset=utf-8');
   return json({ ok: true, links: links });
 }
 
@@ -1074,6 +1098,7 @@ async function handleSite(request, env) {
   const w = await writeSite(env, site, cur.sha);
   if (!w.ok) return json({ ok: false, error: w.error }, 500);
   await purgeEdge(['/', '/index.html', '/data/site.json']);
+  await warmEdge('/data/site.json', JSON.stringify(site, null, 2) + '\n', 'application/json; charset=utf-8');
   return json({ ok: true, site: site });
 }
 
@@ -1194,6 +1219,7 @@ async function handleArticles(request, env) {
   const w = await writeArticles(env, list, cur.sha, 'chore: update articles');
   if (!w.ok) return json({ ok: false, error: w.error }, 500);
   await purgeEdge(['/articles', '/articles.html', '/data/articles.json']);
+  await warmEdge('/data/articles.json', JSON.stringify(list, null, 2) + '\n', 'application/json; charset=utf-8');
   return json({ ok: true, articles: list });
 }
 
@@ -1333,7 +1359,7 @@ dialog{width:calc(100% - 24px)}
         <div><h1>友链</h1><div class="sub">显示在排行榜页面上的友情链接</div></div>
         <button type="button" id="addLinkBtn">添加友链</button>
       </div>
-      <div class="intro">友链会显示在排行榜页面的友情链接区域。名称建议 40 字以内，网址必须以 http:// 或 https:// 开头，最多 50 条。删除后约 5 分钟生效（页面有缓存）。</div>
+      <div class="intro">友链会显示在排行榜页面的友情链接区域。名称建议 40 字以内，网址必须以 http:// 或 https:// 开头，最多 50 条。删除后刷新首页立刻生效（浏览器若还留着旧页面，Ctrl+F5 一次即可）。</div>
       <div class="card">
         <div class="msg">当前 <span id="linkCount">0</span> 条</div>
         <table>
@@ -1426,7 +1452,7 @@ dialog{width:calc(100% - 24px)}
 
     <section class="pane" id="pane-seo" hidden>
       <div class="bar"><div><h1>SEO</h1><div class="sub">搜索引擎与分享卡片</div></div></div>
-      <div class="intro">这些内容会写进页面标题和 meta 标签，决定搜索结果和微信、微博分享时显示的样子。全部留空时保持页面原样；填写后保存，约 5 分钟内生效（页面有缓存）。</div>
+      <div class="intro">这些内容会写进页面标题和 meta 标签，决定搜索结果和微信、微博分享时显示的样子。全部留空时保持页面原样；填写后保存，刷新首页立刻生效（浏览器若还留着旧页面，Ctrl+F5 一次即可）。</div>
       <div class="card">
         <label for="seo-siteName">站点名称</label>
         <input type="text" id="seo-siteName" maxlength="60" placeholder="GitHub 项目排行榜">
@@ -1725,7 +1751,7 @@ dialog{width:calc(100% - 24px)}
     if (d == null) return;
     var i = Number(d);
     var name = state.links[i] ? state.links[i].name : '';
-    askConfirm('删除友链', '确定删除「' + name + '」吗？删除后约 5 分钟生效。', function () {
+    askConfirm('删除友链', '确定删除「' + name + '」吗？删除后刷新首页立刻生效。', function () {
       return api('/api/links', { method: 'POST', body: { password: pw, action: 'remove', index: i } }).then(function (r) {
         if (r.ok) {
           state.links = r.links;

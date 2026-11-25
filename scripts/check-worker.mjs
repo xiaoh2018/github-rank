@@ -41,6 +41,12 @@ globalThis.fetch = async (input) => {
   }
   if (url.startsWith('https://api.github.com/')) {
     apiCount++;
+    if (url.includes('/contents/data/')) {
+      const rel = decodeURIComponent(url.split('/contents/')[1].split('?')[0]);
+      const p = path.join(root, rel);
+      const buf = fs.existsSync(p) ? fs.readFileSync(p) : Buffer.from('');
+      return jsonResp({ sha: 'sha-' + rel.replace(/\W/g, ''), content: buf.toString('base64') });
+    }
     if (url.includes('/commits')) {
       return jsonResp([{ commit: { committer: { date: new Date(Date.now() - 2 * 86400000).toISOString() } } }]);
     }
@@ -125,11 +131,43 @@ r = await hit('/articles');
 const art = await r.text();
 ok(art.includes('rel="canonical" href="https://github.661026.xyz/articles"'), 'articles canonical = github.661026.xyz/articles');
 
-console.log('== 6. 友链数据已清空 ==');
-const links = JSON.parse(fs.readFileSync(path.join(root, 'data/links.json'), 'utf8'));
-ok(Array.isArray(links) && links.length === 0, 'data/links.json 是空数组', JSON.stringify(links));
+console.log('== 6. 后台保存后静态文件立刻换新（warmEdge）==');
+// 先访问一次，让 /data/links.json 进成品缓存（内容是仓库里的旧值）
+const linksFile = JSON.parse(fs.readFileSync(path.join(root, 'data/links.json'), 'utf8'));
+r = await hit('/data/links.json');
+const linksServed = await r.json();
+ok(JSON.stringify(linksServed) === JSON.stringify(linksFile), 'GET /data/links.json 与仓库文件一致', JSON.stringify(linksServed).slice(0, 80));
+// 后台加一条友链
+r = await hit('/api/links', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', action: 'add', name: '测试站', url: 'https://example.com/' }),
+});
+const addRes = await r.json();
+ok(addRes.ok === true, 'POST /api/links 添加成功', JSON.stringify(addRes).slice(0, 100));
+// 不睡眠、不重试，立刻读静态文件：必须已经是新内容
+r = await hit('/data/links.json');
+const linksAfter = await r.json();
+ok(linksAfter.some((l) => l && l.url === 'https://example.com/'), '保存后立刻 GET /data/links.json 就能看到新友链', JSON.stringify(linksAfter).slice(0, 120));
+ok(r.headers.get('x-edge') === 'HIT', '这次读的是 warmEdge 写好的成品缓存（x-edge=HIT）', r.headers.get('x-edge'));
 
-console.log('== 7. 既有能力没被破坏 ==');
+console.log('== 7. 榜单布局保存后立刻生效 ==');
+r = await hit('/data/site.json');
+const siteBefore = await r.json();
+ok(siteBefore.layout && typeof siteBefore.layout.mode === 'string', 'GET /data/site.json 有 layout.mode', JSON.stringify(siteBefore.layout));
+const want = siteBefore.layout.mode === 'single' ? 'double' : 'single';
+r = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'layout', value: { mode: want } }),
+});
+const siteRes = await r.json();
+ok(siteRes.ok === true && siteRes.site.layout.mode === want, 'POST /api/site 保存 layout=' + want, JSON.stringify(siteRes).slice(0, 100));
+r = await hit('/data/site.json');
+const siteAfter = await r.json();
+ok(siteAfter.layout.mode === want, '保存后立刻 GET /data/site.json 就是新布局（不再等 5~15 分钟）', siteAfter.layout.mode);
+
+console.log('== 8. 既有能力没被破坏 ==');
 r = await hit('/');
 const firstEdge = r.headers.get('x-edge');
 ok(!!firstEdge, '首页带 x-edge 头（' + firstEdge + '）');
