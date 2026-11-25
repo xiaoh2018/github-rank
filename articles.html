@@ -89,6 +89,18 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .rback:hover{color:var(--accent)}
 .reader h1{font-size:27px;line-height:1.35;margin:0 0 10px;letter-spacing:-.5px}
 .rmeta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted);padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.toc{margin:4px 0 18px;padding:12px 16px;border:1px solid var(--border);border-radius:12px;background:var(--chip)}
+.toc summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none}
+.toc summary::-webkit-details-marker{display:none}
+.toc summary::before{content:'▸ ';color:var(--muted)}
+.toc[open] summary::before{content:'▾ '}
+.toc ol{margin:8px 0 0;padding-left:1.3em;font-size:13.5px;line-height:1.9}
+.toc li.lv3{margin-left:14px;list-style:circle}
+.toc a{color:var(--text);text-decoration:none}
+.toc a:hover{color:var(--accent);text-decoration:underline}
+.abody pre{position:relative}
+.abody pre .cp{position:absolute;top:8px;right:8px;font:500 11px/1 var(--font,system-ui);padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;opacity:.85}
+.abody pre .cp:hover{opacity:1;color:var(--accent)}
 .abody{font-size:15px;line-height:1.85;color:var(--text);overflow-wrap:anywhere}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 .abody h1,.abody h2,.abody h3,.abody h4,.abody h5,.abody h6{line-height:1.4;margin:1.6em 0 .6em;letter-spacing:-.2px}
@@ -223,6 +235,10 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     <button class="rback" id="rback" type="button">← 返回文章列表</button>
     <h1 id="rTitle"></h1>
     <div class="rmeta" id="rMeta"></div>
+    <details class="toc" id="rToc" hidden>
+      <summary>本文目录</summary>
+      <ol id="rTocList"></ol>
+    </details>
     <div class="abody" id="rBody"></div>
     <div class="adslot" id="adAPAfter" hidden><div class="ad-inner"></div></div>
     <div class="rmeta" id="rNav" style="border:0;margin:22px 0 0;padding-top:14px;border-top:1px solid var(--border)"></div>
@@ -493,6 +509,39 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     return null;
   }
 
+  function enhanceBody(body) {
+    var hs = body.querySelectorAll('h3,h4,h5,h6');
+    var toc = $('rToc'), list = $('rTocList');
+    if (list) {
+      if (hs.length < 3) {
+        toc.hidden = true;
+        list.innerHTML = '';
+      } else {
+        list.innerHTML = Array.prototype.map.call(hs, function (h, i) {
+          var id = 'sec-' + (i + 1);
+          h.id = id;
+          var deep = (h.tagName === 'H5' || h.tagName === 'H6');
+          return '<li class="lv' + (deep ? 3 : 2) + '"><a href="#' + id + '">' + esc(h.textContent) + '</a></li>';
+        }).join('');
+        toc.hidden = false;
+      }
+    }
+    Array.prototype.forEach.call(body.querySelectorAll('pre'), function (pre) {
+      if (pre.querySelector('.cp')) return;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cp';
+      btn.textContent = '复制';
+      btn.addEventListener('click', function () {
+        var t = pre.innerText || '';
+        var p = navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject();
+        p.then(function () { btn.textContent = '已复制'; setTimeout(function () { btn.textContent = '复制'; }, 1500); })
+          .catch(function () { btn.textContent = '复制失败'; setTimeout(function () { btn.textContent = '复制'; }, 1500); });
+      });
+      pre.appendChild(btn);
+    });
+  }
+
   function openReader(id) {
     var a = findArt(id);
     if (!a) { closeReader(); return; }
@@ -521,6 +570,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       askPassword(a.id);
     } else {
       body.innerHTML = md(a.body || '');
+      enhanceBody(body);
       mountAd($('adAPAfter'), adSlot['article-after']);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -564,6 +614,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       $('pwGo').disabled = false;
       if (r && r.ok && typeof r.body === 'string') {
         $('rBody').innerHTML = md(r.body);
+        enhanceBody($('rBody'));
         mountAd($('adAPAfter'), adSlot['article-after']);
         try { $('pwDlg').close(); } catch (e) {}
       } else {
