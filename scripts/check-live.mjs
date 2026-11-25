@@ -42,6 +42,7 @@ const nav = await fetch(base + '/nav?v=' + t);
 const navText = await nav.text();
 push('/nav 页面', nav.ok && navText.includes('navView') === false ? nav.ok : nav.ok, nav.status);
 push('导航分组卡片', navText.includes('navgroup') || navText.includes('navcard'));
+push('导航页有分类快捷跳转', navText.includes('navjump') && navText.includes('class="nj"'));
 
 const faq = await fetch(base + '/faq?v=' + t);
 const faqText = await faq.text();

@@ -206,6 +206,11 @@ body[data-page="nav"] #insights{display:none!important}
 .navgroup>h3{margin:0 0 2px;font-size:15px;display:flex;align-items:center;gap:8px}
 .navgroup>h3 .cnt{font-size:11px;color:var(--muted);font-weight:400}
 .navgroup>.gd{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
+.navjump{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.nj{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--text);text-decoration:none;font-size:13px;line-height:1.2}
+.nj:hover{border-color:var(--accent);color:var(--accent)}
+.nj em{font-style:normal;font-size:11px;color:var(--muted);background:var(--chip);border-radius:999px;padding:1px 6px}
+.navgroup{scroll-margin-top:14px}
 .navgird{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
 .navcard{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);text-decoration:none;color:inherit;transition:transform .12s,border-color .12s,box-shadow .12s}
 .navcard:hover{transform:translateY(-1px);border-color:var(--accent);box-shadow:var(--shadow)}
@@ -1200,8 +1205,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       var nc=document.getElementById('navClear'); if(nc) nc.hidden=!q;
       if(nc && !nc.dataset.bound){ nc.dataset.bound='1'; nc.addEventListener('click', function(){ var i2=document.getElementById('navSearch'); if(i2){ i2.value=''; renderNav(); i2.focus(); } }); var i3=document.getElementById('navSearch'); if(i3){ i3.addEventListener('input', function(){ nc.hidden=!i3.value; }); } }
       var groups=(navData&&navData.groups)||[];
-      var total=0, shown=0, html='';
-      groups.forEach(function(g){
+      var total=0, shown=0, html='', jump='';
+      groups.forEach(function(g, gi){
         var items=(g.items||[]).filter(function(it){
           total++;
           if(!q) return true;
@@ -1209,7 +1214,9 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         });
         if(!items.length) return;
         shown+=items.length;
-        html+='<section class="navgroup"><h3>'+escH(g.name)+'<span class="cnt">'+items.length+' 个</span></h3>'+
+        var gid='ng-'+gi;
+        jump+='<a class="nj" href="#'+gid+'">'+escH(g.name)+'<em>'+items.length+'</em></a>';
+        html+='<section class="navgroup" id="'+gid+'"><h3>'+escH(g.name)+'<span class="cnt">'+items.length+' 个</span></h3>'+
           (g.desc?'<p class="gd">'+escH(g.desc)+'</p>':'')+'<div class="navgird">';
         items.forEach(function(it,idx){
           html+='<a class="navcard" href="'+escH(it.url)+'" target="_blank" rel="noopener noreferrer">'+
@@ -1222,6 +1229,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         });
         html+='</div></section>';
       });
+      if(html && jump) html='<div class="navjump">'+jump+'</div>'+html;
       box.innerHTML = html || '<p class="note">没有匹配的站点。</p>';
       if(window.ghrankMountInline) window.ghrankMountInline();
       var cnt=document.getElementById('navCount');
