@@ -127,6 +127,24 @@ push('文章页有打印样式', art.includes('@media print') && art.includes('.
 push('首页有打印样式', home.includes('@media print') && home.includes('break-inside:avoid'));
 push('问答页打印前自动展开', faqText.includes("addEventListener('beforeprint'"));
 
+// 单篇文章页的按篇 SEO（外壳仍是 /articles，但 head 要换成这一篇的）
+{
+  const aseoList = await (await fetch(base + '/api/articles?v=' + t)).json().catch(() => ({}));
+  const aseoOne = ((aseoList.articles || []).filter((a) => a && a.slug && a.id)).pop();
+  if (aseoOne) {
+    const aseoPath = '/articles/' + String(aseoOne.slug).split('/').map(encodeURIComponent).join('/') + '.html';
+    const aseoRes = await fetch(base + aseoPath + '?v=' + t);
+    const aseoHtml = await aseoRes.text();
+    push('文章规范地址 200', aseoRes.status === 200, String(aseoRes.status));
+    push('标题按文章注入', aseoHtml.includes('<title>' + String(aseoOne.title || '').slice(0, 6)), (aseoHtml.match(/<title>[\s\S]*?<\/title>/i) || [''])[0]);
+    push('canonical 指向本篇', aseoHtml.includes(aseoPath + '"'), '');
+    push('注入 BlogPosting', aseoHtml.includes('"@type":"BlogPosting"'), '');
+    push('og:type=article', aseoHtml.includes('property="og:type" content="article"'), '');
+  }
+  const aseoMiss = await fetch(base + '/articles/nosuch/999.html?v=' + t);
+  push('不存在的文章 404', aseoMiss.status === 404, String(aseoMiss.status));
+}
+
 const pubRes = await fetch(base + '/data/articles.json?v=' + t);
 const pubText = await pubRes.text();
 let pubArr = null;

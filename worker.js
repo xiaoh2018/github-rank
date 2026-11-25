@@ -101,7 +101,7 @@ export default {
               headers: { location: encodeURI(canonical) + (url.search || ''), 'cache-control': 'public, max-age=600' },
             });
           }
-          return serveSiteEdge(env, '/articles', SITE['/articles'], request);
+          return serveArticlePage(env, canonical, request);
         }
       }
       if (url.pathname === '/sitemap.xml' && (request.method === 'GET' || request.method === 'HEAD')) {
@@ -947,6 +947,126 @@ function applySeo(html, seo) {
   return out;
 }
 
+// ── 单篇文章页：外壳仍是 articles.html，但按文章注入标题/描述/分享图/JSON-LD。
+// 搜索引擎与社交平台抓到的是这一篇的元信息，而不是整站默认值。
+function artPathOf(a) {
+  if (!a) return '';
+  const s = String(a.slug || a.id || '');
+  return '/articles/' + s.split('/').map(encodeURIComponent).join('/') + '.html';
+}
+
+function plainTextOf(md, max) {
+  const t = String(md == null ? '' : md)
+    .replace(/[\u0060]{3}[\s\S]*?[\u0060]{3}/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[#>*_~|]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!t) return '';
+  return t.length > max ? t.slice(0, max) + '…' : t;
+}
+
+function applyArticleSeo(html, seo, art, origin, path) {
+  const base = seo && seo.siteUrl ? String(seo.siteUrl).replace(/\/+$/, '') : origin;
+  const full = base + path;
+  const siteName = (seo && (seo.siteName || seo.title)) || '';
+  const title = (art.title || '文章') + (siteName ? ' · ' + siteName : '');
+  const desc = plainTextOf(art.summary || art.body, 160) || siteName;
+  const img = art.cover || (seo && seo.ogImage) || '';
+  // 只有「真的带密文」才算加密：老数据可能只标了 locked 却没保存密文，内容其实是公开的
+  const locked = !!(art.locked && art.lock && art.lock.ct);
+  let out = applySeo(html, seo || {});
+  const upsert = (re, tag) => {
+    if (re.test(out)) out = out.replace(re, function () { return tag; });
+    else out = out.replace(/<\/head>/i, function () { return tag + '\n</head>'; });
+  };
+  upsert(/<title>[\s\S]*?<\/title>/i, '<title>' + escAttr(title) + '</title>');
+  upsert(/<meta\s+name=["']description["'][^>]*>/i, '<meta name="description" content="' + escAttr(desc) + '">');
+  upsert(/<meta\s+property=["']og:title["'][^>]*>/i, '<meta property="og:title" content="' + escAttr(title) + '">');
+  upsert(/<meta\s+property=["']og:description["'][^>]*>/i, '<meta property="og:description" content="' + escAttr(desc) + '">');
+  upsert(/<meta\s+property=["']og:url["'][^>]*>/i, '<meta property="og:url" content="' + escAttr(full) + '">');
+  if (img) {
+    upsert(/<meta\s+property=["']og:image["'][^>]*>/i, '<meta property="og:image" content="' + escAttr(img) + '">');
+    upsert(/<meta\s+name=["']twitter:image["'][^>]*>/i, '<meta name="twitter:image" content="' + escAttr(img) + '">');
+    upsert(/<meta\s+name=["']twitter:card["'][^>]*>/i, '<meta name="twitter:card" content="summary_large_image">');
+  }
+  upsert(/<link\s+rel=["']canonical["'][^>]*>/i, '<link rel="canonical" href="' + escAttr(full) + '">');
+  upsert(
+    /<meta\s+name=["']robots["'][^>]*>/i,
+    '<meta name="robots" content="' + (locked ? 'noindex,follow' : 'index,follow,max-image-preview:large') + '">'
+  );
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: art.title || '文章',
+    description: desc,
+    url: full,
+    mainEntityOfPage: full,
+    image: img ? [img] : undefined,
+    isAccessibleForFree: locked ? false : true,
+    publisher: siteName ? { '@type': 'Organization', name: siteName } : undefined,
+  };
+  if (art.date) {
+    ld.datePublished = String(art.date).slice(0, 10);
+    ld.dateModified = String(art.date).slice(0, 10);
+  }
+  let head = '<meta property="og:type" content="article">';
+  if (art.date) head += '<meta property="article:published_time" content="' + escAttr(String(art.date).slice(0, 10)) + '">';
+  head += '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>';
+  out = out.replace(/<\/head>/i, function () { return head + '\n</head>'; });
+  return out;
+}
+
+async function serveArticlePage(env, path, request) {
+  const u = new URL(request.url);
+  const ver = u.searchParams.get('v') || '';
+  const key = EDGE_KEY_BASE + path + (ver ? '?v=' + ver : '');
+  const hit = await EDGE_CACHE.match(key);
+  if (hit) {
+    const headers = new Headers(hit.headers);
+    headers.set('x-edge', 'HIT');
+    const etag = headers.get('etag');
+    if (etag && request.headers.get('if-none-match') === etag) return new Response(null, { status: 304, headers });
+    if (request.method === 'HEAD') return new Response(null, { status: hit.status, headers });
+    return new Response(await hit.arrayBuffer(), { status: hit.status, headers });
+  }
+  const shell = await serveSite(env, SITE['/articles']);
+  if (!shell || shell.status !== 200) return shell;
+  let html = await shell.text();
+  const seo = (await loadSiteRaw(env)).seo || {};
+  let arts = await rawJson(env, 'data/articles.json');
+  arts = Array.isArray(arts) ? arts : [];
+  fillArticleSlugs(arts);
+  let art = arts.filter(function (a) { return a && a.id; }).find(function (a) { return artPathOf(a) === path; });
+  if (!art) {
+    // raw 有 60~300 秒的子请求缓存，刚提交的文章可能还没出现；回退一次 GitHub API 拿真值
+    try {
+      const fresh = await readArticles(env);
+      if (fresh && fresh.ok && Array.isArray(fresh.articles)) {
+        fillArticleSlugs(fresh.articles);
+        art = fresh.articles.filter(function (a) { return a && a.id; }).find(function (a) { return artPathOf(a) === path; });
+      }
+    } catch (e) {
+      art = null;
+    }
+  }
+  if (!art) return notFoundPage(u.origin);
+  html = applyArticleSeo(html, seo, art, u.origin, path);
+  const body = new TextEncoder().encode(html);
+  const etag = '"' + hash32(body.buffer) + '"';
+  const headers = new Headers({
+    'content-type': 'text/html; charset=utf-8',
+    'cache-control': 'public, max-age=60, s-maxage=60',
+    etag: etag,
+  });
+  if (request.method !== 'HEAD') {
+    await EDGE_CACHE.put(key, new Response(body.slice(0), { headers: new Headers(headers) }));
+  }
+  headers.set('x-edge', 'MISS');
+  return new Response(request.method === 'HEAD' ? null : body, { status: 200, headers: headers });
+}
+
 function checkConfig(env) {
   const miss = [];
   ['GITHUB_TOKEN', 'REPO_OWNER', 'REPO_NAME'].forEach((k) => {
@@ -1487,7 +1607,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v108';
+const ASSET_V = 'v109';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };

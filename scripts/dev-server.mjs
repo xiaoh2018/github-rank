@@ -17,17 +17,29 @@ const copy = path.join(os.tmpdir(), 'ghrank-dev-' + Date.now() + '.mjs');
 fs.writeFileSync(copy, fs.readFileSync(path.join(root, 'worker.js'), 'utf8'));
 
 const store = new Map();
+// 真 Cloudflare 的 caches.default 允许传字符串或 Request，并会把它规范成绝对 URL。
+// 这里以前只取 req.url，worker 传字符串时得到 undefined —— 所有缓存撞在同一个键上，
+// 表现是「随便打开哪篇文章都返回第一次打开的那篇」。必须规范化。
+const ck = (req) => {
+  try {
+    if (typeof req === 'string') return new URL(req, 'https://edge.ghrank.internal').toString();
+    if (req && typeof req.url === 'string' && req.url) return new URL(req.url, 'https://edge.ghrank.internal').toString();
+  } catch (e) {
+    /* 落到下面的兜底 */
+  }
+  return String(req);
+};
 globalThis.caches = {
   default: {
     async match(req) {
-      const v = store.get(req.url);
+      const v = store.get(ck(req));
       return v ? new Response(v.body, { status: v.status, headers: v.headers }) : undefined;
     },
     async put(req, res) {
-      store.set(req.url, { body: Buffer.from(await res.clone().arrayBuffer()), status: res.status, headers: [...res.headers] });
+      store.set(ck(req), { body: Buffer.from(await res.clone().arrayBuffer()), status: res.status, headers: [...res.headers] });
     },
     async delete(req) {
-      store.delete(req.url);
+      store.delete(ck(req));
     },
   },
 };

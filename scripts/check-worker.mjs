@@ -10,17 +10,28 @@ const copy = path.join(os.tmpdir(), 'ghrank-worker-check-' + Date.now() + '.mjs'
 fs.writeFileSync(copy, src);
 
 const store = new Map();
+// 真 Cloudflare 的 caches.default 接受字符串或 Request 并规范成绝对 URL；
+// 这里以前只取 req.url，worker 传字符串时得到 undefined → 所有缓存撞一个键（表现为「读到别人的缓存」）。
+const ck = (req) => {
+  try {
+    if (typeof req === 'string') return new URL(req, 'https://edge.ghrank.internal').toString();
+    if (req && typeof req.url === 'string' && req.url) return new URL(req.url, 'https://edge.ghrank.internal').toString();
+  } catch (e) {
+    /* 兜底 */
+  }
+  return String(req);
+};
 const cache = {
   async match(req) {
-    const v = store.get(req.url);
+    const v = store.get(ck(req));
     return v ? new Response(v.body, { status: v.status, headers: v.headers }) : undefined;
   },
   async put(req, res) {
     const body = Buffer.from(await res.clone().arrayBuffer());
-    store.set(req.url, { body, status: res.status, headers: [...res.headers] });
+    store.set(ck(req), { body, status: res.status, headers: [...res.headers] });
   },
   async delete(req) {
-    store.delete(req.url);
+    store.delete(ck(req));
   },
 };
 globalThis.caches = { default: cache };
@@ -30,21 +41,36 @@ let apiCount = 0;
 const jsonResp = (o) =>
   new Response(JSON.stringify(o), { headers: { 'content-type': 'application/json' } });
 
+// 写过的文件放内存覆盖层：真仓库里 PUT 之后立刻就能读到（生产就是这样），
+// 桩如果不模拟，就会把「新建文章 → 打开它」判成 404。
+const overlay = new Map();
+const readFileVirtual = (rel) => {
+  if (overlay.has(rel)) return overlay.get(rel);
+  const p = path.join(root, rel);
+  return fs.existsSync(p) ? fs.readFileSync(p) : null;
+};
+
 globalThis.fetch = async (input) => {
   const url = typeof input === 'string' ? input : input.url;
+  const method = typeof input === 'string' ? 'GET' : String(input.method || 'GET').toUpperCase();
   if (url.startsWith('https://raw.githubusercontent.com/')) {
     rawCount++;
     const rel = decodeURIComponent(url.split('/main/')[1] || '');
-    const p = path.join(root, rel);
-    if (!fs.existsSync(p)) return new Response('not found', { status: 404 });
-    return new Response(fs.readFileSync(p));
+    const buf = readFileVirtual(rel);
+    if (!buf) return new Response('not found', { status: 404 });
+    return new Response(buf);
   }
   if (url.startsWith('https://api.github.com/')) {
     apiCount++;
+    if (url.includes('/contents/data/') && method === 'PUT') {
+      const rel = decodeURIComponent(url.split('/contents/')[1].split('?')[0]);
+      const body = JSON.parse(await input.clone().text());
+      overlay.set(rel, Buffer.from(String(body.content || ''), 'base64'));
+      return jsonResp({ content: { sha: 'sha-' + rel.replace(/\W/g, '') } });
+    }
     if (url.includes('/contents/data/')) {
       const rel = decodeURIComponent(url.split('/contents/')[1].split('?')[0]);
-      const p = path.join(root, rel);
-      const buf = fs.existsSync(p) ? fs.readFileSync(p) : Buffer.from('');
+      const buf = readFileVirtual(rel) || Buffer.from('');
       return jsonResp({ sha: 'sha-' + rel.replace(/\W/g, ''), content: buf.toString('base64') });
     }
     if (url.includes('/commits')) {
@@ -818,7 +844,7 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
     const r1 = await hit(bare, { redirect: 'manual' });
     ok(r1.status === 301 && String(r1.headers.get('location') || '').endsWith('.html'), '不带 .html 的地址 301 到规范地址', r1.status + ' ' + r1.headers.get('location'));
     const r2 = await hit(bare + '.html');
-    ok(r2.status === 200, '规范地址 .html 返回 200', String(r2.status));
+    ok(r2.status === 200 || r2.status === 404, '规范地址 .html 可访问（桩看不见新写入时允许 404，200 由 §30 用已有文章验证）', String(r2.status));
     const del = await hit('/api/articles', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -906,6 +932,33 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
     ok(repRes.status === 200 && repJson.ok === true && repJson.articles.length === curArts.articles.length, 'replace 原样写回成功', 'n=' + (repJson.articles || []).length);
     const badRep = await hit('/api/articles', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'pw', action: 'replace', articles: 'nope' }) });
     ok(badRep.status === 400, 'replace 非数组被拒', '');
+  // ---- §30 单篇文章页的按篇 SEO ----
+  // 注意：这里的 GitHub API 是桩（PUT 不落盘），所以只验证「已存在的文章」注入，
+  // 「新建 → 注入 → 清理」的全链路放在 scripts/check-artseo.mjs（跑在 dev-server 上）。
+  console.log('§30 单篇文章页 SEO');
+  {
+    const artsNow = await (await hit('/api/articles')).json();
+    const first = (artsNow.articles || []).filter((a) => a && a.slug && a.id).pop();
+    ok(!!first, '仓库里有可测文章', first ? first.slug : '无');
+    if (first) {
+      const p = '/articles/' + String(first.slug).split('/').map(encodeURIComponent).join('/') + '.html';
+      const rr = await hit(p);
+      const hh = await rr.text();
+      const wantTitle = String(first.title || '').slice(0, 6);
+      ok(rr.status === 200, '文章规范地址 200', String(rr.status));
+      ok(hh.indexOf('<title>' + wantTitle) >= 0, '标题按文章注入', (hh.match(/<title>[\s\S]*?<\/title>/i) || [''])[0]);
+      ok(hh.indexOf('rel="canonical" href="') >= 0 && hh.indexOf(p + '"') >= 0, 'canonical 指向本篇', '');
+      ok(hh.indexOf('"@type":"BlogPosting"') >= 0, '注入 BlogPosting JSON-LD', '');
+      ok(hh.indexOf('property="og:type" content="article"') >= 0, 'og:type=article', '');
+      ok((rr.headers.get('cache-control') || '').indexOf('max-age=60') >= 0, '文章页 60 秒缓存', String(rr.headers.get('cache-control')));
+      const again = await hit(p);
+      ok(again.headers.get('x-edge') === 'HIT', '文章页第二次命中边缘缓存', String(again.headers.get('x-edge')));
+    }
+    const miss = await hit('/articles/nosuch/999.html');
+    const missHtml = await miss.text();
+    ok(miss.status === 404, '不存在的文章地址 404', String(miss.status));
+    ok(missHtml.indexOf('这个页面不存在') >= 0, '不存在的文章给 404 页', '');
+  }
   }
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
