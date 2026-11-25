@@ -97,8 +97,19 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .related a{flex:1 1 auto;min-width:0;font-size:14.5px;color:var(--fg);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .related a:hover{color:var(--accent);text-decoration:underline}
 .related .rmeta-in{flex:0 0 auto;font-size:12px;color:var(--muted);white-space:nowrap}
+  /* 文章配图点击放大（lightbox） */
+  .abody img.zoomable{cursor:zoom-in}
+  .abody img.zoomable:hover{filter:brightness(1.02)}
+  .lightbox{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:28px;background:rgba(8,10,16,.86)}
+  .lightbox[hidden]{display:none}
+  .lightbox>img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 18px 60px rgba(0,0,0,.5);background:#fff}
+  .lb-close{position:fixed;top:18px;right:20px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.14);color:#fff;font-size:20px;line-height:1;cursor:pointer}
+  .lb-close:hover{background:rgba(255,255,255,.26)}
+  .lb-close:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  .lb-hint{position:fixed;bottom:18px;left:0;right:0;text-align:center;color:rgba(255,255,255,.72);font-size:12px}
+  body.lb-open{overflow:hidden}
+
 @media print{
-  .brand,.mainnav,.head-actions,.bhero,.btools,.chips,.bside,.adslot,#rNav{display:none!important}
   body{background:#fff;color:#111}
   .wrap{max-width:none!important;padding:0 28px!important}
   .blog{display:block}
@@ -743,7 +754,59 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       });
       pre.appendChild(btn);
     });
+    Array.prototype.forEach.call(body.querySelectorAll('img'), function (img) {
+      if (img.__zoomBound) return;
+      img.__zoomBound = true;
+      img.classList.add('zoomable');
+      img.tabIndex = 0;
+      img.setAttribute('role', 'button');
+      img.setAttribute('aria-label', (img.alt || '文章配图') + '，按回车放大');
+      function openIt() {
+        var src = img.currentSrc || img.src || '';
+        if (/^https?:/i.test(src)) openLb(src, img.alt);
+      }
+      img.addEventListener('click', openIt);
+      img.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openIt(); }
+      });
+    });
   }
+
+  function openLb(src, alt) {
+    var lb = $('lightbox');
+    if (!lb || !src) return;
+    $('lbImg').src = src;
+    $('lbImg').alt = alt || '文章配图';
+    lb.hidden = false;
+    bindLb();
+    document.body.classList.add('lb-open');
+    setTimeout(function () { var c = $('lbClose'); if (c) c.focus(); }, 30);
+  }
+
+  function closeLb() {
+    var lb = $('lightbox');
+    if (!lb || lb.hidden) return;
+    lb.hidden = true;
+    $('lbImg').src = '';
+    document.body.classList.remove('lb-open');
+  }
+
+  function bindLb() {
+    var lb = $('lightbox');
+    if (!lb || lb.__bound) return;
+    lb.__bound = true;
+    var c = $('lbClose');
+    if (c) c.addEventListener('click', closeLb);
+    lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (lb.hidden) return;
+      e.stopPropagation();
+      closeLb();
+    }, true);
+  }
+
+  bindLb();
 
   var tocItems = [], tocSpying = false;
 
@@ -1120,6 +1183,11 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   })();
 </script>
 <button class="totop" id="totop" type="button" aria-label="返回顶部" hidden>↑</button>
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="查看文章配图">
+  <button class="lb-close" id="lbClose" type="button" aria-label="关闭图片">×</button>
+  <img id="lbImg" alt="">
+  <div class="lb-hint">点空白处或按 Esc 关闭</div>
+</div>
 <div class="rprogress" id="rprogress" hidden></div>
 </body>
 </html>
