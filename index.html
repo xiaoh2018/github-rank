@@ -219,6 +219,13 @@ body[data-page="nav"] #insights{display:none!important}
 .navgroup>.gd{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
 .navjump{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
 .navmore-w{display:flex;justify-content:center;margin:12px 0 2px}
+.navskel{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--gap)}
+.skcard{height:64px;border-radius:12px;background:linear-gradient(90deg,var(--chip),rgba(0,0,0,.05),var(--chip));background-size:220% 100%;animation:ghsk 1.3s linear infinite}
+@keyframes ghsk{0%{background-position:220% 0}100%{background-position:-220% 0}}
+@media (prefers-reduced-motion:reduce){.skcard{animation:none}}
+.navempty{padding:26px 20px;border:1px dashed var(--border);border-radius:14px;background:var(--card);text-align:center}
+.navempty b{display:block;font-size:15px;margin-bottom:6px}
+.navempty p{margin:0 0 12px;color:var(--muted);font-size:13px}
 .navmore{padding:7px 18px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text);font:inherit;font-size:13px;cursor:pointer;transition:border-color .15s,color .15s}
 .navmore:hover{border-color:var(--gold);color:var(--accent)}
 .navmore:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -704,7 +711,12 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       <button type="button" class="btn navclear" id="navClear" hidden>清空</button>
       <span class="note" id="navCount"></span>
     </div>
-    <div id="navBody"><p class="note">加载中…</p></div>
+    <div id="navBody" aria-busy="true" aria-label="正在加载导航">
+      <div class="navskel">
+        <div class="skcard"></div><div class="skcard"></div><div class="skcard"></div>
+        <div class="skcard"></div><div class="skcard"></div><div class="skcard"></div>
+      </div>
+    </div>
   </section>
   </div>
 <button id="top" aria-label="回到顶部">↑</button>
@@ -1324,11 +1336,21 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         html+='</section>';
       });
       if(html && jump) html='<div class="navjump">'+jump+'</div>'+html;
-      if(!total) html='<p class="note">导航页还没有站点：到后台「导航页」添加分组和站点，保存后刷新这里就能看到。</p>';
-      box.innerHTML = html || '<p class="note">没有匹配的站点（清空搜索框可看全部）。</p>';
+      if(!total) html='<div class="navempty"><b>还没有站点</b><p>到后台「导航页」添加分组和站点，保存后刷新这里就能看到。</p><a class="btn" href="/admin">去后台添加</a></div>';
+      if(!html) html='<div class="navempty"><b>没有匹配的站点</b><p>换个关键词试试，或者清空搜索看全部 '+total+' 个站点。</p><button type="button" class="btn" data-navreset="1">清空搜索</button></div>';
+      box.removeAttribute('aria-busy');
+      box.innerHTML = html;
       if(!box.dataset.gbound){
         box.dataset.gbound='1';
         box.addEventListener('click', function(e){
+          var rs=e.target.closest?e.target.closest('[data-navreset]'):null;
+          if(rs){
+            var qi=document.getElementById('navSearch');
+            if(qi) qi.value='';
+            renderNav();
+            if(qi) qi.focus();
+            return;
+          }
           var jump=e.target.closest?e.target.closest('.nj'):null;
           if(jump){
             // 点分类快捷跳转：如果目标分组是收起的，先展开

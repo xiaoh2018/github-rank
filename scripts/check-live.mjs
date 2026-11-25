@@ -92,6 +92,10 @@ push('文章封面支持', artText.includes('acover') && artText.includes('a.cov
 
 push('问答分类计数', faqText.includes('counts[t]') && faqText.includes("chip b"));
 push('问答折叠标记', faqText.includes('summary:after') && faqText.includes('content:"+"'));
+push('导航加载骨架', home.includes('class="navskel"') && home.includes('aria-busy="true"'), '');
+push('导航空态卡与重置', home.includes('class="navempty"') && home.includes('data-navreset'), '');
+push('问答加载骨架', faqText.includes('function renderSkeleton') && faqText.includes('skrow'), '');
+push('问答空态卡与重置', faqText.includes('没有匹配的问题') && faqText.includes('data-reset'), '');
 push('问答搜索有高亮（highlightNode + hitmark）', faqText.includes('function highlightNode') && faqText.includes("className = 'hitmark'"));
 push('问答计数显示命中条数', faqText.includes('命中') && faqText.includes('当前显示'));
 push('问答答案先转义再解析 markdown', faqText.includes('function inline(s) {') && faqText.includes('return esc(s)'));

@@ -71,7 +71,12 @@ html[data-theme="ink"] .qa .hitmark{background:rgba(240,190,90,.32)}
 .qtag{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:1px solid transparent;border-radius:999px;padding:2px 9px;white-space:nowrap}
 .note{color:var(--muted);font-size:13px;margin-top:22px}
 footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;gap:12px;flex-wrap:wrap}
-.empty{color:var(--muted);padding:22px 0}
+.empty{padding:26px 20px;border:1px dashed var(--border);border-radius:14px;background:var(--card);text-align:center}
+.empty b{display:block;font-size:15px;margin-bottom:6px}
+.empty p{margin:0 0 12px;color:var(--muted);font-size:13px}
+.skrow{height:58px;border-radius:12px;background:linear-gradient(90deg,var(--chip),rgba(0,0,0,.05),var(--chip));background-size:220% 100%;animation:ghsk 1.3s linear infinite;margin:10px 0}
+@keyframes ghsk{0%{background-position:220% 0}100%{background-position:-220% 0}}
+@media (prefers-reduced-motion:reduce){.skrow{animation:none}}
 
 /* ---- 多主题 ---- */
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
@@ -261,6 +266,15 @@ html[data-theme="notion"]{
     });
   }
 
+  function renderSkeleton() {
+    var box = document.getElementById('list');
+    if (!box) return;
+    var h = '';
+    for (var i = 0; i < 4; i++) h += '<div class="skrow"></div>';
+    box.setAttribute('aria-busy', 'true');
+    box.innerHTML = h;
+  }
+
   function render() {
     var kw = (document.getElementById('q').value || '').trim().toLowerCase();
     var list = QA.items.filter(function (it) {
@@ -268,8 +282,11 @@ html[data-theme="notion"]{
       return matches(it, kw);
     });
     var box = document.getElementById('list');
-    if (!list.length) {
-      box.innerHTML = '<div class="empty">没有匹配的问题，换个关键词试试。</div>';
+    box.removeAttribute('aria-busy');
+    if (!QA.items.length) {
+      box.innerHTML = '<div class="empty"><b>还没有问答</b><p>站长在后台「问答」里添加之后，这里就会按分类列出来。</p></div>';
+    } else if (!list.length) {
+      box.innerHTML = '<div class="empty"><b>没有匹配的问题</b><p>换个关键词，或清空筛选看全部 ' + QA.items.length + ' 条。</p><button type="button" class="chip" data-reset="1">清空搜索与标签</button></div>';
     } else {
       box.innerHTML = list.map(function (it, i) {
         var no = QA.items.indexOf(it) + 1;
@@ -345,6 +362,15 @@ html[data-theme="notion"]{
   });
   document.getElementById('q').addEventListener('input', function () { syncUrl(false); render(); });
 
+  document.getElementById('list').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-reset]');
+    if (!b) return;
+    document.getElementById('q').value = '';
+    tag = 'all';
+    syncUrl(false);
+    render();
+  });
+
   // 主题：跟随站点默认，访客在其他页面选过就沿用（与首页一致）
   var THEME_KEY = 'ghrank-theme';
   var THEMES = ['paper', 'ink', 'stripe', 'notion'];
@@ -368,6 +394,8 @@ html[data-theme="notion"]{
     })
     .catch(function () { applyTheme('paper'); });
 
+  renderSkeleton();
+
   fetch('/data/qa.json', { cache: 'no-cache' })
     .then(function (r) { return r.json(); })
     .then(function (qa) {
@@ -377,7 +405,7 @@ html[data-theme="notion"]{
       render();
     })
     .catch(function () {
-      document.getElementById('list').innerHTML = '<div class="empty">问答数据没加载出来，稍后刷新再试。</div>';
+      document.getElementById('list').innerHTML = '<div class="empty"><b>问答没读出来</b><p>数据源可能暂时不可用，稍后刷新再试。</p></div>';
     });
 })();
   (function(){
