@@ -762,7 +762,7 @@ console.log("§29 首页文章卡片 / 问答页 / 视图记忆");
   ok(homeHtml.includes('artgrid'), '首页有文章卡片栅格 .artgrid');
   ok(homeHtml.includes('.artcard{'), '首页有 .artcard 卡片样式');
   ok(homeHtml.includes('id="artNote"'), '首页有 artNote 计数位');
-  ok(homeHtml.includes('function artHref'), '首页文章链接用 slug.html（artHref）');
+  ok(homeHtml.includes('function artHref'), '首页文章链接用 slug.html（artHref）'); ok(homeHtml.includes('var HOME_MAX=6;') && homeHtml.includes('items.slice(0,HOME_MAX)'), '首页最新文章最多显示 6 篇');
   ok(!homeHtml.includes('sessionStorage.getItem(VIEW_KEY)'), '不再按历史记忆切导航视图');
   const faqHtml = await (await hit('/faq')).text();
   ok(faqHtml.includes('grid-template-columns:24px minmax(0,1fr) auto auto'), '问答摘要四列 grid');

@@ -1047,11 +1047,12 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         if(!!a.pinned!==!!b.pinned) return a.pinned?-1:1;
         return String(b.date||'').localeCompare(String(a.date||''));
       });
+      var HOME_MAX=6;
       var note=document.getElementById('artNote');
-      if(note) note.textContent='共 '+items.length+' 篇';
+      if(note) note.textContent=(items.length>HOME_MAX ? '最新 '+HOME_MAX+' 篇 · 共 '+items.length+' 篇' : '共 '+items.length+' 篇');
       var grid=document.createElement('div');
       grid.className='artgrid';
-      items.forEach(function(it,idx){
+      items.slice(0,HOME_MAX).forEach(function(it,idx){
         var card=document.createElement('article');
         card.className='artcard';
         if(it.cover){
