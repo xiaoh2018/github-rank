@@ -1,0 +1,25 @@
+﻿import { spawn } from 'node:child_process';
+const [,,url,out,w,h]=process.argv;
+const port=9700+Math.floor(Math.random()*200);
+const chrome='C:/Program Files/Google/Chrome/Application/chrome.exe';
+const child=spawn(chrome,['--headless=new','--disable-gpu','--no-first-run','--hide-scrollbars','--remote-debugging-port='+port,'--user-data-dir='+process.env.TEMP+'/cr-shot-'+port,'about:blank'],{stdio:'ignore'});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let ws;
+for(let i=0;i<40;i++){ try{ const l=await (await fetch('http://127.0.0.1:'+port+'/json/list')).json(); const p=l.find(t=>t.type==='page'); if(p){ ws=new WebSocket(p.webSocketDebuggerUrl); break; } }catch(e){} await sleep(250); }
+await new Promise(r=>ws.addEventListener('open',r));
+let id=0;const pend=new Map();
+ws.addEventListener('message',ev=>{const m=JSON.parse(ev.data);if(m.id&&pend.has(m.id)){pend.get(m.id)(m);pend.delete(m.id);}});
+const send=(method,params={})=>new Promise(res=>{const i=++id;pend.set(i,res);ws.send(JSON.stringify({id:i,method,params}));});
+await send('Page.enable');
+await send('Emulation.setDeviceMetricsOverride',{width:+w||1440,height:+h||900,deviceScaleFactor:1,mobile:false});
+await send('Page.navigate',{url});
+await sleep(2600);
+const lm=await send('Page.getLayoutMetrics');
+const full=Math.min(6000, Math.ceil(lm.result.cssContentSize.height));
+await send('Emulation.setDeviceMetricsOverride',{width:+w||1440,height:full,deviceScaleFactor:1,mobile:false});
+await sleep(600);
+const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});
+const fs=await import('node:fs');
+fs.writeFileSync(out,Buffer.from(shot.result.data,'base64'));
+console.log('saved '+out+' '+ (fs.statSync(out).size) +' bytes h='+full);
+ws.close(); child.kill();

@@ -1658,6 +1658,8 @@ const AD_SLOTS = [
   { id: 'list-bottom', kind: 'fixed', name: '榜单下方', where: '分页器下面、文章区之前' },
   { id: 'sidebar', kind: 'fixed', name: '侧栏底部', where: '右侧栏最底部；侧栏下沉时跟着走' },
   { id: 'article', kind: 'fixed', name: '文章区上方', where: '首页文章列表上方（文章详情页顶部也用它）' },
+  { id: 'article-side', kind: 'fixed', name: '文章页侧栏', where: '文章页右侧栏里（侧栏卡片下方）；文章页不留侧栏时不显示' },
+  { id: 'article-after', kind: 'fixed', name: '文章正文之后', where: '每篇文章读完的地方（正文结束、上一篇/下一篇之前）' },
   { id: 'list-inline', kind: 'inline', every: 10, name: '榜单信息流', where: '榜单列表里插在项目之间，分页器不受影响' },
   { id: 'article-inline', kind: 'inline', every: 2, name: '文章信息流', where: '首页文章列表里插在篇目之间' },
   { id: 'nav-inline', kind: 'inline', every: 8, name: '导航信息流', where: '导航页每个分组里插在站点之间' },
@@ -1696,7 +1698,7 @@ function defaultSite() {
       slots: emptyAdSlots(),
       ticker: { enabled: false, text: '', speed: 18, link: '', modal: '' },
     },
-    layout: { mode: 'auto', side: 'right', users: 'auto' },
+    layout: { mode: 'auto', side: 'right', users: 'auto', articleSide: 'right' },
     contact: { enabled: false, title: '联系我', wechat: '', qrUrl: '', email: '', note: '' },
     beian: { enabled: false, icp: '', icpUrl: 'https://beian.miit.gov.cn/', police: '', policeUrl: '', text: '' },
     seo: { siteName: '', title: '', description: '', keywords: '', ogImage: '', siteUrl: '' },
@@ -1761,7 +1763,8 @@ function normalizeSite(o) {
   const lo = o && typeof o.layout === 'object' && o.layout ? o.layout : {};
   d.layout.mode = ['auto', 'single', 'double', 'triple'].indexOf(lo.mode) >= 0 ? lo.mode : 'auto';
   d.layout.side = ['right', 'below'].indexOf(lo.side) >= 0 ? lo.side : 'right';
-  d.layout.users = ['auto', 'single', 'double'].indexOf(lo.users) >= 0 ? lo.users : 'auto';
+  d.layout.users = ['auto', 'single', 'double', 'triple'].indexOf(lo.users) >= 0 ? lo.users : 'auto';
+  d.layout.articleSide = ['right', 'left', 'none'].indexOf(lo.articleSide) >= 0 ? lo.articleSide : 'right';
   const s = o && typeof o.seo === 'object' && o.seo ? o.seo : {};
   for (const k of Object.keys(d.seo)) d.seo[k] = str(s[k], '');
   const g = o && typeof o.geo === 'object' && o.geo ? o.geo : {};
@@ -1882,8 +1885,10 @@ function checkSection(section, value) {
     const side = value.side == null ? 'right' : value.side;
     if (['right', 'below'].indexOf(side) < 0) return { ok: false, error: '侧栏位置只能是 right 或 below' };
     const users = value.users == null ? 'auto' : value.users;
-    if (['auto', 'single', 'double'].indexOf(users) < 0) return { ok: false, error: '开发者/组织榜列数只能是 auto、single 或 double' };
-    return { ok: true, clean: { mode: mode, side: side, users: users } };
+    if (['auto', 'single', 'double', 'triple'].indexOf(users) < 0) return { ok: false, error: '开发者/组织榜列数只能是 auto、single、double 或 triple' };
+    const artSide = value.articleSide == null ? 'right' : value.articleSide;
+    if (['right', 'left', 'none'].indexOf(artSide) < 0) return { ok: false, error: '文章页侧栏只能是 right、left 或 none' };
+    return { ok: true, clean: { mode: mode, side: side, users: users, articleSide: artSide } };
   }
   if (section === 'contact') {
     if (typeof value.enabled !== 'boolean') return { ok: false, error: '联系方式开关必须是 true 或 false' };
@@ -2627,6 +2632,53 @@ dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
 #artTbody .art-title{font-weight:600}
 #navAdmin td:last-child{white-space:nowrap}
 @media (max-width:900px){.main{padding:20px 16px 56px}.app{grid-template-columns:1fr}}
+
+/* ===== UI v3：后台换回前台同一套品牌色（暖米白 + 金），不再蓝白各一套 ===== */
+body{background:radial-gradient(900px 420px at 88% -8%,#f3ecdc 0%,#faf7f0 55%,#faf7f0 100%);color:#1c2230}
+.main{background:transparent}
+.side{background:linear-gradient(180deg,#1b1712 0%,#241d14 100%);border-right:1px solid #332a1c}
+.brand{color:#f7f2e6}
+.brand small{color:#9c8a6a}
+.nav{color:#c9bda6}
+.nav:hover{background:#2b2418;color:#fff}
+.nav[aria-current=true]{background:linear-gradient(135deg,#c9921a,#a1710a);color:#fff;box-shadow:0 8px 18px rgba(176,125,16,.35)}
+.navgroup{color:#8d7a5a}
+.bar{border-bottom:1px solid #e5e0d4}
+.bar h1{color:#1c2230}
+.bar .sub,.card .desc,.hint,.msg{color:#6b7280}
+.pane{max-width:1080px}
+.intro{background:linear-gradient(180deg,#fbf5e8,#f8f0df);border:1px solid #eadfc6;border-left:3px solid #b07d10;color:#6b4a06}
+.card{border:1px solid #e5e0d4;background:#fff;box-shadow:0 1px 2px rgba(28,34,48,.05),0 10px 26px -20px rgba(28,34,48,.35)}
+.card h2{color:#1c2230}
+label{color:#4b5364}
+input[type=text],input[type=password],input[type=url],input[type=date],input[type=number],textarea,select{background:#fdfbf6;border:1px solid #e5e0d4;color:#1c2230}
+input[type=text]:hover,textarea:hover,input[type=url]:hover,input[type=number]:hover{background:#fff;border-color:#d8cfb9}
+input:focus,textarea:focus,select:focus{border-color:#b07d10;box-shadow:0 0 0 4px rgba(176,125,16,.16)}
+textarea.code{background:#fdfbf6}
+button{background:linear-gradient(135deg,#c9921a,#a1710a);color:#fff;box-shadow:0 6px 14px rgba(176,125,16,.26)}
+button.ghost{background:#fff;color:#4b5364;border:1px solid #e5e0d4;box-shadow:none}
+button.ghost:hover{background:#fdf9f0;border-color:#d8cfb9;color:#1c2230}
+button.danger{background:linear-gradient(135deg,#d4573f,#b93a22);box-shadow:0 6px 14px rgba(185,58,34,.24)}
+table{border:1px solid #eee9dd}
+th{background:#f8f4ea;color:#7c6f56;border-bottom:1px solid #e5e0d4}
+td{border-bottom:1px solid #f1ece1}
+tr:hover td{background:#fdfaf2}
+.stat{background:linear-gradient(180deg,#fff,#fbf7ee);border:1px solid #e5e0d4}
+.stat b{color:#8d7a5a}
+.kv{border-bottom:1px dashed #eee9dd}
+.kv b{color:#3f4757}
+.tr-box{background:#fdfbf6;border:1px solid #eae4d6;color:#33404f}
+.tr-box.tr-bad{background:#fdf1ee;border-color:#f3ccc2;color:#9c2f1c}
+.status-list .status-item{background:#fdfbf6;border:1px solid #eee9dd}
+.choice{background:#fdfbf6;border:1px solid #e5e0d4}
+.choice:has(input:checked){background:#fbf4e3;border-color:#c9921a;box-shadow:0 0 0 3px rgba(176,125,16,.13)}
+.toggle input{accent-color:#b07d10}
+.raw pre{background:#fdfbf6;border:1px solid #eee9dd}
+code.slot-id{background:#f6f1e4;color:#7a6a4c}
+.dot.ok{background:#3f9d6b}
+.nav-badge{background:#f0b429;color:#3a2a00}
+::-webkit-scrollbar-thumb{background:#d8cfb9;border-radius:8px;border:2px solid transparent;background-clip:content-box}
+#errBar{background:#fdecea;color:#a32a17;border-bottom:1px solid #f5c6bc}
 </style>
 </head>
 <body>
@@ -2792,8 +2844,8 @@ dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
 
 
     <section class="pane" id="pane-layout" hidden>
-        <div class="bar"><div><h1>榜单布局</h1><div class="sub">榜单几列、侧栏放哪、开发者 / 组织榜怎么排</div></div></div>
-        <div class="intro">这三项都只影响排版，不影响数据。保存后刷新首页立刻生效；移动端一律单列，避免挤成一条。</div>
+        <div class="bar"><div><h1>榜单布局</h1><div class="sub">榜单几列、侧栏放哪、开发者 / 组织榜怎么排、文章页要不要侧栏</div></div></div>
+        <div class="intro">这四项都只影响排版，不影响数据。保存后刷新首页 / 文章页立刻生效；移动端一律单列，避免挤成一条。</div>
         <div class="card">
           <div class="card-head"><div><h2>榜单列数</h2><p class="desc">项目榜、开发者榜、组织榜都用这一档。</p></div></div>
           <div class="choice-grid">
@@ -2814,6 +2866,14 @@ dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
             <label class="choice"><input type="radio" name="layout-users" value="auto"><span class="choice-t">跟榜单一致<b>默认</b></span></label>
             <label class="choice"><input type="radio" name="layout-users" value="single"><span class="choice-t">单列</span></label>
             <label class="choice"><input type="radio" name="layout-users" value="double"><span class="choice-t">双列</span></label>
+            <label class="choice"><input type="radio" name="layout-users" value="triple"><span class="choice-t">三列<b>1280px 以上三栏</b></span></label>
+          </div>
+          <h2 style="margin-top:26px">文章页侧栏</h2>
+          <p class="desc">文章页（/articles）是博客式排版：默认左侧文章列表、右侧关于站点与分类。这里决定侧栏放哪。</p>
+          <div class="choice-grid">
+            <label class="choice"><input type="radio" name="layout-articleSide" value="right"><span class="choice-t">右侧<b>默认</b></span></label>
+            <label class="choice"><input type="radio" name="layout-articleSide" value="left"><span class="choice-t">左侧</span></label>
+            <label class="choice"><input type="radio" name="layout-articleSide" value="none"><span class="choice-t">不要侧栏<b>整行通栏</b></span></label>
           </div>
           <div class="actions"><button type="button" data-save="layout">保存榜单布局</button></div>
         </div>
@@ -3060,7 +3120,7 @@ dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
   var TABS = ['overview', 'layout', 'articles', 'nav', 'seo', 'links', 'ad', 'contact', 'beian', 'submit', 'keys', 'translate'];
   var FIELDS = {
     ad: ['html'],
-    layout: ['mode', 'side', 'users'],
+    layout: ['mode', 'side', 'users', 'articleSide'],
     contact: ['title', 'wechat', 'qrUrl', 'email', 'note'],
     beian: ['icp', 'icpUrl', 'police', 'policeUrl', 'text'],
     seo: ['siteName', 'title', 'description', 'keywords', 'ogImage', 'siteUrl'],
@@ -3332,7 +3392,7 @@ dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
       });
     });
     var lay = s.layout || {};
-    var picked = { 'layout-mode': lay.mode || 'auto', 'layout-side': lay.side || 'right', 'layout-users': lay.users || 'auto' };
+    var picked = { 'layout-mode': lay.mode || 'auto', 'layout-side': lay.side || 'right', 'layout-users': lay.users || 'auto', 'layout-articleSide': lay.articleSide || 'right' };
     Object.keys(picked).forEach(function (name) {
       document.querySelectorAll('input[name="' + name + '"]').forEach(function (r) { r.checked = r.value === picked[name]; });
     });
@@ -3385,7 +3445,7 @@ dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
         var r = document.querySelector('input[name="' + name + '"]:checked');
         return r ? r.value : dflt;
       };
-      return { mode: pick('layout-mode', 'auto'), side: pick('layout-side', 'right'), users: pick('layout-users', 'auto') };
+      return { mode: pick('layout-mode', 'auto'), side: pick('layout-side', 'right'), users: pick('layout-users', 'auto'), articleSide: pick('layout-articleSide', 'right') };
     }
     var v = {};
     if (sec !== 'seo' && sec !== 'geo') v.enabled = $(sec + '-enabled').checked;

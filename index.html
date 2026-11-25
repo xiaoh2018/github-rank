@@ -417,7 +417,10 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
     .contact-fab{width:36px;padding:10px 4px}
     .contact-panel{right:44px;width:min(260px,calc(100vw - 64px))}
   }
-  </style>
+  @media (min-width:1280px){body[data-users="triple"] #list.users-view{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);align-items:stretch}}
+@media (max-width:1279px){body[data-users="triple"] #list.users-view{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:stretch}}
+@media (max-width:899px){body[data-users="triple"] #list.users-view{display:flex;flex-direction:column}}
+</style>
 </head>
 <body>
 <div class="ad-ticker" id="adTicker" hidden></div>
