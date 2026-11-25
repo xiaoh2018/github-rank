@@ -20,6 +20,8 @@ const adminHtml = await (await fetch(BASE + '/admin', { cache: 'no-store' })).te
 (adminHtml.includes('data-empty-act="cat-add"') ? ok : bad)('后台源码有分类空态按钮');
 (adminHtml.includes('data-empty-act="qa-add"') ? ok : bad)('后台源码有问答空态按钮');
 (adminHtml.includes('EMPTY_ACT') ? ok : bad)('后台源码有空态按钮委托表');
+(adminHtml.includes('data-empty-act="nav-cat-add"') ? ok : bad)('后台源码有导航分类空态按钮');
+(adminHtml.includes('data-navfreset="1"') ? ok : bad)('后台源码有导航「清空筛选」按钮');
 
 const port = 9600 + Math.floor(Math.random() * 300);
 const prof = path.join(os.tmpdir(), 'cr-aempty-' + Date.now());
@@ -90,6 +92,24 @@ try {
   (gone ? ok : bad)('空态卡已消失');
   const note = await evalJs("(document.getElementById('artSearchNote')||{}).textContent");
   (note === '' ? ok : bad)('筛选提示已清空（实际 "' + note + '"）');
+
+  // 导航页：搜索无匹配 → 空态卡 + 清空筛选
+  await evalJs("document.querySelector('.nav[data-tab=\"nav\"]').click(); 1");
+  await sleep(1300);
+  const navRows0 = await evalJs("document.querySelectorAll('#navAdmin .nav-table tbody tr').length");
+  (navRows0 > 0 ? ok : bad)('导航列表初始 ' + navRows0 + ' 行');
+  await evalJs("(function(){var i=document.getElementById('navFilter'); i.value='zzqq没有的站点'; i.dispatchEvent(new Event('input',{bubbles:true})); return 1})()");
+  await sleep(500);
+  const navCard = await evalJs("(function(){var c=document.querySelector('#navAdmin .empty-card'); return c?c.textContent.replace(/\\s+/g,' ').trim():''})()");
+  (navCard.indexOf('没有匹配的站点') >= 0 ? ok : bad)('导航空态卡（' + navCard.slice(0, 16) + '…）');
+  const navReset = await evalJs("!!document.querySelector('#navAdmin [data-navfreset]')");
+  (navReset ? ok : bad)('导航空态卡里有「清空筛选」');
+  await evalJs("document.querySelector('#navAdmin [data-navfreset]').click(); 1");
+  await sleep(600);
+  const navRows1 = await evalJs("document.querySelectorAll('#navAdmin .nav-table tbody tr').length");
+  (navRows1 > 0 ? ok : bad)('清空筛选后恢复 ' + navRows1 + ' 行');
+  const navF = await evalJs("(document.getElementById('navFilter')||{}).value");
+  (navF === '' ? ok : bad)('筛选框已清空（实际 "' + navF + '"）');
 } catch (e) {
   bad('执行异常: ' + e.message);
 } finally {

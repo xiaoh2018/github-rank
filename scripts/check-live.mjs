@@ -199,6 +199,8 @@ const faqTotop = await (await fetch(base + '/faq?v=' + t)).text();
 push('/faq 有返回顶部按钮', faqTotop.includes('id="totop"') && faqTotop.includes('initTotop'), '');
 push('/faq 页脚有 RSS', faqTotop.includes('href="/rss.xml"'), '');
 const admHtml = await (await fetch(base + '/admin?v=' + t)).text();
+push('后台导航空态带清空筛选', admHtml.includes('data-navfreset'), '');
+push('后台导航分类空态按钮', admHtml.includes('data-empty-act="nav-cat-add"'), '');
 push('后台空态卡样式', admHtml.includes('.empty-card{padding:30px'), '');
 push('后台文章空态带重置按钮', admHtml.includes('data-empty-act="artreset"'), '');
 push('后台空态按钮委托表', admHtml.includes('EMPTY_ACT'), '');

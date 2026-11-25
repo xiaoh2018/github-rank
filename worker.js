@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v143';
+const ASSET_V = 'v144';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -5116,7 +5116,7 @@ tr:hover td{background:#fcfbf8}
     sel.value = state.artCat || '';
   }
   // 空态卡里的按钮统一走委托，映射到已有的工具栏按钮
-  var EMPTY_ACT = { 'art-new': 'artNew', 'link-add': 'addLinkBtn', 'cat-add': 'catAdd', 'qa-add': 'faqAdd' };
+  var EMPTY_ACT = { 'art-new': 'artNew', 'link-add': 'addLinkBtn', 'cat-add': 'catAdd', 'qa-add': 'faqAdd', 'nav-cat-add': 'navAddGroup' };
   document.addEventListener('click', function (e) {
     var b = e.target.closest ? e.target.closest('[data-empty-act]') : null;
     if (!b) return;
@@ -5663,7 +5663,17 @@ tr:hover td{background:#fcfbf8}
     var gs = (navState && navState.groups) || [];
     var q = navFilterText();
     if (!gs.length) {
-      box.innerHTML = '<p class="empty">还没有分类，点右上角「＋ 分类」开始。</p>';
+      box.innerHTML = '<div class="empty-card"><b>还没有分类</b><p>导航页的分类就是前台的标签，例如「开发工具」「设计」；建好分类再往里加站点。</p><button type="button" class="btn" data-empty-act="nav-cat-add">＋ 分类</button></div>';
+      return;
+    }
+    var anyHit = !q || gs.some(function (g) {
+      return (g.items || []).some(function (it) {
+        return (String(it.name || '') + ' ' + String(it.url || '') + ' ' + String(it.desc || '')).toLowerCase().indexOf(q) >= 0;
+      });
+    });
+    if (!anyHit) {
+      var allN = gs.reduce(function (n, g) { return n + (g.items || []).length; }, 0);
+      box.innerHTML = '<div class="empty-card"><b>没有匹配的站点</b><p>换个关键词试试，或清空筛选看全部 ' + allN + ' 个站点。</p><button type="button" class="btn ghost" data-navfreset="1">清空筛选</button></div>';
       return;
     }
     box.innerHTML = gs.map(function (g, gi) {
@@ -5684,7 +5694,9 @@ tr:hover td{background:#fcfbf8}
         '<button type="button" class="ghost small danger" data-gdel="' + gi + '">删分类</button></div></div>' +
         (shown.length
           ? '<table class="nav-table"><thead><tr><th style="width:215px">名称</th><th style="width:255px">网址</th><th>描述</th><th style="width:200px">图标</th><th style="width:212px">操作</th></tr></thead><tbody>' + rows + '</tbody></table>'
-          : '<p class="empty">' + (q ? '这个分类里没有匹配的站点。' : '这个分类还没有站点。') + '</p>') +
+          : (q
+            ? '<div class="empty-card"><b>这个分类里没有匹配的站点</b><p>换个关键词，或清空筛选看这个分类的全部 ' + items.length + ' 个站点。</p><button type="button" class="btn ghost" data-navfreset="1">清空筛选</button></div>'
+            : '<div class="empty-card"><b>这个分类还没有站点</b><p>加站点时填「名称 | 网址 | 描述 | 图标」，图标可留空，前台会自动取站名首字母。</p><button type="button" class="btn" data-gadd="' + gi + '">＋ 站点</button></div>')) +
         '</div>';
     }).join('');
   }
@@ -5711,6 +5723,12 @@ tr:hover td{background:#fcfbf8}
     toast(added ? '已导入 ' + added + ' 个站点到「' + g.name + '」，记得点保存' : '没识别到可导入的行（第二列要是 http(s) 网址）', added > 0);
   }
   $('navFilter').addEventListener('input', renderNavAdmin);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-navfreset]') : null;
+    if (!b) return;
+    if ($('navFilter')) { $('navFilter').value = ''; $('navFilter').focus(); }
+    renderNavAdmin();
+  });
   $('navImport').addEventListener('click', function () {
     var dlg = $('navImpDlg');
     $('navImpText').value = '';
