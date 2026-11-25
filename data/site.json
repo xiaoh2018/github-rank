@@ -4,7 +4,9 @@
     "html": ""
   },
   "layout": {
-    "mode": "auto"
+    "mode": "auto",
+    "side": "right",
+    "users": "double"
   },
   "contact": {
     "enabled": true,
