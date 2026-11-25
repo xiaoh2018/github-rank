@@ -1,5 +1,5 @@
 window.__GHRANK_META__ = {
-  generatedAt: "2026-11-25T08:11:31.043Z",
+  generatedAt: "2026-11-25T08:35:08.126Z",
   counts: {"week":500,"month":500,"year":500,"total":500},
   users: {
     devs: [
