@@ -39,7 +39,7 @@
   },
   "layout": {
     "mode": "triple",
-    "side": "right",
+    "side": "below",
     "users": "auto"
   },
   "contact": {
