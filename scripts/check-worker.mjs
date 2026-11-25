@@ -467,6 +467,8 @@ console.log('== 17. 后台内联脚本可解析 + 面板齐全 ==');
 const adminPage = await (await hit('/admin')).text();
 ok(adminPage.includes('subTimer') && adminPage.includes('冷却中'), '收录提交面板有冷却倒计时');
 ok(adminPage.includes('urlList'), '收录提交面板能展开本次推送地址');
+ok(adminPage.includes('healthBox') && adminPage.includes('loadHealth'), '概览页有站点体检卡');
+ok(adminPage.includes('data-copy="https://github.661026.xyz/sitemap.xml"'), '体检卡能一键复制 sitemap 地址');
 ok(adminPage.includes('setInterval(tick, 1000)'), '倒计时每秒刷新');
 ok(adminPage.includes('id="pane-submit"'), '后台有 pane-submit 面板');
 const inlineScripts = [...adminPage.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]).filter((s) => s.trim());

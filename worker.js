@@ -1410,7 +1410,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v61';
+const ASSET_V = 'v62';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2875,6 +2875,7 @@ th{color:var(--muted);font-weight:600;font-size:13px}
 .stat span{font-size:15px;font-weight:600}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8;margin-right:8px;vertical-align:middle}
 .dot.ok{background:var(--ok)}
+.dot.bad{background:#e11d48}
 .dot.warn{background:var(--warn)}
 .dot.bad{background:var(--bad)}
 .faq-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) auto;gap:8px;align-items:start;margin-top:10px}
@@ -3267,6 +3268,17 @@ tr:hover td{background:#fcfbf8}
           <button type="button" id="keepBtn">立即保活一次</button>
           <button type="button" class="ghost" id="refreshBtn">刷新状态</button>
         </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><b>站点体检</b><span class="hint">绿色=正常，红色=需要处理</span></div>
+        <div class="status-list" id="healthBox"><div class="empty">加载中…</div></div>
+        <div class="row-actions">
+          <button type="button" class="ghost" data-copy="https://github.661026.xyz/sitemap.xml">复制 sitemap.xml</button>
+          <button type="button" class="ghost" data-copy="https://github.661026.xyz/llms.txt">复制 llms.txt</button>
+          <button type="button" class="ghost" data-copy="https://github.661026.xyz/robots.txt">复制 robots.txt</button>
+          <button type="button" class="ghost" id="healthReload">刷新体检</button>
+        </div>
+        <p class="hint">搜索引擎的「提交站点地图」框里，直接粘贴上面复制的地址即可。</p>
       </div>
     </section>
 
@@ -3795,6 +3807,7 @@ tr:hover td{background:#fcfbf8}
     $('app').hidden = false;
     go(location.hash.slice(1));
     loadStatus();
+    loadHealth();
     loadLinks();
     loadSite();
     loadArticles();
@@ -3883,6 +3896,49 @@ tr:hover td{background:#fcfbf8}
   });
 
   // ---- 概览：保活状态 ----
+  function healthRow(label, ok, text) {
+    return '<div class="status-item"><span class="dot' + (ok ? ' ok' : ' bad') + '"></span><b>' + label + '</b><span>' + navEsc(text || '') + '</span></div>';
+  }
+  function loadHealth() {
+    var box = $('healthBox');
+    if (!box) return;
+    box.innerHTML = '<div class="empty">加载中…</div>';
+    Promise.all([
+      api('/api/submit').catch(function () { return null; }),
+      api('/api/ai-usage').catch(function () { return null; })
+    ]).then(function (res) {
+      var sub = res[0] && res[0].status, ai = res[1] && (res[1].usage || res[1]);
+      var rows = [];
+      var sm = (sub && sub.sitemap) || 'https://github.661026.xyz/sitemap.xml';
+            var base = sm.indexOf('/sitemap.xml') > 0 ? sm.slice(0, sm.indexOf('/sitemap.xml')) : sm;
+      rows.push(healthRow('站点地址', true, base));
+      rows.push(healthRow('key 文件', !!(sub && sub.keyFileOk), (sub && sub.keyFileOk) ? '能打开，内容' + (sub.keyFileMatch ? '与后台一致' : '与后台不一致（会被 422 拒绝）') : ((sub && sub.keyFileNote) || '打不开')));
+      rows.push(healthRow('百度密钥', !!(sub && sub.baiduToken), sub && sub.baiduToken ? '已配置（来源 ' + (sub.baiduTokenSource || 'env') + '）' : '没配，百度推送会跳过'));
+      rows.push(healthRow('IndexNow Key', !!(sub && sub.indexNowKey), (sub && sub.indexNowKey) ? '已生成，来源 ' + (sub.indexKeySource || 'derived') : '没生成'));
+      if (ai && typeof ai.used === 'number') {
+        var lim = ai.unlimited ? '不限' : String(ai.cap);
+        rows.push(healthRow('Workers AI 今日', ai.unlimited || ai.used < ai.cap, '已用 ' + ai.used + ' / ' + lim + (ai.unlimited ? '' : '（还剩 ' + ai.remaining + '）')));
+      }
+      rows.push(healthRow('上次提交', true, (sub && sub.lastRun && sub.lastRun.at) ? new Date(sub.lastRun.at).toLocaleString() : '还没提交过'));
+      rows.push(healthRow('冷却', !(sub && sub.cooldown && sub.cooldown.seconds > 0), (sub && sub.cooldown && sub.cooldown.seconds > 0) ? '还要等 ' + sub.cooldown.seconds + ' 秒' : '可以提交'));
+      box.innerHTML = rows.join('');
+    }).catch(function () {
+      box.innerHTML = '<div class="empty">体检数据没取到，点「刷新体检」再试。</div>';
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-copy]');
+    if (!b) return;
+    var url = b.getAttribute('data-copy');
+    var done = function () { toast('已复制 ' + url); };
+    var fail = function () { toast('复制失败，请手动选中：' + url); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(fail);
+    else fail();
+  });
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('#healthReload')) loadHealth();
+  });
+
   function loadStatus() {
     $('stState').textContent = '读取中…';
     api('/api/status').then(function (s) {
