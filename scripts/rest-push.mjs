@@ -49,10 +49,19 @@ if (remoteHead === commit) { console.log('already up to date'); process.exit(0);
 const remoteCommit = await api('GET', `/repos/${REPO}/git/commits/${remoteHead}`);
 const baseTree = remoteCommit.tree.sha;
 
-// 注意：必须用「远端 head..本地 HEAD」的整段差异，不能只用 tip commit 的 diff-tree。
-// 之前踩过：本地有两个未推送的提交时，只推 tip 的那一个，前一个提交改的文件会被静默丢掉。
-let base = remoteHead;
-try { git(['merge-base', '--is-ancestor', remoteHead, commit]); } catch (e) { base = parent; console.log('warn: remote head 不在本地历史里，退回只推 tip'); }
+// base 选择：优先用 .git/rest-push-last 记的「上次推上去的本地提交」，其次远端 head（若在本地历史里），
+// 否则退回 tip 的父提交。REST 推送会在远端重建提交对象，本地历史里通常找不到远端 head，
+// 所以必须自己记账，否则连攒两个提交再推时会丢掉前一个提交改的文件。
+const LAST_FILE = '.git/rest-push-last';
+const isAncestor = (a, b) => { try { git(['merge-base', '--is-ancestor', a, b]); return true; } catch (e) { return false; } };
+let base = null;
+if (fs.existsSync(LAST_FILE)) {
+  const last = fs.readFileSync(LAST_FILE, 'utf8').trim();
+  if (last && isAncestor(last, commit)) base = last;
+}
+if (!base && isAncestor(remoteHead, commit)) base = remoteHead;
+if (!base) { base = parent; console.log('warn: 没有上次推送点，本次只推 tip（推完会记下来）'); }
+console.log('base', base.slice(0, 7));
 const diff = git(['-c', 'core.quotepath=false', 'diff', '--name-status', '-M', base, commit], { encoding: 'utf8' });
 const entries = [];
 for (const line of diff.split('\n')) {
@@ -82,4 +91,5 @@ const newCommit = await api('POST', `/repos/${REPO}/git/commits`, {
 });
 console.log('commit', newCommit.sha.slice(0, 7));
 await api('PATCH', `/repos/${REPO}/git/refs/heads/main`, { sha: newCommit.sha, force: false });
+try { fs.writeFileSync(LAST_FILE, commit + '\n'); } catch (e) { console.log('warn: 记不住推送点（' + e.message + '）'); }
 console.log('PUSHED', newCommit.sha);
