@@ -102,7 +102,7 @@
     ]
   },
   "theme": {
-    "name": "paper",
+    "name": "stripe",
     "allowUser": true
   },
   "layout": {
