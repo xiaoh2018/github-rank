@@ -362,17 +362,18 @@ async function saveTranslation(text, zh) {
 }
 
 // MyMemory 的可用邮箱列表：TRANSLATE_EMAILS（逗号/空格分隔）优先，其次 TRANSLATE_EMAIL
-function mmEmails(env) {
-  const src = env.TRANSLATE_EMAILS || env.TRANSLATE_EMAIL || 'xiaoh2018@gmail.com';
+function mmEmails(env, rt) {
+  const r = rt || {};
+  const src = (typeof r.emails === 'string' && r.emails.trim()) || env.TRANSLATE_EMAILS || env.TRANSLATE_EMAIL || 'xiaoh2018@gmail.com';
   const list = String(src).split(/[,\s]+/).map((s) => s.trim()).filter(Boolean);
   return list.length ? list : ['xiaoh2018@gmail.com'];
 }
 
 // MyMemory：免费、无需 Key。返回 { ok, text, error }，error 带类型前缀方便后台显示
-async function translateMM(text, env) {
+async function translateMM(text, env, rt) {
   const chunks = chunkText(text, 450);
   if (!chunks.length) return { ok: false, error: 'empty: 没有可翻译的内容' };
-  const emails = mmEmails(env);
+  const emails = mmEmails(env, rt);
   const parts = [];
   let emailIdx = 0;
   for (const piece of chunks) {
@@ -423,9 +424,33 @@ async function translateMM(text, env) {
 }
 
 // Workers AI 每天最多用多少次（防止把额度打光）：AI_DAILY_CAP，默认 400
-function aiCap(env) {
+function aiCap(env, rt) {
+  const r = rt || {};
+  if (typeof r.aiCap === 'number') return r.aiCap === 0 ? Infinity : r.aiCap;
   const n = Number(env.AI_DAILY_CAP || 400);
   return Number.isFinite(n) && n > 0 ? n : 400;
+}
+
+// 读后台设置（data/site.json 的 runtime 分组），带 60 秒边缘缓存
+async function siteRuntime(env) {
+  const DFLT = { aiCap: null, emails: '' };
+  try {
+    const key = EDGE_KEY_BASE + '/__runtime';
+    const hit = await EDGE_CACHE.match(key);
+    if (hit) {
+      const j = await hit.json().catch(() => null);
+      if (j && typeof j === 'object') {
+        return { aiCap: typeof j.aiCap === 'number' ? j.aiCap : null, emails: typeof j.emails === 'string' ? j.emails : '' };
+      }
+    }
+    const r = await readSite(env);
+    const rt = (r && r.ok && r.site && r.site.runtime) || DFLT;
+    const out = { aiCap: typeof rt.aiCap === 'number' ? rt.aiCap : null, emails: typeof rt.emails === 'string' ? rt.emails : '' };
+    await EDGE_CACHE.put(key, new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json', 'cache-control': 'max-age=60' } }));
+    return out;
+  } catch (e) {
+    return DFLT;
+  }
 }
 
 async function aiCountKey(env) {
@@ -455,12 +480,12 @@ async function aiBumpUsage(env) {
 }
 
 // Workers AI 翻译（m2m100）：需要在 Worker 上绑定 AI（变量名 AI）；没有绑定时直接跳过
-async function translateAI(text, env) {
+async function translateAI(text, env, rt) {
   if (!env.AI) return { ok: false, error: 'not-bound: 没有绑定 Workers AI（变量名必须是 AI）' };
-  const cap = aiCap(env);
+  const cap = aiCap(env, rt);
   const used = await aiUsedToday(env);
   if (used >= cap) {
-    return { ok: false, error: 'cap: 今天的 Workers AI 调用已达上限（' + used + '/' + cap + '），明天恢复，或调大 AI_DAILY_CAP' };
+    return { ok: false, error: 'cap: 今天的 Workers AI 调用已达上限（' + used + '/' + (cap === Infinity ? '不限' : cap) + '），明天恢复，或把上限调大/设为 0' };
   }
   const chunks = chunkText(text, 900);
   if (!chunks.length) return { ok: false, error: 'empty: 没有可翻译的内容' };
@@ -665,7 +690,7 @@ async function serveSiteEdge(env, pathname, entry, request) {
 }
 
 // 后台可以保存的站点配置分组
-const SITE_SECTIONS = ['ad', 'layout', 'contact', 'beian', 'seo', 'geo'];
+const SITE_SECTIONS = ['ad', 'layout', 'contact', 'beian', 'seo', 'geo', 'runtime'];
 
 // 读取仓库 data/site.json（raw 地址，边缘缓存 RAW_TTL 秒），给站点页和 sitemap 用；失败时用默认值
 async function loadSiteRaw(env) {
@@ -886,13 +911,15 @@ function fmtBJ(d) {
 }
 
 // 翻译链路的自检信息：只回布尔值，不暴露任何密钥内容
-function translatorStatus(env) {
+function translatorStatus(env, rt) {
+  const cap = aiCap(env, rt);
   return {
     githubToken: !!env.GITHUB_TOKEN,
     ai: !!env.AI,
-    contactEmail: !!env.TRANSLATE_EMAIL || !!env.TRANSLATE_EMAILS,
-    emails: mmEmails(env).length,
-    aiCap: aiCap(env),
+    contactEmail: !!env.TRANSLATE_EMAIL || !!env.TRANSLATE_EMAILS || !!(rt && rt.emails),
+    emails: mmEmails(env, rt).length,
+    aiCap: cap === Infinity ? 0 : cap,
+    aiCapSource: rt && typeof rt.aiCap === 'number' ? 'admin' : 'env',
   };
 }
 
@@ -1519,6 +1546,8 @@ function defaultSite() {
     beian: { enabled: false, icp: '', icpUrl: 'https://beian.miit.gov.cn/', police: '', policeUrl: '', text: '' },
     seo: { siteName: '', title: '', description: '', keywords: '', ogImage: '', siteUrl: '' },
     geo: { summary: '', faq: [{ q: '', a: '' }] },
+    // 翻译的运行设置：后台「翻译与密钥」页可直接改，不用去 Cloudflare 配变量
+    runtime: { aiCap: null, emails: '' },
   };
 }
 
@@ -1588,6 +1617,17 @@ function normalizeSite(o) {
       .slice(0, 20)
       .map((f) => ({ q: str(f.q, ''), a: str(f.a, '') }));
   }
+  const rt = o && typeof o.runtime === 'object' && o.runtime ? o.runtime : {};
+  let cap = rt.aiCap;
+  if (cap === '') cap = null;
+  if (cap != null) {
+    const num = Number(cap);
+    cap = Number.isFinite(num) && num >= 0 ? Math.min(100000, Math.round(num)) : null;
+  }
+  d.runtime = {
+    aiCap: cap,
+    emails: typeof rt.emails === 'string' ? rt.emails.slice(0, 1000) : '',
+  };
   return d;
 }
 
@@ -1754,7 +1794,22 @@ function checkSection(section, value) {
     }
     return { ok: true, clean: { summary: summary.trim(), faq: faq } };
   }
-  return { ok: false, error: 'section 只能是 ad、layout、contact、beian、seo 或 geo' };
+  if (section === 'runtime') {
+    const emailsRaw = value.emails == null ? '' : value.emails;
+    if (typeof emailsRaw !== 'string') return { ok: false, error: '翻译邮箱必须是文字' };
+    if (emailsRaw.length > 1000) return { ok: false, error: '翻译邮箱那一栏最多 1000 个字符' };
+    const list = emailsRaw.split(/[,\s]+/).map((s) => s.trim()).filter(Boolean);
+    if (list.length > 20) return { ok: false, error: '翻译邮箱最多填 20 个' };
+    for (const e of list) {
+      if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(e)) return { ok: false, error: '不是邮箱格式：' + e };
+    }
+    const capRaw = value.aiCap == null || value.aiCap === '' ? null : Number(value.aiCap);
+    if (capRaw != null && (!Number.isFinite(capRaw) || capRaw < 0 || capRaw > 100000)) {
+      return { ok: false, error: 'Workers AI 每日上限要填 0 到 100000 之间的整数（0 = 不限制）' };
+    }
+    return { ok: true, clean: { emails: list.join(','), aiCap: capRaw == null ? null : Math.round(capRaw) } };
+  }
+  return { ok: false, error: 'section 只能是 ad、layout、contact、beian、seo、geo 或 runtime' };
   }
 
 // 把整体结构写回 data/site.json（带上当前 sha）
@@ -1776,7 +1831,8 @@ async function writeSite(env, site, sha) {
 
 // 翻译与密钥：GET 返回链路状态（只回布尔值）；POST 用一段文字实测两条链路（要管理密码）
   async function handleTranslate(request, env) {
-    const status = translatorStatus(env);
+    const rt = await siteRuntime(env);
+    const status = translatorStatus(env, rt);
     if (request.method === 'GET') {
       return json({ ok: true, status: status, ghConfigured: status.githubToken });
     }
@@ -1800,11 +1856,11 @@ async function writeSite(env, site, sha) {
     }
     out.cached = false;
     const t0 = Date.now();
-    const mm = await translateMM(text, env);
+    const mm = await translateMM(text, env, rt);
     out.myMemory = { ok: mm.ok === true, text: mm.text || '', ms: Date.now() - t0, error: mm.ok ? null : String(mm.error || 'unknown') };
     if (env.AI) {
       const t1 = Date.now();
-      const ai = await translateAI(text, env);
+      const ai = await translateAI(text, env, rt);
       out.ai = { ok: ai.ok === true, text: ai.text || '', ms: Date.now() - t1, error: ai.ok ? null : String(ai.error || 'unknown') };
     } else {
       out.ai = { ok: false, text: '', ms: 0, error: 'not-bound: 没有绑定 Workers AI（变量名必须是 AI）' };
@@ -1840,7 +1896,7 @@ async function handleSite(request, env) {
     return json({ ok: false, error: '密码不对' }, 403);
   }
   if (SITE_SECTIONS.indexOf(body.section) < 0) {
-    return json({ ok: false, error: 'section 只能是 ad、layout、contact、beian、seo 或 geo' }, 400);
+    return json({ ok: false, error: 'section 只能是 ad、layout、contact、beian、seo、geo 或 runtime' }, 400);
   }
   const check = checkSection(body.section, body.value);
   if (!check.ok) return json({ ok: false, error: check.error }, 400);
@@ -1854,6 +1910,12 @@ async function handleSite(request, env) {
   if (!w.ok) return json({ ok: false, error: w.error }, 500);
   await purgeEdge(['/', '/index.html', '/data/site.json']);
   await warmEdge('/data/site.json', JSON.stringify(site, null, 2) + '\n', 'application/json; charset=utf-8');
+  // 运行设置（翻译邮箱 / AI 上限）另有 60 秒缓存，保存后立刻失效，免得要等一分钟
+  try {
+    await EDGE_CACHE.delete(EDGE_KEY_BASE + '/__runtime');
+  } catch (e) {
+    /* 清缓存失败不影响保存 */
+  }
   return json({ ok: true, site: site });
 }
 
@@ -2283,6 +2345,17 @@ dialog{width:calc(100% - 24px)}
           <div class="status-list" id="trStatus"><p class="empty">读取中…</p></div>
         </div>
         <div class="card">
+          <div class="card-head"><div><h2>运行设置（在这里改，不用去 Cloudflare）</h2><p class="desc">存在 data/site.json 的 runtime 分组；保存后 60 秒内生效。</p></div></div>
+          <label for="rtEmails">MyMemory 联系邮箱（多个用逗号分隔，最多 20 个）</label>
+          <textarea id="rtEmails" rows="2" maxlength="1000" placeholder="you@gmail.com"></textarea>
+          <div class="hint">MyMemory 的免费额度<b>按邮箱</b>算（不带邮箱约 5 千字符/天，带邮箱约 5 万字符/天），一个用尽自动换下一个。Gmail / Outlook 支持 <code>名字+1@gmail.com</code> 这种别名，都进同一个信箱，所以可以点下面的按钮批量加。</div>
+          <div class="actions"><button type="button" class="ghost small" id="rtAlias">按 +别名 生成 5 个</button></div>
+          <label for="rtAiCap">Workers AI 每天最多调用多少次</label>
+          <input type="number" id="rtAiCap" min="0" max="100000" step="1" placeholder="留空 = 用环境变量 AI_DAILY_CAP，或默认 400">
+          <div class="hint">填 <b>0</b> = 不限制（不建议）；可填 1–100000。Workers AI 每天有 10,000 Neurons 免费额度，m2m100 这种小模型一次消耗很小，400 次大约只用到几百 Neuron；真打满这条链路会自己停，不会扣钱。</div>
+          <div class="actions"><button type="button" data-save="runtime">保存运行设置</button></div>
+        </div>
+        <div class="card">
           <div class="card-head"><div><h2>实测一次</h2><p class="desc">拿一段英文同时打两条链路，看谁给出结果、各花多少毫秒。</p></div></div>
           <label for="trText">英文原文</label>
           <textarea id="trText" maxlength="400" spellcheck="false">A fast, static GitHub trending board built on Cloudflare Workers.</textarea>
@@ -2297,6 +2370,7 @@ dialog{width:calc(100% - 24px)}
           <div class="kv"><b>TRANSLATE_EMAILS</b><span>可选，逗号分隔多个邮箱（例如 a@x.com,b@y.com）。MyMemory 每个邮箱每天有独立额度，一个用尽会自动换下一个；额度是按邮箱算的，不是按 IP。</span></div>
           <div class="kv"><b>AI_DAILY_CAP</b><span>可选，Workers AI 每天最多调用多少次，默认 400。到上限就只用 MyMemory + 缓存，不会把你的 AI 额度打光。</span></div>
           <div class="kv"><b>BAIDU_TOKEN</b><span>可选。百度搜索资源平台的「准入密钥」，配了「收录提交 → 立即提交」才会推百度。</span></div>
+          <div class="kv"><b>这些变量在哪儿改</b><span><a href="https://dash.cloudflare.com/?to=/:account/workers" target="_blank" rel="noopener">Cloudflare → Workers &amp; Pages</a> → 选中你的 Worker → <b>Settings</b> → <b>Variables and Secrets</b>。仓库 Secrets（给自动部署用）在 <a href="https://github.com/xiaoh2018/github-rank/settings/secrets/actions" target="_blank" rel="noopener">GitHub → 仓库 Settings → Secrets and variables → Actions</a>，必须登录且对该仓库有管理员权限，否则会显示 404。</span></div>
         </div>
       </section>
 
@@ -2791,6 +2865,9 @@ dialog{width:calc(100% - 24px)}
     $('ticker-speed').value = tk.speed || 18;
     $('ticker-link').value = typeof tk.link === 'string' ? tk.link : '';
     $('ticker-modal').value = typeof tk.modal === 'string' ? tk.modal : '';
+    var rt = s.runtime || {};
+    if ($('rtEmails')) $('rtEmails').value = typeof rt.emails === 'string' ? rt.emails : '';
+    if ($('rtAiCap')) $('rtAiCap').value = (typeof rt.aiCap === 'number' ? rt.aiCap : '');
     $('contact-enabled').checked = !!c.enabled;
     $('beian-enabled').checked = !!b.enabled;
     var src = { contact: c, beian: b, seo: o, geo: g };
@@ -2816,6 +2893,10 @@ dialog{width:calc(100% - 24px)}
   }
   function collect(sec) {
     if (sec === 'nav') return navState || { groups: [] };
+    if (sec === 'runtime') {
+      var rawCap = $('rtAiCap').value;
+      return { emails: $('rtEmails').value || '', aiCap: rawCap === '' ? null : Number(rawCap) };
+    }
     if (sec === 'ad') {
       // 每个广告位：开关 / 代码 / 间隔 / 跳转 / 弹窗
       var slots = {};
@@ -3063,12 +3144,31 @@ dialog{width:calc(100% - 24px)}
       var rows = [
         ['GitHub Token', !!st.githubToken, st.githubToken ? '已配置，前台「立即刷新」与保活可用' : '未配置：前台刷新和保活会失败'],
         ['Workers AI', !!st.ai, st.ai ? '已绑定，MyMemory 限流时自动兜底' : '未绑定：只有 MyMemory 一条链路'],
-        ['MyMemory', true, st.contactEmail ? '可用（已填联系邮箱，额度更高）' : '可用（免 Key；填 TRANSLATE_EMAIL 可提额）']
+        ['MyMemory', true, st.contactEmail ? '可用（已填 ' + (st.emails || 1) + ' 个联系邮箱，额度按邮箱累加）' : '可用（免 Key；在上面填邮箱可提额）'],
+        ['AI 日上限', true, (typeof st.aiCap === 'number' && st.aiCap === 0) ? '不限制（后台设置）' : (String(st.aiCap || 400) + ' 次/天' + (st.aiCapSource === 'admin' ? '（后台设置）' : '（默认或环境变量）'))]
       ];
       $('trStatus').innerHTML = rows.map(function (r) {
         return '<div class="status-item"><span class="dot ' + (r[1] ? 'ok' : 'warn') + '"></span><b>' + esc(r[0]) +
           '</b><small>' + esc(r[2]) + '</small></div>';
       }).join('');
+    }
+    if ($('rtAlias')) {
+      $('rtAlias').addEventListener('click', function () {
+        var box = $('rtEmails');
+        var list = String(box.value || '').split(/[,\s]+/).filter(Boolean);
+        var base = list[0] || '';
+        if (!base || base.indexOf('@') < 0) { toast('先填一个真实邮箱，例如 you@gmail.com'); return; }
+        var at = base.indexOf('@');
+        var user = base.slice(0, at).split('+')[0];
+        var domain = base.slice(at + 1);
+        var out = list.slice();
+        for (var i = 1; i <= 5; i++) {
+          var cand = user + '+' + i + '@' + domain;
+          if (out.indexOf(cand) < 0) out.push(cand);
+        }
+        box.value = out.join(',');
+        toast('已加 5 个别名，Gmail / Outlook 都进同一个信箱');
+      });
     }
     function loadTranslate() {
       api('/api/translate').then(function (r) {

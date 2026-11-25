@@ -473,5 +473,42 @@ const tabIds = [...adminPage.matchAll(/data-tab="([a-z]+)"/g)].map((m) => m[1]);
 const missingPane = [...new Set(tabIds)].filter((t) => !adminPage.includes('id="pane-' + t + '"'));
 ok(missingPane.length === 0, '每个侧栏标签都有对应面板', missingPane.join(','));
 
+console.log('');
+console.log('== 18. 翻译运行设置（后台可改） ==');
+const rtAdmin = await (await hit('/admin')).text();
+ok(rtAdmin.includes('id="rtEmails"') && rtAdmin.includes('id="rtAiCap"'), '后台有翻译邮箱与 AI 上限输入框');
+ok(rtAdmin.includes('id="rtAlias"'), '后台有「按 +别名 生成」按钮');
+ok(rtAdmin.includes('data-save="runtime"'), '运行设置有独立保存按钮');
+const rtSave = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'runtime', value: { emails: ' a@x.com, b@y.com ,', aiCap: 1200 } })
+});
+const rtJson = await rtSave.json();
+ok(rtJson.ok === true, '运行设置能保存');
+ok(!!(rtJson.site && rtJson.site.runtime && rtJson.site.runtime.emails === 'a@x.com,b@y.com'), '邮箱去空格并按逗号归一化');
+ok(!!(rtJson.site && rtJson.site.runtime && rtJson.site.runtime.aiCap === 1200), 'AI 上限按填的数字保存');
+const rtBad = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'runtime', value: { emails: 'not-an-email', aiCap: 100 } })
+});
+ok((await rtBad.json()).ok === false, '邮箱格式不对被拒绝');
+const rtBad2 = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'runtime', value: { emails: '', aiCap: 999999 } })
+});
+ok((await rtBad2.json()).ok === false, 'AI 上限超过 100000 被拒绝');
+const rtZero = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'runtime', value: { emails: '', aiCap: 0 } })
+});
+const rtZeroJson = await rtZero.json();
+ok(!!(rtZeroJson.ok && rtZeroJson.site.runtime.aiCap === 0), '填 0 = 不限制，也能保存');
+const trStatus = await (await hit('/api/translate')).json();
+ok(!!(trStatus.status && trStatus.status.aiCapSource), '链路状态里带上限来源（后台 / 环境变量）');
+
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
