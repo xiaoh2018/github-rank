@@ -2,9 +2,10 @@ name: Deploy worker
 
 # worker.js 一改就自动部署，免得每次去 Cloudflare 面板手粘代码。
 # 没配 Secrets 时自动跳过（只打一行提示），不会让流水线红。
-# 需要的 Secrets：
-#   CLOUDFLARE_API_TOKEN  —— Cloudflare → My Profile → API Tokens，模板选「Edit Cloudflare Workers」
-#   CLOUDFLARE_ACCOUNT_ID —— Cloudflare 概览页右侧的 Account ID
+# 凭据来源（二选一，按顺序取）：
+#   Secrets：CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID（Cloudflare → My Profile → API Tokens）
+#   仓库变量：CF_API_TOKEN / CF_ACCOUNT_ID（Settings → Secrets and variables → Variables）
+# 变量是明文，只对本仓库有写权限的人可见；本仓库已用它打通自动部署。
 
 on:
   push:
@@ -28,8 +29,8 @@ jobs:
       - name: 检查是否配置了 Cloudflare 凭据
         id: creds
         env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || vars.CF_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || vars.CF_ACCOUNT_ID }}
         run: |
           if [ -n "$CF_TOKEN" ] && [ -n "$CF_ACCOUNT" ]; then
             echo "ready=1" >> "$GITHUB_OUTPUT"
@@ -51,7 +52,7 @@ jobs:
         if: steps.creds.outputs.ready == '1'
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN || vars.CF_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || vars.CF_ACCOUNT_ID }}
           wranglerVersion: '3.90.0'
           command: deploy
