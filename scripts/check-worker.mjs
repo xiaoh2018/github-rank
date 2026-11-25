@@ -510,5 +510,59 @@ ok(!!(rtZeroJson.ok && rtZeroJson.site.runtime.aiCap === 0), '填 0 = 不限制�
 const trStatus = await (await hit('/api/translate')).json();
 ok(!!(trStatus.status && trStatus.status.aiCapSource), '链路状态里带上限来源（后台 / 环境变量）');
 
+console.log('== 19. AI 用量 / 后台密钥 / IndexNow 自检 / llms.txt ==');
+const a19UsageRes = await hit('/api/ai-usage');
+const a19UsageJson = await a19UsageRes.json();
+ok(a19UsageRes.status === 200 && a19UsageJson.ok === true, '/api/ai-usage 返回 200 与 ok');
+ok(!!(a19UsageJson.usage && typeof a19UsageJson.usage.used === 'number'), '用量里带 used 数字');
+ok(!!(a19UsageJson.usage && typeof a19UsageJson.usage.cap === 'number' && typeof a19UsageJson.usage.capSource === 'string'), '用量里带 cap 与来源');
+
+const a19KeySave = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'runtime', value: { emails: '', aiCap: 400, baiduToken: 'tok_abc-123', indexNowKey: 'testkey-2026' } })
+});
+const a19KeyJson = await a19KeySave.json();
+ok(!!(a19KeyJson.ok && a19KeyJson.site.runtime.indexNowKey === 'testkey-2026' && a19KeyJson.site.runtime.baiduToken === 'tok_abc-123'), '后台能存百度密钥与 IndexNow key');
+
+const a19KeyBad = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'runtime', value: { emails: '', aiCap: 400, baiduToken: 'a b!', indexNowKey: '' } })
+});
+ok((await a19KeyBad.json()).ok === false, '百度密钥含空格/符号被拒');
+
+// 测试桩不落盘，所以这里临时改一份 data/site.json 验证「后台填的 key 真的被用上」，跑完还原
+const sitePath = 'data/site.json';
+const siteBackup = fs.readFileSync(sitePath);
+let a19Sub = null;
+let a19KeyFile = null;
+let a19KeyText = '';
+try {
+  const j = JSON.parse(siteBackup.toString('utf8'));
+  j.runtime = { aiCap: 400, emails: '', baiduToken: 'tok_abc-123', indexNowKey: 'testkey-2026' };
+  fs.writeFileSync(sitePath, JSON.stringify(j, null, 2) + '\n', 'utf8');
+  a19Sub = await (await hit('/api/submit')).json();
+  a19KeyFile = await hit('/testkey-2026.txt');
+  a19KeyText = (await a19KeyFile.text()).trim();
+} finally {
+  fs.writeFileSync(sitePath, siteBackup);
+  store.clear();
+}
+
+ok(!!(a19Sub.status && a19Sub.status.indexNowKey === 'testkey-2026'), '提交页用的是后台填的 key');
+ok(!!(a19Sub.status && a19Sub.status.baiduTokenSource === 'admin'), '百度密钥来源标成 admin');
+ok(typeof a19Sub.status.keyFileOk === 'boolean', '状态里带 key 文件自检结果');
+ok(!!(a19Sub.status && a19Sub.status.aiUsage), '提交页状态带 AI 用量');
+ok(a19KeyFile.status === 200 && a19KeyText === 'testkey-2026', '自定义 key 的 /<key>.txt 能打开且内容正确');
+
+const a19Llms = await (await hit('/llms.txt')).text();
+ok(a19Llms.includes('## 数据来源与口径') && a19Llms.includes('## 机器可读接口'), 'llms.txt 有数据口径与接口章节');
+ok(a19Llms.includes('/nav') && a19Llms.includes('引用与抓取建议'), 'llms.txt 提到导航页与引用建议');
+
+const a19Admin = await (await hit('/admin')).text();
+ok(a19Admin.includes('IndexNow 一直失败') && a19Admin.includes('百度准入密钥在哪拿'), '后台有 IndexNow 排查与百度密钥教程');
+ok(a19Admin.includes('id="rtUsage"') && a19Admin.includes('id="rtBaiduToken"') && a19Admin.includes('id="rtIndexKey"'), '运行设置里有用量块与两个密钥输入');
+
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);

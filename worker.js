@@ -61,8 +61,8 @@ export default {
           headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },
         });
       }
-      if (url.pathname === '/' + indexNowKey(env) + '.txt' && (request.method === 'GET' || request.method === 'HEAD')) {
-        const key = indexNowKey(env);
+      if (url.pathname.endsWith('.txt') && url.pathname.slice(1).replace(/.txt$/, '') === indexNowKey(env, await siteRuntime(env)) && (request.method === 'GET' || request.method === 'HEAD')) {
+        const key = indexNowKey(env, await siteRuntime(env));
         return new Response(request.method === 'HEAD' ? null : key, {
           headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },
         });
@@ -90,6 +90,9 @@ export default {
       }
       if (url.pathname === '/keepalive' && request.method === 'GET') {
         return Response.redirect(url.origin + '/admin#keepalive', 302);
+      }
+      if (url.pathname === '/api/ai-usage' && request.method === 'GET') {
+        return json({ ok: true, usage: await aiUsage(env, await siteRuntime(env)) });
       }
       if (url.pathname === '/api/status' && request.method === 'GET') {
         // 状态接口要打两次 GitHub API，冷启动接近 1 秒；用边缘缓存挡 60 秒
@@ -362,11 +365,18 @@ async function saveTranslation(text, zh) {
 }
 
 // MyMemory 的可用邮箱列表：TRANSLATE_EMAILS（逗号/空格分隔）优先，其次 TRANSLATE_EMAIL
+// Gmail / Outlook 的 +别名都进同一个信箱，但 MyMemory 按邮箱算额度，所以默认就轮换几个
+const MM_ALIAS_COUNT = 5;
 function mmEmails(env, rt) {
   const r = rt || {};
   const src = (typeof r.emails === 'string' && r.emails.trim()) || env.TRANSLATE_EMAILS || env.TRANSLATE_EMAIL || 'xiaoh2018@gmail.com';
   const list = String(src).split(/[,\s]+/).map((s) => s.trim()).filter(Boolean);
-  return list.length ? list : ['xiaoh2018@gmail.com'];
+  if (list.length) return list;
+  const base = 'xiaoh2018@gmail.com';
+  const at = base.indexOf('@');
+  const out = [base];
+  for (let i = 1; i <= MM_ALIAS_COUNT; i++) out.push(base.slice(0, at) + '+' + i + base.slice(at));
+  return out;
 }
 
 // MyMemory：免费、无需 Key。返回 { ok, text, error }，error 带类型前缀方便后台显示
@@ -432,20 +442,28 @@ function aiCap(env, rt) {
 }
 
 // 读后台设置（data/site.json 的 runtime 分组），带 60 秒边缘缓存
+function normRuntime(j) {
+  const r = j && typeof j === 'object' ? j : {};
+  return {
+    aiCap: typeof r.aiCap === 'number' ? r.aiCap : null,
+    emails: typeof r.emails === 'string' ? r.emails : '',
+    baiduToken: typeof r.baiduToken === 'string' ? r.baiduToken : '',
+    indexNowKey: typeof r.indexNowKey === 'string' ? r.indexNowKey : '',
+  };
+}
+
 async function siteRuntime(env) {
-  const DFLT = { aiCap: null, emails: '' };
+  const DFLT = { aiCap: null, emails: '', baiduToken: '', indexNowKey: '' };
   try {
     const key = EDGE_KEY_BASE + '/__runtime';
     const hit = await EDGE_CACHE.match(key);
     if (hit) {
       const j = await hit.json().catch(() => null);
-      if (j && typeof j === 'object') {
-        return { aiCap: typeof j.aiCap === 'number' ? j.aiCap : null, emails: typeof j.emails === 'string' ? j.emails : '' };
-      }
+      if (j && typeof j === 'object') return normRuntime(j);
     }
     const r = await readSite(env);
     const rt = (r && r.ok && r.site && r.site.runtime) || DFLT;
-    const out = { aiCap: typeof rt.aiCap === 'number' ? rt.aiCap : null, emails: typeof rt.emails === 'string' ? rt.emails : '' };
+    const out = normRuntime(rt);
     await EDGE_CACHE.put(key, new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json', 'cache-control': 'max-age=60' } }));
     return out;
   } catch (e) {
@@ -1343,7 +1361,9 @@ function robotsTxt(origin) {
 }
 
 // IndexNow 的 key 会在 /<key>.txt 上公开，用来证明域名归属
-function indexNowKey(env) {
+function indexNowKey(env, rt) {
+  const custom = rt && typeof rt.indexNowKey === 'string' ? rt.indexNowKey.trim() : '';
+  if (custom) return custom;
   if (env.INDEXNOW_KEY && String(env.INDEXNOW_KEY).trim()) return String(env.INDEXNOW_KEY).trim();
   const seed = String(env.REPO_OWNER || '') + '/' + String(env.REPO_NAME || '') + '/' + branch(env);
   let h = 2166136261;
@@ -1377,9 +1397,43 @@ async function llmsTxt(env, origin) {
   const arts = await rawJson(env, 'data/articles.json');
   const nav = await rawJson(env, 'data/nav.json');
   const lines = [];
-  lines.push('# ' + (site.siteName || 'GitHub 热门项目排行榜'));
+  const name = site.siteName || 'GitHub 热门项目排行榜';
+  lines.push('# ' + name);
   lines.push('');
-  lines.push('> ' + (site.description || '按星标数排序的 GitHub 热门项目榜单，支持近 7 天 / 30 天 / 1 年 / 全部，另有开发者榜、组织榜与常用站点导航。'));
+  lines.push('> ' + (site.description || '按星标数排序的 GitHub 热门项目榜单，支持近 7 天 / 30 天 / 1 年 / 全站总榜，另有开发者榜、组织榜与常用站点导航。'));
+  lines.push('');
+  lines.push('本站是一个纯静态的 GitHub 热门项目看板：榜单数据由 GitHub Actions 每 3 小时抓取一次并写进仓库，页面由 Cloudflare Workers 直接返回（边缘缓存），没有账号体系、不需要登录。');
+  lines.push('');
+  lines.push('## 核心页面');
+  lines.push('');
+  lines.push('- 榜单首页：' + root + '/ — 项目榜；可切换「项目榜 / 开发者榜 / 组织榜」「近 7 天 / 近 30 天 / 近 1 年 / 总榜」，可按语言、分类、排序（星标 / 今日增量 / 活跃度 / Fork / 最近更新）筛选');
+  lines.push('- 导航页：' + root + '/nav — 常用开发 / AI / 设计 / 学习 / 效率工具站点，分分类展示');
+  lines.push('- 文章页：' + root + '/articles — 站点说明与更新记录（单篇地址 ' + root + '/articles#<文章 id>）');
+  lines.push('- 中文界面：首页右上角「English / 中文」可切换，仓库简介会自动翻译成中文（译文有缓存，不会重复翻译）');
+  lines.push('');
+  lines.push('## 数据来源与口径');
+  lines.push('');
+  lines.push('- 来源：GitHub 公开 REST API（search/repositories、search/users），只统计公开仓库');
+  lines.push('- 时间范围：近 7 天 / 近 30 天 / 近 1 年按仓库创建时间筛选；「总榜」= 全站按星标降序前 500（深翻 10 页），不分时间');
+  lines.push('- 排序：默认按当前星标数从高到低；也可按今日增量、活跃度、Fork 数、最近更新时间');
+  lines.push('- 每次最多保留 500 个项目；星标门槛：常规榜单 ≥ 50，总榜 ≥ 1000');
+  lines.push('- 刷新频率：GitHub Actions 每 3 小时跑一次（cron 17 */3 * * *），页面走边缘缓存，数据落地后几分钟内可见');
+  lines.push('');
+  lines.push('## 机器可读接口');
+  lines.push('');
+  lines.push('- ' + root + '/data/repos-meta.js — 生成时间、条目数、开发者 / 组织榜数据（JS 变量 window.__GHRANK_META__）');
+  lines.push('- ' + root + '/data/repos-week.js · repos-month.js · repos-year.js · repos-total.js — 各时间范围的完整榜单（window.__GHRANK_RANGES__）');
+  lines.push('- ' + root + '/data/site.json — 站点配置（SEO、布局、广告位开关等）');
+  lines.push('- ' + root + '/data/articles.json — 文章列表与正文');
+  lines.push('- ' + root + '/data/nav.json — 导航站点列表（分类 / 名称 / 地址 / 描述 / 图标）');
+  lines.push('- ' + root + '/api/status — 数据新鲜度与最近一次抓取状态（JSON，60 秒缓存）');
+  lines.push('- ' + root + '/sitemap.xml — 全站页面清单（含 lastmod）');
+  lines.push('');
+  lines.push('## 引用与抓取建议');
+  lines.push('');
+  lines.push('- 允许并欢迎搜索引擎与 AI 检索器抓取（robots.txt 已对 GPTBot / ClaudeBot / PerplexityBot / Bytespider / Qwen-Bot 等逐条放行）');
+  lines.push('- 引用榜单时请注明「数据来自 GitHub API，由 ' + name + ' 整理」，并链接到 ' + root + '/');
+  lines.push('- 页面自带 300–900 秒缓存，请勿高频轮询；需要最新数据请拉上面的 JS/JSON 文件并带 ?v=<生成时间> 参数');
   lines.push('');
   lines.push('## 页面');
   lines.push('');
@@ -1416,18 +1470,55 @@ async function llmsTxt(env, origin) {
   return lines.join('\n');
 }
 
+function baiduTokenOf(env, rt) {
+  const custom = rt && typeof rt.baiduToken === 'string' ? rt.baiduToken.trim() : '';
+  return custom || env.BAIDU_TOKEN || '';
+}
+
+// AI 今天用了多少 / 上限多少 / 还剩多少
+async function aiUsage(env, rt) {
+  const cap = aiCap(env, rt);
+  const used = await aiUsedToday(env);
+  return {
+    date: todayBJ().slice(0, 10),
+    used: used,
+    cap: cap === Infinity ? 0 : cap,
+    remaining: cap === Infinity ? null : Math.max(0, cap - used),
+    unlimited: cap === Infinity,
+    capSource: rt && typeof rt.aiCap === 'number' ? 'admin' : (env.AI_DAILY_CAP ? 'env' : 'default'),
+    bound: !!env.AI,
+  };
+}
+
 // 主动提交：IndexNow（Bing / Yandex / Seznam / Naver 共用）、百度普通收录推送
 async function handleSubmit(request, env, origin) {
+  const rtSubmit = await siteRuntime(env);
+  const keyNow = indexNowKey(env, rtSubmit);
+  const baiduNow = baiduTokenOf(env, rtSubmit);
   if (request.method === 'GET') {
-    const key = indexNowKey(env);
+    let keyOk = false;
+    let keyNote = '';
+    try {
+      const kf = await fetch(origin + '/' + keyNow + '.txt', { headers: { 'cache-control': 'no-cache' } });
+      keyOk = kf.ok;
+      keyNote = keyOk ? '可以访问（' + (await kf.text()).trim().slice(0, 60) + '）' : 'HTTP ' + kf.status;
+    } catch (e) {
+      keyNote = '抓取失败：' + ((e && e.message) || 'network');
+    }
     return json({
       ok: true,
       status: {
-        indexNowKey: key,
-        keyFile: origin + '/' + key + '.txt',
+        indexNowKey: keyNow,
+        keyFile: origin + '/' + keyNow + '.txt',
+        keyFileOk: keyOk,
+        keyFileNote: keyNote,
+        indexKeySource: rtSubmit && rtSubmit.indexNowKey ? 'admin' : (env.INDEXNOW_KEY ? 'env' : 'auto'),
         sitemap: origin + '/sitemap.xml',
         llms: origin + '/llms.txt',
-        baiduToken: !!env.BAIDU_TOKEN,
+        baiduToken: !!baiduNow,
+        baiduTokenSource: (rtSubmit && rtSubmit.baiduToken) ? 'admin' : (env.BAIDU_TOKEN ? 'env' : 'none'),
+        aiUsage: await aiUsage(env, rtSubmit),
+        lastRun: await readLastSubmit(),
       },
     });
   }
@@ -1454,7 +1545,7 @@ async function handleSubmit(request, env, origin) {
   const out = { ok: true, urls: urls.length, root: root, results: {} };
 
   if (want === 'all' || want === 'indexnow') {
-    const key = indexNowKey(env);
+    const key = keyNow;
     try {
       const r = await fetch('https://api.indexnow.org/indexnow', {
         method: 'POST',
@@ -1474,12 +1565,12 @@ async function handleSubmit(request, env, origin) {
   }
 
   if (want === 'all' || want === 'baidu') {
-    if (!env.BAIDU_TOKEN) {
-      out.results.baidu = { ok: false, status: 0, note: '没配 BAIDU_TOKEN（百度搜索资源平台的准入密钥），跳过百度推送' };
+    if (!baiduNow) {
+      out.results.baidu = { ok: false, status: 0, note: '没填百度准入密钥：后台「收录提交」里填，或配 Cloudflare 变量 BAIDU_TOKEN，二选一即可' };
     } else {
       try {
         const r = await fetch(
-          'https://data.zz.baidu.com/urls?site=' + encodeURIComponent(root) + '&token=' + encodeURIComponent(env.BAIDU_TOKEN),
+          'https://data.zz.baidu.com/urls?site=' + encodeURIComponent(root) + '&token=' + encodeURIComponent(baiduNow),
           { method: 'POST', headers: { 'content-type': 'text/plain' }, body: urls.join('\n') }
         );
         const t = await r.text();
@@ -1490,7 +1581,30 @@ async function handleSubmit(request, env, origin) {
     }
   }
 
+  out.at = new Date().toISOString();
+  await saveLastSubmit(out);
   return json(out);
+}
+
+// 最近一次提交结果（存边缘缓存 7 天，后台打开时直接看）
+function lastSubmitKey() {
+  return EDGE_KEY_BASE + '/__last_submit';
+}
+async function readLastSubmit() {
+  try {
+    const hit = await EDGE_CACHE.match(lastSubmitKey());
+    if (!hit) return null;
+    return await hit.json();
+  } catch (e) {
+    return null;
+  }
+}
+async function saveLastSubmit(out) {
+  try {
+    await EDGE_CACHE.put(lastSubmitKey(), new Response(JSON.stringify(out), { headers: { 'cache-control': 'max-age=604800' } }));
+  } catch (e) {
+    /* 记录失败不影响提交结果 */
+  }
 }
 
 const SITE_FILE = 'data/site.json';
@@ -1547,7 +1661,7 @@ function defaultSite() {
     seo: { siteName: '', title: '', description: '', keywords: '', ogImage: '', siteUrl: '' },
     geo: { summary: '', faq: [{ q: '', a: '' }] },
     // 翻译的运行设置：后台「翻译与密钥」页可直接改，不用去 Cloudflare 配变量
-    runtime: { aiCap: null, emails: '' },
+    runtime: { aiCap: null, emails: '', baiduToken: '', indexNowKey: '' },
   };
 }
 
@@ -1627,6 +1741,8 @@ function normalizeSite(o) {
   d.runtime = {
     aiCap: cap,
     emails: typeof rt.emails === 'string' ? rt.emails.slice(0, 1000) : '',
+    baiduToken: typeof rt.baiduToken === 'string' ? rt.baiduToken.trim().slice(0, 200) : '',
+    indexNowKey: typeof rt.indexNowKey === 'string' ? rt.indexNowKey.trim().slice(0, 100) : '',
   };
   return d;
 }
@@ -1807,7 +1923,21 @@ function checkSection(section, value) {
     if (capRaw != null && (!Number.isFinite(capRaw) || capRaw < 0 || capRaw > 100000)) {
       return { ok: false, error: 'Workers AI 每日上限要填 0 到 100000 之间的整数（0 = 不限制）' };
     }
-    return { ok: true, clean: { emails: list.join(','), aiCap: capRaw == null ? null : Math.round(capRaw) } };
+    const baiduTok = value.baiduToken == null ? '' : String(value.baiduToken).trim();
+    if (baiduTok.length > 200) return { ok: false, error: '百度准入密钥太长（最多 200 个字符）' };
+    if (baiduTok && !/^[A-Za-z0-9_-]+$/.test(baiduTok)) return { ok: false, error: '百度准入密钥只能是字母、数字、下划线或短横线' };
+    const inkRaw = value.indexNowKey == null ? '' : String(value.indexNowKey).trim();
+    if (inkRaw.length > 100) return { ok: false, error: 'IndexNow Key 太长（最多 100 个字符）' };
+    if (inkRaw && !/^[A-Za-z0-9-]+$/.test(inkRaw)) return { ok: false, error: 'IndexNow Key 只能是字母、数字或短横线（8–128 位建议）' };
+    return {
+      ok: true,
+      clean: {
+        emails: list.join(','),
+        aiCap: capRaw == null ? null : Math.round(capRaw),
+        baiduToken: baiduTok,
+        indexNowKey: inkRaw,
+      },
+    };
   }
   return { ok: false, error: 'section 只能是 ad、layout、contact、beian、seo、geo 或 runtime' };
   }
@@ -2353,6 +2483,13 @@ dialog{width:calc(100% - 24px)}
           <label for="rtAiCap">Workers AI 每天最多调用多少次</label>
           <input type="number" id="rtAiCap" min="0" max="100000" step="1" placeholder="留空 = 用环境变量 AI_DAILY_CAP，或默认 400">
           <div class="hint">填 <b>0</b> = 不限制（不建议）；可填 1–100000。Workers AI 每天有 10,000 Neurons 免费额度，m2m100 这种小模型一次消耗很小，400 次大约只用到几百 Neuron；真打满这条链路会自己停，不会扣钱。</div>
+          <div class="status-list" id="rtUsage"><p class="empty">读取中…</p></div>
+          <label for="rtBaiduToken">百度准入密钥（BAIDU_TOKEN，可留空）</label>
+          <input type="text" id="rtBaiduToken" maxlength="200" placeholder="从百度搜索资源平台「普通收录 → API 提交」里复制，可留空">
+          <div class="hint">填这里就不必再去 Cloudflare 配变量；两边都填时以这里为准。留空则完全跳过百度推送，不影响其它功能。</div>
+          <label for="rtIndexKey">IndexNow Key（可留空，自动生成）</label>
+          <input type="text" id="rtIndexKey" maxlength="100" placeholder="留空 = 自动用仓库信息生成一个">
+          <div class="hint">IndexNow 要求站点根目录有个 <code>&lt;key&gt;.txt</code> 文件，本站已经自动提供（见「收录提交」页的 Key 文件地址）。想用自己的就在 Bing Webmaster 生成一个填这里。</div>
           <div class="actions"><button type="button" data-save="runtime">保存运行设置</button></div>
         </div>
         <div class="card">
@@ -2488,6 +2625,21 @@ dialog{width:calc(100% - 24px)}
         <div id="subOut"><p class="empty">还没有提交过。点右上角「立即提交」。</p></div>
       </div>
       <div class="card">
+        <div class="card-head"><b>IndexNow 一直失败？照这三步查</b></div>
+        <ol class="steps">
+          <li>先看上面「IndexNow key」那行的 <b>key 文件</b>能不能直接在浏览器打开。能打开应该只显示一串字符；打不开（404）说明 Worker 还是旧版 —— 这个路由是新加的，部署一次就好了。</li>
+          <li>能打开但提交仍失败：多半是 <b>域名对不上</b>。IndexNow 要求提交的 host 与 keyLocation 同域，请把「SEO 与 GEO → 站点地址」写成真实访问域名 <code>https://github.661026.xyz</code>，不要用 workers.dev 备用域名。</li>
+          <li>手工入口：<a href="https://www.bing.com/webmasters/indexnow" target="_blank" rel="noopener">Bing Webmaster → IndexNow</a>（Bing / Yandex / Seznam / Naver 共用），规范见 <a href="https://www.indexnow.org/documentation" target="_blank" rel="noopener">indexnow.org</a>；本质就是把 URL 列表 POST 到 <code>https://api.indexnow.org/indexnow</code>，本站的「立即提交」替你做这一步。</li>
+        </ol>
+      </div>
+      <div class="card">
+        <div class="card-head"><b>百度准入密钥在哪拿</b></div>
+        <ol class="steps">
+          <li>打开 <a href="https://ziyuan.baidu.com/site/index" target="_blank" rel="noopener">百度搜索资源平台 → 站点管理</a>，确认 <code>github.661026.xyz</code> 已验证（HTML 验证的 meta 本站已内置）。</li>
+          <li>左侧 <a href="https://ziyuan.baidu.com/dailysubmit/index" target="_blank" rel="noopener">普通收录 → API 提交</a>，页面上「准入密钥」那一串就是 <code>BAIDU_TOKEN</code>。</li>
+          <li>粘到 <a href="#translate" data-goto="translate">翻译与密钥 → 运行设置 → 百度准入密钥</a>，保存后回本页点「立即提交」，结果里会显示百度返回的 <code>success</code> 与 <code>remain</code>。</li>
+        </ol>
+      </div>
       <div class="card">
         <div class="card-head"><b>配好之后放在哪（Cloudflare 变量）</b></div>
         <ol class="steps">
@@ -2868,6 +3020,8 @@ dialog{width:calc(100% - 24px)}
     var rt = s.runtime || {};
     if ($('rtEmails')) $('rtEmails').value = typeof rt.emails === 'string' ? rt.emails : '';
     if ($('rtAiCap')) $('rtAiCap').value = (typeof rt.aiCap === 'number' ? rt.aiCap : '');
+    if ($('rtBaiduToken')) $('rtBaiduToken').value = typeof rt.baiduToken === 'string' ? rt.baiduToken : '';
+    if ($('rtIndexKey')) $('rtIndexKey').value = typeof rt.indexNowKey === 'string' ? rt.indexNowKey : '';
     $('contact-enabled').checked = !!c.enabled;
     $('beian-enabled').checked = !!b.enabled;
     var src = { contact: c, beian: b, seo: o, geo: g };
@@ -2895,7 +3049,12 @@ dialog{width:calc(100% - 24px)}
     if (sec === 'nav') return navState || { groups: [] };
     if (sec === 'runtime') {
       var rawCap = $('rtAiCap').value;
-      return { emails: $('rtEmails').value || '', aiCap: rawCap === '' ? null : Number(rawCap) };
+      return {
+        emails: $('rtEmails').value || '',
+        aiCap: rawCap === '' ? null : Number(rawCap),
+        baiduToken: $('rtBaiduToken') ? $('rtBaiduToken').value || '' : '',
+        indexNowKey: $('rtIndexKey') ? $('rtIndexKey').value || '' : '',
+      };
     }
     if (sec === 'ad') {
       // 每个广告位：开关 / 代码 / 间隔 / 跳转 / 弹窗
@@ -3175,6 +3334,19 @@ dialog{width:calc(100% - 24px)}
         if (!r.ok) { $('trStatus').innerHTML = '<p class="empty">' + esc(r.error || '读取失败') + '</p>'; return; }
         paintTranslate(r.status);
       });
+      api('/api/ai-usage').then(function (r) {
+        var box = $('rtUsage');
+        if (!box) return;
+        if (!r.ok || !r.usage) { box.innerHTML = '<p class="empty">用量读取失败</p>'; return; }
+        var u = r.usage;
+        var capText = u.unlimited ? '不限制' : (u.cap + ' 次');
+        var left = u.unlimited ? '—' : (u.remaining + ' 次');
+        box.innerHTML =
+          '<div class="status-item"><span class="dot ' + (u.bound ? 'ok' : 'warn') + '"></span><b>Workers AI</b><small>' +
+          (u.bound ? '已绑定' : '未绑定（变量名必须是 AI）') + ' · 今天已用 <b>' + u.used + '</b> / ' + esc(capText) +
+          ' · 还剩 <b>' + esc(left) + '</b>' + (u.capSource === 'admin' ? '（上限来自后台）' : '') + '</small></div>' +
+          '<div class="status-item"><span class="dot ok"></span><b>免费额度参考</b><small>每天 10,000 Neurons 免费；m2m100 一次只消耗几十 neuron，400 次大约几百，远没到线。填 0 = 不限制。</small></div>';
+      });
     }
     $('trReload').addEventListener('click', loadTranslate);
     $('trRun').addEventListener('click', function () {
@@ -3404,11 +3576,15 @@ dialog{width:calc(100% - 24px)}
         return;
       }
       var s = r.status;
+      var last = s.lastRun;
       box.innerHTML =
         subLine('IndexNow key', '<code>' + navEsc(s.indexNowKey) + '</code>　key 文件：<code>' + navEsc(s.keyFile) + '</code>', true) +
         subLine('站点地图', '<a href="' + navEsc(s.sitemap) + '" target="_blank" rel="noopener">' + navEsc(s.sitemap) + '</a>', true) +
         subLine('大模型说明', '<a href="' + navEsc(s.llms) + '" target="_blank" rel="noopener">' + navEsc(s.llms) + '</a>（llms.txt，抓到就是最新榜单）', true) +
-        subLine('百度推送', s.baiduToken ? '已配置 BAIDU_TOKEN，可以主动推' : '没配 BAIDU_TOKEN，点提交时会跳过百度', !!s.baiduToken);
+        subLine('key 文件自检', s.keyFileOk ? '能访问　' + navEsc(s.keyFileNote || '') : '打不开：' + navEsc(s.keyFileNote || '未知原因') + '（多半是 Worker 未部署到最新版）', !!s.keyFileOk) +
+        subLine('百度推送', s.baiduToken ? '已配置准入密钥（来源：' + navEsc(s.baiduTokenSource || 'env') + '），可以主动推' : '没填准入密钥，点提交时会跳过百度', !!s.baiduToken) +
+        subLine('Workers AI 今日', s.aiUsage ? (s.aiUsage.used + ' / ' + (s.aiUsage.unlimited ? '不限制' : s.aiUsage.cap) + ' 次' + (s.aiUsage.capSource === 'admin' ? '（上限来自后台）' : '')) : '—', true) +
+        subLine('最近一次提交', last ? (new Date(last.at || Date.now()).toLocaleString() + '　' + ((last.results && last.results.indexNow && last.results.indexNow.ok) ? 'IndexNow 成功' : 'IndexNow 未成功')) : '还没提交过', !!last);
     });
   }
   $('subReload').addEventListener('click', function () {
