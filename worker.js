@@ -1413,7 +1413,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v73';
+const ASSET_V = 'v74';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3853,6 +3853,8 @@ tr:hover td{background:#fcfbf8}
           <button type="button" class="ghost" id="artBulkDel" disabled>删除选中</button>
           <input id="artBulkCat" placeholder="改成分类…" style="max-width:150px">
           <button type="button" class="ghost" id="artBulkApply" disabled>应用分类</button>
+          <button type="button" class="ghost" id="artAllMatch">全选所有匹配</button>
+          <span class="msg" id="artSelNote"></span>
         </div>
         <button type="button" id="artNew">写新文章</button>
       </div>
@@ -3982,7 +3984,7 @@ tr:hover td{background:#fcfbf8}
     geo: ['summary']
   };
   var pw = '';
-  var state = { links: [], articles: [], faq: [], artPage: 1 };
+  var state = { links: [], articles: [], faq: [], artPage: 1, artSel: new Set(), artFiltered: [] };
   var editingId = null;
   var editingLocked = false;
   var confirmFn = null;
@@ -4184,10 +4186,14 @@ tr:hover td{background:#fcfbf8}
       }
       rows.push(healthRow('上次提交', true, (sub && sub.lastRun && sub.lastRun.at) ? new Date(sub.lastRun.at).toLocaleString() : '还没提交过'));
       rows.push(healthRow('冷却', !(sub && sub.cooldown && sub.cooldown.seconds > 0), (sub && sub.cooldown && sub.cooldown.seconds > 0) ? '还要等 ' + sub.cooldown.seconds + ' 秒' : '可以提交'));
+      if (h && h.workflow && h.workflow.conclusion) {
+        rows.push(healthRow('数据抓取', h.workflow.conclusion === 'success', (h.workflow.conclusion === 'success' ? '上次成功' : '上次失败') + (h.workflow.time ? ' · ' + h.workflow.time : '')));
+      }
       var bad = [];
       if (sub && sub.keyFileOk === false) bad.push('key 文件打不开（' + String((sub && sub.keyFileNote) || '').slice(0, 60) + '）');
       if (sub && sub.keyFileOk && sub.keyFileMatch === false) bad.push('key 文件内容与后台不一致，IndexNow 会被 422 拒绝');
       if (sub && !sub.baiduToken) bad.push('没配百度准入密钥，百度推送会被跳过');
+      if (h && h.workflow && h.workflow.conclusion && h.workflow.conclusion !== 'success') bad.push('最近一次数据抓取失败（' + h.workflow.time + '），去 Actions 看日志');
       if (ai && !ai.unlimited && typeof ai.used === 'number' && ai.used >= ai.cap) bad.push('Workers AI 今日额度已用完，翻译会退回 MyMemory');
       var bar = $('healthBar');
       if (bar) {
@@ -4585,6 +4591,7 @@ tr:hover td{background:#fcfbf8}
     var page = Math.min(Math.max(1, state.artPage || 1), pages);
     state.artPage = page;
     var pageList = list.slice((page - 1) * per, page * per);
+    state.artFiltered = list.map(function (a) { return String(a.id); });
     if (!all.length) {
       $('artTbody').innerHTML = '<tr><td colspan="5" class="empty">还没有文章，右上角「写新文章」开始</td></tr>';
       if ($('artPager')) $('artPager').hidden = true;
@@ -4596,7 +4603,7 @@ tr:hover td{background:#fcfbf8}
       return;
     }
     $('artTbody').innerHTML = pageList.map(function (a) {
-      return '<tr><td><input type="checkbox" data-artpick="' + esc(a.id) + '"></td><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b>' +
+      return '<tr><td><input type="checkbox" data-artpick="' + esc(a.id) + '"' + (state.artSel.has(String(a.id)) ? ' checked' : '') + '></td><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b>' +
         (a.locked ? '<span class="art-lock">加密</span>' : '') +
         (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
         '<div class="slugline">/articles/' + esc(a.slug || a.id) + '.html' + (a.category ? ' · ' + esc(a.category) : '') + '</div>' +
@@ -4775,9 +4782,14 @@ tr:hover td{background:#fcfbf8}
 
     // ---- 文章批量操作 ----
     function artPicked() {
-      return Array.prototype.slice.call(document.querySelectorAll('[data-artpick]'))
-        .filter(function (x) { return x.checked; })
-        .map(function (x) { return x.getAttribute('data-artpick'); });
+      return Array.from(state.artSel || []);
+    }
+    function artSelNote() {
+      var n = artPicked().length;
+      var note = $('artSelNote');
+      if (note) note.textContent = n ? '已选 ' + n + ' 篇（可跨页）' : '';
+      var all = $('artAllMatch');
+      if (all) all.disabled = !(state.artFiltered || []).length;
     }
     function artSyncBulk() {
       var n = artPicked().length;
@@ -4785,24 +4797,39 @@ tr:hover td{background:#fcfbf8}
       var a = $('artBulkApply');
       if (d) { d.disabled = !n; d.textContent = n ? '删除选中（' + n + '）' : '删除选中'; }
       if (a) a.disabled = !n;
+      artSelNote();
     }
     if ($('artAll')) {
       $('artAll').addEventListener('change', function () {
         var on = this.checked;
-        Array.prototype.forEach.call(document.querySelectorAll('[data-artpick]'), function (x) { x.checked = on; });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-artpick]'), function (x) {
+          var id = String(x.getAttribute('data-artpick'));
+          if (on) state.artSel.add(id); else state.artSel.delete(id);
+          x.checked = on;
+        });
         artSyncBulk();
       });
     }
     document.addEventListener('change', function (e) {
-      if (e.target && e.target.getAttribute && e.target.getAttribute('data-artpick') != null) artSyncBulk();
+      if (e.target && e.target.getAttribute && e.target.getAttribute('data-artpick') != null) {
+        var id = String(e.target.getAttribute('data-artpick'));
+        if (e.target.checked) state.artSel.add(id); else state.artSel.delete(id);
+        artSyncBulk();
+      }
     });
+    if ($('artAllMatch')) {
+      $('artAllMatch').addEventListener('click', function () {
+        (state.artFiltered || []).forEach(function (id) { state.artSel.add(id); });
+        renderArticles();
+      });
+    }
     if ($('artBulkDel')) {
       $('artBulkDel').addEventListener('click', function () {
         var ids = artPicked();
         if (!ids.length) { toast('先勾选文章', true); return; }
         askConfirm('批量删除', '确定删除选中的 ' + ids.length + ' 篇吗？', function () {
           return api('/api/articles', { method: 'POST', body: { password: pw, action: 'bulk', op: 'remove', ids: ids } }).then(function (r) {
-            if (r.ok) { state.articles = r.articles; renderArticles(); toast('已删除 ' + r.removed + ' 篇', true); }
+            if (r.ok) { state.articles = r.articles; state.artSel.clear(); renderArticles(); toast('已删除 ' + r.removed + ' 篇', true); }
             return r;
           });
         });
@@ -4816,7 +4843,7 @@ tr:hover td{background:#fcfbf8}
         if (!ids.length) { toast('先勾选文章', true); return; }
         if (!cat) { toast('先填分类名', true); return; }
         api('/api/articles', { method: 'POST', body: { password: pw, action: 'bulk', op: 'category', category: cat, ids: ids } }).then(function (r) {
-          if (r.ok) { state.articles = r.articles; renderArticles(); toast('已把 ' + r.changed + ' 篇改成「' + cat + '」', true); }
+          if (r.ok) { state.articles = r.articles; state.artSel.clear(); renderArticles(); toast('已把 ' + r.changed + ' 篇改成「' + cat + '」', true); }
         });
       });
     }

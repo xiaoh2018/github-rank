@@ -853,6 +853,12 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
     ok(admMobile.indexOf('.artpager{display:flex') >= 0, '后台分页样式', '');
     ok(admMobile.indexOf('state.artPage') >= 0 && admMobile.indexOf('pageList.map') >= 0, '后台文章分页切片', '');
     ok(admMobile.indexOf("healthRow('Worker 版本'") >= 0, '概览体检显示版本行', '');
+    // ---- §27 跨页全选 + 体检抓取状态 ----
+    ok(admMobile.indexOf('id="artAllMatch"') >= 0, '后台「全选所有匹配」按钮', '');
+    ok(admMobile.indexOf('id="artSelNote"') >= 0, '后台已选数量提示', '');
+    ok(admMobile.indexOf('state.artSel') >= 0 && admMobile.indexOf('state.artFiltered') >= 0, '跨页选中集合', '');
+    ok(admMobile.indexOf("healthRow('数据抓取'") >= 0, '概览体检显示抓取状态行', '');
+    ok(admMobile.indexOf('去 Actions 看日志') >= 0, '抓取失败时提示去 Actions', '');
   }
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
