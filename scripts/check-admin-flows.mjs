@@ -157,7 +157,8 @@ try {
     const siteFinal = await ev(NAV_COUNT);
     check('导航删除站点', siteFinal === siteBefore, `${siteAfter} → ${siteFinal}`);
   }
-  // ---------- 文章：新建 → 编辑 → 删除 ----------
+  // ---------- 文章：新建 → 编辑 → 删除（只碰自己建的那一条）----------
+  const ART_TITLE = '__gate__流程文章';
   await ev("document.querySelector('.nav[data-tab=\"articles\"]').click(); 'ok'");
   await sleep(900);
   const ART_COUNT = "document.querySelectorAll('#artTbody [data-artedit]').length";
@@ -166,36 +167,42 @@ try {
   await ev("document.getElementById('artNew').click(); 'ok'");
   await sleep(600);
   await ev(`(function(){
-    document.getElementById('artTitleIn').value = '流程测试文章';
+    document.getElementById('artTitleIn').value = ${JSON.stringify(ART_TITLE)};
     document.getElementById('artSummary').value = '门禁写的一条';
-    document.getElementById('artBody').value = '# 标题\\n\\n正文第一段。';
+    document.getElementById('artBody').value = '正文第一段。';
     return 'ok';
   })()`);
   await ev("document.getElementById('artSubmit').click(); 'ok'");
-  await sleep(2000);
+  await sleep(2200);
   const artAfterAdd = await ev(ART_COUNT);
   const artErr = await ev("(document.getElementById('artErr')||{}).textContent || ''");
   check('文章新建', artAfterAdd === artBefore + 1, `${artBefore} → ${artAfterAdd}${artErr ? ' err=' + artErr : ''}`);
 
-  const ART_LAST = "Array.prototype.map.call(document.querySelectorAll('#artTbody [data-artedit]'), function(b){return b.closest('tr');}).pop()";
-  await ev(`(function(){var r=${ART_LAST}; if(!r) return 'no row'; r.querySelector('[data-artedit]').click(); return 'ok';})()`);
-  await sleep(600);
+  // 按标题定位自己那条；找不到就说明保存没生效
+  const ART_FIND = "(function(){var rows=document.querySelectorAll('#artTbody tr'); for(var i=0;i<rows.length;i++){ if((rows[i].textContent||'').indexOf(" + JSON.stringify(ART_TITLE) + ") >= 0) return rows[i]; } return null;})()";
+  const foundRow = await ev(ART_FIND + " ? 'yes' : 'no'");
+  check('新建的文章出现在列表里', foundRow === 'yes');
+
+  await ev(`(function(){var r=${ART_FIND}; if(!r) return 'no row'; var b=r.querySelector('[data-artedit]'); if(b) b.click(); return 'ok';})()`);
+  await sleep(700);
   const artDlgTitle = await ev("(document.getElementById('artTitle')||{}).textContent || ''");
   await ev("document.getElementById('artSummary').value='改过的摘要'; 'ok'");
   await ev("document.getElementById('artSubmit').click(); 'ok'");
-  await sleep(2000);
+  await sleep(2200);
   const artAfterEdit = await ev(ART_COUNT);
-  const artRowText = await ev(`(function(){var r=${ART_LAST}; return r ? r.textContent : '';})()`);
+  const artRowText = await ev(`(function(){var r=${ART_FIND}; return r ? r.textContent : '';})()`);
   check('文章编辑', artAfterEdit === artBefore + 1 && /改过的摘要/.test(String(artRowText)), `弹窗标题「${artDlgTitle}」`);
 
-  await ev(`(function(){var r=${ART_LAST}; if(!r) return 'no row'; r.querySelector('[data-artdel]').click(); return 'ok';})()`);
-  await sleep(600);
+  await ev(`(function(){var r=${ART_FIND}; if(!r) return 'no row'; var b=r.querySelector('[data-artdel]'); if(b) b.click(); return 'ok';})()`);
+  await sleep(700);
   await ev("document.getElementById('delSubmit').click(); 'ok'");
-  await sleep(2000);
+  await sleep(2200);
   const artAfterDel = await ev(ART_COUNT);
-  check('文章删除', artAfterDel === artBefore, `${artAfterEdit} → ${artAfterDel}（原 ${artBefore}）`);
+  const artGone = await ev(ART_FIND + " ? 'still there' : 'gone'");
+  check('文章删除', artAfterDel === artBefore && artGone === 'gone', `${artAfterEdit} → ${artAfterDel}（原 ${artBefore}）`);
 
-  // ---------- 问答：新增一条 → 保存 → 删除 → 保存 ----------
+  // ---------- 问答：新增一条 → 保存 → 删除 → 保存（按问题文本定位自己那条）----------
+  const QA_Q = '__gate__流程测试问题？';
   await ev("document.querySelector('.nav[data-tab=\"qa\"]').click(); 'ok'");
   await sleep(900);
   const QA_COUNT = "document.querySelectorAll('#qaList .qa-row').length";
@@ -208,29 +215,25 @@ try {
     if (!last) return 'no row';
     var q = last.querySelector('.qa-q'); var a = last.querySelector('.qa-a'); var g = last.querySelector('.qa-tag');
     if (!q || !a) return 'no inputs';
-    q.value = '流程测试问题？'; q.dispatchEvent(new Event('input', { bubbles: true }));
+    q.value = ${JSON.stringify(QA_Q)}; q.dispatchEvent(new Event('input', { bubbles: true }));
     a.value = '流程测试答案。'; a.dispatchEvent(new Event('input', { bubbles: true }));
     if (g) { g.value = '测试'; g.dispatchEvent(new Event('input', { bubbles: true })); }
     return 'ok';
   })()`);
   await ev("document.querySelector('#pane-qa [data-save=\"qa\"]').click(); 'ok'");
-  await sleep(2000);
+  await sleep(2200);
   const qaAfterAdd = await ev(QA_COUNT);
   const qaSaveMsg = await ev("(document.getElementById('qaSaveMsg')||{}).textContent || ''");
   check('问答新增并保存', qaAfterAdd === qaBefore + 1, `填行=${qaFilled}，${qaBefore} → ${qaAfterAdd} · ${qaSaveMsg}`);
 
-  await ev(`(function(){
-    var rows = document.querySelectorAll('#qaList .qa-row');
-    var last = rows[rows.length - 1];
-    var b = last && last.querySelector('[data-qadel]');
-    if (b) b.click();
-    return 'ok';
-  })()`);
-  await sleep(500);
+  const QA_FIND = "(function(){var rows=document.querySelectorAll('#qaList .qa-row'); for(var i=0;i<rows.length;i++){ var q=rows[i].querySelector('.qa-q'); if(q && (q.value||'').indexOf(" + JSON.stringify(QA_Q) + ") >= 0) return rows[i]; } return null;})()";
+  await ev(`(function(){var r=${QA_FIND}; if(!r) return 'no row'; var b=r.querySelector('[data-qadel]'); if(b) b.click(); return 'ok';})()`);
+  await sleep(600);
   await ev("document.querySelector('#pane-qa [data-save=\"qa\"]').click(); 'ok'");
-  await sleep(2000);
+  await sleep(2200);
   const qaAfterDel = await ev(QA_COUNT);
-  check('问答删除并保存', qaAfterDel === qaBefore, `${qaAfterAdd} → ${qaAfterDel}`);
+  const qaGone = await ev(QA_FIND + " ? 'still there' : 'gone'");
+  check('问答删除并保存', qaAfterDel === qaBefore && qaGone === 'gone', `${qaAfterAdd} → ${qaAfterDel}`);
 
 } finally {
   try { await send('Browser.close'); } catch (e) {}
