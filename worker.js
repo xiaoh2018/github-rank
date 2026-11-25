@@ -1038,17 +1038,33 @@ async function serveArticlePage(env, path, request) {
   let arts = await rawJson(env, 'data/articles.json');
   arts = Array.isArray(arts) ? arts : [];
   fillArticleSlugs(arts);
+  let pool = arts;
   let art = arts.filter(function (a) { return a && a.id; }).find(function (a) { return artPathOf(a) === path; });
   if (!art) {
     // raw 有 60~300 秒的子请求缓存，刚提交的文章可能还没出现；回退一次 GitHub API 拿真值
     try {
       const fresh = await readArticles(env);
       if (fresh && fresh.ok && Array.isArray(fresh.articles)) {
+        pool = fresh.articles;
         fillArticleSlugs(fresh.articles);
         art = fresh.articles.filter(function (a) { return a && a.id; }).find(function (a) { return artPathOf(a) === path; });
       }
     } catch (e) {
       art = null;
+    }
+  }
+  if (!art) {
+    // 改过分类/序号的文章：旧地址 301 到现在的规范地址，别让外链和收录变 404
+    const alias = pool.filter(function (a) { return a && a.id && Array.isArray(a.prevSlugs) && a.prevSlugs.length; })
+      .find(function (a) {
+        // prevSlugs 存的是「分类词/序号」不带 /articles 前缀，这里两种写法都认
+        return a.prevSlugs.some(function (x) { return ('/articles/' + x) === path || ('/articles/' + x + '.html') === path; });
+      });
+    if (alias) {
+      return new Response(null, {
+        status: 301,
+        headers: { location: encodeURI(artPathOf(alias)) + (u.search || ''), 'cache-control': 'public, max-age=600' },
+      });
     }
   }
   if (!art) return notFoundPage(u.origin);
@@ -1614,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v123';
+const ASSET_V = 'v124';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2969,7 +2985,7 @@ async function decryptBody(lock, password) {
 function publicArticle(a) {
   const out = {};
   for (const k of Object.keys(a || {})) {
-    if (k === 'lock') continue;
+    if (k === 'lock' || k === 'prevSlugs') continue;
     out[k] = a[k];
   }
   out.locked = !!a.locked;
@@ -3118,11 +3134,23 @@ async function handleArticles(request, env) {
     let removed = 0;
     let changed = 0;
     const next = [];
+    const siteForBulk = await readSite(env).then((x) => x.site).catch(() => null);
     for (const a of list) {
       if (a && set.has(String(a.id))) {
         if (op === 'remove') { removed += 1; continue; }
         a.category = cat;
         changed += 1;
+        // 链接里的分类词跟着分类走：tech/3 → note/3（序号能留就留），旧地址记账后 301
+        const ck = catKeyFrom(siteForBulk, cat);
+        const segs = String(a.slug || '').split('/');
+        const keepSeq = segs.length === 2 && /^\d+$/.test(segs[1]) ? segs[1] : String(nextSeqOf(list, ck));
+        let want = ck + '/' + keepSeq;
+        let bump = 2;
+        while (list.concat(next).some((x) => x && x !== a && x.slug === want)) want = ck + '/' + keepSeq + '-' + bump++;
+        if (a.slug && a.slug !== want) {
+          a.prevSlugs = [a.slug].concat((Array.isArray(a.prevSlugs) ? a.prevSlugs : []).filter((x) => x && x !== a.slug && x !== want)).slice(0, 5);
+          a.slug = want;
+        }
       }
       next.push(a);
     }
@@ -3185,7 +3213,15 @@ async function handleArticles(request, env) {
       var dup2 = 2;
       while (list.some(function (x) { return x && x.slug === finalSlug2 && String(x.id) !== String(id); })) finalSlug2 = wantSlug + '-' + dup2++;
       c.clean.slug = finalSlug2;
+      // 链接变了就记下旧地址（最多 5 个），旧地址由 serveArticlePage 301 到新地址
+      var carried = Array.isArray(prev.prevSlugs) ? prev.prevSlugs.slice(0, 5) : [];
+      if (prev.slug && prev.slug !== finalSlug2) {
+        carried = [prev.slug].concat(carried.filter(function (x) { return x && x !== prev.slug && x !== finalSlug2; })).slice(0, 5);
+      }
+      if (carried.length) c.clean.prevSlugs = carried;
       list[idx] = Object.assign({ id: id }, c.clean);
+      // 改完立刻清掉旧/新两个文章页的成品缓存，别让访客看到 60 秒前的旧标题
+      await purgeEdge([artPathOf(prev), artPathOf(list[idx])]);
     }
   }
 
