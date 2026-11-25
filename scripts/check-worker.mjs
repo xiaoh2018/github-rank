@@ -391,6 +391,8 @@ const bundleJs = await r.text();
 ok(bundleJs.indexOf('sanitizeReadme') > 0, 'bundle.js 里有 README 的 HTML→Markdown 转换');
 ok(bundleJs.indexOf("el('pre', 'readme'") < 0, 'README 不再用 <pre> 显示原始文本');
 ok(bundleJs.indexOf('中文翻译中') < 0, '去掉了「中文翻译中…」提示');
+ok(bundleJs.indexOf('aria-busy') > 0, '加载中给榜单加了 aria-busy');
+ok(bundleJs.indexOf('empty-item') > 0 && bundleJs.indexOf('清空筛选') > 0, '无结果时渲染空态卡片（带「清空筛选」按钮）');
 ok(bundleJs.indexOf('readmeWrap') > 0, '译文到了只替换 README 块');
 
 // ---- 15. 信息流广告（榜单 / 文章 / 导航卡片之间）----

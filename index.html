@@ -150,7 +150,15 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 #pageInfo{font-family:Consolas,ui-monospace,monospace;font-size:13px;color:var(--muted)}
 .toolrow{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--gap);margin-top:var(--gap)}
 /* 骨架屏 */
-.skel{height:86px;border-radius:12px;background:linear-gradient(100deg,var(--chip) 40%,var(--card) 50%,var(--chip) 60%);background-size:200% 100%;animation:shine 1.2s infinite}
+.skel{height:auto;min-height:124px;padding:14px 16px;border-radius:12px;background:var(--card);border:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
+.skel i{display:block;height:10px;border-radius:6px;background:linear-gradient(100deg,var(--chip) 40%,var(--card) 50%,var(--chip) 60%);background-size:200% 100%;animation:shine 1.2s infinite}
+.skel .s1{height:15px;width:46%}
+.skel .s2{width:92%}
+.skel .s3{width:74%}
+.skel .s4{margin-top:auto;width:38%;height:6px}
+.empty-item{grid-column:1 / -1;display:flex;align-items:center;justify-content:center;min-height:190px;text-align:center}
+.empty-item .empty-c{max-width:420px}
+.empty-item .hint{margin:6px 0 12px}
 @keyframes shine{to{background-position:-200% 0}}
 @media (prefers-reduced-motion:reduce){.skel{animation:none}}
 /* 语言分布 */

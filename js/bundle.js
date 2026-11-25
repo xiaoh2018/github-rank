@@ -1044,7 +1044,15 @@ function setStatus(text, isError) {
 }
 
 function renderSkeleton() {
-  $('list').replaceChildren(...Array.from({ length: 5 }, () => el('li', 'skel')));
+  const n = window.matchMedia('(min-width:900px)').matches ? 6 : 4;
+  $('list').replaceChildren(...Array.from({ length: n }, () => {
+    const li = el('li', 'skel');
+    li.innerHTML = '<i class="s1"></i><i class="s2"></i><i class="s3"></i><i class="s4"></i>';
+    return li;
+  }));
+  $('list').setAttribute('aria-busy', 'true');
+  $('pager').hidden = true;
+  setStatus('加载数据…');
 }
 
 function showError(e, retryFn) {
@@ -1077,7 +1085,24 @@ function renderRepos() {
       pageNodes.push(ad);
     }
   });
+  if (!list.length && state.repos.length) {
+    const li = document.createElement('li');
+    li.className = 'item empty-item';
+    li.innerHTML = '<div class="empty-c"><b>没有符合条件的项目</b><p class="hint">换个关键词，或者清空筛选看看全部榜单。</p></div>';
+    const btn = el('button', 'btn', '清空筛选');
+    btn.onclick = () => {
+      state.q = ''; state.cat = ''; state.lang = ''; state.page = 1;
+      if ($('q')) $('q').value = '';
+      if ($('lang')) $('lang').value = '';
+      markCat();
+      syncHash();
+      render();
+    };
+    li.querySelector('.empty-c').append(btn);
+    pageNodes.push(li);
+  }
   $('list').replaceChildren(...pageNodes);
+  $('list').removeAttribute('aria-busy');
   if (window.ghrankMountInline) window.ghrankMountInline();
 
   renderStats(list);
@@ -1085,7 +1110,7 @@ function renderRepos() {
   renderAuthors(list);
   renderChanges(state.repos, state.trend, state.dropped);
 
-  if (!list.length) setStatus(state.repos.length ? '没有符合条件的项目。' : '该条件下暂无项目。');
+  if (!list.length) setStatus(state.repos.length ? '' : '该条件下暂无项目。');
   else if (state.sort === 'trend' && !state.hasBase) {
     setStatus('增量需要和至少 1 小时前的一次记录对比，隔一段时间再来就能看到。');
   } else setStatus('');
@@ -1099,6 +1124,7 @@ function renderRepos() {
 
 // 广告配置比榜单晚到（site.json 后到）：让首页脚本能要求重排一次，补上信息流占位
 window.__ghrankRenderList = renderRepos;
+window.__ghrankSkeleton = renderSkeleton;
 
 // 列表简介：当前页没有中文译文的，批量请求 Worker 翻译（免 Key，结果缓存 30 天）。翻过或失败的不重复请求
 const descTried = new Set();
