@@ -91,6 +91,9 @@ html[data-theme="notion"]{
     .totop:hover{transform:translateY(-2px);color:var(--accent)}
     .totop[hidden]{display:none}
     @media print{.totop{display:none!important}}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
 </style>
 </head>
 <body>

@@ -160,6 +160,7 @@ push('文章列表页有分页条', artListHtml.includes('id="apager"') && artLi
 push('首页文章卡片有置顶徽标代码', home.includes('pinchip'), '');
 push('首页最新文章最多 6 篇', home.includes('var HOME_MAX=6;'), '');
 push('导航分组可折叠并记住状态', home.includes('class="gtog"') && home.includes('ghrank-nav-closed'), '');
+push('首页尊重「减少动效」偏好', home.includes('prefers-reduced-motion: reduce'), '');
 push('/articles 有返回顶部按钮', artListHtml.includes('id="totop"') && artListHtml.includes('initTotop'), '');
 const faqTotop = await (await fetch(base + '/faq?v=' + t)).text();
 push('/faq 有返回顶部按钮', faqTotop.includes('id="totop"') && faqTotop.includes('initTotop'), '');

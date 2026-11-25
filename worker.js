@@ -1614,7 +1614,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v118';
+const ASSET_V = 'v120';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4288,7 +4288,7 @@ tr:hover td{background:#fcfbf8}
   <div class="actions"><button type="button" class="ghost" data-close="addDlg">取消</button><button type="button" id="addSubmit">添加</button></div>
 </dialog>
 <dialog id="delDlg">
-  <h2 id="delTitle">确认删除</h3>
+  <h2 id="delTitle">确认删除</h2>
   <p class="msg" id="delNote"></p>
   <div class="err" id="delErr"></div>
   <div class="actions"><button type="button" class="ghost" data-close="delDlg">取消</button><button type="button" class="danger" id="delSubmit">确定删除</button></div>
@@ -4510,10 +4510,15 @@ tr:hover td{background:#fcfbf8}
     paintCmdk('');
   }
 
-  function askConfirm(title, note, fn) {
+  function askConfirm(title, note, fn, okText) {
     $('delTitle').textContent = title;
     $('delNote').textContent = note;
     $('delErr').textContent = '';
+    var okBtn = $('delSubmit');
+    if (okBtn) {
+      okBtn.textContent = okText || '确定删除';
+      okBtn.className = (okText && okText !== '确定删除') ? 'primary' : 'danger';
+    }
     confirmFn = fn;
     $('delDlg').showModal();
   }
@@ -5357,9 +5362,17 @@ tr:hover td{background:#fcfbf8}
         if (!ids.length) { toast('先勾选文章', true); return; }
         if (!cat) { toast('先填分类名', true); return; }
         var prevSnapshot = state.articles.slice();
-        api('/api/articles', { method: 'POST', body: { password: pw, action: 'bulk', op: 'category', category: cat, ids: ids } }).then(function (r) {
-          if (r.ok) { state.articles = r.articles; state.artSel.clear(); artUndoSet(prevSnapshot); renderArticles(); toast('已把 ' + r.changed + ' 篇改成「' + cat + '」（可撤销）', true); }
-        });
+        // 批量改分类会同时改 slug（分类词/序号），会动到已发布的文章地址，所以先确认一次
+        var catList = (typeof readCats === 'function') ? readCats() : [];
+        var catHit = null;
+        for (var ci = 0; ci < catList.length; ci++) { if (catList[ci].key === cat || catList[ci].name === cat) { catHit = catList[ci]; break; } }
+        var catKeyText = (catHit && catHit.key) ? catHit.key : cat;
+        askConfirm('批量改分类', '把选中的 ' + ids.length + ' 篇改成分类「' + cat + '」？改完这些文章的链接会变成 /articles/' + catKeyText + '/序号.html（旧地址会 301 到新地址）。', function () {
+          return api('/api/articles', { method: 'POST', body: { password: pw, action: 'bulk', op: 'category', category: cat, ids: ids } }).then(function (r) {
+            if (r.ok) { state.articles = r.articles; state.artSel.clear(); artUndoSet(prevSnapshot); renderArticles(); toast('已把 ' + r.changed + ' 篇改成「' + cat + '」（可撤销）', true); }
+            return r;
+          });
+        }, '确定修改');
       });
     }
 

@@ -504,6 +504,9 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     .card-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}
     .card-head b{font-size:14px}
     .card-head .msg{font-size:12px;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
 </style>
 </head>
 <body>
