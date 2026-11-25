@@ -521,7 +521,8 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
   }
 
   function artPath(a) {
-    return a && a.slug ? '/articles/' + encodeURIComponent(String(a.slug)) : '/articles#' + encodeURIComponent(String((a && a.id) || ''));
+    if (a && a.slug) return '/articles/' + String(a.slug).split('/').map(encodeURIComponent).join('/');
+    return '/articles#' + encodeURIComponent(String((a && a.id) || ''));
   }
 
   function pathOf(id) {
@@ -531,7 +532,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
   }
 
   function artFromPath() {
-    var m = /^\/articles\/([A-Za-z0-9-]{1,60})\/?$/.exec(location.pathname || '');
+    var m = /^\/articles\/([\p{L}\p{N}][\p{L}\p{N}_-]{0,23}(?:\/[\p{L}\p{N}][\p{L}\p{N}_-]{0,29})?)\/?$/u.exec(decodeURIComponent(location.pathname || ''));
     if (!m) return null;
     var slug = decodeURIComponent(m[1]);
     var hit = null;

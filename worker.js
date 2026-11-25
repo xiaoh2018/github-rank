@@ -71,7 +71,7 @@ export default {
         });
       }
       // /articles/<slug> 也返回文章页（前端按路径里的 slug 打开对应文章，利于收录）
-      if (/^\/articles\/[A-Za-z0-9][A-Za-z0-9-]{0,59}$/.test(url.pathname) && (request.method === 'GET' || request.method === 'HEAD')) {
+      if (/^\/articles\/[\p{L}\p{N}][\p{L}\p{N}_-]{0,23}(\/[\p{L}\p{N}][\p{L}\p{N}_-]{0,29})?$/u.test(decodeURIComponent(url.pathname)) && (request.method === 'GET' || request.method === 'HEAD')) {
         return serveSiteEdge(env, '/articles', SITE['/articles'], request);
       }
       if (url.pathname === '/sitemap.xml' && (request.method === 'GET' || request.method === 'HEAD')) {
@@ -88,7 +88,9 @@ export default {
         for (const a of list.slice(0, 200)) {
           if (!a || !a.id) continue;
           const lm = a.date ? String(a.date).slice(0, 10) : '';
-          const artPath = a.slug ? '/articles/' + encodeURIComponent(String(a.slug)) : '/articles#' + encodeURIComponent(String(a.id));
+          const artPath = a.slug
+    ? '/articles/' + String(a.slug).split('/').map(encodeURIComponent).join('/')
+    : '/articles#' + encodeURIComponent(String(a.id));
           xml += '  <url><loc>' + origin + artPath + '</loc>' +
             (lm ? '<lastmod>' + lm + '</lastmod>' : '') + '<changefreq>monthly</changefreq><priority>0.5</priority></url>\n';
         }
@@ -1321,7 +1323,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v51';
+const ASSET_V = 'v52';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1728,7 +1730,7 @@ async function handleSubmit(request, env, origin) {
   const arts = await rawJson(env, 'data/articles.json');
   const urls = [root + '/', root + '/articles'];
   (Array.isArray(arts) ? arts : []).slice(0, 100).forEach((a) => {
-    if (a && a.id) urls.push(root + '/articles/' + encodeURIComponent(String(a.slug || a.id)));
+    if (a && a.id) urls.push(root + '/articles/' + String(a.slug || a.id).split('/').map(encodeURIComponent).join('/'));
   });
   const want = String(body.action || 'all');
   const out = { ok: true, urls: urls.length, root: root, results: {} };
@@ -2329,9 +2331,28 @@ async function readArticles(env) {
     return { ok: false, status: 500, error: 'data/articles.json 不是合法的 JSON 数组，请先在仓库里修正' };
   }
   if (articles.length) {
-    articles = articles.map((a) => {
-      if (a && !a.slug) a.slug = slugify(a.title) || 'p-' + a.id;
-      return a;
+    var catMax = {};
+    articles.forEach(function (a) {
+      if (!a || !a.slug) return;
+      var parts = String(a.slug).split('/');
+      if (parts.length === 2) {
+        var num = parseInt(parts[1], 10);
+        if (num > (catMax[parts[0]] || 0)) catMax[parts[0]] = num;
+      }
+    });
+    var ordered = articles.slice().sort(function (a, b) {
+      return String((a && a.date) || '').localeCompare(String((b && b.date) || ''));
+    });
+    var usedSlug = {};
+    ordered.forEach(function (a) {
+      if (!a) return;
+      if (!a.slug) {
+        var k = catKeyOf(a.category);
+        catMax[k] = (catMax[k] || 0) + 1;
+        a.slug = k + '/' + catMax[k];
+      }
+      if (usedSlug[a.slug]) a.slug = a.slug + '-' + (usedSlug[a.slug] + 1);
+      usedSlug[a.slug] = (usedSlug[a.slug] || 0) + 1;
     });
   }
   return { ok: true, status: 200, articles: articles, sha: cur.data.sha || null };
@@ -2423,14 +2444,39 @@ function slugify(title) {
     .slice(0, 60);
 }
 
+// 分类词：中文分类转写不出英文时统一用 cat；序号按该分类自增
+function catKeyOf(cat) {
+  var raw = String(cat || '').trim().toLowerCase();
+  var s2 = slugify(raw).slice(0, 24);
+  if (s2) return s2;
+  // 中文分类直接用作分类词（URL 里会被百分号编码，浏览器地址栏仍显示中文）
+  if (raw) {
+    var zh = raw.replace(/\s+/g, '-').replace(/[\/#?%&+=]+/g, '').slice(0, 24);
+    if (zh) return zh;
+  }
+  return 'cat';
+}
+function nextSeqOf(list, catKey) {
+  var max = 0;
+  (list || []).forEach(function (x) {
+    if (!x || !x.slug) return;
+    var p2 = String(x.slug).split('/');
+    if (p2.length === 2 && p2[0] === catKey) {
+      var n = parseInt(p2[1], 10);
+      if (n > max) max = n;
+    }
+  });
+  return max + 1;
+}
+
 // 校验一篇文章：title / summary / body 为文字，date 为 YYYY-MM-DD（缺省为今天）
 function checkArticle(v) {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return { ok: false, error: '文章内容必须是对象' };
   const clean = {};
   const rawSlug = typeof v.slug === 'string' ? v.slug.trim().toLowerCase() : '';
   if (rawSlug) {
-    if (!/^[a-z0-9][a-z0-9-]{0,59}$/.test(rawSlug)) {
-      return { ok: false, error: '链接别名只能用小写字母、数字和连字符，2–60 位' };
+    if (!/^[\p{L}\p{N}][\p{L}\p{N}_-]{0,23}(\/[\p{L}\p{N}][\p{L}\p{N}_-]{0,29})?$/u.test(rawSlug)) {
+      return { ok: false, error: '链接格式是 分类词/序号（如 tech/3），不要用空格和 # ? & % 这些符号' };
     }
     clean.slug = rawSlug;
   }
@@ -2507,7 +2553,8 @@ async function handleArticles(request, env) {
     if (list.length >= ARTICLES_MAX) return json({ ok: false, error: '文章最多 ' + ARTICLES_MAX + ' 篇，请先删除旧文章' }, 400);
     let id = String(Date.now());
     while (list.some((a) => a && String(a.id) === id)) id = String(Number(id) + 1);
-    var baseSlug = c.clean.slug || slugify(c.clean.title) || ('p-' + Date.now().toString(36));
+    var catKeyNew = catKeyOf(c.clean.category);
+    var baseSlug = c.clean.slug || catKeyNew + '/' + nextSeqOf(list, catKeyNew);
     var finalSlug = baseSlug;
     var dup = 2;
     while (list.some(function (x) { return x && x.slug === finalSlug; })) finalSlug = baseSlug + '-' + dup++;
@@ -2537,7 +2584,8 @@ async function handleArticles(request, env) {
           return json({ ok: false, error: '加密文章要设置访问密码' }, 400);
         }
       }
-      var wantSlug = c.clean.slug || prev.slug || slugify(c.clean.title) || ('p-' + Date.now().toString(36));
+      var catKeyUp = catKeyOf(c.clean.category || prev.category);
+    var wantSlug = c.clean.slug || prev.slug || catKeyUp + '/' + nextSeqOf(list, catKeyUp);
       var finalSlug2 = wantSlug;
       var dup2 = 2;
       while (list.some(function (x) { return x && x.slug === finalSlug2 && String(x.id) !== String(id); })) finalSlug2 = wantSlug + '-' + dup2++;
@@ -2925,6 +2973,7 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
 .lockrow .toggle.inline{margin:0;white-space:nowrap}
 .slugrow{display:flex;gap:6px;align-items:center;min-width:220px;flex:1}
 .slugrow input{flex:1;min-width:0}
+.slug-sep{color:#9a9285;font-family:ui-monospace,Menlo,Consolas,monospace}
 .slugline{font-size:11.5px;color:#8a8172;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
 .art-lock{font-size:11px;padding:1px 6px;border-radius:6px;background:#f6e7c8;color:#7a5a11;font-weight:600;margin-left:6px}
 
@@ -3450,12 +3499,23 @@ tr:hover td{background:#fcfbf8}
         <div><label for="artTitleIn">标题</label><input type="text" id="artTitleIn" maxlength="100" placeholder="例如：2026 年 11 月值得关注的 10 个项目"></div>
         <div><label for="artDate">日期</label><input type="date" id="artDate"></div>
       </div>
+      <div class="field-row">
+        <div><label for="artCategory">分类</label><input type="text" id="artCategory" maxlength="24" placeholder="如 技术 / 随笔，会显示在列表与筛选里"></div>
+        <div><label for="artCat">链接（分类词/序号）</label>
+          <span class="slugrow">
+            <input id="artCat" maxlength="24" placeholder="分类词，如 tech">
+            <span class="slug-sep">/</span>
+            <input id="artSeq" maxlength="20" placeholder="序号，如 3（留空自动）">
+            <button type="button" class="ghost small" id="artSlugGen">自动</button>
+          </span>
+        </div>
+      </div>
       <label for="artSummary">摘要</label>
       <textarea id="artSummary" maxlength="300" style="min-height:74px" placeholder="一两句话说清这篇讲什么，会显示在列表里，也会被 AI 搜索引用。"></textarea>
       <div class="lockrow">
         <label class="toggle inline"><input type="checkbox" id="artLock"> 加密这篇（读者要输密码才能看）</label>
         <input type="password" id="artPw" maxlength="60" autocomplete="new-password" placeholder="访问密码，至少 4 位；编辑时留空 = 沿用原密码">
-        <span class="slugrow"><input id="artSlug" maxlength="60" placeholder="链接别名，如 blog-layout-test（只用小写字母、数字、连字符）"><button type="button" class="ghost small" id="artSlugGen">按标题生成</button></span>
+
         <textarea id="artHint" maxlength="300" rows="2" placeholder="怎么拿到密码？例如：加微信 flyfish2026 回复「密码」；留空用站点默认提示"></textarea>
       </div>
       <div class="row-actions">
@@ -3918,7 +3978,7 @@ tr:hover td{background:#fcfbf8}
       return '<tr><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b>' +
         (a.locked ? '<span class="art-lock">加密</span>' : '') +
         (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
-        '<div class="slugline">/articles/' + esc(a.slug || a.id) + '</div>' +
+        '<div class="slugline">/articles/' + esc(a.slug || a.id) + (a.category ? ' · ' + esc(a.category) : '') + '</div>' +
         '</td><td>' + esc(a.summary) +
         '</td><td><button type="button" class="ghost small" data-artedit="' + esc(a.id) + '">编辑</button> ' +
         '<button type="button" class="ghost small" data-artview="' + esc(a.id) + '">预览</button> ' +
@@ -3945,7 +4005,10 @@ tr:hover td{background:#fcfbf8}
     $('artBody').value = a ? a.body : '';
     $('artLock').checked = !!(a && a.locked);
     $('artPw').value = '';
-    $('artSlug').value = (a && a.slug) || '';
+    var slugParts = String((a && a.slug) || '').split('/');
+      $('artCategory').value = (a && a.category) || '';
+      $('artCat').value = slugParts.length === 2 ? slugParts[0] : '';
+      $('artSeq').value = slugParts.length === 2 ? slugParts[1] : '';
     $('artHint').value = (a && a.unlockHint) || '';
     $('artErr').textContent = '';
     paintPreview();
@@ -3961,9 +4024,12 @@ tr:hover td{background:#fcfbf8}
     };
     var lockOn = $('artLock').checked;
     var lockPw = $('artPw').value || '';
-    var artSlug = ($('artSlug').value || '').trim();
+    var artCat = ($('artCat').value || '').trim().toLowerCase();
+      var artSeq = ($('artSeq').value || '').trim().toLowerCase();
+      var artSlug = artCat ? (artCat + '/' + (artSeq || '')) : '';
     var artHint = ($('artHint').value || '').trim();
-    article.slug = artSlug;
+    article.category = ($('artCategory').value || '').trim();
+      article.slug = artSlug.split('/').filter(Boolean).join('/');
     article.unlockHint = artHint;
     article.locked = lockOn;
     if (lockOn) {
@@ -4027,14 +4093,12 @@ tr:hover td{background:#fcfbf8}
       this.textContent = grid.classList.contains('preview-off') ? '显示预览' : '隐藏预览';
     });
     $('artSlugGen').addEventListener('click', function () {
-      var t = ($('artTitleIn').value || '').trim();
-      var sl = t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
-      if (!sl) {
-        toast('标题里没有英文字母，先用英文起个短名，或自己填（如 about-me）');
-        return;
-      }
-      $('artSlug').value = sl;
-      toast('别名：/articles/' + sl);
+      var cat = ($('artCat').value || '').trim().toLowerCase() ||
+        (($('artCategory').value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')) ||
+        'cat';
+      $('artCat').value = cat;
+      $('artSeq').value = '';
+      toast('链接：/articles/' + cat + '/<自动序号>（想固定就自己填序号）');
     });
     $('artFullBtn').addEventListener('click', function () {
       var dlg = $('artDlg');
