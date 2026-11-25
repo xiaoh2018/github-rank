@@ -96,6 +96,7 @@ push('导航加载骨架', home.includes('class="navskel"') && home.includes('ar
 push('导航空态卡与重置', home.includes('class="navempty"') && home.includes('data-navreset'), '');
 push('问答加载骨架', faqText.includes('function renderSkeleton') && faqText.includes('skrow'), '');
 push('问答空态卡与重置', faqText.includes('没有匹配的问题') && faqText.includes('data-reset'), '');
+push('文章封面预留比例（不跳动）', artText.includes('aspect-ratio:16/9'), '');
 push('问答搜索有高亮（highlightNode + hitmark）', faqText.includes('function highlightNode') && faqText.includes("className = 'hitmark'"));
 push('问答计数显示命中条数', faqText.includes('命中') && faqText.includes('当前显示'));
 push('问答答案先转义再解析 markdown', faqText.includes('function inline(s) {') && faqText.includes('return esc(s)'));

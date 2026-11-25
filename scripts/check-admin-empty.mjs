@@ -22,6 +22,7 @@ const adminHtml = await (await fetch(BASE + '/admin', { cache: 'no-store' })).te
 (adminHtml.includes('EMPTY_ACT') ? ok : bad)('后台源码有空态按钮委托表');
 (adminHtml.includes('data-empty-act="nav-cat-add"') ? ok : bad)('后台源码有导航分类空态按钮');
 (adminHtml.includes('data-navfreset="1"') ? ok : bad)('后台源码有导航「清空筛选」按钮');
+(adminHtml.includes('role="status"') ? ok : bad)('后台空态卡对读屏可见（role=status）');
 
 const port = 9600 + Math.floor(Math.random() * 300);
 const prof = path.join(os.tmpdir(), 'cr-aempty-' + Date.now());

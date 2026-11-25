@@ -284,9 +284,9 @@ html[data-theme="notion"]{
     var box = document.getElementById('list');
     box.removeAttribute('aria-busy');
     if (!QA.items.length) {
-      box.innerHTML = '<div class="empty"><b>还没有问答</b><p>站长在后台「问答」里添加之后，这里就会按分类列出来。</p></div>';
+      box.innerHTML = '<div class="empty" role="status"><b>还没有问答</b><p>站长在后台「问答」里添加之后，这里就会按分类列出来。</p></div>';
     } else if (!list.length) {
-      box.innerHTML = '<div class="empty"><b>没有匹配的问题</b><p>换个关键词，或清空筛选看全部 ' + QA.items.length + ' 条。</p><button type="button" class="chip" data-reset="1">清空搜索与标签</button></div>';
+      box.innerHTML = '<div class="empty" role="status"><b>没有匹配的问题</b><p>换个关键词，或清空筛选看全部 ' + QA.items.length + ' 条。</p><button type="button" class="chip" data-reset="1">清空搜索与标签</button></div>';
     } else {
       box.innerHTML = list.map(function (it, i) {
         var no = QA.items.indexOf(it) + 1;
@@ -405,7 +405,7 @@ html[data-theme="notion"]{
       render();
     })
     .catch(function () {
-      document.getElementById('list').innerHTML = '<div class="empty"><b>问答没读出来</b><p>数据源可能暂时不可用，稍后刷新再试。</p></div>';
+      document.getElementById('list').innerHTML = '<div class="empty" role="status"><b>问答没读出来</b><p>数据源可能暂时不可用，稍后刷新再试。</p></div>';
     });
 })();
   (function(){

@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v144';
+const ASSET_V = 'v145';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4697,7 +4697,7 @@ tr:hover td{background:#fcfbf8}
     $('linkCount').textContent = state.links.length;
     var b = $('linkBody');
     if (!state.links.length) {
-      b.innerHTML = '<tr><td colspan="4"><div class="empty-card"><b>还没有友链</b><p>友链会显示在首页底部，建议 4–12 个、每个带一句描述。</p><button type="button" class="btn" data-empty-act="link-add">添加友链</button></div></td></tr>';
+      b.innerHTML = '<tr><td colspan="4"><div class="empty-card" role="status"><b>还没有友链</b><p>友链会显示在首页底部，建议 4–12 个、每个带一句描述。</p><button type="button" class="btn" data-empty-act="link-add">添加友链</button></div></td></tr>';
       return;
     }
     b.innerHTML = state.links.map(function (l, i) {
@@ -4859,7 +4859,7 @@ tr:hover td{background:#fcfbf8}
     if (tb) {
       tb.innerHTML = catState.length
         ? catState.map(catRow).join('')
-        : '<tr><td colspan="4"><div class="empty-card"><b>还没有分类</b><p>分类的英文词会进文章链接，例如 tech → /articles/tech/1.html。</p><button type="button" class="btn" data-empty-act="cat-add">新增分类</button></div></td></tr>';
+        : '<tr><td colspan="4"><div class="empty-card" role="status"><b>还没有分类</b><p>分类的英文词会进文章链接，例如 tech → /articles/tech/1.html。</p><button type="button" class="btn" data-empty-act="cat-add">新增分类</button></div></td></tr>';
     }
     var dl = $('artCatList');
     if (dl) {
@@ -5084,7 +5084,7 @@ tr:hover td{background:#fcfbf8}
         '"></div><div><label>回答</label><textarea class="fa" aria-label="回答" maxlength="500">' + esc(f.a) +
         '</textarea></div><div><button type="button" class="ghost small" data-faqdel="' + i + '">删除</button></div></div>';
     }).join('');
-    $('faqList').innerHTML = h || '<div class="empty-card"><b>还没有问答</b><p>问答会同时出现在 /faq 页和 llms.txt，用来回答「数据哪来的」这类问题。</p><button type="button" class="btn" data-empty-act="qa-add">新增一条</button></div>';
+    $('faqList').innerHTML = h || '<div class="empty-card" role="status"><b>还没有问答</b><p>问答会同时出现在 /faq 页和 llms.txt，用来回答「数据哪来的」这类问题。</p><button type="button" class="btn" data-empty-act="qa-add">新增一条</button></div>';
   }
   $('faqAdd').addEventListener('click', function () {
     syncFaq();
@@ -5169,12 +5169,12 @@ tr:hover td{background:#fcfbf8}
     var pageList = list.slice((page - 1) * per, page * per);
     state.artFiltered = list.map(function (a) { return String(a.id); });
     if (!all.length) {
-      $('artTbody').innerHTML = '<tr><td colspan="5"><div class="empty-card"><b>还没有文章</b><p>写第一篇之后，前台 /articles 会按分类列出来，同时进站点地图和 llms.txt。</p><button type="button" class="btn" data-empty-act="art-new">写新文章</button></div></td></tr>';
+      $('artTbody').innerHTML = '<tr><td colspan="5"><div class="empty-card" role="status"><b>还没有文章</b><p>写第一篇之后，前台 /articles 会按分类列出来，同时进站点地图和 llms.txt。</p><button type="button" class="btn" data-empty-act="art-new">写新文章</button></div></td></tr>';
       if ($('artPager')) $('artPager').hidden = true;
       return;
     }
     if (!list.length) {
-      $('artTbody').innerHTML = '<tr><td colspan="5"><div class="empty-card"><b>没有匹配的文章</b><p>换个关键词，或清掉分类筛选看全部。</p><button type="button" class="btn ghost" data-empty-act="artreset">清空搜索与筛选</button></div></td></tr>';
+      $('artTbody').innerHTML = '<tr><td colspan="5"><div class="empty-card" role="status"><b>没有匹配的文章</b><p>换个关键词，或清掉分类筛选看全部。</p><button type="button" class="btn ghost" data-empty-act="artreset">清空搜索与筛选</button></div></td></tr>';
       if ($('artPager')) $('artPager').hidden = true;
       return;
     }
@@ -5663,7 +5663,7 @@ tr:hover td{background:#fcfbf8}
     var gs = (navState && navState.groups) || [];
     var q = navFilterText();
     if (!gs.length) {
-      box.innerHTML = '<div class="empty-card"><b>还没有分类</b><p>导航页的分类就是前台的标签，例如「开发工具」「设计」；建好分类再往里加站点。</p><button type="button" class="btn" data-empty-act="nav-cat-add">＋ 分类</button></div>';
+      box.innerHTML = '<div class="empty-card" role="status"><b>还没有分类</b><p>导航页的分类就是前台的标签，例如「开发工具」「设计」；建好分类再往里加站点。</p><button type="button" class="btn" data-empty-act="nav-cat-add">＋ 分类</button></div>';
       return;
     }
     var anyHit = !q || gs.some(function (g) {
@@ -5673,7 +5673,7 @@ tr:hover td{background:#fcfbf8}
     });
     if (!anyHit) {
       var allN = gs.reduce(function (n, g) { return n + (g.items || []).length; }, 0);
-      box.innerHTML = '<div class="empty-card"><b>没有匹配的站点</b><p>换个关键词试试，或清空筛选看全部 ' + allN + ' 个站点。</p><button type="button" class="btn ghost" data-navfreset="1">清空筛选</button></div>';
+      box.innerHTML = '<div class="empty-card" role="status"><b>没有匹配的站点</b><p>换个关键词试试，或清空筛选看全部 ' + allN + ' 个站点。</p><button type="button" class="btn ghost" data-navfreset="1">清空筛选</button></div>';
       return;
     }
     box.innerHTML = gs.map(function (g, gi) {
@@ -5695,8 +5695,8 @@ tr:hover td{background:#fcfbf8}
         (shown.length
           ? '<table class="nav-table"><thead><tr><th style="width:215px">名称</th><th style="width:255px">网址</th><th>描述</th><th style="width:200px">图标</th><th style="width:212px">操作</th></tr></thead><tbody>' + rows + '</tbody></table>'
           : (q
-            ? '<div class="empty-card"><b>这个分类里没有匹配的站点</b><p>换个关键词，或清空筛选看这个分类的全部 ' + items.length + ' 个站点。</p><button type="button" class="btn ghost" data-navfreset="1">清空筛选</button></div>'
-            : '<div class="empty-card"><b>这个分类还没有站点</b><p>加站点时填「名称 | 网址 | 描述 | 图标」，图标可留空，前台会自动取站名首字母。</p><button type="button" class="btn" data-gadd="' + gi + '">＋ 站点</button></div>')) +
+            ? '<div class="empty-card" role="status"><b>这个分类里没有匹配的站点</b><p>换个关键词，或清空筛选看这个分类的全部 ' + items.length + ' 个站点。</p><button type="button" class="btn ghost" data-navfreset="1">清空筛选</button></div>'
+            : '<div class="empty-card" role="status"><b>这个分类还没有站点</b><p>加站点时填「名称 | 网址 | 描述 | 图标」，图标可留空，前台会自动取站名首字母。</p><button type="button" class="btn" data-gadd="' + gi + '">＋ 站点</button></div>')) +
         '</div>';
     }).join('');
   }

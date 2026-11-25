@@ -20,10 +20,12 @@ const faq = await (await fetch(BASE + '/faq', { cache: 'no-store' })).text();
 (home.includes('@keyframes ghsk') ? ok : bad)('首页源码有骨架动画 ghsk');
 (home.includes('class="navempty"') ? ok : bad)('首页源码有空态卡 .navempty');
 (home.includes('data-navreset="1"') ? ok : bad)('首页源码有「清空搜索」按钮');
+(home.includes('role="status"') ? ok : bad)('导航空态卡对读屏可见（role=status）');
 (home.includes('aria-busy="true"') ? ok : bad)('首页 #navBody 初始 aria-busy');
 (faq.includes('.skrow') ? ok : bad)('问答页源码有骨架 .skrow');
 (faq.includes('renderSkeleton') ? ok : bad)('问答页源码有 renderSkeleton()');
 (faq.includes('data-reset="1"') ? ok : bad)('问答页源码有重置按钮');
+(faq.includes('role="status"') ? ok : bad)('问答空态卡对读屏可见（role=status）');
 
 // ---- CDP ----
 const port = 9600 + Math.floor(Math.random() * 300);

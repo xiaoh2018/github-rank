@@ -1336,8 +1336,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         html+='</section>';
       });
       if(html && jump) html='<div class="navjump">'+jump+'</div>'+html;
-      if(!total) html='<div class="navempty"><b>还没有站点</b><p>到后台「导航页」添加分组和站点，保存后刷新这里就能看到。</p><a class="btn" href="/admin">去后台添加</a></div>';
-      if(!html) html='<div class="navempty"><b>没有匹配的站点</b><p>换个关键词试试，或者清空搜索看全部 '+total+' 个站点。</p><button type="button" class="btn" data-navreset="1">清空搜索</button></div>';
+      if(!total) html='<div class="navempty" role="status"><b>还没有站点</b><p>到后台「导航页」添加分组和站点，保存后刷新这里就能看到。</p><a class="btn" href="/admin">去后台添加</a></div>';
+      if(!html) html='<div class="navempty" role="status"><b>没有匹配的站点</b><p>换个关键词试试，或者清空搜索看全部 '+total+' 个站点。</p><button type="button" class="btn" data-navreset="1">清空搜索</button></div>';
       box.removeAttribute('aria-busy');
       box.innerHTML = html;
       if(!box.dataset.gbound){
