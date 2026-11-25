@@ -638,6 +638,10 @@ ok(!/"lock"\s*:/.test(pubTxt), '投影里不含 lock（密文/盐不外发，防
 ok(Array.isArray(pubArr) && pubArr.every((x) => typeof x.hasLock === 'boolean'), '每条都带 hasLock 布尔，前端据此判断能不能解');
 ok((pubRes.headers.get('cache-control') || '').indexOf('max-age=60') >= 0, '/data/articles.json 走 60 秒配置档');
 
+const adminRows = await (await hit('/admin')).text();
+ok(adminRows.includes('cthumb'), '后台文章列表带封面缩略图（有封面才显示）');
+ok(adminRows.includes('colspan="5"'), '后台空态/错误行 colspan 与 5 列对齐');
+
 console.log('');
 console.log('§21 问答（GEO）');
 

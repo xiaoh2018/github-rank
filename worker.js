@@ -1487,7 +1487,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v105';
+const ASSET_V = 'v106';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3484,6 +3484,7 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
 .slugrow input{flex:1;min-width:0}
 .slug-sep{color:#9a9285;font-family:ui-monospace,Menlo,Consolas,monospace}
 .slugline{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px;font-size:11.5px;color:#8a8172;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.cthumb{display:inline-block;width:38px;height:21px;vertical-align:-4px;margin-right:7px;border-radius:4px;border:1px solid var(--line);background:var(--chip) center/cover no-repeat}
 .art-lock{display:inline-block;white-space:nowrap;font-size:11px;padding:1px 6px;border-radius:6px;background:#f6e7c8;color:#7a5a11;font-weight:600;margin-left:6px;vertical-align:middle}
 
 /* UI v4 · 中性纸感：去掉渐变与光晕，只留细线、留白和一种强调色 */
@@ -4939,7 +4940,7 @@ tr:hover td{background:#fcfbf8}
       return;
     }
     $('artTbody').innerHTML = pageList.map(function (a) {
-      return '<tr><td><input type="checkbox" data-artpick="' + esc(a.id) + '"' + (state.artSel.has(String(a.id)) ? ' checked' : '') + '></td><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b>' +
+      return '<tr><td><input type="checkbox" data-artpick="' + esc(a.id) + '"' + (state.artSel.has(String(a.id)) ? ' checked' : '') + '></td><td>' + esc(a.date) + '</td><td>' + (a.cover ? '<span class="cthumb" style="background-image:url(' + "'" + esc(a.cover).replace(/["'()<> ]/g, '') + "'" + ')"></span>' : '') + '<b>' + esc(a.title) + '</b>' +
         (a.locked ? '<span class="art-lock">加密</span>' : '') +
         (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
         '<div class="slugline">/articles/' + esc(a.slug || a.id) + '.html' + (a.category ? ' · ' + esc(a.category) : ' · 未分类') + '</div>' +
@@ -4956,7 +4957,7 @@ tr:hover td{background:#fcfbf8}
   function loadArticles() {
     api('/api/articles').then(function (r) {
       if (!r.ok) {
-        $('artTbody').innerHTML = '<tr><td colspan="4" class="empty">' + esc(r.error) + '</td></tr>';
+        $('artTbody').innerHTML = '<tr><td colspan="5" class="empty">' + esc(r.error) + '</td></tr>';
         return;
       }
       state.articles = r.articles || [];
