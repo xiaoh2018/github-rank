@@ -1612,7 +1612,7 @@ async function handleSubmit(request, env, origin) {
         } catch (e) {
           /* 不是 JSON，就原样展示 */
         }
-        if (!good && r.status === 526) note = '百度侧校验证书失败（526）：确认 https://' + host + ' 在浏览器里证书正常、站点地址与百度验证的域名完全一致';
+        if (!good && r.status === 526) note = '百度返回 526：站点校验没通过。去 ziyuan.baidu.com 的「站点管理」把这个域名验证掉（HTML 标签已经内建），然后到「普通收录 → API 提交」页把那里的 token 填进「设置与密钥」；推送的域名必须和验证过的一级域名完全一致';
         if (!good && /^\\s*</.test(String(t || ''))) note = '百度返回的是网页错误页（不是接口 JSON），多半是 token 与站点不匹配或接口被拦，见下面的原始返回';
         out.results.baidu = { ok: good, status: r.status, note: note, raw: String(t || '').slice(0, 300) };
       } catch (e) {
@@ -2559,6 +2559,73 @@ dialog h3{margin:0 0 4px;font-size:18px}
 .faq-row{grid-template-columns:1fr}
 dialog{width:calc(100% - 24px)}
 }
+
+/* ===== UI v2：更干净的后台外观（后置覆盖，不动原有规则） ===== */
+body{background:radial-gradient(900px 420px at 88% -8%,#e8effb 0%,#f5f7fb 55%,#f5f7fb 100%)}
+.app{grid-template-columns:246px minmax(0,1fr)}
+.side{background:linear-gradient(180deg,#0b1220 0%,#0d1a2f 100%);padding:22px 14px 28px;border-right:1px solid #16233a}
+.brand{font-size:18px;letter-spacing:.2px;padding:2px 12px 16px;border-bottom:1px solid #1b2942;margin-bottom:14px;display:flex;flex-direction:column;gap:2px}
+.brand small{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:#5b7291}
+.nav{border-radius:12px;padding:11px 14px;font-size:14.5px;color:#a9bad2;transition:background .15s,color .15s,transform .1s;display:flex;align-items:center;gap:8px;justify-content:flex-start}
+.nav:hover{background:#16233a;color:#fff}
+.nav[aria-current=true]{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;box-shadow:0 8px 18px rgba(37,99,235,.35)}
+.navgroup{color:#5b7291;margin:18px 0 6px;padding:0 14px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase}
+.main{padding:30px 40px 80px}
+.bar{margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid #e8edf6}
+.bar h1{font-size:26px;letter-spacing:-.5px}
+.bar .sub{font-size:13.5px;margin-top:2px}
+.pane{max-width:1080px}
+.intro{background:linear-gradient(180deg,#f2f7ff,#eef5ff);border:1px solid #dbe8fd;border-left:3px solid #2563eb;color:#1e3a8a;border-radius:14px;padding:13px 18px;font-size:13.5px;line-height:1.75;margin-bottom:20px}
+.card{border-radius:18px;border:1px solid #e8edf6;box-shadow:0 2px 10px rgba(15,23,42,.045);padding:24px;margin-bottom:20px}
+.card h2{font-size:17.5px;letter-spacing:-.2px}
+.card .desc{font-size:12.5px;line-height:1.7}
+label{font-size:12.5px;letter-spacing:.01em;color:#41546d;margin:16px 0 6px}
+input[type=text],input[type=password],input[type=url],input[type=date],input[type=number],textarea,select{background:#f8fafc;border:1px solid #dde5f1;border-radius:12px;padding:11px 13px;font-size:14.5px;transition:border-color .15s,box-shadow .15s,background .15s}
+input[type=text]:hover,textarea:hover,input[type=url]:hover,input[type=number]:hover{background:#fff;border-color:#c8d6ea}
+input:focus,textarea:focus,select:focus{outline:0;background:#fff;border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.14)}
+textarea.code{border-radius:12px;background:#f8fafc;font-size:12.5px}
+button{border-radius:12px;padding:10px 20px;min-height:42px;font-weight:600;letter-spacing:.01em;box-shadow:0 6px 14px rgba(37,99,235,.22);background:linear-gradient(135deg,#2563eb,#1d4ed8)}
+button:hover{filter:brightness(1.05)}
+button.ghost{background:#fff;color:#334155;border:1px solid #dbe3ef;box-shadow:none;font-weight:500}
+button.ghost:hover{background:#f8fafc;border-color:#c2d3ea;color:#0f172a}
+button.danger{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 6px 14px rgba(220,38,38,.24)}
+button.small{min-height:34px;padding:6px 14px;border-radius:10px}
+.actions{margin-top:20px;padding-top:16px;border-top:1px dashed #e8edf6}
+.card>.actions:first-child,.card .actions:first-child{padding-top:0;border-top:0}
+.toggle{font-weight:600;font-size:14px}
+.toggle input{accent-color:#2563eb;width:18px;height:18px}
+table{border-radius:14px;overflow:hidden}
+th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:#7b8ba4;background:#f8fafc;border-bottom:1px solid #e8edf6;padding:11px 10px}
+td{padding:11px 10px}
+tr:hover td{background:#fafcff}
+.stats{gap:14px}
+.stat{background:linear-gradient(180deg,#fff,#f8fafc);border:1px solid #e8edf6;border-radius:14px;padding:14px 16px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+.stat b{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:#7b8ba4}
+.stat span{font-size:15.5px;font-weight:600}
+.kv{border-bottom:1px dashed #eef2f9;padding:11px 0;font-size:13.5px}
+.kv b{color:#334155}
+.kv:last-child{border-bottom:0}
+.raw pre{background:#f8fafc;border-radius:10px}
+.tr-box{border-radius:12px;border:1px solid #e4eaf4;background:#f8fafc;padding:13px 16px;font-size:13.5px;line-height:1.7}
+.tr-box.tr-bad{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.status-list .status-item{border-radius:12px;padding:10px 14px;background:#f8fafc;border:1px solid #eef2f9}
+.choice{border-radius:14px;padding:14px 16px;background:#f8fafc}
+.choice:has(input:checked){background:#eff6ff;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#c9d6e8;border-radius:8px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+#artTbody td:last-child{white-space:nowrap}
+.faq-row{grid-template-columns:minmax(0,1fr) minmax(0,1.7fr) 64px;align-items:start}
+.faq-row textarea{min-height:96px;line-height:1.65}
+.faq-row>button{align-self:center;min-height:36px;padding:6px 12px}
+#faqList .faq-row+.faq-row{margin-top:12px;padding-top:12px;border-top:1px dashed #eef2f9}
+#artTbody td:last-child button{display:inline-block;vertical-align:middle;margin:2px 4px 2px 0}
+#artTbody td:last-child button:last-child{margin-right:0}
+#artTbody td{vertical-align:middle}
+#artTbody .art-title{font-weight:600}
+#navAdmin td:last-child{white-space:nowrap}
+@media (max-width:900px){.main{padding:20px 16px 56px}.app{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -2862,6 +2929,7 @@ dialog{width:calc(100% - 24px)}
           <li>改完刷新本页，「百度推送」那一行会从「没配」变成「已配置」。</li>
         </ol>
       </div>
+      <div class="card">
         <div class="card-head"><b>这些 Token 在哪拿</b></div>
         <div class="kv"><span class="kv-k">百度推送</span><span class="kv-v"><a href="https://ziyuan.baidu.com/dailysubmit/index" target="_blank" rel="noopener">百度搜索资源平台 → 数据引入 → 普通收录 → API 提交</a>，准入密钥就是 <code>BAIDU_TOKEN</code></span></div>
         <div class="kv"><span class="kv-k">IndexNow</span><span class="kv-v"><a href="https://www.bing.com/webmasters/indexnow" target="_blank" rel="noopener">Bing Webmaster → IndexNow</a>，key 由本站自动生成，不用申请</span></div>
