@@ -1,0 +1,57 @@
+name: Deploy worker
+
+# worker.js 一改就自动部署，免得每次去 Cloudflare 面板手粘代码。
+# 没配 Secrets 时自动跳过（只打一行提示），不会让流水线红。
+# 需要的 Secrets：
+#   CLOUDFLARE_API_TOKEN  —— Cloudflare → My Profile → API Tokens，模板选「Edit Cloudflare Workers」
+#   CLOUDFLARE_ACCOUNT_ID —— Cloudflare 概览页右侧的 Account ID
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - worker.js
+      - wrangler.toml
+      - .github/workflows/deploy-worker.yml
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 检查是否配置了 Cloudflare 凭据
+        id: creds
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ACCOUNT" ]; then
+            echo "ready=1" >> "$GITHUB_OUTPUT"
+            echo "已配置凭据，开始部署"
+          else
+            echo "ready=0" >> "$GITHUB_OUTPUT"
+            echo "::notice title=跳过部署::没配置 CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID，本次不自动部署（worker.js 仍需手动粘贴）"
+          fi
+
+      - name: 语法自检
+        if: steps.creds.outputs.ready == '1'
+        run: node --check worker.js
+
+      - name: 单元自检（本地模拟 Workers 运行时）
+        if: steps.creds.outputs.ready == '1'
+        run: node scripts/check-worker.mjs
+
+      - name: wrangler deploy
+        if: steps.creds.outputs.ready == '1'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '3.90.0'
+          command: deploy
