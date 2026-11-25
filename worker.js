@@ -1431,7 +1431,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v89';
+const ASSET_V = 'v90';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3557,6 +3557,11 @@ tr:hover td{background:#fcfbf8}
         </div>
         <p class="hint">搜索引擎的「提交站点地图」框里，直接粘贴上面复制的地址即可。</p>
       </div>
+      <div class="card">
+        <div class="card-head"><b>还能补的设置</b><span class="hint">不影响访问，但补齐对收录和访客体验有用</span></div>
+        <div class="status-list" id="todoBox"><div class="empty">加载中…</div></div>
+        <div class="row-actions"><button type="button" class="ghost" id="todoReload">重新检查</button></div>
+      </div>
     </section>
 
     <section class="pane" id="pane-links" hidden>
@@ -4133,6 +4138,7 @@ tr:hover td{background:#fcfbf8}
     go(location.hash.slice(1));
     loadStatus();
     loadHealth();
+    loadTodo();
     loadLinks();
     loadSite();
     loadArticles();
@@ -4325,6 +4331,7 @@ tr:hover td{background:#fcfbf8}
   });
   document.addEventListener('click', function (e) {
     if (e.target.closest('#healthReload')) loadHealth();
+    if (e.target.closest('#todoReload')) loadTodo();
   });
 
   function loadStatus() {
@@ -5340,6 +5347,72 @@ tr:hover td{background:#fcfbf8}
   });
 
   // ---- 收录提交 ----
+  function todoRow(ok, text, tab, tabText) {
+    var el = document.createElement('div');
+    el.className = 'status-item';
+    var dot = document.createElement('span');
+    dot.className = 'dot' + (ok ? '' : ' bad');
+    var b = document.createElement('b');
+    b.textContent = text;
+    el.appendChild(dot);
+    el.appendChild(b);
+    var a = document.createElement('span');
+    a.className = 'muted';
+    a.textContent = ok ? '已设置' : '还没设置';
+    el.appendChild(a);
+    if (!ok && tab) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ghost mini';
+      btn.textContent = '去' + (tabText || '设置');
+      btn.addEventListener('click', function () { go(tab); });
+      el.appendChild(btn);
+    }
+    return el;
+  }
+
+  async function loadTodo() {
+    var box = $('todoBox');
+    if (!box) return;
+    var out = [];
+    try {
+      var s = await api('/api/site');
+      var site = (s && s.site) || {};
+      var seo = site.seo || {};
+      var ad = site.ad || {};
+      var slots = ad.slots || {};
+      var anyAd = false;
+      Object.keys(slots).forEach(function (k) { if (slots[k] && slots[k].enabled) anyAd = true; });
+      if (ad.ticker && ad.ticker.enabled) anyAd = true;
+      out.push(todoRow(!!(seo.title && String(seo.title).length >= 6), 'SEO 标题', 'seo', '设置'));
+      out.push(todoRow(!!(seo.description && String(seo.description).length >= 30), 'SEO 描述', 'seo', '设置'));
+      out.push(todoRow(!!seo.ogImage, '分享图（微信/Twitter 卡片）', 'seo', '设置'));
+      out.push(todoRow(anyAd, '广告位至少开一个', 'ad', '广告'));
+    } catch (e) {}
+    try {
+      var sub = await api('/api/submit');
+      out.push(todoRow(!!sub.keyFileOk, 'IndexNow key 文件可访问', 'submit', '提交'));
+      out.push(todoRow(!!sub.baiduToken, '百度推送 Token', 'keys', '密钥'));
+    } catch (e) {}
+    try {
+      var nv = await api('/api/nav');
+      var gs = (nv && nv.nav && nv.nav.groups) || [];
+      out.push(todoRow(gs.length >= 3, '导航页至少 3 个分组', 'nav', '导航'));
+    } catch (e) {}
+    try {
+      var qa = await api('/api/qa');
+      var items = (qa && qa.qa && qa.qa.items) || (qa && qa.items) || [];
+      out.push(todoRow(items.length >= 3, '问答至少 3 条', 'qa', '问答'));
+    } catch (e) {}
+    try {
+      var lk = await api('/api/links');
+      var links = (lk && lk.links) || [];
+      out.push(todoRow(links.length >= 1, '友链至少 1 条', 'links', '友链'));
+    } catch (e) {}
+    box.innerHTML = '';
+    out.forEach(function (row) { box.appendChild(row); });
+  }
+
   function subLine(label, value, ok) {
     return '<div class="status-item"><b>' + label + '</b><span' +
       (ok === false ? ' class="tr-bad"' : '') + '>' + value + '</span></div>';

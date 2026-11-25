@@ -94,6 +94,9 @@ push('后台 SEO 结果预览', adm.includes('serpTitle') && adm.includes('serpD
 push('后台广告预览按钮', adm.includes('data-adprev') && adm.includes('adPrevDlg'));
 push('后台二维码预览', adm.includes('contactQrPrev') && adm.includes('contactQrImg'));
 
+push('后台「还能补的设置」清单', adm.includes('todoBox') && adm.includes('loadTodo') && adm.includes('todoReload'));
+push('清单可跳转到对应面板', adm.includes("go(tab)") || adm.includes('去设置'));
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
