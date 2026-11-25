@@ -859,6 +859,17 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
     ok(admMobile.indexOf('state.artSel') >= 0 && admMobile.indexOf('state.artFiltered') >= 0, '跨页选中集合', '');
     ok(admMobile.indexOf("healthRow('数据抓取'") >= 0, '概览体检显示抓取状态行', '');
     ok(admMobile.indexOf('去 Actions 看日志') >= 0, '抓取失败时提示去 Actions', '');
+    // ---- §28 文章排序 + 撤销 ----
+    ok(admMobile.indexOf('id="artSort"') >= 0, '后台文章排序下拉', '');
+    ok(admMobile.indexOf('ghrank-art-sort') >= 0, '排序记忆到 localStorage', '');
+    ok(admMobile.indexOf('id="artUndo"') >= 0 && admMobile.indexOf('artUndoSet') >= 0, '撤销上一步按钮', '');
+    ok(admMobile.indexOf("action: 'replace'") >= 0, '撤销走 replace 接口', '');
+    const curArts = await (await hit('/api/articles')).json();
+    const repRes = await hit('/api/articles', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'pw', action: 'replace', articles: curArts.articles }) });
+    const repJson = await repRes.json();
+    ok(repRes.status === 200 && repJson.ok === true && repJson.articles.length === curArts.articles.length, 'replace 原样写回成功', 'n=' + (repJson.articles || []).length);
+    const badRep = await hit('/api/articles', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'pw', action: 'replace', articles: 'nope' }) });
+    ok(badRep.status === 400, 'replace 非数组被拒', '');
   }
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);

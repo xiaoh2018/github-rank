@@ -1413,7 +1413,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v74';
+const ASSET_V = 'v75';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2812,13 +2812,26 @@ async function handleArticles(request, env) {
   if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
     return json({ ok: false, error: '密码不对' }, 403);
   }
-  if (body.action !== 'add' && body.action !== 'update' && body.action !== 'remove' && body.action !== 'bulk') {
-    return json({ ok: false, error: 'action 只能是 add、update、remove 或 bulk' }, 400);
+  if (body.action !== 'add' && body.action !== 'update' && body.action !== 'remove' && body.action !== 'bulk' && body.action !== 'replace') {
+    return json({ ok: false, error: 'action 只能是 add、update、remove、bulk 或 replace' }, 400);
   }
 
   const cur = await readArticles(env);
   if (!cur.ok) return json({ ok: false, error: cur.error }, 502);
   const list = cur.articles;
+
+  if (body.action === 'replace') {
+    if (!Array.isArray(body.articles)) return json({ ok: false, error: 'articles 必须是数组' }, 400);
+    if (body.articles.length > ARTICLES_MAX) return json({ ok: false, error: '文章太多（最多 ' + ARTICLES_MAX + ' 篇）' }, 400);
+    const next = body.articles
+      .filter((a) => a && typeof a === 'object' && String(a.id || '').length)
+      .map((a) => Object.assign({}, a, { id: String(a.id) }));
+    const w = await writeArticles(env, next, cur.sha, 'chore: 撤销一次批量操作');
+    if (!w.ok) return json({ ok: false, error: w.error }, 500);
+    await purgeEdge(['/articles', '/articles.html', '/data/articles.json', '/sitemap.xml']);
+    await warmEdge('/data/articles.json', JSON.stringify(next, null, 2) + '\n', 'application/json; charset=utf-8');
+    return json({ ok: true, articles: next.map(publicArticle) });
+  }
 
   if (body.action === 'bulk') {
     const ids = Array.isArray(body.ids) ? body.ids.map((x) => String(x)) : [];
@@ -3854,6 +3867,14 @@ tr:hover td{background:#fcfbf8}
           <input id="artBulkCat" placeholder="改成分类…" style="max-width:150px">
           <button type="button" class="ghost" id="artBulkApply" disabled>应用分类</button>
           <button type="button" class="ghost" id="artAllMatch">全选所有匹配</button>
+          <select id="artSort" style="max-width:150px">
+            <option value="date-desc">日期（新→旧）</option>
+            <option value="date-asc">日期（旧→新）</option>
+            <option value="title-asc">标题 A→Z</option>
+            <option value="title-desc">标题 Z→A</option>
+            <option value="category-asc">按分类</option>
+          </select>
+          <button type="button" class="ghost" id="artUndo" disabled>撤销上一步</button>
           <span class="msg" id="artSelNote"></span>
         </div>
         <button type="button" id="artNew">写新文章</button>
@@ -3984,7 +4005,7 @@ tr:hover td{background:#fcfbf8}
     geo: ['summary']
   };
   var pw = '';
-  var state = { links: [], articles: [], faq: [], artPage: 1, artSel: new Set(), artFiltered: [] };
+  var state = { links: [], articles: [], faq: [], artPage: 1, artSel: new Set(), artFiltered: [], artSort: 'date-desc', artUndo: null };
   var editingId = null;
   var editingLocked = false;
   var confirmFn = null;
@@ -4578,7 +4599,16 @@ tr:hover td{background:#fcfbf8}
   function renderArticles() {
     var box = $('artSearch');
     var q = (box && box.value || '').trim().toLowerCase();
-    var all = state.articles.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+    var sort = state.artSort || 'date-desc';
+    var all = state.articles.slice().sort(function (a, b) {
+      var d = 0;
+      if (sort === 'title-asc') d = String(a.title).localeCompare(String(b.title));
+      else if (sort === 'title-desc') d = String(b.title).localeCompare(String(a.title));
+      else if (sort === 'category-asc') d = String(a.category || '~').localeCompare(String(b.category || '~')) || String(b.date).localeCompare(String(a.date));
+      else if (sort === 'date-asc') d = String(a.date).localeCompare(String(b.date));
+      else d = String(b.date).localeCompare(String(a.date));
+      return d;
+    });
     $('artCount').textContent = all.length;
     var badge = $('navArtCount');
     if (badge) { badge.textContent = all.length; badge.hidden = !all.length; }
@@ -4817,6 +4847,31 @@ tr:hover td{background:#fcfbf8}
         artSyncBulk();
       }
     });
+    if ($('artSort')) {
+      var savedSort = '';
+      try { savedSort = localStorage.getItem('ghrank-art-sort') || ''; } catch (e) {}
+      if (savedSort) { state.artSort = savedSort; $('artSort').value = savedSort; }
+      $('artSort').addEventListener('change', function () {
+        state.artSort = this.value;
+        try { localStorage.setItem('ghrank-art-sort', this.value); } catch (e) {}
+        state.artPage = 1;
+        renderArticles();
+      });
+    }
+    function artUndoSet(prev) {
+      state.artUndo = { articles: prev, at: Date.now() };
+      var b = $('artUndo');
+      if (b) b.disabled = false;
+    }
+    if ($('artUndo')) {
+      $('artUndo').addEventListener('click', function () {
+        var u = state.artUndo;
+        if (!u) { toast('没有可撤销的操作', true); return; }
+        api('/api/articles', { method: 'POST', body: { password: pw, action: 'replace', articles: u.articles } }).then(function (r) {
+          if (r.ok) { state.articles = r.articles; state.artUndo = null; $('artUndo').disabled = true; renderArticles(); toast('已撤销', true); }
+        });
+      });
+    }
     if ($('artAllMatch')) {
       $('artAllMatch').addEventListener('click', function () {
         (state.artFiltered || []).forEach(function (id) { state.artSel.add(id); });
@@ -4827,9 +4882,10 @@ tr:hover td{background:#fcfbf8}
       $('artBulkDel').addEventListener('click', function () {
         var ids = artPicked();
         if (!ids.length) { toast('先勾选文章', true); return; }
+        var prevSnapshot = state.articles.slice();
         askConfirm('批量删除', '确定删除选中的 ' + ids.length + ' 篇吗？', function () {
           return api('/api/articles', { method: 'POST', body: { password: pw, action: 'bulk', op: 'remove', ids: ids } }).then(function (r) {
-            if (r.ok) { state.articles = r.articles; state.artSel.clear(); renderArticles(); toast('已删除 ' + r.removed + ' 篇', true); }
+            if (r.ok) { state.articles = r.articles; state.artSel.clear(); artUndoSet(prevSnapshot); renderArticles(); toast('已删除 ' + r.removed + ' 篇（可撤销）', true); }
             return r;
           });
         });
@@ -4842,8 +4898,9 @@ tr:hover td{background:#fcfbf8}
         var cat = (box && box.value || '').trim();
         if (!ids.length) { toast('先勾选文章', true); return; }
         if (!cat) { toast('先填分类名', true); return; }
+        var prevSnapshot = state.articles.slice();
         api('/api/articles', { method: 'POST', body: { password: pw, action: 'bulk', op: 'category', category: cat, ids: ids } }).then(function (r) {
-          if (r.ok) { state.articles = r.articles; state.artSel.clear(); renderArticles(); toast('已把 ' + r.changed + ' 篇改成「' + cat + '」', true); }
+          if (r.ok) { state.articles = r.articles; state.artSel.clear(); artUndoSet(prevSnapshot); renderArticles(); toast('已把 ' + r.changed + ' 篇改成「' + cat + '」（可撤销）', true); }
         });
       });
     }
