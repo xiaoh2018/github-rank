@@ -235,6 +235,56 @@ try {
   const qaGone = await ev(QA_FIND + " ? 'still there' : 'gone'");
   check('问答删除并保存', qaAfterDel === qaBefore && qaGone === 'gone', `${qaAfterAdd} → ${qaAfterDel}`);
 
+  // ---------- 密钥显示/隐藏 ----------
+  await ev("document.querySelector('.nav[data-tab=\"keys\"]').click(); 'ok'");
+  await sleep(900);
+  const pwType1 = await ev("(document.getElementById('rtBaiduToken')||{}).type || 'missing'");
+  const eyeBtn = await ev("!!document.querySelector('[data-eye=\"rtBaiduToken\"]')");
+  if (pwType1 === 'password' && eyeBtn) {
+    await ev("document.querySelector('[data-eye=\"rtBaiduToken\"]').click(); 'ok'");
+    await sleep(400);
+    const pwType2 = await ev("document.getElementById('rtBaiduToken').type");
+    await ev("document.querySelector('[data-eye=\"rtBaiduToken\"]').click(); 'ok'");
+    await sleep(400);
+    const pwType3 = await ev("document.getElementById('rtBaiduToken').type");
+    check('密钥显示/隐藏切换', pwType2 === 'text' && pwType3 === 'password', `${pwType1} → ${pwType2} → ${pwType3}`);
+  } else {
+    check('密钥显示/隐藏切换', false, `type=${pwType1} eye=${eyeBtn}`);
+  }
+
+  // ---------- 命令面板 Ctrl+K ----------
+  // 只能派发一次：这个快捷键是 toggle，派两次等于开了又关
+  await ev("document.body.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true})); 'ok'");
+  await sleep(600);
+  const cmdkOpen = await ev("JSON.stringify({open: !!document.getElementById('cmdk') && document.getElementById('cmdk').open === true, items: document.querySelectorAll('#ckList .ck-item').length})");
+  const ck = JSON.parse(cmdkOpen);
+  await ev("(function(){var i=document.getElementById('ckInput'); if(i){i.value='文章'; i.dispatchEvent(new Event('input',{bubbles:true}));} return 'ok';})()");
+  await sleep(500);
+  const cmdkFiltered = await ev("document.querySelectorAll('#ckList .ck-item').length");
+  await ev("document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); 'ok'");
+  await sleep(500);
+  const cmdkClosed = await ev("(function(){var e=document.getElementById('cmdk'); return !e || e.open !== true;})()");
+  check('命令面板 Ctrl+K', ck.open === true && ck.items > 0, `${ck.items} 项，搜「文章」后 ${cmdkFiltered} 项`);
+  check('命令面板 Esc 关闭', cmdkClosed === true);
+
+  // ---------- 广告位预览 ----------
+  await ev("document.querySelector('.nav[data-tab=\"ad\"]').click(); 'ok'");
+  await sleep(900);
+  const hasPrevBtn = await ev("document.querySelectorAll('[data-adprev]').length");
+  if (hasPrevBtn > 0) {
+    // 空槽点预览只会 toast，所以在内存里先填一段（不保存），验证完再清掉
+    const seeded = await ev("(function(){var b=document.querySelector('[data-ad-slot][data-ad-field=\"html\"]'); if(!b) return 'no box'; b.value='<b>预览测试</b>'; return 'ok';})()");
+    await ev("document.querySelector('[data-adprev]').click(); 'ok'");
+    await sleep(700);
+    const prevOpen = await ev("(function(){var d=document.getElementById('adPrevDlg'); var body=document.getElementById('adPrevBody'); return JSON.stringify({open: !!d && d.open === true, len: body ? body.innerHTML.length : 0, text: body ? body.textContent.trim().slice(0,20) : ''});})()");
+    const pv = JSON.parse(prevOpen);
+    await ev("(function(){try{document.getElementById('adPrevDlg').close();}catch(e){} var b=document.querySelector('[data-ad-slot][data-ad-field=\"html\"]'); if(b) b.value=''; return 'ok';})()");
+    await sleep(400);
+    check('广告位预览弹窗', pv.open === true && pv.len > 0 && /预览测试/.test(String(pv.text)), `填槽=${seeded}，预览区 ${pv.len} 字符「${pv.text}」`);
+  } else {
+    check('广告位预览弹窗', false, '没有 data-adprev 按钮');
+  }
+
 } finally {
   try { await send('Browser.close'); } catch (e) {}
   proc.kill();

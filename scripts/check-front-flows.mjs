@@ -108,6 +108,71 @@ try {
     const qaBack = await ev("document.querySelectorAll('#list details.qa').length");
     check('问答分类过滤', qaFiltered > 0 && qaFiltered < qaAll && qaBack === qaAll, `全部 ${qaAll} → 「${target}」${qaFiltered} → 全部 ${qaBack}`);
   }
+  // ---------- 6) 首页：主题切换（4 套）----------
+  await nav(BASE + '/', 3000);
+  await ev("document.getElementById('btnSettings').click(); 'ok'");
+  await sleep(800);
+  const themeChips = await ev("document.querySelectorAll('#themeRow [data-theme-pick]').length");
+  await ev("(function(){var b=document.querySelector('#themeRow [data-theme-pick=\"ink\"]'); if(b) b.click(); return 'ok';})()");
+  await sleep(700);
+  const inkTheme = await ev("JSON.stringify({attr: document.documentElement.getAttribute('data-theme'), bg: getComputedStyle(document.body).backgroundColor, on: (document.querySelector('#themeRow [data-theme-pick=\"ink\"]')||{}).className || ''})");
+  const ink = JSON.parse(inkTheme);
+  const isDark = /rgb\((\d+), (\d+), (\d+)\)/.exec(ink.bg || '');
+  const darkOk = !!isDark && (+isDark[1] + +isDark[2] + +isDark[3]) < 200;
+  check('主题切到 Linear 冷暗', themeChips === 4 && ink.attr === 'ink' && darkOk, `背景 ${ink.bg}，激活态 ${/is-on/.test(ink.on) ? '有' : '无'}`);
+  await ev("(function(){var b=document.querySelector('#themeRow [data-theme-pick=\"paper\"]'); if(b) b.click(); return 'ok';})()");
+  await sleep(600);
+  const backTheme = await ev("document.documentElement.getAttribute('data-theme')");
+  check('主题切回暖纸白', backTheme === 'paper', `data-theme=${backTheme}`);
+
+  // ---------- 7) 首页：分页器 ----------
+  await nav(BASE + '/', 3000);
+  await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1400, deviceScaleFactor: 1, mobile: false });
+  await sleep(400);
+  const FIRST = "(document.querySelector('#list .item:not(.empty-item) .title, #list .item:not(.empty-item) a')||{}).textContent || ''";
+  const pagerShown = await ev("!document.getElementById('pager').hidden");
+  const firstA = await ev(FIRST);
+  await ev("document.getElementById('next').click(); 'ok'");
+  await sleep(1200);
+  const firstB = await ev(FIRST);
+  const pageInfo = await ev("(document.getElementById('pageInfo')||{}).textContent || ''");
+  check('首页下一页', pagerShown === true && firstA !== firstB && String(firstB).length > 0, `${String(firstA).slice(0, 14)} → ${String(firstB).slice(0, 14)}（${pageInfo}）`);
+  await ev("document.getElementById('prev').click(); 'ok'");
+  await sleep(1200);
+  const firstC = await ev(FIRST);
+  check('首页上一页回到首项', firstC === firstA, `${String(firstC).slice(0, 14)}`);
+
+  // ---------- 8) 导航页：搜索过滤 ----------
+  await nav(BASE + '/nav', 2800);
+  const NAV_CARD = "document.querySelectorAll('#navBody .navcard:not(.ad-inline-card)').length";
+  const navAll = await ev(NAV_CARD);
+  const navKw = await ev("(function(){var c=document.querySelector('#navBody .navcard:not(.ad-inline-card)'); if(!c) return ''; var b=c.querySelector('b'); return (b?b.textContent:'').trim().slice(0,2);})()");
+  await ev("(function(){var s=document.getElementById('navSearch'); s.value=" + JSON.stringify(String(navKw)) + "; s.dispatchEvent(new Event('input',{bubbles:true})); return 'ok';})()");
+  await sleep(900);
+  const navFiltered = await ev(NAV_CARD);
+  const navCount = await ev("(document.getElementById('navCount')||{}).textContent || ''");
+  check('导航页搜索过滤', String(navKw).length > 0 && navFiltered > 0 && navFiltered < navAll, `全部 ${navAll} → 搜「${navKw}」${navFiltered} · ${navCount}`);
+  await ev("(function(){var s=document.getElementById('navSearch'); s.value=''; s.dispatchEvent(new Event('input',{bubbles:true})); return 'ok';})()");
+  await sleep(800);
+  const navBackAll = await ev(NAV_CARD);
+  check('导航页清空搜索恢复', navBackAll === navAll, `${navFiltered} → ${navBackAll}（原 ${navAll}）`);
+
+  // ---------- 9) 加锁文章：解锁弹窗 + 错误密码提示 ----------
+  await nav(BASE + '/articles', 2800);
+  const lockClick = await ev("(function(){var cs=document.querySelectorAll('#cards .acard'); for(var i=0;i<cs.length;i++){ if(/🔒/.test(cs[i].textContent||'')){ cs[i].click(); return 'locked'; } } return 'no locked card';})()");
+  await sleep(1200);
+  const pwShown = await ev("JSON.stringify({open: !!document.getElementById('pwDlg') && document.getElementById('pwDlg').open, err: (document.getElementById('pwErr')||{}).textContent || ''})");
+  const pw = JSON.parse(pwShown);
+  await ev("(function(){var i=document.getElementById('pwIn'); i.value='definitely-wrong-pw'; document.getElementById('pwGo').click(); return 'ok';})()");
+  await sleep(2200);
+  const pwErr = await ev("(document.getElementById('pwErr')||{}).textContent || ''");
+  check('加锁文章弹出解锁框', lockClick === 'locked' && pw.open === true, `点击结果 ${lockClick}`);
+  check('错误密码有提示', String(pwErr).trim().length > 0, `提示「${String(pwErr).trim().slice(0, 30)}」`);
+  await ev("(function(){try{document.getElementById('pwCancel').click();}catch(e){} return 'ok';})()");
+  await sleep(600);
+  const pwClosed = await ev("!!document.getElementById('pwDlg') && document.getElementById('pwDlg').open");
+  check('取消关闭解锁框', pwClosed === false);
+
 } finally {
   try { await send('Browser.close'); } catch (e) {}
   proc.kill();
