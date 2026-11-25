@@ -2310,7 +2310,7 @@ async function handleArticles(request, env) {
   if (!w.ok) return json({ ok: false, error: w.error }, 500);
   await purgeEdge(['/articles', '/articles.html', '/data/articles.json']);
   await warmEdge('/data/articles.json', JSON.stringify(list, null, 2) + '\n', 'application/json; charset=utf-8');
-  return json({ ok: true, articles: list });
+  return json({ ok: true, articles: list.map(publicArticle) });
 }
 
 async function readCount(key) {
@@ -2679,6 +2679,10 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
 .nav-badge{background:#f0b429;color:#3a2a00}
 ::-webkit-scrollbar-thumb{background:#d8cfb9;border-radius:8px;border:2px solid transparent;background-clip:content-box}
 #errBar{background:#fdecea;color:#a32a17;border-bottom:1px solid #f5c6bc}
+.lockrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0 2px;padding:10px 12px;border:1px dashed var(--line);border-radius:12px;background:#fdfbf6}
+.lockrow input[type="password"]{flex:1 1 240px;min-width:0}
+.lockrow .toggle.inline{margin:0;white-space:nowrap}
+.art-lock{font-size:11px;padding:1px 6px;border-radius:6px;background:#f6e7c8;color:#7a5a11;font-weight:600;margin-left:6px}
 </style>
 </head>
 <body>
@@ -3092,6 +3096,10 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
       </div>
       <label for="artSummary">摘要</label>
       <textarea id="artSummary" maxlength="300" style="min-height:74px" placeholder="一两句话说清这篇讲什么，会显示在列表里，也会被 AI 搜索引用。"></textarea>
+      <div class="lockrow">
+        <label class="toggle inline"><input type="checkbox" id="artLock"> 加密这篇（读者要输密码才能看）</label>
+        <input type="password" id="artPw" maxlength="60" autocomplete="new-password" placeholder="访问密码，至少 4 位；编辑时留空 = 沿用原密码">
+      </div>
       <div class="row-actions">
         <button type="button" class="ghost small" id="artImport">导入 .md</button>
         <button type="button" class="ghost small" id="artPreviewBtn">隐藏预览</button>
@@ -3100,7 +3108,7 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
       </div>
       <label for="artBody">正文（Markdown）</label>
       <textarea id="artBody" maxlength="20000" class="art-body" spellcheck="false"></textarea>
-      <div class="hint">20000 字以内。支持标题、列表、代码块、链接；图片写成 ![说明](图片网址)。不支持 HTML 标签。</div>
+      <div class="hint">20000 字以内。支持标题、列表、表格、代码块、任务清单、删除线；图片写成 ![说明](图片网址)。直接粘 HTML 也可以，保存时会自动转成 Markdown。</div>
       <div class="err" id="artErr"></div>
       <div class="actions"><button type="button" class="ghost" data-close="artDlg">取消</button><button type="button" id="artSubmit">保存文章</button></div>
     </div>
@@ -3129,6 +3137,7 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
   var pw = '';
   var state = { links: [], articles: [], faq: [] };
   var editingId = null;
+  var editingLocked = false;
   var confirmFn = null;
 
   function $(id) { return document.getElementById(id); }
@@ -3526,7 +3535,10 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
       return;
     }
     $('artTbody').innerHTML = list.map(function (a) {
-      return '<tr><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b></td><td>' + esc(a.summary) +
+      return '<tr><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b>' +
+        (a.locked ? '<span class="art-lock">加密</span>' : '') +
+        (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
+        '</td><td>' + esc(a.summary) +
         '</td><td><button type="button" class="ghost small" data-artedit="' + esc(a.id) + '">编辑</button> ' +
         '<button type="button" class="ghost small" data-artview="' + esc(a.id) + '">预览</button> ' +
         '<button type="button" class="danger small" data-artdel="' + esc(a.id) + '">删除</button></td></tr>';
@@ -3544,11 +3556,14 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
   }
   function openArt(a) {
     editingId = a ? a.id : null;
+    editingLocked = !!(a && a.locked && a.hasLock !== false);
     $('artTitle').textContent = a ? '编辑文章' : '写新文章';
     $('artTitleIn').value = a ? a.title : '';
     $('artDate').value = a ? a.date : today();
     $('artSummary').value = a ? a.summary : '';
     $('artBody').value = a ? a.body : '';
+    $('artLock').checked = !!(a && a.locked);
+    $('artPw').value = '';
     $('artErr').textContent = '';
     paintPreview();
     $('artDlg').showModal();
@@ -3561,6 +3576,17 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
       summary: $('artSummary').value,
       body: $('artBody').value
     };
+    var lockOn = $('artLock').checked;
+    var lockPw = $('artPw').value || '';
+    article.locked = lockOn;
+    if (lockOn) {
+      if (lockPw && lockPw.length < 4) { $('artErr').textContent = '访问密码至少 4 位'; return; }
+      if (lockPw) article.password = lockPw;
+      else if (!editingId) { $('artErr').textContent = '勾了加密就要填一个访问密码（至少 4 位）'; return; }
+      else if (!editingLocked) { $('artErr').textContent = '这篇原来没加密，勾加密后要填密码'; return; }
+    } else if (editingLocked) {
+      if (!confirm('取消加密会把正文以明文存进仓库，确定吗？')) return;
+    }
     if (!article.title.trim()) { $('artErr').textContent = '请填写标题'; return; }
     var body = { password: pw, article: article };
     if (editingId) { body.action = 'update'; body.id = editingId; }

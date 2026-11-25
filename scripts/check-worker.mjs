@@ -564,5 +564,48 @@ const a19Admin = await (await hit('/admin')).text();
 ok(a19Admin.includes('IndexNow 一直失败') && a19Admin.includes('百度准入密钥在哪拿'), '后台有 IndexNow 排查与百度密钥教程');
 ok(a19Admin.includes('id="rtUsage"') && a19Admin.includes('id="rtBaiduToken"') && a19Admin.includes('id="rtIndexKey"'), '运行设置里有用量块与两个密钥输入');
 
+console.log('== 20. 文章加密（后台开关 + 前台解锁） ==');
+const a20Admin = await (await hit('/admin')).text();
+ok(a20Admin.includes('id="artLock"') && a20Admin.includes('id="artPw"'), '后台写文章弹窗有加密开关与密码框');
+ok(a20Admin.includes('加密这篇'), '加密开关有中文说明');
+
+const a20Add = await (await hit('/api/articles', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', action: 'add', article: { title: '加密测试', summary: '摘要', body: '这是密文正文', locked: true, password: 'abcd' } })
+})).json();
+ok(a20Add.ok === true, '加密文章能保存');
+const a20One = (a20Add.articles || []).find((x) => x.title === '加密测试');
+ok(!!(a20One && a20One.locked === true && a20One.hasLock === true), '列表里带 locked 与 hasLock');
+ok(!!(a20One && a20One.body === '' && a20One.lock === undefined && a20One.password === undefined), '公开字段不含正文/口令/密文');
+
+const a20Miss = await hit('/api/article', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ id: 'nope', password: 'x' })
+});
+ok(a20Miss.status === 404, '不存在的文章返回 404');
+
+const a20Short = await (await hit('/api/articles', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', action: 'add', article: { title: '短密码', body: 'x', locked: true, password: 'ab' } })
+})).json();
+ok(a20Short.ok === false && String(a20Short.error).includes('至少 4 位'), '加密密码少于 4 位被拒');
+
+const a20NoPw = await (await hit('/api/articles', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', action: 'add', article: { title: '没密码', body: 'x', locked: true } })
+})).json();
+ok(a20NoPw.ok === false && String(a20NoPw.error).includes('访问密码'), '勾了加密却没填密码被拒');
+ok(a20Admin.includes('编辑时留空 = 沿用原密码'), '后台提示编辑时留空沿用原密码');
+
+await hit('/api/articles', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', action: 'remove', id: a20One.id })
+});
+
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
