@@ -1249,36 +1249,54 @@ async function handleLinks(request, env) {
   if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
     return json({ ok: false, error: '密码不对' }, 403);
   }
-  if (body.action !== 'add' && body.action !== 'remove') {
-    return json({ ok: false, error: 'action 只能是 add 或 remove' }, 400);
+  if (body.action !== 'add' && body.action !== 'remove' && body.action !== 'update') {
+    return json({ ok: false, error: 'action 只能是 add、remove 或 update' }, 400);
   }
 
   const cur = await readLinks(env);
   if (!cur.ok) return json({ ok: false, error: cur.error }, 502);
   const links = cur.links;
 
-  if (body.action === 'add') {
+  const pickLink = () => {
     const name = typeof body.name === 'string' ? body.name.trim() : '';
     const url = typeof body.url === 'string' ? body.url.trim() : '';
-    if (!name) return json({ ok: false, error: '名称不能为空' }, 400);
-    if (name.length > 40) return json({ ok: false, error: '名称不能超过 40 个字符' }, 400);
+    const desc = typeof body.desc === 'string' ? body.desc.trim() : '';
+    if (!name) return { ok: false, error: '名称不能为空' };
+    if (name.length > 40) return { ok: false, error: '名称不能超过 40 个字符' };
     if (!/^https?:\/\//i.test(url) || url.length > 300) {
-      return json({ ok: false, error: '网址必须以 http:// 或 https:// 开头，且不超过 300 个字符' }, 400);
+      return { ok: false, error: '网址必须以 http:// 或 https:// 开头，且不超过 300 个字符' };
     }
     try {
       new URL(url);
     } catch (e) {
-      return json({ ok: false, error: '网址格式不正确' }, 400);
+      return { ok: false, error: '网址格式不正确' };
     }
-    if (links.length >= LINKS_MAX) return json({ ok: false, error: '友链最多 ' + LINKS_MAX + ' 条，请先删除再添加' }, 400);
-    if (links.some((l) => l && l.url === url)) return json({ ok: false, error: '这个网址已经在友链里了' }, 409);
-    links.push({ name: name, url: url });
-  } else {
+    if (desc.length > 80) return { ok: false, error: '描述最多 80 字' };
+    return { ok: true, value: { name: name, url: url, desc: desc } };
+  };
+
+  if (body.action === 'remove') {
     const idx = body.index;
     if (typeof idx !== 'number' || !Number.isInteger(idx) || idx < 0 || idx >= links.length) {
       return json({ ok: false, error: '序号不正确' }, 400);
     }
     links.splice(idx, 1);
+  } else {
+    const v = pickLink();
+    if (!v.ok) return json({ ok: false, error: v.error }, 400);
+    if (body.action === 'update') {
+      const idx = body.index;
+      if (typeof idx !== 'number' || !Number.isInteger(idx) || idx < 0 || idx >= links.length) {
+        return json({ ok: false, error: '序号不正确' }, 400);
+      }
+      const dup = links.some((l, i) => l && l.url === v.value.url && i !== idx);
+      if (dup) return json({ ok: false, error: '这个网址已经在友链里了' }, 409);
+      links[idx] = v.value;
+    } else {
+      if (links.length >= LINKS_MAX) return json({ ok: false, error: '友链最多 ' + LINKS_MAX + ' 条，请先删除再添加' }, 400);
+      if (links.some((l) => l && l.url === v.value.url)) return json({ ok: false, error: '这个网址已经在友链里了' }, 409);
+      links.push(v.value);
+    }
   }
 
   const w = await writeLinks(env, links, cur.sha, 'chore: update friend links');
@@ -1413,7 +1431,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v80';
+const ASSET_V = 'v81';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3436,6 +3454,15 @@ tr:hover td{background:#fcfbf8}
 #navAdmin button[data-ifetch]:hover{border-color:#4f46e5;background:#eef2ff}
 .toolbar #navFilter{flex:1 1 320px;min-width:0;max-width:none}
 .toolbar .note{margin-left:auto}
+#linkBody .muted-cell{color:#6b7280;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#linkBody .row-actions{white-space:nowrap}
+#linkBody .row-actions .btn{margin-left:6px}
+#linkBody{table-layout:fixed;width:100%}
+#linkBody td:nth-child(1){width:20%}
+#linkBody td:nth-child(2){width:40%}
+#linkBody td:nth-child(3){width:26%}
+#linkBody td:nth-child(4){width:14%;white-space:nowrap}
+
 </style>
 </head>
 <body>
@@ -3518,8 +3545,8 @@ tr:hover td{background:#fcfbf8}
       <div class="card">
         <div class="msg">当前 <span id="linkCount">0</span> 条</div>
         <table>
-          <thead><tr><th>名称</th><th>网址</th><th style="width:90px">操作</th></tr></thead>
-          <tbody id="linkBody"><tr><td colspan="3" class="empty">加载中…</td></tr></tbody>
+          <thead><tr><th>名称</th><th>网址</th><th>描述</th><th style="width:130px">操作</th></tr></thead>
+          <tbody id="linkBody"><tr><td colspan="4" class="empty">加载中…</td></tr></tbody>
         </table>
       </div>
     </section>
@@ -3932,7 +3959,7 @@ tr:hover td{background:#fcfbf8}
   </div>
 </dialog>
 <dialog id="addDlg">
-  <h3>添加友链</h3>
+  <h3 id="addTitle">添加友链</h3>
   <p class="msg">名称和网址都会显示在排行榜页面上。</p>
   <label for="addName">名称</label>
   <input type="text" id="addName" maxlength="40" placeholder="例如：某某博客">
@@ -3940,6 +3967,9 @@ tr:hover td{background:#fcfbf8}
   <label for="addUrl">网址</label>
   <input type="url" id="addUrl" maxlength="300" placeholder="https://example.com">
   <div class="hint">必须以 http:// 或 https:// 开头。</div>
+  <label for="addDesc">描述</label>
+  <input type="text" id="addDesc" maxlength="80" placeholder="一句话介绍（可选）">
+  <div class="hint">80 字以内，会显示在友链名称下面。</div>
   <div class="err" id="addErr"></div>
   <div class="actions"><button type="button" class="ghost" data-close="addDlg">取消</button><button type="button" id="addSubmit">添加</button></div>
 </dialog>
@@ -4295,12 +4325,15 @@ tr:hover td{background:#fcfbf8}
     $('linkCount').textContent = state.links.length;
     var b = $('linkBody');
     if (!state.links.length) {
-      b.innerHTML = '<tr><td colspan="3" class="empty">还没有友链，点右上角「添加友链」</td></tr>';
+      b.innerHTML = '<tr><td colspan="4" class="empty">还没有友链，点右上角「添加友链」</td></tr>';
       return;
     }
     b.innerHTML = state.links.map(function (l, i) {
-      return '<tr><td>' + esc(l.name) + '</td><td><a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.url) +
-        '</a></td><td><button type="button" class="danger small" data-del="' + i + '">删除</button></td></tr>';
+      return '<tr><td>' + esc(l.name) + '</td>' +
+        '<td><a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.url) + '</a></td>' +
+        '<td class="muted-cell">' + esc(l.desc || '—') + '</td>' +
+        '<td class="row-actions"><button type="button" class="ghost small" data-edit="' + i + '">编辑</button>' +
+        '<button type="button" class="danger small" data-del="' + i + '">删除</button></td></tr>';
     }).join('');
   }
   function loadLinks() {
@@ -4313,32 +4346,44 @@ tr:hover td{background:#fcfbf8}
       renderLinks();
     });
   }
-  $('addLinkBtn').addEventListener('click', function () {
-    $('addName').value = '';
-    $('addUrl').value = '';
+  var linkEdit = -1;
+  function openLinkDlg(i) {
+    linkEdit = typeof i === 'number' ? i : -1;
+    var cur = linkEdit >= 0 && state.links[linkEdit] ? state.links[linkEdit] : { name: '', url: '', desc: '' };
+    $('addName').value = cur.name || '';
+    $('addUrl').value = cur.url || '';
+    if ($('addDesc')) $('addDesc').value = cur.desc || '';
     $('addErr').textContent = '';
+    if ($('addTitle')) $('addTitle').textContent = linkEdit >= 0 ? '编辑友链' : '添加友链';
+    if ($('addSubmit')) $('addSubmit').textContent = linkEdit >= 0 ? '保存' : '添加';
     $('addDlg').showModal();
-  });
+  }
+  $('addLinkBtn').addEventListener('click', function () { openLinkDlg(-1); });
   $('addSubmit').addEventListener('click', function () {
     var name = $('addName').value.trim();
     var url = $('addUrl').value.trim();
     if (!name) { $('addErr').textContent = '请填写名称'; return; }
     if (!/^https?:\\/\\//i.test(url)) { $('addErr').textContent = '网址必须以 http:// 或 https:// 开头'; return; }
     var btn = this;
+    var payload = { password: pw, name: name, url: url, desc: $('addDesc') ? $('addDesc').value.trim() : '' };
+    if (linkEdit >= 0) { payload.action = 'update'; payload.index = linkEdit; }
+    else { payload.action = 'add'; }
     btn.disabled = true;
-    api('/api/links', { method: 'POST', body: { password: pw, action: 'add', name: name, url: url } }).then(function (r) {
+    api('/api/links', { method: 'POST', body: payload }).then(function (r) {
       btn.disabled = false;
       if (r.ok) {
         state.links = r.links;
         renderLinks();
         $('addDlg').close();
-        toast('已添加友链', true);
+        toast(linkEdit >= 0 ? '已保存修改' : '已添加友链', true);
       } else {
-        $('addErr').textContent = r.error || '添加失败';
+        $('addErr').textContent = r.error || '保存失败';
       }
     });
   });
   $('linkBody').addEventListener('click', function (e) {
+    var ed = e.target.getAttribute && e.target.getAttribute('data-edit');
+    if (ed != null) { openLinkDlg(Number(ed)); return; }
     var d = e.target.getAttribute && e.target.getAttribute('data-del');
     if (d == null) return;
     var i = Number(d);
