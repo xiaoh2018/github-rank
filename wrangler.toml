@@ -6,6 +6,13 @@ name = "github-rank"
 main = "worker.js"
 compatibility_date = "2024-11-01"
 
+# 这两个变量必须在这里声明：wrangler deploy 会用 wrangler.toml 整体替换
+# Worker 的变量绑定，漏写就会像 2026-11-25 那次一样把线上 REPO_OWNER/REPO_NAME 清掉，
+# 站点立刻 503「还没配置 REPO_OWNER / REPO_NAME」。
+[vars]
+REPO_OWNER = "xiaoh2018"
+REPO_NAME = "github-rank"
+
 routes = [
   { pattern = "github.661026.xyz/*", zone_name = "661026.xyz" }
 ]

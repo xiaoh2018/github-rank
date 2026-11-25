@@ -14,6 +14,7 @@ const meta = {
   compatibility_date: '2026-01-01',
   // 线上变量：每次部署都带上，否则会被清空（2026-11-25 踩过：REPO_OWNER/REPO_NAME 丢失导致 503）
   bindings: [
+      { type: "ai", name: "AI" },
     { type: 'plain_text', name: 'REPO_OWNER', text: 'xiaoh2018' },
     { type: 'plain_text', name: 'REPO_NAME', text: 'github-rank' },
   ],
