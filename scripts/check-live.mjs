@@ -98,6 +98,10 @@ push('后台二维码预览', adm.includes('contactQrPrev') && adm.includes('con
 push('后台「还能补的设置」清单', adm.includes('todoBox') && adm.includes('loadTodo') && adm.includes('todoReload'));
 push('清单可跳转到对应面板', adm.includes("go(tab)") || adm.includes('去设置'));
 
+const rss = await fetch(base + '/rss.xml?v=' + t);
+const rssText = await rss.text();
+push('/rss.xml 订阅源', rss.ok && rssText.indexOf('<rss version="2.0"') > 0 && rssText.indexOf('<channel>') > 0, rss.status + ' ' + rssText.length + 'B');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

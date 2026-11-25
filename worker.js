@@ -59,6 +59,16 @@ export default {
           headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },
         });
       }
+      if (url.pathname === '/rss.xml' && (request.method === 'GET' || request.method === 'HEAD')) {
+        const seoRss = (await loadSiteRaw(env)).seo;
+        const originRss = seoRss.siteUrl ? seoRss.siteUrl.replace(/\/+$/, '') : url.origin;
+        const xmlRss = await rssXml(env, originRss);
+        const headRss = new Headers({
+          'content-type': 'application/rss+xml; charset=utf-8',
+          'cache-control': 'public, max-age=600, s-maxage=600',
+        });
+        return new Response(request.method === 'HEAD' ? null : xmlRss, { status: 200, headers: headRss });
+      }
       if (url.pathname === '/llms.txt' && (request.method === 'GET' || request.method === 'HEAD')) {
         return new Response(await llmsTxt(env, url.origin), {
           headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },
@@ -1431,7 +1441,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v94';
+const ASSET_V = 'v95';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1694,6 +1704,50 @@ async function rawJson(env, path) {
 }
 
 // llms.txt：给大模型看的站点说明（llmstxt.org 约定）
+async function rssXml(env, origin) {
+  const xe = (s) =>
+    String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  const site = await loadSiteRaw(env).catch(() => ({}));
+  const seo = (site && site.seo) || {};
+  const title = seo.siteName || 'GitHub 热门项目排行榜';
+  const desc = seo.description || '按近 7 天 / 30 天 / 1 年与全站总榜看 GitHub 热门开源项目。';
+  let list = [];
+  try {
+    const arts = await readArticles(env);
+    list = (arts.articles || []).slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+  } catch (e) {
+    list = [];
+  }
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel>\n';
+  xml += '  <title>' + xe(title) + '</title>\n';
+  xml += '  <link>' + xe(origin + '/articles') + '</link>\n';
+  xml += '  <description>' + xe(desc) + '</description>\n';
+  xml += '  <language>zh-CN</language>\n';
+  xml += '  <lastBuildDate>' + new Date().toUTCString() + '</lastBuildDate>\n';
+  for (const a of list.slice(0, 30)) {
+    if (!a || !a.title) continue;
+    const path = a.slug
+      ? '/articles/' + String(a.slug).split('/').map(encodeURIComponent).join('/') + '.html'
+      : '/articles#' + encodeURIComponent(String(a.id || ''));
+    const link = origin + path;
+    const pub = a.date ? new Date(String(a.date).slice(0, 10) + 'T00:00:00+08:00').toUTCString() : new Date().toUTCString();
+    xml += '  <item>\n';
+    xml += '    <title>' + xe(a.title) + '</title>\n';
+    xml += '    <link>' + xe(link) + '</link>\n';
+    xml += '    <guid isPermaLink="true">' + xe(link) + '</guid>\n';
+    xml += '    <pubDate>' + pub + '</pubDate>\n';
+    xml += '    <description>' + xe(a.summary || '') + '</description>\n';
+    if (a.category) xml += '    <category>' + xe(a.category) + '</category>\n';
+    xml += '  </item>\n';
+  }
+  xml += '</channel></rss>';
+  return xml;
+}
+
 async function llmsTxt(env, origin) {
   const site = (await loadSiteRaw(env)).seo || {};
   const root = site.siteUrl ? String(site.siteUrl).replace(/\/+$/, '') : origin;
@@ -1732,6 +1786,7 @@ async function llmsTxt(env, origin) {
   lines.push('- ' + root + '/data/nav.json — 导航站点列表（分类 / 名称 / 地址 / 描述 / 图标）');
   lines.push('- ' + root + '/api/status — 数据新鲜度与最近一次抓取状态（JSON，60 秒缓存）');
   lines.push('- ' + root + '/sitemap.xml — 全站页面清单（含 lastmod）');
+  lines.push('- ' + root + '/rss.xml — 文章 RSS 订阅源（RSS 2.0）');
   lines.push('');
   lines.push('## 引用与抓取建议');
   lines.push('');
