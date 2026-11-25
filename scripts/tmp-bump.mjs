@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const VER = process.argv[2] || 'v77';
+let w = fs.readFileSync('worker.js', 'utf8');
+const m = w.match(/const ASSET_V = '([^']+)'/);
+w = w.replace(/const ASSET_V = '[^']+'/, `const ASSET_V = '${VER}'`);
+fs.writeFileSync('worker.js', w, 'utf8');
+let s = fs.readFileSync('sw.js', 'utf8');
+s = s.replace(/const CACHE = '[^']+'/, `const CACHE = 'ghrank-shell-${VER}'`);
+fs.writeFileSync('sw.js', s, 'utf8');
+console.log('version', (m && m[1]) || '?', '->', VER);

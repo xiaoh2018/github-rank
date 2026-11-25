@@ -1413,7 +1413,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v76';
+const ASSET_V = 'v79';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1888,12 +1888,12 @@ async function handleSubmit(request, env, origin) {
           ((n1.groups || [])).forEach(function (g) { navSites += (g.items || []).length; });
           const arrOf = function (x) { return Array.isArray(x) ? x : []; };
           return {
-            articles: arrOf(a1.articles).length,
+            articles: (Array.isArray(a1) ? a1.length : arrOf(a1.articles).length),
             categories: arrOf((function () { try { return normalizeSite(s1).article.categories; } catch (e) { return []; } })()).length,
             navSites: navSites,
             navGroups: ((n1.groups || [])).length,
             qa: arrOf(q1.items).length,
-            links: arrOf(l1.links).length,
+            links: (Array.isArray(l1) ? l1.length : arrOf(l1.links).length),
           };
         })(),
         lastRun: await readLastSubmit(),
@@ -3316,7 +3316,7 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
 .slugrow input{flex:1;min-width:0}
 .slug-sep{color:#9a9285;font-family:ui-monospace,Menlo,Consolas,monospace}
 .slugline{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px;font-size:11.5px;color:#8a8172;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
-.art-lock{font-size:11px;padding:1px 6px;border-radius:6px;background:#f6e7c8;color:#7a5a11;font-weight:600;margin-left:6px}
+.art-lock{display:inline-block;white-space:nowrap;font-size:11px;padding:1px 6px;border-radius:6px;background:#f6e7c8;color:#7a5a11;font-weight:600;margin-left:6px;vertical-align:middle}
 
 /* UI v4 · 中性纸感：去掉渐变与光晕，只留细线、留白和一种强调色 */
 :root{--brand:#b07d10;--ok:#1f7a4d;--warn:#a8661a;--bad:#a2341f}
@@ -3745,7 +3745,7 @@ tr:hover td{background:#fcfbf8}
       </div>
       <div class="card">
         <div class="card-head"><b>提交结果</b></div>
-        <div id="subOut"><p class="empty">还没有提交过。点右上角「立即提交」。</p></div>
+        <div id="subOut"><p class="empty">还没有在本次会话里提交过。上次结果会显示在「当前状态」里；点右上角「全部提交」可立即推一次。</p></div>
       </div>
       <div class="card">
         <div class="card-head"><b>IndexNow 一直失败？照这三步查</b></div>
@@ -4636,7 +4636,7 @@ tr:hover td{background:#fcfbf8}
       return '<tr><td><input type="checkbox" data-artpick="' + esc(a.id) + '"' + (state.artSel.has(String(a.id)) ? ' checked' : '') + '></td><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b>' +
         (a.locked ? '<span class="art-lock">加密</span>' : '') +
         (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
-        '<div class="slugline">/articles/' + esc(a.slug || a.id) + '.html' + (a.category ? ' · ' + esc(a.category) : '') + '</div>' +
+        '<div class="slugline">/articles/' + esc(a.slug || a.id) + '.html' + (a.category ? ' · ' + esc(a.category) : ' · 未分类') + '</div>' +
         '</td><td>' + esc(a.summary) +
         '</td><td><button type="button" class="ghost small" data-artedit="' + esc(a.id) + '">编辑</button> ' +
         '<button type="button" class="ghost small" data-artview="' + esc(a.id) + '">预览</button> ' +
@@ -5240,9 +5240,17 @@ tr:hover td{background:#fcfbf8}
         tick();
         if (cool > 0) subTimer = setInterval(tick, 1000);
       })();
-      if (last && last.results) {
+      var outBox = $('subOut');
+      var res = (last && last.results) ? last.results : null;
+      if (res) {
         box.innerHTML += '<div style="margin-top:10px">' +
-          subBox('上次 IndexNow', last.results.indexNow) + subBox('上次百度', last.results.baidu) + '</div>';
+          subBox('上次 IndexNow', res.indexNow) + subBox('上次百度', res.baidu) + '</div>';
+        if (outBox) {
+          outBox.innerHTML = '<p class="note">下面这些是上次提交的结果（' + new Date(last.at || Date.now()).toLocaleString() + '），重新提交会覆盖。</p>' +
+            subBox('上次 IndexNow', res.indexNow) + subBox('上次百度', res.baidu);
+        }
+      } else if (last && outBox) {
+        outBox.innerHTML = '<p class="note">上次提交（' + new Date(last.at || Date.now()).toLocaleString() + '）是旧记录，没有保存原始返回；下次提交后会显示在这里。</p>';
       }
     });
   }

@@ -8,6 +8,7 @@ import path from 'node:path';
 
 const SAMPLE_README = "# build-your-own-x\n\n<p align=\"center\">\n  <img src=\"https://img.shields.io/badge/stars-565k-gold\" alt=\"stars\">\n  <img src=\"https://img.shields.io/badge/license-MIT-blue\" alt=\"license\">\n</p>\n\n从零开始重构你喜爱的技术，从而掌握编程。**只保留可以动手的部分**，每个项目都能在周末跑通。\n\n## 目录\n\n| 方向 | 代表项目 | 语言 |\n| :--- | :---: | ---: |\n| 数据库 | build-your-own-redis | C |\n| 容器 | build-your-own-docker | Go |\n| 编译器 | build-your-own-lisp | C++ |\n\n## 快速开始\n\n1. 选一个方向\n2. 克隆仓库并跑通示例\n3. 在 `notes/` 里写总结\n\n- [x] 先读 README\n- [ ] 再动手写代码\n\n```bash\ngit clone https://github.com/example/redis-clone\ncd redis-clone && make\n```\n\n> 提示：把 `make` 的输出贴进 issue，方便别人帮你排查。\n\n更多内容见 [官方教程](https://example.com/tutorial) 与 [Wiki](https://example.com/wiki)。";
 
+const realFetch = globalThis.fetch;
 const root = path.resolve(process.cwd());
 const port = Number(process.argv[2] || 8123);
 const PASSWORD = 'dev';
@@ -46,6 +47,10 @@ const writeLocal = (rel, text) => {
 globalThis.fetch = async (input, init) => {
   const url = typeof input === 'string' ? input : input.url;
   const method = (init && init.method) || 'GET';
+  // 访问自己（key 文件自检、/api/* 内部调用）时直接转发给本地服务，避免 502
+  if (/^http:\/\/127\.0\.0\.1:\d+\//.test(url)) {
+    try { return await realFetch(url, init); } catch (e) { return new Response('dev fetch failed: ' + e.message, { status: 502 }); }
+  }
   if (url.startsWith('https://raw.githubusercontent.com/')) {
     const rel = decodeURIComponent(url.split('/main/')[1] || '');
     const buf = local(rel);

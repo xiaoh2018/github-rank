@@ -1,5 +1,5 @@
 /* Service Worker：缓存页面外壳（HTML/JS/图标），让离线也能打开；GitHub API 不缓存，由页面自己的 localStorage 管理 */
-const CACHE = 'ghrank-shell-v76';
+const CACHE = 'ghrank-shell-v79';
 const SHELL = ['./', 'index.html', 'js/bundle.js', 'js/md.js', 'manifest.json', 'icon.svg'];
 // 只预缓存 meta（约 2KB）。榜单数据按 range 分文件、由页面按需加载，不再在安装时白下几�?KB
 const DATA = 'data/repos-meta.js';
