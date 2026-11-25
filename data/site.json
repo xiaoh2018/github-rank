@@ -127,6 +127,9 @@
     ]
   },
   "runtime": {
-    "emails": ""
+    "emails": "",
+    "aiCap": null,
+    "baiduToken": "5NuLyLS9gdg1W6G1",
+    "indexNowKey": ""
   }
 }
