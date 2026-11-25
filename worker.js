@@ -1431,7 +1431,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v93';
+const ASSET_V = 'v94';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3079,6 +3079,8 @@ th{color:var(--muted);font-weight:600;font-size:13px}
 .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:6px}
 .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .toolbar input[type=text]{max-width:320px}
+.main a.ghost{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text);text-decoration:none;font-size:12.5px;line-height:1;vertical-align:middle}
+.main a.ghost:hover{border-color:#c7d2fe;color:var(--accent)}
 .row-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 4px}
     /* ---- 广告位 ---- */
     .ad-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-bottom:14px}
@@ -4801,6 +4803,7 @@ tr:hover td{background:#fcfbf8}
         '</td><td>' + esc(a.summary) +
         '</td><td><button type="button" class="ghost small" data-artedit="' + esc(a.id) + '">编辑</button> ' +
         '<button type="button" class="ghost small" data-artview="' + esc(a.id) + '">预览</button> ' +
+        '<a class="ghost small" href="/articles/' + esc(a.slug || a.id) + '.html" target="_blank" rel="noopener">打开</a> ' +
         '<button type="button" class="danger small" data-artdel="' + esc(a.id) + '">删除</button></td></tr>';
     }).join('');
     if ($('artAll')) $('artAll').checked = false;
