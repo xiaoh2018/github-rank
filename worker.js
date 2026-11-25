@@ -361,48 +361,107 @@ async function saveTranslation(text, zh) {
   }
 }
 
+// MyMemory 的可用邮箱列表：TRANSLATE_EMAILS（逗号/空格分隔）优先，其次 TRANSLATE_EMAIL
+function mmEmails(env) {
+  const src = env.TRANSLATE_EMAILS || env.TRANSLATE_EMAIL || 'xiaoh2018@gmail.com';
+  const list = String(src).split(/[,\s]+/).map((s) => s.trim()).filter(Boolean);
+  return list.length ? list : ['xiaoh2018@gmail.com'];
+}
+
 // MyMemory：免费、无需 Key。返回 { ok, text, error }，error 带类型前缀方便后台显示
 async function translateMM(text, env) {
   const chunks = chunkText(text, 450);
   if (!chunks.length) return { ok: false, error: 'empty: 没有可翻译的内容' };
+  const emails = mmEmails(env);
   const parts = [];
+  let emailIdx = 0;
   for (const piece of chunks) {
-    let url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(piece) + '&langpair=en|zh-CN';
-    // 带上联系邮箱，MyMemory 每天额度从 5000 提到 50000 字符
-    url += '&de=' + encodeURIComponent(env.TRANSLATE_EMAIL || 'xiaoh2018@gmail.com');
-    let r;
-    try {
-      r = await fetch(url);
-    } catch (e) {
-      return { ok: false, error: 'network: 连不上 MyMemory（' + (e && e.message ? e.message : 'fetch failed') + '）' };
+    let done = false;
+    let lastErr = '';
+    while (!done && emailIdx < emails.length) {
+      let url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(piece) + '&langpair=en|zh-CN';
+      // 带上联系邮箱，MyMemory 每日额度更高；多个邮箱时轮换
+      url += '&de=' + encodeURIComponent(emails[emailIdx]);
+      let r;
+      try {
+        r = await fetch(url);
+      } catch (e) {
+        return { ok: false, error: 'network: 连不上 MyMemory（' + (e && e.message ? e.message : 'fetch failed') + '）' };
+      }
+      if (r.status === 429 || r.status === 403) {
+        lastErr = 'quota: MyMemory 当天免费额度用完了（HTTP ' + r.status + '）';
+        emailIdx++;
+        continue;
+      }
+      if (!r.ok) return { ok: false, error: 'http: MyMemory 返回 HTTP ' + r.status };
+      let d = null;
+      try {
+        d = await r.json();
+      } catch (e) {
+        return { ok: false, error: 'parse: MyMemory 返回的不是 JSON' };
+      }
+      const detail = String((d && d.responseDetails) || '').slice(0, 90);
+      const tt = d && d.responseData && d.responseData.translatedText;
+      if ((d && d.responseStatus !== 200) || (tt && /MYMEMORY WARNING|QUOTA/i.test(String(tt)))) {
+        const why = detail + ' ' + String(tt || '');
+        if (/quota|limit|MYMEMORY WARNING/i.test(why)) {
+          lastErr = 'quota: MyMemory 额度用尽（' + (detail || 'WARNING').slice(0, 60) + '）';
+          emailIdx++;
+          continue;
+        }
+        return { ok: false, error: 'status: MyMemory 报错「' + detail + '」' };
+      }
+      if (!tt) return { ok: false, error: 'empty: MyMemory 返回空译文' };
+      parts.push(String(tt));
+      done = true;
     }
-    if (r.status === 429 || r.status === 403) {
-      return { ok: false, error: 'quota: MyMemory 当天免费额度用完了（HTTP ' + r.status + '），明天自动恢复' };
+    if (!done) {
+      return { ok: false, error: (lastErr || 'quota: MyMemory 额度用尽') + '（已试 ' + emails.length + ' 个邮箱）' };
     }
-    if (!r.ok) return { ok: false, error: 'http: MyMemory 返回 HTTP ' + r.status };
-    let d = null;
-    try {
-      d = await r.json();
-    } catch (e) {
-      return { ok: false, error: 'parse: MyMemory 返回的不是 JSON' };
-    }
-    if (d && d.responseStatus !== 200) {
-      const detail = String(d.responseDetails || d.responseStatus || '').slice(0, 90);
-      if (/quota|limit/i.test(detail)) return { ok: false, error: 'quota: MyMemory 额度用尽（' + detail + '）' };
-      return { ok: false, error: 'status: MyMemory 报错「' + detail + '」' };
-    }
-    const t = d && d.responseData && d.responseData.translatedText;
-    if (!t || /MYMEMORY WARNING|QUOTA/i.test(t)) {
-      return { ok: false, error: 'quota: MyMemory 提示额度用尽（' + String(t || '').slice(0, 60) + '）' };
-    }
-    parts.push(String(t));
   }
   return { ok: true, text: parts.join(' ') };
+}
+
+// Workers AI 每天最多用多少次（防止把额度打光）：AI_DAILY_CAP，默认 400
+function aiCap(env) {
+  const n = Number(env.AI_DAILY_CAP || 400);
+  return Number.isFinite(n) && n > 0 ? n : 400;
+}
+
+async function aiCountKey(env) {
+  const d = new Date(Date.now() + 8 * 3600 * 1000); // 北京时间当天
+  return EDGE_KEY_BASE + '/__ai/' + env.REPO_OWNER + '/' + d.toISOString().slice(0, 10);
+}
+
+async function aiUsedToday(env) {
+  try {
+    const hit = await EDGE_CACHE.match(await aiCountKey(env));
+    if (!hit) return 0;
+    const n = Number(await hit.text());
+    return Number.isFinite(n) ? n : 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+async function aiBumpUsage(env) {
+  try {
+    const key = await aiCountKey(env);
+    const n = (await aiUsedToday(env)) + 1;
+    await EDGE_CACHE.put(key, new Response(String(n), { headers: { 'cache-control': 'max-age=172800' } }));
+  } catch (e) {
+    /* 计数失败不影响翻译 */
+  }
 }
 
 // Workers AI 翻译（m2m100）：需要在 Worker 上绑定 AI（变量名 AI）；没有绑定时直接跳过
 async function translateAI(text, env) {
   if (!env.AI) return { ok: false, error: 'not-bound: 没有绑定 Workers AI（变量名必须是 AI）' };
+  const cap = aiCap(env);
+  const used = await aiUsedToday(env);
+  if (used >= cap) {
+    return { ok: false, error: 'cap: 今天的 Workers AI 调用已达上限（' + used + '/' + cap + '），明天恢复，或调大 AI_DAILY_CAP' };
+  }
   const chunks = chunkText(text, 900);
   if (!chunks.length) return { ok: false, error: 'empty: 没有可翻译的内容' };
   const parts = [];
@@ -416,6 +475,7 @@ async function translateAI(text, env) {
     const t = r && (r.translated_text || r.translation);
     if (!t) return { ok: false, error: 'empty: 模型返回空结果' };
     parts.push(String(t));
+    await aiBumpUsage(env);
   }
   return { ok: true, text: parts.join('') };
 }
@@ -830,7 +890,9 @@ function translatorStatus(env) {
   return {
     githubToken: !!env.GITHUB_TOKEN,
     ai: !!env.AI,
-    contactEmail: !!env.TRANSLATE_EMAIL,
+    contactEmail: !!env.TRANSLATE_EMAIL || !!env.TRANSLATE_EMAILS,
+    emails: mmEmails(env).length,
+    aiCap: aiCap(env),
   };
 }
 
@@ -2045,6 +2107,8 @@ th{color:var(--muted);font-weight:600;font-size:13px}
 .status-item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
 .status-item .dot{margin:0}
 .status-item small{color:var(--muted);margin-left:auto;font-size:12px;text-align:right}
+.steps{margin:0;padding-left:20px;color:var(--muted);font-size:13px;line-height:1.9}
+.steps code{font-size:12px}
 .kv{display:grid;grid-template-columns:132px minmax(0,1fr);gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
 .kv:last-child{border-bottom:0;padding-bottom:0}
 .kv b{font-family:Consolas,ui-monospace,monospace;font-size:13px}
@@ -2230,7 +2294,9 @@ dialog{width:calc(100% - 24px)}
           <div class="card-head"><div><h2>两个密钥怎么设</h2><p class="desc">都在 Cloudflare 面板 → 你的 Worker → Settings 里改，改完记得 Deploy。</p></div></div>
           <div class="kv"><b>GITHUB_TOKEN</b><span>Variables and Secrets → 添加 Secret。权限给 Contents: Read and write、Actions: Read and write（保活和工作流状态要用）。</span></div>
           <div class="kv"><b>Workers AI</b><span>Bindings → + Add → Workers AI，Variable name 填 <b>AI</b>（必须大写），保存后 Deploy。绑定后 MyMemory 限流时自动兜底。</span></div>
-          <div class="kv"><b>TRANSLATE_EMAIL</b><span>可选。填邮箱后 MyMemory 每日额度从 5000 字符提到 50000。</span></div>
+          <div class="kv"><b>TRANSLATE_EMAILS</b><span>可选，逗号分隔多个邮箱（例如 a@x.com,b@y.com）。MyMemory 每个邮箱每天有独立额度，一个用尽会自动换下一个；额度是按邮箱算的，不是按 IP。</span></div>
+          <div class="kv"><b>AI_DAILY_CAP</b><span>可选，Workers AI 每天最多调用多少次，默认 400。到上限就只用 MyMemory + 缓存，不会把你的 AI 额度打光。</span></div>
+          <div class="kv"><b>BAIDU_TOKEN</b><span>可选。百度搜索资源平台的「准入密钥」，配了「收录提交 → 立即提交」才会推百度。</span></div>
         </div>
       </section>
 
@@ -2348,6 +2414,17 @@ dialog{width:calc(100% - 24px)}
         <div id="subOut"><p class="empty">还没有提交过。点右上角「立即提交」。</p></div>
       </div>
       <div class="card">
+      <div class="card">
+        <div class="card-head"><b>配好之后放在哪（Cloudflare 变量）</b></div>
+        <ol class="steps">
+          <li>打开 <a href="https://dash.cloudflare.com/" target="_blank" rel="noopener">dash.cloudflare.com</a> → 左侧 <b>Workers &amp; Pages</b> → 点站点用的那个 Worker。</li>
+          <li>上方 <b>Settings</b> → <b>Variables and Secrets</b> → <b>+ Add</b>。</li>
+          <li>Type 选 <b>Secret</b>，Name 填 <code>BAIDU_TOKEN</code>，Value 粘贴百度「准入密钥」→ <b>Deploy</b>。</li>
+          <li>同样位置可加 <code>AI_DAILY_CAP</code>（默认 400）、<code>TRANSLATE_EMAILS</code>（多个邮箱逗号分隔）。</li>
+          <li><code>CLOUDFLARE_API_TOKEN</code> / <code>CLOUDFLARE_ACCOUNT_ID</code> 不在这里，它们属于仓库 Secrets（给 GitHub Actions 自动部署用）。</li>
+          <li>改完刷新本页，「百度推送」那一行会从「没配」变成「已配置」。</li>
+        </ol>
+      </div>
         <div class="card-head"><b>这些 Token 在哪拿</b></div>
         <div class="kv"><span class="kv-k">百度推送</span><span class="kv-v"><a href="https://ziyuan.baidu.com/dailysubmit/index" target="_blank" rel="noopener">百度搜索资源平台 → 数据引入 → 普通收录 → API 提交</a>，准入密钥就是 <code>BAIDU_TOKEN</code></span></div>
         <div class="kv"><span class="kv-k">IndexNow</span><span class="kv-v"><a href="https://www.bing.com/webmasters/indexnow" target="_blank" rel="noopener">Bing Webmaster → IndexNow</a>，key 由本站自动生成，不用申请</span></div>
