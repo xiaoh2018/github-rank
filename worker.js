@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v127';
+const ASSET_V = 'v128';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4263,6 +4263,7 @@ tr:hover td{background:#fcfbf8}
             <option value="title-desc">标题 Z→A</option>
             <option value="category-asc">按分类</option>
           </select>
+          <select id="artCatFilter" aria-label="按分类筛选文章" style="max-width:150px"><option value="">全部分类</option></select>
           <button type="button" class="ghost" id="artUndo" disabled>撤销上一步</button>
           <span class="msg" id="artSelNote"></span>
         </div>
@@ -4405,7 +4406,7 @@ tr:hover td{background:#fcfbf8}
     geo: ['summary']
   };
   var pw = '';
-  var state = { links: [], articles: [], faq: [], artPage: 1, artSel: new Set(), artFiltered: [], artSort: 'date-desc', artUndo: null };
+  var state = { links: [], articles: [], faq: [], artPage: 1, artSel: new Set(), artFiltered: [], artSort: 'date-desc', artCat: '', artUndo: null };
   var editingId = null;
   var editingLocked = false;
   var confirmFn = null;
@@ -5092,6 +5093,20 @@ tr:hover td{background:#fcfbf8}
   });
 
   // ---- 文章 ----
+  function fillCatFilter(all) {
+    var sel = $('artCatFilter');
+    if (!sel) return;
+    var names = {};
+    (catState || []).forEach(function (c) { if (c && c.name) names[c.name] = 1; });
+    (all || []).forEach(function (a) { if (a && a.category) names[a.category] = 1; });
+    var names2 = Object.keys(names).sort();
+    var want = ['|'].concat(names2).join('|');
+    var has = ['|'].concat(Array.prototype.map.call(sel.options, function (o) { return o.value; })).join('|');
+    if (has !== want) {
+      sel.innerHTML = '<option value="">全部分类</option>' + names2.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+    }
+    sel.value = state.artCat || '';
+  }
   function renderArticles() {
     var box = $('artSearch');
     var q = (box && box.value || '').trim().toLowerCase();
@@ -5111,7 +5126,15 @@ tr:hover td{background:#fcfbf8}
     var list = q ? all.filter(function (a) {
       return (String(a.title) + ' ' + String(a.summary) + ' ' + String(a.body)).toLowerCase().indexOf(q) >= 0;
     }) : all;
-    if ($('artSearchNote')) $('artSearchNote').textContent = q ? '匹配 ' + list.length + ' / ' + all.length + ' 篇' : '';
+    var cat = state.artCat || '';
+    if (cat) list = list.filter(function (a) { return String(a.category || '') === cat; });
+    fillCatFilter(all);
+    if ($('artSearchNote')) {
+      var parts = [];
+      if (q) parts.push('关键词「' + String(box && box.value || '').trim() + '」');
+      if (cat) parts.push('分类「' + cat + '」');
+      $('artSearchNote').textContent = parts.length ? (parts.join(' ') + '：' + list.length + ' / ' + all.length + ' 篇') : '';
+    }
     var per = 20;
     var pages = Math.max(1, Math.ceil(list.length / per));
     var page = Math.min(Math.max(1, state.artPage || 1), pages);
@@ -5352,6 +5375,11 @@ tr:hover td{background:#fcfbf8}
       var savedSort = '';
       try { savedSort = localStorage.getItem('ghrank-art-sort') || ''; } catch (e) {}
       if (savedSort) { state.artSort = savedSort; $('artSort').value = savedSort; }
+      $('artCatFilter').addEventListener('change', function () {
+        state.artCat = this.value;
+        state.artPage = 1;
+        renderArticles();
+      });
       $('artSort').addEventListener('change', function () {
         state.artSort = this.value;
         try { localStorage.setItem('ghrank-art-sort', this.value); } catch (e) {}

@@ -957,6 +957,19 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     });
   }
   loadAll();
+  // 打印时展开目录：<details> 收起时浏览器不会打印里面的条目
+  window.addEventListener('beforeprint', function () {
+    var t = $('rToc');
+    if (!t || t.hidden) return;
+    t.__wasOpen = t.open;
+    t.open = true;
+  });
+  window.addEventListener('afterprint', function () {
+    var t = $('rToc');
+    if (!t || t.hidden || t.__wasOpen === undefined) return;
+    t.open = t.__wasOpen;
+    delete t.__wasOpen;
+  });
 })();
   (function(){
     function initTotop(){

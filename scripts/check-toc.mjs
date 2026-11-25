@@ -74,6 +74,22 @@ try {
   ok('点开后条目 ≥ 3', clicked && clicked.items >= 3, clicked && clicked.items);
   ok('记住用户动过（touched）', clicked && clicked.touched === '1', clicked && clicked.touched);
 
+  console.log('== 4. 打印前自动展开、打印后恢复 ==');
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 900, deviceScaleFactor: 1, mobile: true });
+  await send('Page.navigate', { url: url + '?v=' + Date.now() + 'p' });
+  await sleep(2500);
+  const printFlow = await evalJs(`(() => {
+    const t = document.getElementById('rToc');
+    const before = t.open;
+    window.dispatchEvent(new Event('beforeprint'));
+    const during = t.open;
+    window.dispatchEvent(new Event('afterprint'));
+    return { before, during, after: t.open };
+  })()`);
+  ok('窄屏起始是收起的', printFlow && printFlow.before === false, JSON.stringify(printFlow));
+  ok('beforeprint 后目录展开', printFlow && printFlow.during === true, printFlow && printFlow.during);
+  ok('afterprint 后恢复收起', printFlow && printFlow.after === false, printFlow && printFlow.after);
+
   if (shotOut) {
     await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
     await send('Page.navigate', { url: url + '?v=' + Date.now() + 's' });
