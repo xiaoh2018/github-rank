@@ -69,7 +69,7 @@
     }
   },
   "layout": {
-    "mode": "triple",
+    "mode": "auto",
     "side": "right",
     "users": "auto"
   },
@@ -127,8 +127,8 @@
     ]
   },
   "runtime": {
-    "emails": "52aibox2026@gmail.com,52aibox2026+1@gmail.com,52aibox2026+2@gmail.com,52aibox2026+3@gmail.com,52aibox2026+4@gmail.com,52aibox2026+5@gmail.com",
     "aiCap": null,
+    "emails": "52aibox2026@gmail.com,52aibox2026+1@gmail.com,52aibox2026+2@gmail.com,52aibox2026+3@gmail.com,52aibox2026+4@gmail.com,52aibox2026+5@gmail.com",
     "baiduToken": "5NuLyLS9gdg1W6G1",
     "indexNowKey": "ec5a605317274e188ac2d27c3a3b5822"
   }
