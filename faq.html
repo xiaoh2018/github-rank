@@ -147,6 +147,26 @@ html[data-theme="notion"]{
   var QA = { intro: '', items: [] };
   var tag = 'all';
 
+  // 标签与关键词写进 URL：分享「收录 里搜 sitemap」这种组合时对方看到的是同一屏
+  function readUrlFilters() {
+    var p = new URLSearchParams(location.search);
+    var t = p.get('tag') || 'all';
+    tag = t;
+    var box = document.getElementById('q');
+    if (box) box.value = p.get('q') || '';
+  }
+
+  function syncUrl(push) {
+    var p = new URLSearchParams(location.search);
+    var kw = ((document.getElementById('q') || {}).value || '').trim();
+    function set(k, v) { if (v) p.set(k, v); else p.delete(k); }
+    set('tag', tag && tag !== 'all' ? tag : '');
+    set('q', kw);
+    var qs = p.toString();
+    var url = location.pathname + (qs ? '?' + qs : '') + location.hash;
+    try { history[push ? 'pushState' : 'replaceState'](null, '', url); } catch (e) {}
+  }
+
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -303,6 +323,8 @@ html[data-theme="notion"]{
     if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, done); else done();
   });
 
+  window.addEventListener('popstate', function () { readUrlFilters(); render(); });
+
   function openFromHash() {
     // 打印/存 PDF 前把折叠全展开，否则 Chrome 只打印已展开的那条
   window.addEventListener('beforeprint', function () {
@@ -318,9 +340,10 @@ html[data-theme="notion"]{
     var b = e.target.closest('[data-tag]');
     if (!b) return;
     tag = b.getAttribute('data-tag');
+    syncUrl(true);
     render();
   });
-  document.getElementById('q').addEventListener('input', render);
+  document.getElementById('q').addEventListener('input', function () { syncUrl(false); render(); });
 
   // 主题：跟随站点默认，访客在其他页面选过就沿用（与首页一致）
   var THEME_KEY = 'ghrank-theme';
@@ -350,6 +373,7 @@ html[data-theme="notion"]{
     .then(function (qa) {
       QA = { intro: (qa && qa.intro) || '', items: (qa && qa.items) || [] };
       if (QA.intro) document.getElementById('intro').textContent = QA.intro;
+      readUrlFilters();
       render();
     })
     .catch(function () {

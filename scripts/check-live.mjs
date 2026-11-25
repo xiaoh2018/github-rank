@@ -170,6 +170,8 @@ push('阅读器首尾有边界提示', artListHtml.includes('已经是第一篇'
 push('阅读器换篇按 slug 解析（findArt）', artListHtml.includes('var hit = findArt(id);'), '');
 push('文章页侧栏「最新文章」用规范地址 + data-id', artListHtml.includes('esc(artPath(a))') && artListHtml.includes('data-id='), '');
 push('文章页侧栏保留旧 #id 链接的兼容分支', artListHtml.includes('href.charAt(0)'), '');
+push('文章页筛选状态写进 URL', artListHtml.includes('function syncUrl(push)') && artListHtml.includes('readUrlFilters()'), '');
+push('问答页筛选状态写进 URL', faqText.includes('function syncUrl(push)') && faqText.includes('readUrlFilters()'), '');
 push('文章列表页有分页条', artListHtml.includes('id="apager"') && artListHtml.includes('var PER = 9;'), '');
 push('文章搜索有命中片段与高亮', artListHtml.includes('function excerptOf') && artListHtml.includes('mark class="hitmark"') && artListHtml.includes('class="hitsrc"'), '');
 push('文章正文参与搜索匹配', artListHtml.includes('plainOf(a.body)'), '');

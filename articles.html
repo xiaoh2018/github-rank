@@ -967,7 +967,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var a = e.target.closest('a');
     if (!a) return;
     var cat = a.getAttribute('data-cat');
-    if (cat) { e.preventDefault(); state.cat = cat; renderChips(); renderCards(); return; }
+    if (cat) { e.preventDefault(); state.cat = cat; state.page = 1; syncUrl(); renderChips(); renderCards(); return; }
     var did = a.getAttribute('data-id');
     if (did) {
       e.preventDefault();
@@ -988,6 +988,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     if (!b) return;
     state.cat = b.getAttribute('data-cat');
     state.page = 1;
+    syncUrl();
     renderChips();
     renderCards();
   });
@@ -995,10 +996,10 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   $('search').addEventListener('input', function () {
     var v = this.value;
     if (searchTimer) clearTimeout(searchTimer);
-    searchTimer = setTimeout(function () { state.q = v; state.page = 1; renderCards(); }, 150);
+    searchTimer = setTimeout(function () { state.q = v; state.page = 1; syncUrl(); renderCards(); }, 150);
   });
   $('search').addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { this.value = ''; state.q = ''; renderCards(); }
+    if (e.key === 'Escape') { this.value = ''; state.q = ''; state.page = 1; syncUrl(); renderCards(); }
   });
   document.addEventListener('keydown', function (e) {
     if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
@@ -1010,7 +1011,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     box.focus();
     box.select();
   });
-  $('sort').addEventListener('change', function () { state.sort = this.value; state.page = 1; renderCards(); });
+  $('sort').addEventListener('change', function () { state.sort = this.value; state.page = 1; syncUrl(); renderCards(); });
   var apagerBox = $('apager');
   if (apagerBox) {
     apagerBox.addEventListener('click', function (e) {
@@ -1019,12 +1020,19 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       var p = parseInt(b.getAttribute('data-page'), 10);
       if (!p || p === state.page) return;
       state.page = p;
+      syncUrl(true);
       renderCards();
       var box = $('cards');
       if (box && box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
-  window.addEventListener('popstate', function () { route(); });
+  window.addEventListener('popstate', function () {
+    // 前进/后退可能只改了筛选参数（阅读器没变），所以先按 URL 重放筛选再处理阅读器
+    var before = [state.cat, state.q, state.sort, state.page].join('|');
+    readUrlFilters();
+    if (before !== [state.cat, state.q, state.sort, state.page].join('|')) { renderChips(); renderCards(); }
+    route();
+  });
   window.addEventListener('hashchange', function () { route(); });
 
   function route() {
@@ -1034,7 +1042,34 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     else if (state.open || !$('reader').hidden) closeReader();
   }
 
+  // 筛选状态同步到 URL：刷新/分享/前进后退都能保持「分类 + 关键词 + 排序 + 页码」
+  function readUrlFilters() {
+    var p = new URLSearchParams(location.search);
+    var sort = p.get('sort') || 'new';
+    if (['new', 'old', 'title', 'cat'].indexOf(sort) < 0) sort = 'new';
+    var page = parseInt(p.get('page') || '1', 10);
+    state.cat = p.get('cat') || 'all';
+    state.q = p.get('q') || '';
+    state.sort = sort;
+    state.page = (!page || page < 1) ? 1 : page;
+    if ($('search')) $('search').value = state.q;
+    if ($('sort')) $('sort').value = state.sort;
+  }
+
+  function syncUrl(push) {
+    var p = new URLSearchParams(location.search);
+    function set(k, v) { if (v) p.set(k, v); else p.delete(k); }
+    set('cat', state.cat && state.cat !== 'all' ? state.cat : '');
+    set('q', state.q || '');
+    set('sort', state.sort && state.sort !== 'new' ? state.sort : '');
+    set('page', state.page > 1 ? String(state.page) : '');
+    var qs = p.toString();
+    var url = location.pathname + (qs ? '?' + qs : '') + location.hash;
+    try { history[push ? 'pushState' : 'replaceState'](null, '', url); } catch (e) {}
+  }
+
   function loadAll() {
+    readUrlFilters();
     Promise.all([
       fetch('/data/articles.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }),
       fetch('/data/site.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; }),
