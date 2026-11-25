@@ -95,7 +95,7 @@ let pngBuf = Buffer.from(await r.arrayBuffer());
 ok(r.status === 200 && pngBuf.length === fs.statSync(path.join(root, 'og-image.png')).size, 'GET /og-image.png → 200 且字节数一致', r.status + ' ' + pngBuf.length);
 ok(pngBuf.subarray(0, 8).toString('hex') === '89504e470d0a1a0a', '返回的是合法 PNG（文件头 89 50 4E 47）');
 ok((r.headers.get('content-type') || '').includes('image/png'), 'content-type = image/png', r.headers.get('content-type'));
-ok(/max-age=604800/.test(r.headers.get('cache-control') || ''), '分享图按 shell 文件长缓存（max-age=604800）', r.headers.get('cache-control'));
+ok(/max-age=300/.test(r.headers.get('cache-control') || ''), '分享图走 shell 档缓存（浏览器 300 秒，边缘 1 天）', r.headers.get('cache-control'));
 ok(!!r.headers.get('etag'), '分享图带 ETag', r.headers.get('etag'));
 r = await hit('/og-image.png', { method: 'HEAD' });
 ok(r.status === 200 && !(await r.arrayBuffer()).byteLength, 'HEAD /og-image.png → 200 且 0 字节');
