@@ -5,36 +5,67 @@
     "slots": {
       "home-top": {
         "enabled": false,
-        "html": ""
+        "html": "",
+        "every": 0,
+        "link": "",
+        "modal": ""
       },
       "list-top": {
         "enabled": false,
-        "html": ""
+        "html": "",
+        "every": 0,
+        "link": "",
+        "modal": ""
       },
       "list-bottom": {
         "enabled": false,
-        "html": ""
+        "html": "",
+        "every": 0,
+        "link": "",
+        "modal": ""
       },
       "sidebar": {
         "enabled": false,
-        "html": ""
+        "html": "",
+        "every": 0,
+        "link": "",
+        "modal": ""
       },
       "article": {
         "enabled": false,
-        "html": ""
+        "html": "",
+        "every": 0,
+        "link": "",
+        "modal": ""
       },
       "list-inline": {
         "enabled": false,
-        "html": ""
+        "html": "",
+        "every": 10,
+        "link": "",
+        "modal": ""
       },
       "article-inline": {
         "enabled": false,
-        "html": ""
+        "html": "",
+        "every": 2,
+        "link": "",
+        "modal": ""
       },
       "nav-inline": {
         "enabled": false,
-        "html": ""
+        "html": "",
+        "every": 8,
+        "link": "",
+        "modal": ""
       }
+    },
+    "ticker": {
+      "enabled": true,
+      "text": "123",
+      "speed": 18,
+      "link": "https://github.661026.xyz/admin#ad",
+      "modal": "123"
     }
   },
   "layout": {
@@ -94,5 +125,8 @@
         "a": "不需要，浏览榜单无需账号。可选填写个人 GitHub Token，它只保存在你自己的浏览器中，仅在点击“立即刷新”时使用，可把搜索额度从每分钟 10 次提高到 30 次；不填也能正常使用。"
       }
     ]
+  },
+  "runtime": {
+    "emails": ""
   }
 }
