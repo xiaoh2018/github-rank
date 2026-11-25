@@ -641,6 +641,9 @@ ok((pubRes.headers.get('cache-control') || '').indexOf('max-age=60') >= 0, '/dat
 const adminRows = await (await hit('/admin')).text();
 ok(adminRows.includes('cthumb'), '后台文章列表带封面缩略图（有封面才显示）');
 ok(adminRows.includes('colspan="5"'), '后台空态/错误行 colspan 与 5 列对齐');
+ok(adminRows.includes('aria-label="问题"') && adminRows.includes('aria-label="回答"'), '问答行两个控件都有可访问名称');
+ok(/<h2 id="artTitle"/.test(adminRows), '写文章弹窗标题是 h2（不与 h1 跳级）');
+ok(!/<h3 id="(addTitle|delTitle|artTitle)"/.test(adminRows), '弹窗标题不再用 h3');
 
 console.log('');
 console.log('§21 问答（GEO）');

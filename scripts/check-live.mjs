@@ -120,6 +120,10 @@ push('后台无重复 id', (adm.match(/id="qaMsg"/g) || []).length === 1);
 
 push('文章面板有保存按钮', adm.includes('data-save="article"') && adm.includes('id="artSaveMsg"'));
 
+push('后台控件都有可访问名称', adm.includes('aria-label="问题"') && adm.includes('aria-label="文章排序方式"') && adm.includes('aria-label="选中这篇文章"'));
+push('弹窗标题从 h2 起（无跳级）', /<h2 id="artTitle"/.test(adm) && !/<h3 id="artTitle"/.test(adm));
+push('文章页侧栏标题改 h2', art.includes('<h2>关于本站</h2>') && !art.includes('<h4>关于本站</h4>'));
+
 const pubRes = await fetch(base + '/data/articles.json?v=' + t);
 const pubText = await pubRes.text();
 let pubArr = null;

@@ -1487,7 +1487,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v106';
+const ASSET_V = 'v107';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2209,7 +2209,7 @@ function emptyAdSlots() {
 // 后台「广告」页里每个位置的卡片（用字符串拼接，避免模板字面量嵌套）
 function adCardHtml(s) {
   const everyInput = s.kind === 'inline'
-    ? '每 <input type="number" class="every-input" min="1" max="' + AD_EVERY_MAX + '" value="' + (s.every || 1) +
+    ? '每 <input type="number" class="every-input" aria-label="每隔几个内容插一条广告" min="1" max="' + AD_EVERY_MAX + '" value="' + (s.every || 1) +
       '" data-ad-slot="' + s.id + '" data-ad-field="every"> 个插一条'
     : '';
   return '<div class="card ad-card">' +
@@ -3295,7 +3295,7 @@ dialog.wide{width:min(1120px,calc(100% - 24px));max-height:calc(100dvh - 24px);p
 dialog.wide[open]{display:grid;grid-template-rows:auto minmax(0,1fr)}
 dialog.wide.full{width:calc(100% - 16px);max-height:calc(100dvh - 16px)}
 .dlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 22px;border-bottom:1px solid var(--line)}
-.dlg-head h3{margin:0 0 2px}
+.dlg-head h2,.dlg-head h3{margin:0 0 2px}
 .dlg-head .msg{margin:0;font-size:13px}
 .dlg-head-actions{display:flex;gap:8px;flex:none}
 .art-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.92fr);min-height:0}
@@ -3334,7 +3334,7 @@ dialog.wide.full{width:calc(100% - 16px);max-height:calc(100dvh - 16px)}
 
 dialog{border:0;border-radius:16px;padding:24px;width:min(480px,calc(100% - 32px));color:var(--text);background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 dialog::backdrop{background:rgba(15,23,42,.5)}
-dialog h3{margin:0 0 4px;font-size:18px}
+dialog h2,dialog h3{margin:0 0 4px;font-size:18px}
 @media (max-width:760px){
 .app{grid-template-columns:1fr}
 .side{position:sticky;top:0;height:auto;z-index:10;padding:0;display:flex;overflow-x:auto;background:var(--side);-webkit-overflow-scrolling:touch}
@@ -3915,7 +3915,7 @@ tr:hover td{background:#fcfbf8}
       <p class="desc">每行一个，格式：<code>名称 | 网址 | 描述 | 图标(可空)</code>，也支持 Tab 分隔。会导入到<b>第一个分类</b>，导入完记得点保存。</p>
       <textarea class="code" id="navImpText" rows="10" placeholder="GitHub | https://github.com | 全球最大代码托管平台&#10;MDN | https://developer.mozilla.org | Web 开发文档"></textarea>
       <div class="row" style="margin-top:8px;align-items:center">
-        <input type="file" id="navImpFile" accept=".txt,.csv,text/plain,text/csv" style="max-width:330px">
+        <input type="file" id="navImpFile" accept=".txt,.csv,text/plain,text/csv" aria-label="选择要导入的 txt 或 csv 文件" style="max-width:330px">
         <span class="hint" style="margin:0">或者选一个 .txt / .csv 文件（每行一个站点，列用 | 或 Tab 分隔）</span>
       </div>
       <div class="actions"><button type="button" class="ghost" id="navImpCancel">取消</button><button type="button" id="navImpGo">导入</button></div>
@@ -3945,8 +3945,8 @@ tr:hover td{background:#fcfbf8}
             <tr><td><b>Google</b></td><td>Search Console 加资源、提交 sitemap</td><td>无需本站参数</td><td>手动（需登录）</td></tr>
           </tbody>
         </table>
-        <div class="copybox"><input id="geoSm" value="https://github.661026.xyz/sitemap.xml" readonly><button type="button" class="ghost" data-copy="geoSm">复制 sitemap 地址</button></div>
-        <div class="copybox"><input id="geoLlms" value="https://github.661026.xyz/llms.txt" readonly><button type="button" class="ghost" data-copy="geoLlms">复制 llms.txt</button></div>
+        <div class="copybox"><input id="geoSm" value="https://github.661026.xyz/sitemap.xml" aria-label="站点地图地址" readonly><button type="button" class="ghost" data-copy="geoSm">复制 sitemap 地址</button></div>
+        <div class="copybox"><input id="geoLlms" value="https://github.661026.xyz/llms.txt" aria-label="llms.txt 地址" readonly><button type="button" class="ghost" data-copy="geoLlms">复制 llms.txt</button></div>
         <div class="hint">把这两个地址贴到各平台的「sitemap 提交」框里即可；验证码填到下面「平台验证码」卡，保存后前台 head 会自动带上对应的 meta 标签。</div>
       </div>
       <div class="card">
@@ -4084,10 +4084,10 @@ tr:hover td{background:#fcfbf8}
         <div><h1>文章</h1><div class="sub">共 <span id="artCount">0</span> 篇，标题、摘要、正文会显示在站点的文章页</div></div>
         <div class="toolbar">
           <button type="button" class="ghost" id="artBulkDel" disabled>删除选中</button>
-          <select id="artBulkCat" style="max-width:170px"><option value="">改成分类…</option></select>
+          <select id="artBulkCat" aria-label="批量改成哪个分类" style="max-width:170px"><option value="">改成分类…</option></select>
           <button type="button" class="ghost" id="artBulkApply" disabled>应用分类</button>
           <button type="button" class="ghost" id="artAllMatch">全选所有匹配</button>
-          <select id="artSort" style="max-width:150px">
+          <select id="artSort" aria-label="文章排序方式" style="max-width:150px">
             <option value="date-desc">日期（新→旧）</option>
             <option value="date-asc">日期（旧→新）</option>
             <option value="title-asc">标题 A→Z</option>
@@ -4142,7 +4142,7 @@ tr:hover td{background:#fcfbf8}
   </div>
 </dialog>
 <dialog id="addDlg">
-  <h3 id="addTitle">添加友链</h3>
+  <h2 id="addTitle">添加友链</h3>
   <p class="msg">名称和网址都会显示在排行榜页面上。</p>
   <label for="addName">名称</label>
   <input type="text" id="addName" maxlength="40" placeholder="例如：某某博客">
@@ -4157,14 +4157,14 @@ tr:hover td{background:#fcfbf8}
   <div class="actions"><button type="button" class="ghost" data-close="addDlg">取消</button><button type="button" id="addSubmit">添加</button></div>
 </dialog>
 <dialog id="delDlg">
-  <h3 id="delTitle">确认删除</h3>
+  <h2 id="delTitle">确认删除</h3>
   <p class="msg" id="delNote"></p>
   <div class="err" id="delErr"></div>
   <div class="actions"><button type="button" class="ghost" data-close="delDlg">取消</button><button type="button" class="danger" id="delSubmit">确定删除</button></div>
 </dialog>
 <dialog id="artDlg" class="wide">
   <div class="dlg-head">
-    <div><h3 id="artTitle">写新文章</h3><p class="msg">标题必填；日期留空默认今天；正文支持 Markdown，段落之间空一行。</p></div>
+    <div><h2 id="artTitle">写新文章</h3><p class="msg">标题必填；日期留空默认今天；正文支持 Markdown，段落之间空一行。</p></div>
     <div class="dlg-head-actions">
       <button type="button" class="ghost small" id="artFullBtn" title="铺满窗口">⤢ 放大</button>
       <button type="button" class="ghost small" data-close="artDlg">关闭</button>
@@ -4202,7 +4202,7 @@ tr:hover td{background:#fcfbf8}
         <button type="button" class="ghost small" id="artImport">导入 .md</button>
         <button type="button" class="ghost small" id="artPreviewBtn">隐藏预览</button>
         <span class="msg" id="artLen"></span>
-        <input type="file" id="artFile" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
+        <input type="file" id="artFile" aria-label="选择 Markdown 文件导入正文" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
       </div>
       <label for="artBody">正文（Markdown）</label>
       <textarea id="artBody" maxlength="20000" class="art-body" spellcheck="false"></textarea>
@@ -4882,8 +4882,8 @@ tr:hover td{background:#fcfbf8}
   }
   function renderFaq() {
     var h = state.faq.map(function (f, i) {
-      return '<div class="faq-row"><div><label>问题</label><input type="text" class="fq" maxlength="100" value="' + esc(f.q) +
-        '"></div><div><label>回答</label><textarea class="fa" maxlength="500">' + esc(f.a) +
+      return '<div class="faq-row"><div><label>问题</label><input type="text" class="fq" aria-label="问题" maxlength="100" value="' + esc(f.q) +
+        '"></div><div><label>回答</label><textarea class="fa" aria-label="回答" maxlength="500">' + esc(f.a) +
         '</textarea></div><div><button type="button" class="ghost small" data-faqdel="' + i + '">删除</button></div></div>';
     }).join('');
     $('faqList').innerHTML = h || '<p class="empty">还没有问答，点下方「新增一条」</p>';
@@ -4940,7 +4940,7 @@ tr:hover td{background:#fcfbf8}
       return;
     }
     $('artTbody').innerHTML = pageList.map(function (a) {
-      return '<tr><td><input type="checkbox" data-artpick="' + esc(a.id) + '"' + (state.artSel.has(String(a.id)) ? ' checked' : '') + '></td><td>' + esc(a.date) + '</td><td>' + (a.cover ? '<span class="cthumb" style="background-image:url(' + "'" + esc(a.cover).replace(/["'()<> ]/g, '') + "'" + ')"></span>' : '') + '<b>' + esc(a.title) + '</b>' +
+      return '<tr><td><input type="checkbox" aria-label="选中这篇文章" data-artpick="' + esc(a.id) + '"' + (state.artSel.has(String(a.id)) ? ' checked' : '') + '></td><td>' + esc(a.date) + '</td><td>' + (a.cover ? '<span class="cthumb" style="background-image:url(' + "'" + esc(a.cover).replace(/["'()<> ]/g, '') + "'" + ')"></span>' : '') + '<b>' + esc(a.title) + '</b>' +
         (a.locked ? '<span class="art-lock">加密</span>' : '') +
         (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
         '<div class="slugline">/articles/' + esc(a.slug || a.id) + '.html' + (a.category ? ' · ' + esc(a.category) : ' · 未分类') + '</div>' +
