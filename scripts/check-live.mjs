@@ -180,6 +180,8 @@ push('后台问答行有上移/下移按钮', admHtml.includes('data-qaup=') && 
 push('后台导航页有分类/站点上下移动', admHtml.includes('data-gup=') && admHtml.includes('data-sup='), '');
 push('首页导航分组有「加载更多」', home.includes('navmore') && home.includes('var NAV_PAGE=12'), '');
 push('导航页加载更多按钮有胶囊样式', home.includes('.navmore{') && home.includes('显示全部 '), '');
+push('文章目录宽屏默认展开（窄屏收起）', artListHtml.includes('toc.dataset.touched') && artListHtml.includes('window.innerWidth >= 900'), '');
+push('文章目录窄屏有专用排版', artListHtml.includes('@media (max-width:640px)'), '');
 push('导航页有「还没有站点」空态', home.includes('导航页还没有站点'), '');
 
 let bad = 0;

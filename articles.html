@@ -132,6 +132,10 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .empty .btn{margin-top:10px}
 .rpos{display:block;margin:10px auto 0;text-align:center;color:var(--muted);font-size:12.5px}
 .toc a.is-cur::before{content:"▸ ";font-size:12px}
+@media (max-width:640px){
+  .toc{margin:0 0 14px;padding:10px 13px}
+  .toc ol{font-size:13px;line-height:1.8}
+}
 .abody h3,.abody h4,.abody h5,.abody h6{scroll-margin-top:18px}
 html{scroll-behavior:smooth}
 .abody pre{position:relative}
@@ -630,7 +634,13 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
           return '<li class="lv' + (deep ? 3 : 2) + '"><a href="#' + id + '">' + esc(h.textContent) + '</a></li>';
         }).join('');
         toc.hidden = false;
+        if (!toc.dataset.touched) toc.open = (window.innerWidth >= 900);
       }
+    }
+    var tToc = $('rToc');
+    if (tToc && !tToc.__touchedBound) {
+      tToc.__touchedBound = true;
+      tToc.addEventListener('toggle', function () { tToc.dataset.touched = '1'; });
     }
     spyToc(body);
     Array.prototype.forEach.call(body.querySelectorAll('pre'), function (pre) {
