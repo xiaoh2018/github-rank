@@ -321,7 +321,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
 
   <footer>
     <span>数据与文章由站长维护 · 数据来源 GitHub 公开 API</span>
-    <span><a href="/">返回首页</a></span>
+    <span><a href="/">返回首页</a> · <a href="/rss.xml">RSS 订阅</a> · <a href="/sitemap.xml">站点地图</a></span>
   </footer>
 </div>
 
@@ -516,6 +516,16 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var tag = (e.target && e.target.tagName) || '';
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     if (e.key === 'Escape') { closeReader(); return; }
+    if (e.key === 'Home' || e.key === 'End') {
+      if (e.key === 'Home') { window.scrollTo({ top: Math.max(0, r.offsetTop - 24), behavior: 'smooth' }); }
+      else {
+        var ab = document.querySelector('#reader .abody') || r;
+        var bottom = ab.getBoundingClientRect().bottom + (window.scrollY || 0);
+        window.scrollTo({ top: bottom, behavior: 'smooth' });
+      }
+      e.preventDefault();
+      return;
+    }
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     var links = $('rNav') ? $('rNav').querySelectorAll('a') : [];
     if (!links.length) return;
