@@ -1413,7 +1413,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v72';
+const ASSET_V = 'v73';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3242,6 +3242,8 @@ dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
 .faq-row>button{align-self:center;min-height:36px;padding:6px 12px}
 #faqList .faq-row+.faq-row{margin-top:12px;padding-top:12px;border-top:1px dashed #eef2f9}
 #artTbody td:last-child button{display:inline-block;vertical-align:middle;margin:2px 4px 2px 0}
+.artpager{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:10px}
+.artpager .msg{color:#64748b;font-size:13px}
 #artTbody td:last-child button:last-child{margin-right:0}
 #artTbody td{vertical-align:middle}
 #artTbody .art-title{font-weight:600}
@@ -3877,8 +3879,9 @@ tr:hover td{background:#fcfbf8}
         </div>
         <table>
           <thead><tr><th style="width:30px"><input type="checkbox" id="artAll" title="全选"></th><th style="width:96px">日期</th><th>标题</th><th>摘要</th><th style="width:170px">操作</th></tr></thead>
-          <tbody id="artTbody"><tr><td colspan="4" class="empty">加载中…</td></tr></tbody>
+          <tbody id="artTbody"><tr><td colspan="5" class="empty">加载中…</td></tr></tbody>
         </table>
+        <div class="artpager" id="artPager" hidden></div>
       </div>
     </section>
 
@@ -3979,7 +3982,7 @@ tr:hover td{background:#fcfbf8}
     geo: ['summary']
   };
   var pw = '';
-  var state = { links: [], articles: [], faq: [] };
+  var state = { links: [], articles: [], faq: [], artPage: 1 };
   var editingId = null;
   var editingLocked = false;
   var confirmFn = null;
@@ -4156,13 +4159,18 @@ tr:hover td{background:#fcfbf8}
     box.innerHTML = '<div class="empty">加载中…</div>';
     Promise.all([
       api('/api/submit').catch(function () { return null; }),
-      api('/api/ai-usage').catch(function () { return null; })
+      api('/api/health').catch(function () { return null; })
     ]).then(function (res) {
-      var sub = res[0] && res[0].status, ai = res[1] && (res[1].usage || res[1]);
+      var sub = res[0] && res[0].status;
+      var h = res[1] || null;
+      var ai = (h && h.ai) || null;
       var rows = [];
       var sm = (sub && sub.sitemap) || 'https://github.661026.xyz/sitemap.xml';
             var base = sm.indexOf('/sitemap.xml') > 0 ? sm.slice(0, sm.indexOf('/sitemap.xml')) : sm;
       rows.push(healthRow('站点地址', true, base));
+      if (h) {
+        rows.push(healthRow('Worker 版本', !!h.version, (h.version || '未知') + ' · 文章 ' + ((h.counts && h.counts.articles) || 0) + ' 篇 · key 文件 ' + (h.keyFileOk ? '可读' : '读不到')));
+      }
       rows.push(healthRow('key 文件', !!(sub && sub.keyFileOk), (sub && sub.keyFileOk) ? '能打开，内容' + (sub.keyFileMatch ? '与后台一致' : '与后台不一致（会被 422 拒绝）') : ((sub && sub.keyFileNote) || '打不开')));
       rows.push(healthRow('百度密钥', !!(sub && sub.baiduToken), sub && sub.baiduToken ? '已配置（来源 ' + (sub.baiduTokenSource || 'env') + '）' : '没配，百度推送会跳过'));
       rows.push(healthRow('IndexNow Key', !!(sub && sub.indexNowKey), (sub && sub.indexNowKey) ? '已生成，来源 ' + (sub.indexKeySource || 'derived') : '没生成'));
@@ -4572,15 +4580,22 @@ tr:hover td{background:#fcfbf8}
       return (String(a.title) + ' ' + String(a.summary) + ' ' + String(a.body)).toLowerCase().indexOf(q) >= 0;
     }) : all;
     if ($('artSearchNote')) $('artSearchNote').textContent = q ? '匹配 ' + list.length + ' / ' + all.length + ' 篇' : '';
+    var per = 20;
+    var pages = Math.max(1, Math.ceil(list.length / per));
+    var page = Math.min(Math.max(1, state.artPage || 1), pages);
+    state.artPage = page;
+    var pageList = list.slice((page - 1) * per, page * per);
     if (!all.length) {
       $('artTbody').innerHTML = '<tr><td colspan="5" class="empty">还没有文章，右上角「写新文章」开始</td></tr>';
+      if ($('artPager')) $('artPager').hidden = true;
       return;
     }
     if (!list.length) {
       $('artTbody').innerHTML = '<tr><td colspan="5" class="empty">没有匹配的文章</td></tr>';
+      if ($('artPager')) $('artPager').hidden = true;
       return;
     }
-    $('artTbody').innerHTML = list.map(function (a) {
+    $('artTbody').innerHTML = pageList.map(function (a) {
       return '<tr><td><input type="checkbox" data-artpick="' + esc(a.id) + '"></td><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b>' +
         (a.locked ? '<span class="art-lock">加密</span>' : '') +
         (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
@@ -4592,6 +4607,7 @@ tr:hover td{background:#fcfbf8}
     }).join('');
     if ($('artAll')) $('artAll').checked = false;
     artSyncBulk();
+    renderArtPager(pages, list.length);
   }
   function loadArticles() {
     api('/api/articles').then(function (r) {
@@ -4713,7 +4729,7 @@ tr:hover td{background:#fcfbf8}
       dlg.classList.toggle('full');
       this.textContent = dlg.classList.contains('full') ? '⤡ 还原' : '⤢ 放大';
     });
-    if ($('artSearch')) $('artSearch').addEventListener('input', renderArticles);
+    if ($('artSearch')) $('artSearch').addEventListener('input', function () { state.artPage = 1; renderArticles(); });
     $('artTbody').addEventListener('click', function (e) {
     var t = e.target;
     var ed = t.getAttribute && t.getAttribute('data-artedit');
@@ -4739,6 +4755,23 @@ tr:hover td{background:#fcfbf8}
       });
     }
   });
+
+    function renderArtPager(pages, total) {
+      var box = $('artPager');
+      if (!box) return;
+      if (pages <= 1) { box.hidden = true; box.innerHTML = ''; return; }
+      box.hidden = false;
+      box.innerHTML = '<button type="button" class="ghost small" data-artpage="prev"' + (state.artPage <= 1 ? ' disabled' : '') + '>上一页</button>' +
+        '<span class="msg">第 ' + state.artPage + ' / ' + pages + ' 页 · 共 ' + total + ' 篇</span>' +
+        '<button type="button" class="ghost small" data-artpage="next"' + (state.artPage >= pages ? ' disabled' : '') + '>下一页</button>';
+    }
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-artpage]');
+      if (!b) return;
+      var dir = b.getAttribute('data-artpage');
+      state.artPage = Math.max(1, (state.artPage || 1) + (dir === 'next' ? 1 : -1));
+      renderArticles();
+    });
 
     // ---- 文章批量操作 ----
     function artPicked() {

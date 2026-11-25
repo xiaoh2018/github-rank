@@ -840,6 +840,19 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
     ok(bundleSrc.indexOf("img.decoding = 'async'") >= 0, '头像图片异步解码', '');
     ok((nf.headers.get('cache-control') || '').indexOf('no-store') >= 0, '404 不缓存', '');
     ok(homeHtml.indexOf('@keyframes cardIn') >= 0, '首页卡片入场动画', '');
+    // ---- §26 /api/health + 文章分页 ----
+    const healthRes = await hit('/api/health');
+    const healthJson = await healthRes.json();
+    ok(healthRes.status === 200 && healthJson.ok === true, '/api/health 200', '');
+    ok(/^v\d+$/.test(String(healthJson.version || '')), '/api/health 带版本号', 'v=' + healthJson.version);
+    ok(healthJson.counts && typeof healthJson.counts.articles === 'number', '/api/health 带文章数', '');
+    ok(typeof healthJson.keyFileOk === 'boolean', '/api/health 带 key 文件自检', '');
+    ok(healthJson.ai && typeof healthJson.ai.used === 'number', '/api/health 带 AI 用量', '');
+    ok(admMobile.indexOf('id="artPager"') >= 0, '后台文章分页容器', '');
+    ok(admMobile.indexOf('data-artpage="prev"') >= 0 && admMobile.indexOf('data-artpage="next"') >= 0, '后台文章上下页按钮', '');
+    ok(admMobile.indexOf('.artpager{display:flex') >= 0, '后台分页样式', '');
+    ok(admMobile.indexOf('state.artPage') >= 0 && admMobile.indexOf('pageList.map') >= 0, '后台文章分页切片', '');
+    ok(admMobile.indexOf("healthRow('Worker 版本'") >= 0, '概览体检显示版本行', '');
   }
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
