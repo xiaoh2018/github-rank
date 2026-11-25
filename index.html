@@ -208,6 +208,11 @@ body[data-page="nav"] #insights{display:none!important}
 .navgroup>h3 .cnt{font-size:11px;color:var(--muted);font-weight:400}
 .navgroup>.gd{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
 .navjump{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.navgroup .gtog{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.navgroup .gtog .chev{color:var(--muted);font-size:11px;transition:transform .18s ease;display:inline-block}
+.navgroup.is-closed .gtog .chev{transform:rotate(-90deg)}
+.navgroup.is-closed .navgird,.navgroup.is-closed .gd{display:none}
+.navgroup .gtog:hover .chev{color:var(--accent)}
 .nj{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--text);text-decoration:none;font-size:13px;line-height:1.2}
 .nj:hover{border-color:var(--accent);color:var(--accent)}
 .nj em{font-style:normal;font-size:11px;color:var(--muted);background:var(--chip);border-radius:999px;padding:1px 6px}
@@ -1236,6 +1241,9 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var VIEW_KEY='ghrankView';
     window.__ghrankRenderArticles=function(){ try{ if(typeof renderArticles==='function') renderArticles(window.__ghrankArticles||[]); }catch(e){} };
     var navLoaded=false, navData=null;
+    var navClosed={};
+    try{ var ncv=JSON.parse(localStorage.getItem('ghrank-nav-closed')||'{}'); if(ncv&&typeof ncv==='object') navClosed=ncv; }catch(e){ navClosed={}; }
+    function navGroupKey(g, gi){ return String((g&&g.id)||('g'+gi)); }
     function navHost(u){ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return String(u); } }
     function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
     function renderNav(){
@@ -1256,7 +1264,10 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         shown+=items.length;
         var gid='ng-'+gi;
         jump+='<a class="nj" href="#'+gid+'">'+escH(g.name)+'<em>'+items.length+'</em></a>';
-        html+='<section class="navgroup" id="'+gid+'"><h3>'+escH(g.name)+'<span class="cnt">'+items.length+' 个</span></h3>'+
+        var gkey=navGroupKey(g, gi);
+        var closed=!q&&!!navClosed[gkey];
+        html+='<section class="navgroup'+(closed?' is-closed':'')+'" id="'+gid+'" data-gkey="'+escH(gkey)+'">'+
+          '<h3><button type="button" class="gtog" aria-expanded="'+(closed?'false':'true')+'"><span class="chev">▼</span>'+escH(g.name)+'<span class="cnt">'+items.length+' 个</span></button></h3>'+
           (g.desc?'<p class="gd">'+escH(g.desc)+'</p>':'')+'<div class="navgird">';
         items.forEach(function(it,idx){
           html+='<a class="navcard" href="'+escH(it.url)+'" target="_blank" rel="noopener noreferrer">'+
@@ -1272,6 +1283,32 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       if(html && jump) html='<div class="navjump">'+jump+'</div>'+html;
       if(!total) html='<p class="note">导航页还没有站点：到后台「导航页」添加分组和站点，保存后刷新这里就能看到。</p>';
       box.innerHTML = html || '<p class="note">没有匹配的站点（清空搜索框可看全部）。</p>';
+      if(!box.dataset.gbound){
+        box.dataset.gbound='1';
+        box.addEventListener('click', function(e){
+          var jump=e.target.closest?e.target.closest('.nj'):null;
+          if(jump){
+            // 点分类快捷跳转：如果目标分组是收起的，先展开
+            var href=jump.getAttribute('href')||'';
+            var tgt=href.charAt(0)==='#'?document.getElementById(href.slice(1)):null;
+            if(tgt&&tgt.classList.contains('is-closed')){
+              tgt.classList.remove('is-closed');
+              var kb=tgt.querySelector('.gtog'); if(kb) kb.setAttribute('aria-expanded','true');
+              var kk=tgt.getAttribute('data-gkey')||''; delete navClosed[kk];
+              try{ localStorage.setItem('ghrank-nav-closed', JSON.stringify(navClosed)); }catch(err){}
+            }
+            return;
+          }
+          var b=e.target.closest?e.target.closest('.gtog'):null;
+          if(!b) return;
+          var sec=b.closest('.navgroup'); if(!sec) return;
+          var key=sec.getAttribute('data-gkey')||'';
+          var nowClosed=sec.classList.toggle('is-closed');
+          b.setAttribute('aria-expanded', nowClosed?'false':'true');
+          if(nowClosed) navClosed[key]=true; else delete navClosed[key];
+          try{ localStorage.setItem('ghrank-nav-closed', JSON.stringify(navClosed)); }catch(err2){}
+        });
+      }
       if(window.ghrankMountInline) window.ghrankMountInline();
       var cnt=document.getElementById('navCount');
       if(cnt) cnt.textContent = q ? ('匹配 '+shown+' / '+total+' 个') : ('共 '+total+' 个站点');

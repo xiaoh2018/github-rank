@@ -159,6 +159,7 @@ push('文章列表页有「相关阅读」', artListHtml.includes('relatedHtml')
 push('文章列表页有分页条', artListHtml.includes('id="apager"') && artListHtml.includes('var PER = 9;'), '');
 push('首页文章卡片有置顶徽标代码', home.includes('pinchip'), '');
 push('首页最新文章最多 6 篇', home.includes('var HOME_MAX=6;'), '');
+push('导航分组可折叠并记住状态', home.includes('class="gtog"') && home.includes('ghrank-nav-closed'), '');
 const admHtml = await (await fetch(base + '/admin?v=' + t)).text();
 push('后台友链有上移/下移按钮', admHtml.includes('data-up=') && admHtml.includes('data-down='), 'bytes=' + admHtml.length);
 push('后台问答行有上移/下移按钮', admHtml.includes('data-qaup=') && admHtml.includes('data-qadn='), '');
