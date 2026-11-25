@@ -1431,7 +1431,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v88';
+const ASSET_V = 'v89';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3155,6 +3155,8 @@ th{color:var(--muted);font-weight:600;font-size:13px}
   .ad-acts-t{font-size:12px;color:var(--muted)}
   .ad-prev-wrap{padding:18px 22px 24px;overflow:auto}
   .ad-prev-wrap .card{margin:0}
+    .qrprev{display:flex;gap:14px;align-items:center;margin:8px 0 12px}
+  .qrprev img{width:108px;height:108px;object-fit:contain;border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px}
   .tr-out{display:grid;gap:10px;margin-top:14px}
 .tr-box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px;background:#f8fafc}
 .tr-box h4{margin:0 0 6px;font-size:12px;color:var(--muted);font-weight:600}
@@ -3721,6 +3723,10 @@ tr:hover td{background:#fcfbf8}
         <label for="contact-qrUrl">二维码图片地址</label>
         <input type="url" id="contact-qrUrl" maxlength="300" placeholder="https://…">
         <div class="hint">把二维码图片上传到图床后粘贴图片的 https 网址。没有就留空。</div>
+        <div class="qrprev" id="contactQrPrev" hidden>
+          <img id="contactQrImg" alt="二维码预览">
+          <div><b>访客看到的就是这张</b><div class="hint" style="margin:2px 0 0">建议正方形、≥300×300；白底更清楚。</div></div>
+        </div>
         <label for="contact-email">邮箱</label>
         <input type="text" id="contact-email" maxlength="120" placeholder="you@example.com">
         <div class="hint">用于接收合作或反馈，可留空。</div>
@@ -4558,6 +4564,22 @@ tr:hover td{background:#fcfbf8}
     }
   })();
 
+  function paintQr() {
+    var box = $('contactQrPrev'), img = $('contactQrImg'), input = $('contact-qrUrl');
+    if (!box || !img || !input) return;
+    var v = String(input.value || '').trim();
+    if (v.indexOf('http://') === 0 || v.indexOf('https://') === 0) {
+      img.src = v;
+      box.hidden = false;
+    } else {
+      img.removeAttribute('src');
+      box.hidden = true;
+    }
+  }
+  (function () {
+    var input = $('contact-qrUrl');
+    if (input) input.addEventListener('input', paintQr);
+  })();
   function paintSerp() {
     var tEl = $('seo-title'), dEl = $('seo-description'), uEl = $('seo-siteUrl'), nEl = $('seo-siteName');
     if (!tEl || !dEl) return;
@@ -4592,6 +4614,7 @@ tr:hover td{background:#fcfbf8}
       if (!r.ok) { toast(r.error || '读取站点配置失败', false); return; }
       fillSite(r.site);
       paintSerp();
+      paintQr();
     });
   }
   function collect(sec) {

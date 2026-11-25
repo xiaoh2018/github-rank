@@ -68,6 +68,32 @@ push('/api/nav', navApi.ok && navJson && navJson.nav && (navJson.nav.groups || [
 push('后台友链可编辑', adm.includes('data-edit') && adm.includes('addDesc') && adm.includes('addTitle'));
 push('后台概览体检', adm.includes('healthBox') && adm.includes('loadHealth'));
 
+// —— 第 34 轮扩展：总榜数据 / 文章封面 / 问答计数 / 健康接口 / 后台三个预览 ——
+const total = await fetch(base + '/data/repos-total.js?v=' + t);
+const totalText = await total.text();
+push('/data/repos-total.js', total.ok && totalText.includes('__GHRANK_RANGES__') && totalText.includes('total'), total.status + ' ' + totalText.length + 'B');
+
+const metaHead = await fetch(base + '/data/repos-meta.js?v=' + t);
+const metaCC = metaHead.headers.get('cache-control') || '';
+push('版本化数据长缓存', metaHead.ok && metaCC.includes('immutable'), metaCC);
+
+const artPage = await fetch(base + '/articles?v=' + t);
+const artText = await artPage.text();
+push('/articles 卡片布局', artPage.ok && artText.includes('artgrid'), artPage.status);
+push('文章封面支持', artText.includes('acover') && artText.includes('a.cover'));
+
+push('问答分类计数', faqText.includes('counts[t]') && faqText.includes("chip b"));
+push('问答折叠标记', faqText.includes('summary:after') && faqText.includes('content:"+"'));
+
+const health = await fetch(base + '/api/health?v=' + t);
+const healthJson = await health.json().catch(() => null);
+const hv = healthJson && (healthJson.assetV || healthJson.version || (healthJson.status && healthJson.status.assetV));
+push('/api/health', health.ok && !!hv, health.status + ' ' + (hv || ''));
+
+push('后台 SEO 结果预览', adm.includes('serpTitle') && adm.includes('serpDesc'));
+push('后台广告预览按钮', adm.includes('data-adprev') && adm.includes('adPrevDlg'));
+push('后台二维码预览', adm.includes('contactQrPrev') && adm.includes('contactQrImg'));
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
