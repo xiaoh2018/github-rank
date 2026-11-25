@@ -36,6 +36,38 @@ push('/api/submit 明细', submit.includes('keyFileOk'));
 const sm = await (await fetch(base + '/sitemap.xml?v=' + t)).text();
 push('sitemap 有 .html', sm.includes('.html</loc>') || sm.includes('/articles/'));
 
+
+// —— 第 27 轮扩展：核心页面 + 机器可读入口 + 后台友链编辑 ——
+const nav = await fetch(base + '/nav?v=' + t);
+const navText = await nav.text();
+push('/nav 页面', nav.ok && navText.includes('navView') === false ? nav.ok : nav.ok, nav.status);
+push('导航分组卡片', navText.includes('navgroup') || navText.includes('navcard'));
+
+const faq = await fetch(base + '/faq?v=' + t);
+const faqText = await faq.text();
+push('/faq 页面', faq.ok, faq.status);
+push('问答带主题引导', faqText.includes('ghrank-theme'));
+
+const llms = await fetch(base + '/llms.txt?v=' + t);
+const llmsText = await llms.text();
+push('/llms.txt', llms.ok && llmsText.startsWith('# '), llms.status + ' ' + llmsText.length + 'B');
+
+const robots = await fetch(base + '/robots.txt?v=' + t);
+const robotsText = await robots.text();
+push('/robots.txt 放行 AI', robots.ok && robotsText.includes('User-agent: GPTBot'), robots.status);
+
+const qa = await fetch(base + '/api/qa?v=' + t);
+const qaJson = await qa.json().catch(() => null);
+const qaItems = (qaJson && qaJson.qa && qaJson.qa.items) || (qaJson && qaJson.items) || [];
+push('/api/qa', qa.ok && qaItems.length > 0, qaItems.length + ' 条');
+
+const navApi = await fetch(base + '/api/nav?v=' + t);
+const navJson = await navApi.json().catch(() => null);
+push('/api/nav', navApi.ok && navJson && navJson.nav && (navJson.nav.groups || []).length > 0, navJson && navJson.nav ? (navJson.nav.groups || []).length + ' 组' : '');
+
+push('后台友链可编辑', adm.includes('data-edit') && adm.includes('addDesc') && adm.includes('addTitle'));
+push('后台概览体检', adm.includes('healthBox') && adm.includes('loadHealth'));
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
