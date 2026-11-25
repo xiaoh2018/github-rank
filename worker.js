@@ -1441,7 +1441,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v98';
+const ASSET_V = 'v99';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4036,7 +4036,7 @@ tr:hover td{background:#fcfbf8}
         <div><h1>文章</h1><div class="sub">共 <span id="artCount">0</span> 篇，标题、摘要、正文会显示在站点的文章页</div></div>
         <div class="toolbar">
           <button type="button" class="ghost" id="artBulkDel" disabled>删除选中</button>
-          <input id="artBulkCat" placeholder="改成分类…" style="max-width:150px">
+          <select id="artBulkCat" style="max-width:170px"><option value="">改成分类…</option></select>
           <button type="button" class="ghost" id="artBulkApply" disabled>应用分类</button>
           <button type="button" class="ghost" id="artAllMatch">全选所有匹配</button>
           <select id="artSort" style="max-width:150px">
@@ -4616,6 +4616,15 @@ tr:hover td{background:#fcfbf8}
       dl.innerHTML = catState.map(function (c) {
         return '<option value="' + navEsc(c.name) + '">' + navEsc(c.key) + '</option>';
       }).join('');
+    }
+    var bs = $('artBulkCat');
+    if (bs) {
+      var keep = bs.value;
+      bs.innerHTML = '<option value="">改成分类…</option>' + catState.map(function (c) {
+        var v = navEsc(c.name || c.key);
+        return '<option value="' + v + '">' + v + '</option>';
+      }).join('');
+      bs.value = keep;
     }
   }
   function readCats() {

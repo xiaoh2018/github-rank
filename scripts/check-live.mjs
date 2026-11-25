@@ -111,6 +111,8 @@ push('密钥输入默认遮罩', adm.includes('data-eye') && adm.includes('type=
 
 push('导航批量导入支持选文件', adm.includes('id="navImpFile"'));
 
+push('批量改分类是下拉', adm.includes('<select id="artBulkCat"'));
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
