@@ -31,7 +31,7 @@
 
 **后台（`/admin`）**
 - 用管理密码登录，11 个标签按「常用 / 内容 / 站点信息 / 运维」分组：概览、榜单布局、文章、SEO 与 GEO、友链、导航页、广告、联系方式、备案信息、收录提交、翻译与密钥。
-- 广告有 5 个位置（首页顶部、榜单上方、榜单下方、侧栏底部、文章区上方），每个位置独立开关，不勾就不渲染。
+- 广告有 8 个位置：5 个固定位（首页顶部、榜单上方、榜单下方、侧栏底部、文章区上方）+ 3 个信息流位（榜单每 10 个项目一条、文章每 2 篇一条、导航每组每 8 个站点一条），每个位置独立开关，不勾就不渲染。位置示意图：[docs/shots/ad-slots.png](docs/shots/ad-slots.png)。
 - 收录提交：一键走 IndexNow（Bing / Yandex / Seznam / Naver），配 `BAIDU_TOKEN` 时也会推百度；面板上直接给出 `/sitemap.xml`、`/llms.txt` 与 key 文件的地址。
 - 密钥（GitHub Token、百度 Token 等）只在 Cloudflare 的 Variables and Secrets 里设置，后台只显示「配没配」并可以实测翻译链路。
 
@@ -75,7 +75,7 @@ data/
   repos.js          旧版合并数据，已冻结，仅作新 Worker 部署前的兜底
   desc-zh.json      简介中文译文（Action 和 Worker 共同维护）
   readme-zh.json    README 中文译文（Action 生成）
-  site.json         站点设置：SEO、GEO、广告（5 个位置）、联系方式、备案、榜单布局
+  site.json         站点设置：SEO、GEO、广告（8 个位置）、联系方式、备案、榜单布局
   links.json        友情链接
   articles.json     文章
   nav.json          导航页：分类 + 站点卡片
