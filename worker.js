@@ -1410,7 +1410,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v67';
+const ASSET_V = 'v68';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3060,6 +3060,20 @@ dialog h3{margin:0 0 4px;font-size:18px}
 dialog{width:calc(100% - 24px)}
 }
 
+
+/* ===== 移动端（≤760px）密度收敛 ===== */
+@media (max-width:760px){
+  .grid2{grid-template-columns:1fr}
+  .ad-grid{grid-template-columns:1fr}
+  .art-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pane{max-width:none}
+  .card{padding:14px 14px 16px}
+  th,td{padding:6px 8px;font-size:12.5px}
+  .bar h1{font-size:19px}
+  .bar .sub{font-size:12px}
+  #navAdmin td input{font-size:12.5px;padding:6px 8px}
+}
 /* ===== UI v2：更干净的后台外观（后置覆盖，不动原有规则） ===== */
 body{background:radial-gradient(900px 420px at 88% -8%,#e8effb 0%,#f5f7fb 55%,#f5f7fb 100%)}
 .app{grid-template-columns:246px minmax(0,1fr)}
@@ -3250,6 +3264,28 @@ tr:hover td{background:#fcfbf8}
 #qaList .qa-q{flex:1 1 320px;min-width:0;font-weight:600}
 #qaList .qa-tag{width:110px}
 #qaList .qa-a{width:100%;min-height:96px;font-size:13.5px;line-height:1.7}
+
+/* ===== 移动端（≤760px）：后置覆盖 UI v2 的两列布局 ===== */
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .side{position:sticky;top:0;height:auto;display:flex;overflow-x:auto;padding:0;border-right:0;border-bottom:1px solid #16233a;background:linear-gradient(180deg,#0b1220 0%,#0d1a2f 100%)}
+  .side .brandlink{display:none}
+  .side .navgroup{display:flex;align-items:center;gap:2px;padding:0 4px}
+  .side .navgroup::before{display:none}
+  .nav{width:auto;flex:none;border-radius:0;white-space:nowrap;padding:14px 14px;min-height:50px;margin:0}
+  html,body{overflow-x:hidden;max-width:100%}
+  .side{max-width:100vw}
+  .side .navgroup{flex-wrap:nowrap}
+  .main{padding:16px 12px 44px}
+  .grid2,.ad-grid,.art-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pane{max-width:none}
+  .card{padding:14px}
+  th,td{padding:6px 8px;font-size:12.5px}
+  .bar h1{font-size:19px}
+  #navAdmin td input{font-size:12.5px;padding:6px 8px}
+  .faq-row{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>

@@ -120,6 +120,8 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .abody th,.abody td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}
 .abody thead th{background:var(--chip);white-space:nowrap;font-weight:600}
 .abody tbody tr:nth-child(even){background:rgba(0,0,0,.015)}
+html[data-theme="dark"] .abody tbody tr:nth-child(even),html[data-theme="ink"] .abody tbody tr:nth-child(even){background:rgba(255,255,255,.035)}
+html[data-theme="dark"] .abody th,html[data-theme="ink"] .abody th{background:var(--chip)}
 li.md-task{list-style:none;margin-left:-18px}
 /* 广告位 */
 .adslot{margin:14px 0}

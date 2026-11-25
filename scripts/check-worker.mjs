@@ -815,6 +815,13 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
     const faqHtml = await (await hit('/faq')).text();
     ok(faqHtml.indexOf('applyTheme') >= 0 && faqHtml.indexOf('ghrank-theme') >= 0, '问答页也跟随站点主题', '');
     ok(faqHtml.indexOf('color-scheme:dark') >= 0, '问答页深色主题声明 color-scheme', '');
+    const homeHtml = await (await hit('/')).text();
+    ok(homeHtml.indexOf('html[data-theme="ink"] .article-body tbody tr:nth-child(even)') >= 0, '首页表格斑马纹适配深色主题', '');
+    const artHtml = await (await hit('/articles')).text();
+    ok(artHtml.indexOf('html[data-theme="ink"] .abody tbody tr:nth-child(even)') >= 0, '文章页表格斑马纹适配深色主题', '');
+    const admMobile = await (await hit('/admin')).text();
+    ok(admMobile.indexOf('overflow-x:hidden;max-width:100%') >= 0, '后台移动端无横向溢出保护', '');
+    ok(admMobile.indexOf('.grid2,.ad-grid,.art-grid{grid-template-columns:1fr}') >= 0, '后台移动端单列', '');
   }
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);

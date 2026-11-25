@@ -420,6 +420,8 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
     .article-body th,.article-body td{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top;overflow-wrap:anywhere}
     .article-body thead th{background:var(--chip);font-weight:600;white-space:nowrap}
     .article-body tbody tr:nth-child(even){background:rgba(0,0,0,.016)}
+html[data-theme="dark"] .article-body tbody tr:nth-child(even),html[data-theme="ink"] .article-body tbody tr:nth-child(even){background:rgba(255,255,255,.035)}
+html[data-theme="dark"] .article-body th,html[data-theme="ink"] .article-body th{background:var(--chip)}
     .article-body li.md-task{list-style:none;margin-left:-18px}
     .article-body li.md-task input{margin-right:6px;vertical-align:-1px}
   .article-item summary{cursor:pointer;color:var(--accent);font-size:13px;min-height:32px;display:flex;align-items:center}
