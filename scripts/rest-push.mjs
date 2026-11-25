@@ -5,7 +5,7 @@ const REPO = 'xiaoh2018/github-rank';
 const API = 'https://api.github.com';
 
 function git(args, opts = {}) {
-  return execFileSync('git', args, { maxBuffer: 512 * 1024 * 1024, ...opts });
+  return execFileSync('git', args, { maxBuffer: 512 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'], ...opts });
 }
 function token() {
   const out = execFileSync('git', ['credential', 'fill'], {
