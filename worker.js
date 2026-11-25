@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v124';
+const ASSET_V = 'v125';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2991,6 +2991,8 @@ function publicArticle(a) {
   out.locked = !!a.locked;
   // 一律带上 hasLock：前端据此判断"标了加密但解不开"的旧数据，不必自己猜
   out.hasLock = !!(a.lock && a.lock.ct);
+  // 改过几次链接：后台据此提示「旧地址 N 个（已 301）」，只给数量不暴露具体地址
+  out.prevCount = Array.isArray(a.prevSlugs) ? a.prevSlugs.length : 0;
   return out;
 }
 
@@ -5130,7 +5132,7 @@ tr:hover td{background:#fcfbf8}
       return '<tr><td><input type="checkbox" aria-label="选中这篇文章" data-artpick="' + esc(a.id) + '"' + (state.artSel.has(String(a.id)) ? ' checked' : '') + '></td><td>' + esc(a.date) + '</td><td>' + (a.cover ? '<span class="cthumb" style="background-image:url(' + "'" + esc(a.cover).replace(/["'()<> ]/g, '') + "'" + ')"></span>' : '') + '<b>' + esc(a.title) + '</b>' +
         (a.locked ? '<span class="art-lock">加密</span>' : '') +
         (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
-        '<div class="slugline">/articles/' + esc(a.slug || a.id) + '.html' + (a.category ? ' · ' + esc(a.category) : ' · 未分类') + '</div>' +
+        '<div class="slugline">/articles/' + esc(a.slug || a.id) + '.html' + (a.category ? ' · ' + esc(a.category) : ' · 未分类') + (a.prevCount ? ' · 旧地址 ' + a.prevCount + ' 个（已 301）' : '') + '</div>' +
         '</td><td>' + esc(a.summary) +
         '</td><td><button type="button" class="ghost small" data-artedit="' + esc(a.id) + '">编辑</button> ' +
         '<button type="button" class="ghost small" data-artview="' + esc(a.id) + '">预览</button> ' +

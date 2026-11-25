@@ -17,6 +17,7 @@ push('首页卡片入场', home.includes('@keyframes cardIn'));
 push('首页广告位容器', home.includes('id="adHomeTop"') && home.includes('id="adSidebar"'));
 
 const bundleJs = await (await fetch(base + '/js/bundle.js?v=' + t)).text();
+const artApi = await (await fetch(base + '/api/articles?v=' + t)).text();
 const art = await (await fetch(base + '/articles?v=' + t)).text();
 push('文章搜索防抖', art.includes('searchTimer'));
 push('文章目录跟随滚动', art.includes('spyToc') && art.includes('a.is-cur'));
@@ -26,6 +27,8 @@ push('后台跳转内容', adm.includes('skip-link'));
 push('后台表头吸附', adm.includes('position:sticky'));
 push('后台分类管理', adm.includes('catTbody'));
 push('后台收录提交', adm.includes('pane-submit'));
+push('/api/articles 带旧地址计数', artApi.includes('"prevCount"'), '');
+push('后台提示「旧地址 N 个（已 301）」', adm.includes('个（已 301）'), '');
 
 const api = await fetch(base + '/api/status?v=' + t);
 const apiJson = await api.json();
