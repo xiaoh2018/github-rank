@@ -812,6 +812,9 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
     const siteJ = await (await hit('/api/site')).json().catch(() => ({}));
     const cats = (siteJ.site && siteJ.site.article && siteJ.site.article.categories) || [];
     ok(Array.isArray(cats) && cats.length >= 1, '默认分类兜底（normalizeSite 不丢 categories）', cats.length + ' 个');
+    const faqHtml = await (await hit('/faq')).text();
+    ok(faqHtml.indexOf('applyTheme') >= 0 && faqHtml.indexOf('ghrank-theme') >= 0, '问答页也跟随站点主题', '');
+    ok(faqHtml.indexOf('color-scheme:dark') >= 0, '问答页深色主题声明 color-scheme', '');
   }
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);

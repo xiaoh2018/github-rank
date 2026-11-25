@@ -87,7 +87,23 @@
   },
   "article": {
     "unlockHint": "",
-    "catEn": false
+    "catEn": false,
+    "categories": [
+      {
+        "key": "tech",
+        "name": "技术",
+        "desc": "开发、部署、性能"
+      },
+      {
+        "key": "note",
+        "name": "随笔",
+        "desc": "零散记录"
+      }
+    ]
+  },
+  "theme": {
+    "name": "paper",
+    "allowUser": true
   },
   "layout": {
     "mode": "auto",

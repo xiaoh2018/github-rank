@@ -68,6 +68,7 @@ html[data-theme="ink"]{
   --line:#1e222b;--accent:#6e79d6;--accent-soft:#171a22;--chip:#171a22;
   --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 34px -22px rgba(0,0,0,.7);
 }
+html[data-theme="ink"]{color-scheme:dark}
 html[data-theme="stripe"]{
   --bg:#ffffff;--card:#ffffff;--fg:#0a2540;--muted:#425466;
   --line:#e3e8ee;--accent:#635bff;--accent-soft:#f6f9fc;--chip:#f6f9fc;
@@ -235,6 +236,29 @@ html[data-theme="notion"]{
     render();
   });
   document.getElementById('q').addEventListener('input', render);
+
+  // 主题：跟随站点默认，访客在其他页面选过就沿用（与首页一致）
+  var THEME_KEY = 'ghrank-theme';
+  var THEMES = ['paper', 'ink', 'stripe', 'notion'];
+  var THEME_BG = { paper: '#faf7f0', ink: '#08090b', stripe: '#ffffff', notion: '#f7f6f3' };
+  function applyTheme(t) {
+    if (THEMES.indexOf(t) < 0) t = 'paper';
+    document.documentElement.setAttribute('data-theme', t);
+    var meta = document.querySelector("meta[name=\"theme-color\"]");
+    if (meta) meta.setAttribute("content", THEME_BG[t] || THEME_BG.paper);
+  }
+  fetch('/api/site', { cache: 'no-cache' })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      var st = (j && j.site && j.site.theme) || { name: 'paper', allowUser: true };
+      var saved = '';
+      try { saved = localStorage.getItem(THEME_KEY) || ''; } catch (e) {}
+      if (saved === 'light') saved = 'paper';
+      if (saved === 'dark') saved = 'ink';
+      var use = (st.allowUser !== false && THEMES.indexOf(saved) >= 0) ? saved : (st.name || 'paper');
+      applyTheme(use);
+    })
+    .catch(function () { applyTheme('paper'); });
 
   fetch('/data/qa.json', { cache: 'no-cache' })
     .then(function (r) { return r.json(); })
