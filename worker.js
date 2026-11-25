@@ -580,6 +580,26 @@ function json(obj, status) {
 }
 
 // 从仓库 raw 地址读取站点文件，边缘缓存 RAW_TTL 秒（后台保存后靠 warmEdge 立刻换新）
+// 平台验证码：把后台填的验证码拼成 meta 标签注入首页 head
+async function injectVerifyMeta(env, html) {
+  let vf = {};
+  try {
+    const rt = (await siteRuntime(env)) || {};
+    vf = rt.verify || {};
+  } catch (e) {}
+  const out = [];
+  const push = (name, code) => {
+    const v = String(code || '').trim();
+    if (!v) return;
+    out.push('<meta name="' + name + '" content="' + v.replace(/"/g, "'") + '" />');
+  };
+  push('bytedance-verification', vf.bytedance);
+  push('sogou_site_verification', vf.sogou);
+  push('shenma-site-verification', vf.shenma);
+  return html.split('{{GHRANK_VERIFY}}').join(out.join(
+));
+}
+
 async function serveSite(env, entry) {
   if (!env.REPO_OWNER || !env.REPO_NAME) {
     return text('还没配置 REPO_OWNER / REPO_NAME 变量，请按部署说明添加', 503);
@@ -601,6 +621,9 @@ async function serveSite(env, entry) {
     }
     if (entry[0] === 'index.html') {
       let html = applySeo(await r.text(), (await loadSiteRaw(env)).seo);
+      try {
+        html = await injectVerifyMeta(env, html);
+      } catch (e) {}
       html = html.replace(/(["'])(\/?js\/[\w.-]+\.js)(["'])/g, function (m, q1, p1, q2) {
         return q1 + p1 + '?v=' + ASSET_V + q2;
       });
@@ -1851,7 +1874,7 @@ function defaultSite() {
     seo: { siteName: '', title: '', description: '', keywords: '', ogImage: '', siteUrl: '' },
     geo: { summary: '', faq: [{ q: '', a: '' }] },
     // 翻译的运行设置：后台「翻译与密钥」页可直接改，不用去 Cloudflare 配变量
-    runtime: { aiCap: null, emails: '', baiduToken: '', indexNowKey: '' },
+    runtime: { aiCap: null, emails: '', baiduToken: '', indexNowKey: '', verify: { bytedance: '', sogou: '', shenma: '' } },
   };
 }
 
@@ -1936,6 +1959,11 @@ function normalizeSite(o) {
     emails: typeof rt.emails === 'string' ? rt.emails.slice(0, 1000) : '',
     baiduToken: typeof rt.baiduToken === 'string' ? rt.baiduToken.trim().slice(0, 200) : '',
     indexNowKey: typeof rt.indexNowKey === 'string' ? rt.indexNowKey.trim().slice(0, 100) : '',
+    verify: {
+      bytedance: String((rt.verify || {}).bytedance || '').slice(0, 200),
+      sogou: String((rt.verify || {}).sogou || '').slice(0, 200),
+      shenma: String((rt.verify || {}).shenma || '').slice(0, 200),
+    },
   };
   return d;
 }
@@ -2129,12 +2157,20 @@ function checkSection(section, value) {
     const inkRaw = value.indexNowKey == null ? '' : String(value.indexNowKey).trim();
     if (inkRaw.length > 100) return { ok: false, error: 'IndexNow Key 太长（最多 100 个字符）' };
     if (inkRaw && !/^[A-Za-z0-9-]+$/.test(inkRaw)) return { ok: false, error: 'IndexNow Key 只能是字母、数字或短横线（8–128 位建议）' };
+    const vfRaw = value.verify && typeof value.verify === 'object' ? value.verify : {};
+    const vf = {};
+    for (const vk of ['bytedance', 'sogou', 'shenma']) {
+      const vv = vfRaw[vk] == null ? '' : String(vfRaw[vk]).trim();
+      if (vv.length > 200) return { ok: false, error: '平台验证码太长了（每个最多 200 个字符）' };
+      vf[vk] = vv;
+    }
     return {
       ok: true,
       clean: {
         emails: list.join(','),
         aiCap: capRaw == null ? null : Math.round(capRaw),
         baiduToken: baiduTok,
+        verify: vf,
         indexNowKey: inkRaw,
       },
     };
@@ -2637,6 +2673,7 @@ th{color:var(--muted);font-weight:600;font-size:13px}
     label.field{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
     label.field input,label.field textarea{display:block;margin-top:6px;width:100%}
     .ad-sec{display:flex;align-items:baseline;gap:10px;margin:22px 0 10px}
+    .vf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
     .ad-sec b{font-size:15px}
     .ad-sec span{font-size:12px;color:var(--muted)}
     .ad-card .ad-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -2914,6 +2951,24 @@ tr:hover td{background:#fcfbf8}
 #errBar{background:#fdf2f0;background-image:none;color:#a2311f;border-bottom:1px solid #f3cfc8}
 .raw pre{background:#fbfaf7;background-image:none;border:1px solid #ecebe5}
 ::-webkit-scrollbar-thumb{background:#d6d3cc;border:2px solid transparent;background-clip:content-box}
+.segtabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 18px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.segtabs button{border:1px solid transparent;background:transparent;color:var(--muted);font-weight:600;font-size:13.5px;padding:7px 14px;border-radius:9px;cursor:pointer}
+.segtabs button:hover{background:#f3f1ec;color:var(--fg)}
+.segtabs button.is-on{background:#1b1c1f;color:#fff;border-color:#1b1c1f}
+#pane-ad[data-sec="fixed"] .ad-sec[data-sec="inline"],#pane-ad[data-sec="fixed"] .ad-grid[data-sec="inline"],#pane-ad[data-sec="fixed"] .ticker-card{display:none}
+#pane-ad[data-sec="inline"] .ad-sec[data-sec="fixed"],#pane-ad[data-sec="inline"] .ad-grid[data-sec="fixed"],#pane-ad[data-sec="inline"] .ticker-card{display:none}
+#pane-ad[data-sec="ticker"] .ad-sec,#pane-ad[data-sec="ticker"] .ad-grid{display:none}
+.geo-plat{width:100%;border-collapse:collapse;font-size:13px}
+.geo-plat th,.geo-plat td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+.geo-plat th{background:#faf9f6;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.geo-plat td code{font-size:12px}
+.geo-plat a{white-space:nowrap}
+.copybox{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}
+.copybox input{flex:1 1 320px;min-width:0;font-size:12.5px;background:#fbfaf7}
+.side-extra{margin-top:auto;padding:14px 12px 18px;border-top:1px solid rgba(255,255,255,.08)}
+.side-extra a{display:block;color:#cfc9bd;font-size:13px;padding:8px 12px;border-radius:9px;text-decoration:none}
+.side-extra a:hover{background:rgba(255,255,255,.08);color:#fff}
+.side .brandlink{display:block;text-decoration:none;color:inherit}
 #qaList .qa-row{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff}
 #qaList .qa-top{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
 #qaList .qa-q{flex:1 1 320px;min-width:0;font-weight:600}
@@ -2935,12 +2990,12 @@ tr:hover td{background:#fcfbf8}
 <div id="errBar" hidden></div>
 <div class="app" id="app" hidden>
   <aside class="side">
-    <div class="brand">网站管理后台<small>仅管理员可见</small></div>
+    <a class="brandlink" href="/" target="_blank" rel="noopener"><div class="brand">网站管理后台<small>仅管理员可见</small></div></a>
     <div class="navgroup">常用</div>
     <button type="button" class="nav" data-tab="overview">概览</button>
     <button type="button" class="nav" data-tab="layout">榜单布局</button>
     <button type="button" class="nav" data-tab="articles">文章<span class="nav-badge" id="navArtCount" hidden>0</span></button>
-    <button type="button" class="nav" data-tab="qa">问答<span class="nav-badge" id="navQaCount" hidden>0</span></button>
+    <button type="button" class="nav" data-tab="qa" hidden>问答</button>
     <div class="navgroup">内容</div>
     <button type="button" class="nav" data-tab="seo">SEO 与 GEO</button>
     <button type="button" class="nav" data-tab="links">友链</button>
@@ -2950,9 +3005,10 @@ tr:hover td{background:#fcfbf8}
     <button type="button" class="nav" data-tab="contact">联系方式</button>
     <button type="button" class="nav" data-tab="beian">备案信息</button>
     <div class="navgroup">运维</div>
-    <button type="button" class="nav" data-tab="submit">收录提交</button>
+    <button type="button" class="nav" data-tab="submit" hidden>收录提交</button>
     <button type="button" class="nav" data-tab="keys">设置与密钥</button>
     <button type="button" class="nav" data-tab="translate">翻译</button>
+    <div class="side-extra"><a href="/" target="_blank" rel="noopener">↗ 打开前台首页</a><a href="/faq" target="_blank" rel="noopener">↗ 问答页 /faq</a><a href="/llms.txt" target="_blank" rel="noopener">↗ llms.txt</a></div>
     </aside>
 
   <main class="main">
@@ -2992,11 +3048,12 @@ tr:hover td{background:#fcfbf8}
       </div>
     </section>
 
-    <section class="pane" id="pane-ad" hidden>
+    <section class="pane" id="pane-ad" data-sec="fixed" hidden>
       <div class="bar"><div><h1>广告</h1><div class="sub">${AD_SLOTS.length} 个位置 + 顶部滚动条：逐格开关、逐格代码、点开可以跳链接或弹窗</div></div></div>
       <div class="intro">勾上并保存就出现在那个位置，不勾就完全不渲染（不留白）。<b>固定位</b>是通栏，<b>信息流位</b>插在列表中间、间隔自己填（1–${AD_EVERY_MAX} 条之间的任意整数）。每格可以单独设「点击行为」：填弹窗内容 → 点击就地弹窗；只填链接 → 新窗口打开。位置示意图：<code>docs/shots/ad-slots.png</code>。</div>
 
-      <div class="card ticker-card">
+        <div class="segtabs" data-group="ad"><button type="button" class="is-on" data-adsec="fixed">固定位 6</button><button type="button" data-adsec="inline">信息流位 3</button><button type="button" data-adsec="ticker">顶部滚动条</button></div>
+      <div class="card ticker-card" data-sec="ticker">
         <div class="card-head"><div><h2>顶部滚动条</h2><p class="desc">页面最上面一条滚动文字，适合活动通知/一句话广告。访客点 × 可以关掉，本机会记住 7 天。</p></div>
           <label class="toggle"><input type="checkbox" id="ticker-enabled">开启</label></div>
         <div class="grid2">
@@ -3010,11 +3067,11 @@ tr:hover td{background:#fcfbf8}
         <div class="ad-note"><b>提示</b><span>不填文字也不填弹窗内容时不能开启；滚动条只在首页/导航页顶部出现，不影响文章页。</span></div>
       </div>
 
-      <div class="ad-sec"><b>固定位</b><span>通栏，跟着页面布局走</span></div>
-      <div class="ad-grid">${AD_SLOTS.filter((s) => s.kind === 'fixed').map(adCardHtml).join('')}</div>
+      <div class="ad-sec" data-sec="fixed"><b>固定位</b><span>通栏，跟着页面布局走</span></div>
+      <div class="ad-grid" data-sec="fixed">${AD_SLOTS.filter((s) => s.kind === 'fixed').map(adCardHtml).join('')}</div>
 
-      <div class="ad-sec"><b>信息流位</b><span>插在列表中间，间隔可调</span></div>
-      <div class="ad-grid">${AD_SLOTS.filter((s) => s.kind === 'inline').map(adCardHtml).join('')}</div>
+      <div class="ad-sec" data-sec="inline"><b>信息流位</b><span>插在列表中间，间隔可调</span></div>
+      <div class="ad-grid" data-sec="inline">${AD_SLOTS.filter((s) => s.kind === 'inline').map(adCardHtml).join('')}</div>
 
       <div class="card">
         <div class="actions"><button type="button" data-save="ad">保存全部广告设置</button></div>
@@ -3050,6 +3107,12 @@ tr:hover td{background:#fcfbf8}
         <div class="hint">拿法见「收录提交」页的「百度准入密钥在哪拿」。填这里就不必再去 Cloudflare 配变量；两边都填时以这里为准。</div>
         <label for="rtIndexKey">IndexNow Key</label>
         <input type="text" id="rtIndexKey" maxlength="100" placeholder="留空 = 按仓库信息自动生成一个" autocomplete="off">
+        <div class="vf-grid">
+          <div><label for="vfBytedance">字节 / 豆包 验证码</label><input type="text" id="vfBytedance" data-vf="bytedance" maxlength="200" placeholder="字节搜索资源平台的 meta content" autocomplete="off"></div>
+          <div><label for="vfSogou">搜狗 / 元宝 验证码</label><input type="text" id="vfSogou" data-vf="sogou" maxlength="200" placeholder="搜狗站长平台的 meta content" autocomplete="off"></div>
+          <div><label for="vfShenma">神马 / 夸克 验证码</label><input type="text" id="vfShenma" data-vf="shenma" maxlength="200" placeholder="神马站长平台的 meta content" autocomplete="off"></div>
+        </div>
+        <div class="hint">填好保存后，前台首页的 <code>&lt;head&gt;</code> 会自动带上对应的 meta 验证标签，不用手动改 index.html。</div>
         <div class="hint">IndexNow 要求站点根目录有一个 <code>&lt;key&gt;.txt</code>，本站会自动提供（地址在「收录提交」页）。想用 Bing Webmaster 生成的那个，就填这里。</div>
         <div class="actions"><button type="button" data-save="runtime">保存设置</button><span class="msg" id="rtMsg"></span></div>
       </div>
@@ -3192,10 +3255,28 @@ tr:hover td{background:#fcfbf8}
 
         <section class="pane" id="pane-submit" hidden>
       <div class="bar">
-        <div><h1>收录提交</h1><p class="sub">把新榜单和文章主动告诉搜索引擎与大模型</p></div>
+        <div><h1>收录与平台</h1><p class="sub">把新榜单和文章主动告诉搜索引擎与大模型</p></div>
         <div class="bar-actions"><label class="toggle inline"><input type="checkbox" id="subForce"> 强制再推一次</label><button class="btn primary" type="button" id="subRun">立即提交</button></div>
       </div>
+              <div class="segtabs" data-group="seogeo"><button type="button" class="is-on" data-go="seo">SEO 基础</button><button type="button" data-go="qa">问答（GEO）</button><button type="button" data-go="submit">收录与平台</button></div>
       <p class="intro">提交走 IndexNow（Bing、Yandex、Seznam 共用）和百度主动推送；豆包、通义千问、ChatGPT 这些没有公开的收录接口，靠 robots.txt 放行 + llms.txt + 站点地图被爬到。<b>建议每天点一次，或者交给 Actions 定时。</b></p>
+      <div class="card">
+        <div class="card-head"><div><h2>GEO 平台清单：每个平台怎么弄</h2><p class="desc">国内 AI 搜索没有「提交就被引用」的直通车——它们各自接的是某家搜索索引。下面是逐个平台的入口、要填的参数、能不能一键。</p></div></div>
+        <table class="geo-plat">
+          <thead><tr><th>平台 / 索引</th><th>要做什么</th><th>要填的参数</th><th>能一键吗</th></tr></thead>
+          <tbody>
+            <tr><td><b>Bing / IndexNow</b><br><span class="desc">DeepSeek、Kimi、秘塔的联网搜索多半吃必应索引</span></td><td>后台「立即提交」已经调 IndexNow 推送；再到 Bing Webmaster Tools 加站点、提交 sitemap</td><td>IndexNow Key（自动生成，见上方状态）<br>站点：<code>https://github.661026.xyz</code></td><td>推送可一键；Bing 后台加站点需登录一次</td></tr>
+            <tr><td><b>百度 / 文心</b></td><td>在「设置与密钥」填准入密钥 → 后台「立即提交」自动推普通收录（每日配额）</td><td>准入密钥（ziyuan.baidu.com → 普通收录 → API 提交）</td><td>可一键</td></tr>
+            <tr><td><b>字节 / 豆包</b><br><span class="desc">吃 <code>Bytespider</code> 爬虫 + 头条生态</span></td><td>① robots 已放行 Bytespider ② 到字节搜索资源平台加站点、提交 sitemap ③ 发头条号文章并回链</td><td>验证码（HTML 标签形式，填到下面「平台验证码」卡里，我这页会注入 head）</td><td>验证码注入可一键；平台加站点需登录一次</td></tr>
+            <tr><td><b>搜狗 / 腾讯元宝</b></td><td>搜狗站长平台加站点 + 提交 sitemap；元宝还会吃公众号内容 → 发公众号文章带回链</td><td>搜狗验证码（同上，可自动注入）</td><td>验证码注入可一键</td></tr>
+            <tr><td><b>夸克 / 通义千问</b></td><td>神马搜索站长平台（zhanzhang.sm.cn）加站点 + sitemap 提交</td><td>神马验证码（可自动注入）</td><td>验证码注入可一键</td></tr>
+            <tr><td><b>Google</b></td><td>Search Console 加资源、提交 sitemap</td><td>无需本站参数</td><td>手动（需登录）</td></tr>
+          </tbody>
+        </table>
+        <div class="copybox"><input id="geoSm" value="https://github.661026.xyz/sitemap.xml" readonly><button type="button" class="ghost" data-copy="geoSm">复制 sitemap 地址</button></div>
+        <div class="copybox"><input id="geoLlms" value="https://github.661026.xyz/llms.txt" readonly><button type="button" class="ghost" data-copy="geoLlms">复制 llms.txt</button></div>
+        <div class="hint">把这两个地址贴到各平台的「sitemap 提交」框里即可；验证码填到下面「平台验证码」卡，保存后前台 head 会自动带上对应的 meta 标签。</div>
+      </div>
       <div class="card">
         <div class="card-head"><b>当前状态</b><button class="btn sm" type="button" id="subReload">刷新</button></div>
         <div id="subStatus"><p class="empty">读取中…</p></div>
@@ -3243,6 +3324,7 @@ tr:hover td{background:#fcfbf8}
     </section>
 <section class="pane" id="pane-seo" hidden>
       <div class="bar"><div><h1>SEO 与 GEO</h1><div class="sub">搜索结果、分享卡片，以及给 AI 搜索看的摘要与问答</div></div></div>
+        <div class="segtabs" data-group="seogeo"><button type="button" class="is-on" data-go="seo">SEO 基础</button><button type="button" data-go="qa">问答（GEO）</button><button type="button" data-go="submit">收录与平台</button></div>
       <div class="intro">上半部分写进标题和 meta 标签，决定搜索结果与微信、微博分享卡片的样子；下半部分是给 AI 搜索（ChatGPT、Perplexity 等）看的摘要和问答。两块都在同一个标签里，保存后刷新首页立刻生效（浏览器若还留着旧页面，Ctrl+F5 一次即可）。</div>
       <div class="card">
         <label for="seo-siteName">站点名称</label>
@@ -3281,6 +3363,7 @@ tr:hover td{background:#fcfbf8}
 
       <section class="pane" id="pane-qa" hidden>
         <div class="bar"><div><h1>问答（GEO）</h1><p class="sub">访客最常问的问题与答案。前台在 <code>/faq</code> 展示，并把 FAQPage 结构化数据写进页面 head，搜索引擎和 AI 检索器读源码就能拿到。</p></div><div class="actions"><button type="button" class="ghost" id="qaNew">＋ 新问题</button></div></div>
+        <div class="segtabs" data-group="seogeo"><button type="button" class="is-on" data-go="seo">SEO 基础</button><button type="button" data-go="qa">问答（GEO）</button><button type="button" data-go="submit">收录与平台</button></div>
         <div class="intro">答案支持 Markdown（标题、列表、表格、代码块）。写法建议：第一句先给结论，再补细节和数字——AI 搜索最容易抽取这种结构。最多 200 条。</div>
         <div class="card">
           <label for="qa-intro">页面导语</label>
@@ -3645,6 +3728,11 @@ tr:hover td{background:#fcfbf8}
     if ($('rtAiCap')) $('rtAiCap').value = (typeof rt.aiCap === 'number' ? rt.aiCap : '');
     if ($('rtBaiduToken')) $('rtBaiduToken').value = typeof rt.baiduToken === 'string' ? rt.baiduToken : '';
     if ($('rtIndexKey')) $('rtIndexKey').value = typeof rt.indexNowKey === 'string' ? rt.indexNowKey : '';
+    var vf = rt.verify || {};
+    ['bytedance', 'sogou', 'shenma'].forEach(function (k) {
+      var el = document.querySelector('[data-vf="' + k + '"]');
+      if (el) el.value = vf[k] || '';
+    });
     $('contact-enabled').checked = !!c.enabled;
     $('beian-enabled').checked = !!b.enabled;
     var src = { contact: c, beian: b, seo: o, geo: g };
@@ -3677,6 +3765,11 @@ tr:hover td{background:#fcfbf8}
         aiCap: rawCap === '' ? null : Number(rawCap),
         baiduToken: $('rtBaiduToken') ? $('rtBaiduToken').value || '' : '',
         indexNowKey: $('rtIndexKey') ? $('rtIndexKey').value || '' : '',
+        verify: {
+          bytedance: ($('[data-vf="bytedance"]') || {}).value || '',
+          sogou: ($('[data-vf="sogou"]') || {}).value || '',
+          shenma: ($('[data-vf="shenma"]') || {}).value || '',
+        },
       };
     }
     if (sec === 'ad') {
@@ -4289,6 +4382,40 @@ tr:hover td{background:#fcfbf8}
     });
   });
 
+  // ---------- 分段 tab（SEO/GEO、广告位）----------
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('[data-go]') : null;
+    if (t) { enterTab(t.getAttribute('data-go')); return; }
+    var a = e.target.closest ? e.target.closest('[data-adsec]') : null;
+    if (a) {
+      var pane = document.getElementById('pane-ad');
+      pane.setAttribute('data-sec', a.getAttribute('data-adsec'));
+      Array.prototype.forEach.call(document.querySelectorAll('[data-adsec]'), function (b) {
+        b.classList.toggle('is-on', b === a);
+      });
+    }
+  });
+  function enterTab(name) {
+    if (!name) return;
+    go(name);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-group="seogeo"] [data-go]'), function (b) {
+      b.classList.toggle('is-on', b.getAttribute('data-go') === name);
+    });
+    if (history.replaceState) history.replaceState(null, '', '#' + name);
+  }
+  document.addEventListener('click', function (e) {
+    var c = e.target.closest ? e.target.closest('[data-copy]') : null;
+    if (!c) return;
+    var el = document.getElementById(c.getAttribute('data-copy'));
+    if (!el) return;
+    el.select();
+    try {
+      document.execCommand('copy');
+      toast('已复制');
+    } catch (err) {
+      toast('复制失败，请手动选');
+    }
+  });
   // ---------- 问答（GEO）----------
   var qaState = { intro: '', items: [] };
   function qesc(s) {

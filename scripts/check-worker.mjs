@@ -656,5 +656,32 @@ ok(sm21.includes('/faq</loc>'), 'sitemap 含 /faq');
 const llms21 = await (await hit('/llms.txt')).text();
 ok(llms21.includes('/faq'), 'llms.txt 提到 /faq');
 
+
+console.log('');
+console.log('== 22. 后台 tab 化 / GEO 平台清单 / 平台验证码 ==');
+const a22Admin = await (await hit('/admin')).text();
+ok(a22Admin.includes('class="segtabs"'), '后台有分段 tab 容器');
+ok(a22Admin.includes('data-adsec="fixed"') && a22Admin.includes('data-adsec="inline"') && a22Admin.includes('data-adsec="ticker"'), '广告面板分三段 tab');
+ok(a22Admin.includes('geo-plat') && a22Admin.includes('字节 / 豆包'), '收录页有 GEO 平台矩阵');
+ok(a22Admin.includes('side-extra') && a22Admin.includes('打开前台首页'), '侧栏有返回首页入口');
+ok(a22Admin.includes('class="brandlink"'), '侧栏标题可点回首页');
+ok(a22Admin.includes('data-vf="bytedance"') && a22Admin.includes('data-vf="sogou"') && a22Admin.includes('data-vf="shenma"'), '设置页有平台验证码输入');
+const a22Home = await (await hit('/')).text();
+ok(a22Home.indexOf('{{GHRANK_VERIFY}}') < 0, '首页没有未替换的验证码占位');
+ok(a22Home.includes('baidu-site-verification'), '首页保留百度验证 meta');
+const a22Bad = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'runtime', value: { verify: { bytedance: 'x'.repeat(201) } } }),
+});
+const a22BadJson = await a22Bad.json();
+ok(a22Bad.status === 400 || a22BadJson.ok === false, '验证码过长被拒');
+const a22Good = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'runtime', value: { verify: { bytedance: 'byte-abc' } } }),
+});
+const a22GoodJson = await a22Good.json();
+ok(a22Good.status === 200 && a22GoodJson.ok === true, '验证码可以保存');
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
