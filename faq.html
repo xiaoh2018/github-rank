@@ -244,7 +244,11 @@ html[data-theme="notion"]{
   });
 
   function openFromHash() {
-    var m = /^#q-(\d+)$/.exec(location.hash || '');
+    // 打印/存 PDF 前把折叠全展开，否则 Chrome 只打印已展开的那条
+  window.addEventListener('beforeprint', function () {
+    Array.prototype.forEach.call(document.querySelectorAll('details.qa'), function (d) { d.open = true; });
+  });
+  var m = /^#q-(\d+)$/.exec(location.hash || '');
     if (!m) return;
     var d = document.getElementById('q-' + m[1]);
     if (d) { d.open = true; d.scrollIntoView({ block: 'center' }); }

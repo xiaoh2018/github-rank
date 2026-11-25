@@ -283,6 +283,15 @@ body[data-page="nav"] #insights{display:none!important}
 #list .item:nth-child(3){animation-delay:.04s}
 #list .item:nth-child(4){animation-delay:.06s}
 @media (prefers-reduced-motion:reduce){#list .item{animation:none}}
+/* 打印 / 存 PDF：只留榜单主体，去掉交互与广告 */
+@media print{
+  header,.controls,.toolrow,#pager,.ad-ticker,.adslot,#articles,.friends,.insights,.fab,#status{display:none!important}
+  body{background:#fff;color:#111}
+  .wrap,.layout{display:block;max-width:none;padding:0 20px;grid-template-columns:1fr}
+  #list{display:block}
+  #list .item{break-inside:avoid;box-shadow:none;border:0;border-bottom:1px solid #ddd;border-radius:0;padding:10px 0}
+  a[href^="http"]:after{content:" (" attr(href) ")";font-size:11px;color:#555;word-break:break-all}
+}
 }
 @media (max-width:600px){
   h1{font-size:21px}
@@ -1240,7 +1249,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
           (g.desc?'<p class="gd">'+escH(g.desc)+'</p>':'')+'<div class="navgird">';
         items.forEach(function(it,idx){
           html+='<a class="navcard" href="'+escH(it.url)+'" target="_blank" rel="noopener noreferrer">'+
-            '<span class="icw"><span class="ic-l">'+escH(String(it.name || it.url || '?').trim().charAt(0))+'</span>'+(it.icon?'<img src="'+escH(it.icon)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'')+'</span>'+
+            '<span class="icw"><span class="ic-l">'+escH(String(it.name || it.url || '?').trim().charAt(0))+'</span>'+(it.icon?'<img src="'+escH(it.icon)+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">':'')+'</span>'+
             '<span class="nb"><b>'+escH(it.name)+'</b>'+
             (it.desc?'<small>'+escH(it.desc)+'</small>':'')+
             '<span class="host">'+escH(navHost(it.url))+'</span></span></a>';

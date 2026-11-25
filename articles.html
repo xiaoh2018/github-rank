@@ -86,6 +86,22 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 /* 阅读视图（不弹窗，整页切换） */
 .reader{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 34px 34px;margin-top:22px}
 @media (max-width:600px){.reader{padding:20px 18px 24px}}
+/* 打印 / 存 PDF：只留正文，列表模式则只留卡片 */
+@media print{
+  .brand,.mainnav,.head-actions,.bhero,.btools,.chips,.bside,.adslot,#rNav{display:none!important}
+  body{background:#fff;color:#111}
+  .wrap{max-width:none!important;padding:0 28px!important}
+  .blog{display:block}
+  .blistwrap.is-reading .cards{display:none!important}
+  .blistwrap:not(.is-reading) .reader{display:none!important}
+  .reader{box-shadow:none;border:0;padding:0;margin:0;max-width:none;background:#fff}
+  .rback,.rmeta button,.rmeta .btn,footer{display:none!important}
+  .abody{max-width:none!important;margin:0!important;padding:0!important}
+  .acover{max-height:220px}
+  .abody a[href^="http"]:after{content:" (" attr(href) ")";font-size:11px;color:#555;word-break:break-all}
+  .abody h1,.abody h2,.abody h3{break-after:avoid}
+  .abody pre,.abody table,.abody blockquote{break-inside:avoid}
+}
 .rback{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-bottom:14px;cursor:pointer;background:none;border:0;padding:0;font-family:inherit}
 .rback:hover{color:var(--accent)}
 .reader h1{font-size:27px;line-height:1.35;margin:0 0 10px;letter-spacing:-.5px}
