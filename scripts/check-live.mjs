@@ -153,6 +153,14 @@ push('文章列表不外发密文', pubRes.status === 200 && !/"lock"\s*:/.test(
 push('文章列表带 hasLock', Array.isArray(pubArr) && pubArr.every((x) => typeof x.hasLock === 'boolean'), Array.isArray(pubArr) ? pubArr.length + ' 条' : 'not array');
 push('首页文章卡片有阅读时长', home.includes('artcard-min') && home.includes('readMins'));
 
+const artListRes = await fetch(base + '/articles?v=' + t);
+const artListHtml = await artListRes.text();
+push('文章列表页有「相关阅读」', artListHtml.includes('relatedHtml') && artListHtml.includes('.related .rmeta-in'), 'status=' + artListRes.status);
+push('首页文章卡片有置顶徽标代码', home.includes('pinchip'), '');
+const admHtml = await (await fetch(base + '/admin?v=' + t)).text();
+push('后台友链有上移/下移按钮', admHtml.includes('data-up=') && admHtml.includes('data-down='), 'bytes=' + admHtml.length);
+push('导航页有「还没有站点」空态', home.includes('导航页还没有站点'), '');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
