@@ -1614,7 +1614,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v113';
+const ASSET_V = 'v114';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -5491,6 +5491,8 @@ tr:hover td{background:#fcfbf8}
       '<td><input type="text" data-f="desc" value="' + navEsc(it.desc || '') + '" placeholder="一句话描述"></td>' +
       '<td><input type="url" data-f="icon" value="' + icon + '" placeholder="图标 URL（可不填）"></td>' +
       '<td class="cell-act"><div class="row-actions">' +
+      '<button type="button" class="ghost small" data-sup="1" title="上移"' + (ii === 0 ? ' disabled' : '') + '>↑</button>' +
+      '<button type="button" class="ghost small" data-sdn="1" title="下移"' + (ii === (((navState.groups[gi] || {}).items || []).length - 1) ? ' disabled' : '') + '>↓</button>' +
       '<button type="button" class="ghost small" data-ifetch="1">自动获取</button>' +
       '<button type="button" class="ghost small danger" data-idel="1">删除</button></div></td>' +
       '</tr>';
@@ -5518,10 +5520,12 @@ tr:hover td{background:#fcfbf8}
         '<input type="text" data-gf="name" data-g="' + gi + '" value="' + navEsc(g.name || '') + '" placeholder="分类名">' +
         '<input type="text" data-gf="desc" data-g="' + gi + '" value="' + navEsc(g.desc || '') + '" placeholder="分类说明（可空）">' +
         '</div><div class="row-actions"><span class="nav-cnt">' + items.length + ' 个</span>' +
+        '<button type="button" class="ghost small" data-gup="' + gi + '" title="分类上移"' + (gi === 0 ? ' disabled' : '') + '>↑</button>' +
+        '<button type="button" class="ghost small" data-gdn="' + gi + '" title="分类下移"' + (gi === gs.length - 1 ? ' disabled' : '') + '>↓</button>' +
         '<button type="button" class="ghost small" data-gadd="' + gi + '">＋ 站点</button>' +
         '<button type="button" class="ghost small danger" data-gdel="' + gi + '">删分类</button></div></div>' +
         (shown.length
-          ? '<table class="nav-table"><thead><tr><th style="width:215px">名称</th><th style="width:255px">网址</th><th>描述</th><th style="width:200px">图标</th><th style="width:158px">操作</th></tr></thead><tbody>' + rows + '</tbody></table>'
+          ? '<table class="nav-table"><thead><tr><th style="width:215px">名称</th><th style="width:255px">网址</th><th>描述</th><th style="width:200px">图标</th><th style="width:212px">操作</th></tr></thead><tbody>' + rows + '</tbody></table>'
           : '<p class="empty">' + (q ? '这个分类里没有匹配的站点。' : '这个分类还没有站点。') + '</p>') +
         '</div>';
     }).join('');
@@ -5628,11 +5632,35 @@ tr:hover td{background:#fcfbf8}
       });
       return;
     }
+    var gup = el.getAttribute('data-gup');
+    var gdn = el.getAttribute('data-gdn');
+    if (gup != null || gdn != null) {
+      var gfrom = parseInt(gup != null ? gup : gdn, 10);
+      var gto = gup != null ? gfrom - 1 : gfrom + 1;
+      if (gto >= 0 && gto < (navState.groups || []).length) {
+        var gswap = navState.groups[gfrom];
+        navState.groups[gfrom] = navState.groups[gto];
+        navState.groups[gto] = gswap;
+        renderNavAdmin();
+      }
+      return;
+    }
     var tr = el.closest ? el.closest('tr') : null;
     if (!tr) return;
     var g = parseInt(tr.getAttribute('data-g'), 10);
     var i = parseInt(tr.getAttribute('data-i'), 10);
     if (!navState.groups[g] || !navState.groups[g].items[i]) return;
+    if (el.hasAttribute('data-sup') || el.hasAttribute('data-sdn')) {
+      var arr = navState.groups[g].items;
+      var sto = el.hasAttribute('data-sup') ? i - 1 : i + 1;
+      if (sto >= 0 && sto < arr.length) {
+        var swap = arr[i];
+        arr[i] = arr[sto];
+        arr[sto] = swap;
+        renderNavAdmin();
+      }
+      return;
+    }
     if (el.hasAttribute('data-idel')) {
       navState.groups[g].items.splice(i, 1);
       renderNavAdmin();

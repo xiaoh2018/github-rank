@@ -307,6 +307,9 @@ r = await hit('/admin');
 const navAdminHtml = await r.text();
 ok(navAdminHtml.indexOf('id="pane-nav"') >= 0 && navAdminHtml.indexOf('id="navAdmin"') >= 0, '后台有导航页面板');
 ok(navAdminHtml.indexOf('data-tab="submit"') >= 0 && navAdminHtml.indexOf('id="pane-submit"') >= 0, '后台有收录提交面板');
+ok(navAdminHtml.indexOf('data-gup=') >= 0 && navAdminHtml.indexOf('data-gdn=') >= 0, '后台导航页有分类上下移动按钮');
+ok(navAdminHtml.indexOf('data-sup=') >= 0 && navAdminHtml.indexOf('data-sdn=') >= 0, '后台导航页有站点上下移动按钮');
+ok(navAdminHtml.indexOf('width:212px') >= 0, '导航表格操作列放得下 ↑↓ / 自动获取 / 删除');
 
 r = await hit('/api/nav');
 const navRes = await r.json();

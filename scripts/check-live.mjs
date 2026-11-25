@@ -160,6 +160,7 @@ push('首页文章卡片有置顶徽标代码', home.includes('pinchip'), '');
 const admHtml = await (await fetch(base + '/admin?v=' + t)).text();
 push('后台友链有上移/下移按钮', admHtml.includes('data-up=') && admHtml.includes('data-down='), 'bytes=' + admHtml.length);
 push('后台问答行有上移/下移按钮', admHtml.includes('data-qaup=') && admHtml.includes('data-qadn='), '');
+push('后台导航页有分类/站点上下移动', admHtml.includes('data-gup=') && admHtml.includes('data-sup='), '');
 push('导航页有「还没有站点」空态', home.includes('导航页还没有站点'), '');
 
 let bad = 0;
