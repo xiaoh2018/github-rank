@@ -57,6 +57,23 @@ h1{font-size:26px;margin:6px 0 8px;letter-spacing:-.3px}
 .note{color:var(--muted);font-size:13px;margin-top:22px}
 footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;gap:12px;flex-wrap:wrap}
 .empty{color:var(--muted);padding:22px 0}
+
+/* ---- 多主题 ---- */
+html[data-theme="ink"]{
+  --bg:#08090b;--card:#101216;--fg:#e8ecf4;--muted:#8b93a7;
+  --line:#1e222b;--accent:#6e79d6;--accent-soft:#171a22;--chip:#171a22;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 34px -22px rgba(0,0,0,.7);
+}
+html[data-theme="stripe"]{
+  --bg:#ffffff;--card:#ffffff;--fg:#0a2540;--muted:#425466;
+  --line:#e3e8ee;--accent:#635bff;--accent-soft:#f6f9fc;--chip:#f6f9fc;
+  --shadow:0 1px 2px rgba(10,37,64,.06),0 12px 28px -18px rgba(10,37,64,.28);
+}
+html[data-theme="notion"]{
+  --bg:#f7f6f3;--card:#ffffff;--fg:#37352f;--muted:#787774;
+  --line:#e9e7e2;--accent:#2f6feb;--accent-soft:#efeee9;--chip:#efeee9;
+  --shadow:0 1px 2px rgba(55,53,47,.06),0 10px 26px -18px rgba(55,53,47,.22);
+}
 </style>
 </head>
 <body>

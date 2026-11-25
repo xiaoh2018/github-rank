@@ -3,3 +3,6 @@ task_plan.md
 node_modules/
 .DS_Store
 .preview/
+
+# 本地凭据（不要提交）
+apitoken.txt

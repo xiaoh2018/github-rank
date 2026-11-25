@@ -63,15 +63,17 @@ await send('Page.enable');
 await send('Runtime.enable');
 await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
 await send('Page.navigate', { url: 'http://127.0.0.1:8123/admin' });
-await sleep(1600);
+await sleep(1200);
+await send('Page.enable');
+await sleep(3000);
 await send('Runtime.evaluate', {
   expression: `(() => { const p = document.getElementById('pw'); if (p) { p.value = 'dev'; } const f = document.getElementById('loginForm'); if (f) { f.requestSubmit(); } return 'login'; })()`,
 });
-await sleep(2000);
+await sleep(3000);
 await send('Runtime.evaluate', {
   expression: `(() => { const b = document.querySelector('.nav[data-tab="${pane}"]'); if (b) { b.click(); return 'clicked ' + b.textContent.trim(); } return 'no tab'; })()`,
 });
-await sleep(2200);
+await sleep(2600);
 const metrics = await send('Page.getLayoutMetrics');
 const h = Math.min(4200, Math.ceil((metrics.cssContentSize && metrics.cssContentSize.height) || 1400));
 await send('Emulation.setDeviceMetricsOverride', { width, height: h, deviceScaleFactor: 1, mobile: false });

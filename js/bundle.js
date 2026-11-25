@@ -919,12 +919,8 @@ const VIEWS = ['repos', 'devs', 'orgs'];
 let reqId = 0;
 
 // ---------- 主题 ----------
-function applyTheme(t) {
-  document.documentElement.dataset.theme = t;
-  localStorage.setItem('ghrank:theme', t);
-}
-applyTheme(localStorage.getItem('ghrank:theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-$('btnTheme').onclick = () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+// 多主题（paper / ink / stripe / notion）由 index.html 的内联脚本统一管理，这里只保留兼容入口
+function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); }
 
 // ---------- 中英文（简介 / README 中文）：默认中文，中文没有译文时显示英文原文 ----------
 function getLang() { return localStorage.getItem('ghrank:lang') || 'zh'; }

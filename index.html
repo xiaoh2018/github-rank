@@ -421,6 +421,30 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
   @media (min-width:1280px){body[data-users="triple"] #list.users-view{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);align-items:stretch}}
 @media (max-width:1279px){body[data-users="triple"] #list.users-view{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:stretch}}
 @media (max-width:899px){body[data-users="triple"] #list.users-view{display:flex;flex-direction:column}}
+
+/* ---- 多主题：ink(Linear 冷暗) / stripe(亮白) / notion(柔灰) ---- */
+html[data-theme="ink"]{
+  --bg:#08090b;--card:#101216;--text:#e8ecf4;--muted:#8b93a7;
+  --border:#1e222b;--accent:#6e79d6;--gold:#6e79d6;--chip:#171a22;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 34px -22px rgba(0,0,0,.7);
+}
+html[data-theme="stripe"]{
+  --bg:#ffffff;--card:#ffffff;--text:#0a2540;--muted:#425466;
+  --border:#e3e8ee;--accent:#635bff;--gold:#635bff;--chip:#f6f9fc;
+  --shadow:0 1px 2px rgba(10,37,64,.06),0 12px 28px -18px rgba(10,37,64,.28);
+}
+html[data-theme="notion"]{
+  --bg:#f7f6f3;--card:#ffffff;--text:#37352f;--muted:#787774;
+  --border:#e9e7e2;--accent:#2f6feb;--gold:#2f6feb;--chip:#efeee9;
+  --shadow:0 1px 2px rgba(55,53,47,.06),0 10px 26px -18px rgba(55,53,47,.22);
+}
+html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
+    .theme-picks{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .theme-chip{min-height:34px;padding:4px 12px;font-size:13px}
+    .theme-chip.is-on{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+    .card-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}
+    .card-head b{font-size:14px}
+    .card-head .msg{font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -474,6 +498,15 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
       <input type="password" id="token" class="grow" placeholder="GitHub Personal Token（可选，仅保存在本浏览器）" autocomplete="off">
       <button class="btn" id="btnSaveToken">保存</button>
       <button class="btn" id="btnClearToken">清除</button>
+    </div>
+        <div class="card" id="themeRow">
+      <div class="card-head"><b>配色主题</b><span class="msg">只影响这个浏览器，随时可换</span></div>
+      <div class="theme-picks">
+        <button class="btn theme-chip" type="button" data-theme-pick="paper">暖纸白</button>
+        <button class="btn theme-chip" type="button" data-theme-pick="ink">Linear 冷暗</button>
+        <button class="btn theme-chip" type="button" data-theme-pick="stripe">Stripe 亮白</button>
+        <button class="btn theme-chip" type="button" data-theme-pick="notion">Notion 柔灰</button>
+      </div>
     </div>
     <details class="guide" open>
  <summary>小白指南：怎么获取 Token（约 1 分钟，可选）</summary>
@@ -1008,6 +1041,61 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
       document.body.setAttribute('data-users',users);
     }
 
+    // ---------- 主题：paper / ink / stripe / notion（后台可设默认，访客可切） ----------
+    var THEME_LIST=['paper','ink','stripe','notion'];
+    var THEME_LABEL={paper:'暖纸白',ink:'Linear 冷暗',stripe:'Stripe 亮白',notion:'Notion 柔灰'};
+    var siteTheme={name:'paper',allowUser:true};
+    function themeSaved(){
+      var v='';
+      try{ v=localStorage.getItem('ghrank:theme')||''; }catch(e){}
+      if(v==='dark') v='ink';
+      if(v==='light') v='paper';
+      return v;
+    }
+    function currentThemeName(){
+      var saved=themeSaved();
+      var allowed=siteTheme.allowUser!==false;
+      if(allowed&&THEME_LIST.indexOf(saved)>=0) return saved;
+      return THEME_LIST.indexOf(siteTheme.name)>=0?siteTheme.name:'paper';
+    }
+    function paintTheme(t){
+      if(THEME_LIST.indexOf(t)<0) t='paper';
+      document.documentElement.setAttribute('data-theme',t);
+      var chips=document.querySelectorAll('[data-theme-pick]');
+      for(var i=0;i<chips.length;i++){
+        chips[i].classList.toggle('is-on',chips[i].getAttribute('data-theme-pick')===t);
+      }
+      var btn=document.getElementById('btnTheme');
+      if(btn) btn.textContent=THEME_LABEL[t]||'主题';
+      var meta=document.querySelector('meta[name="theme-color"]');
+      if(meta) meta.setAttribute('content', t==='paper'?'#faf7f0':(t==='ink'?'#08090b':(t==='stripe'?'#ffffff':'#f7f6f3')));
+      return t;
+    }
+    function pickTheme(t,remember){
+      var name=paintTheme(t);
+      if(remember!==false){ try{ localStorage.setItem('ghrank:theme',name); }catch(e){} }
+      return name;
+    }
+    function applySiteTheme(th){
+      siteTheme=(th&&typeof th==='object')?{name:th.name||'paper',allowUser:th.allowUser!==false}:{name:'paper',allowUser:true};
+      var row=document.getElementById('themeRow');
+      if(row) row.hidden=siteTheme.allowUser===false;
+      // 站点默认主题不写 localStorage（否则会把「访客没选过」也固化成一次选择）
+      pickTheme(currentThemeName(),false);
+    }
+    (function bindThemeUI(){
+      var chips=document.querySelectorAll('[data-theme-pick]');
+      for(var i=0;i<chips.length;i++){
+        chips[i].onclick=function(){ pickTheme(this.getAttribute('data-theme-pick')); };
+      }
+      var btn=document.getElementById('btnTheme');
+      if(btn) btn.onclick=function(){
+        var cur=currentThemeName();
+        pickTheme(THEME_LIST[(THEME_LIST.indexOf(cur)+1)%THEME_LIST.length]);
+      };
+      applySiteTheme(null);
+    })();
+
     // 各份配置各自加载、互不影响
     getJSON('/data/links.json').then(renderLinks).catch(function(){
       var box=document.getElementById('friendLinks'); if(box) box.hidden=true;
@@ -1015,6 +1103,7 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
     getJSON('/data/site.json').then(function(site){
       if(!site||typeof site!=='object') return;
       applyLayout(site.layout);
+      applySiteTheme(site.theme);
       renderAds(site.ad);
       renderContact(site.contact);
       renderBeian(site.beian);

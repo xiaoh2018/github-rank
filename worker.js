@@ -1202,6 +1202,7 @@ async function handleLinks(request, env) {
 // ---- 站点配置（广告 / 联系方式）：数据存在仓库 data/site.json ----
 // ---------- 导航页（data/nav.json）----------
 // 结构：{ updatedAt, groups:[ {id, name, desc, items:[{name, url, desc, icon}]} ] }
+const THEME_NAMES = ['paper', 'ink', 'stripe', 'notion'];
 const NAV_FILE = 'data/nav.json';
 // ---------- 问答（GEO）----------
 // 存在 data/qa.json：前台 /faq 展示，并把 FAQPage 结构化数据注入页面 head，
@@ -1323,7 +1324,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v52';
+const ASSET_V = 'v53';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1883,6 +1884,8 @@ function defaultSite() {
       ticker: { enabled: false, text: '', speed: 18, link: '', modal: '' },
       article: { unlockHint: '' },
     },
+    article: { unlockHint: '', catEn: false },
+    theme: { name: 'paper', allowUser: true },
     layout: { mode: 'auto', side: 'right', users: 'auto', articleSide: 'right' },
     contact: { enabled: false, title: '联系我', wechat: '', qrUrl: '', email: '', note: '' },
     beian: { enabled: false, icp: '', icpUrl: 'https://beian.miit.gov.cn/', police: '', policeUrl: '', text: '' },
@@ -1897,7 +1900,15 @@ function defaultSite() {
 function normalizeSite(o) {
   const d = defaultSite();
   const art = o && typeof o.article === 'object' && o.article ? o.article : {};
-  d.article = { unlockHint: typeof art.unlockHint === 'string' ? art.unlockHint.slice(0, 300) : '' };
+  d.article = {
+    unlockHint: typeof art.unlockHint === 'string' ? art.unlockHint.slice(0, 300) : '',
+    catEn: !!art.catEn,
+  };
+  const th = o && typeof o.theme === 'object' && o.theme ? o.theme : {};
+  d.theme = {
+    name: THEME_NAMES.indexOf(String(th.name || '')) >= 0 ? String(th.name) : 'paper',
+    allowUser: th.allowUser !== false,
+  };
   const ad = o && typeof o.ad === 'object' && o.ad ? o.ad : {};
   const c = o && typeof o.contact === 'object' && o.contact ? o.contact : {};
   const str = (v, fb) => (typeof v === 'string' ? v : fb);
@@ -2011,7 +2022,14 @@ function checkSection(section, value) {
   if (section === 'article') {
     const hint = value && typeof value.unlockHint === 'string' ? value.unlockHint.trim() : '';
     if (hint.length > 300) return { ok: false, error: '默认密码提示最多 300 字' };
-    return { ok: true, value: { unlockHint: hint } };
+    return { ok: true, value: { unlockHint: hint, catEn: !!value.catEn } };
+  }
+  if (section === 'theme') {
+    const name = String((value && value.name) || '').trim();
+    if (THEME_NAMES.indexOf(name) < 0) {
+      return { ok: false, error: '主题只能是 ' + THEME_NAMES.join(' / ') };
+    }
+    return { ok: true, value: { name: name, allowUser: value.allowUser !== false } };
   }
   if (section === 'ad') {
     // 结构：{ slots: { '<槽位>': { enabled, html, every, link, modal } }, ticker: {...} }；老结构 { enabled, html } 仍然接受
@@ -2446,15 +2464,9 @@ function slugify(title) {
 
 // 分类词：中文分类转写不出英文时统一用 cat；序号按该分类自增
 function catKeyOf(cat) {
-  var raw = String(cat || '').trim().toLowerCase();
-  var s2 = slugify(raw).slice(0, 24);
-  if (s2) return s2;
-  // 中文分类直接用作分类词（URL 里会被百分号编码，浏览器地址栏仍显示中文）
-  if (raw) {
-    var zh = raw.replace(/\s+/g, '-').replace(/[\/#?%&+=]+/g, '').slice(0, 24);
-    if (zh) return zh;
-  }
-  return 'cat';
+  // 链接里只用英文：中文分类转写不出字母时退回 cat；前端展示仍用原文分类（可切换成英文）
+  var s2 = slugify(cat || '').slice(0, 24);
+  return s2 || 'cat';
 }
 function nextSeqOf(list, catKey) {
   var max = 0;
@@ -3066,7 +3078,7 @@ tr:hover td{background:#fcfbf8}
     <button type="button" class="nav" data-tab="overview">概览</button>
     <button type="button" class="nav" data-tab="layout">榜单布局</button>
     <button type="button" class="nav" data-tab="articles">文章<span class="nav-badge" id="navArtCount" hidden>0</span></button>
-    <button type="button" class="nav" data-tab="qa" hidden>问答</button>
+    <button type="button" class="nav" data-tab="qa">问答</button>
     <div class="navgroup">内容</div>
     <button type="button" class="nav" data-tab="seo">SEO 与 GEO</button>
     <button type="button" class="nav" data-tab="links">友链</button>
@@ -3075,8 +3087,9 @@ tr:hover td{background:#fcfbf8}
     <div class="navgroup">站点信息</div>
     <button type="button" class="nav" data-tab="contact">联系方式</button>
     <button type="button" class="nav" data-tab="beian">备案信息</button>
-    <div class="navgroup">运维</div>
-    <button type="button" class="nav" data-tab="submit" hidden>收录提交</button>
+    <div class="navgroup">外观与运维</div>
+    <button type="button" class="nav" data-tab="theme">主题</button>
+    <button type="button" class="nav" data-tab="submit">收录提交</button>
     <button type="button" class="nav" data-tab="keys">设置与密钥</button>
     <button type="button" class="nav" data-tab="translate">翻译</button>
     <div class="side-extra"><a href="/" target="_blank" rel="noopener">↗ 打开前台首页</a><a href="/faq" target="_blank" rel="noopener">↗ 问答页 /faq</a><a href="/llms.txt" target="_blank" rel="noopener">↗ llms.txt</a></div>
@@ -3447,12 +3460,37 @@ tr:hover td{background:#fcfbf8}
         </div>
         <div class="card"><div class="actions"><button type="button" data-save="qa">保存问答</button><span class="hint" id="qaMsg"></span></div></div>
       </section>
+    <section class="pane" id="pane-theme" hidden>
+      <div class="bar">
+        <div><h1>主题</h1><div class="sub">给整站换一套配色：默认暖纸白，也可切冷色深色或更亮的白</div></div>
+        <button type="button" data-save="theme">保存主题</button>
+      </div>
+      <div class="intro">四种主题都内置在页面里，切换只改 CSS 变量，不重新加载、不影响数据。关掉「允许访客自己切换」后，前台只按这里选的显示。</div>
+      <div class="card">
+        <div class="card-head"><b>配色</b><span class="msg">点一下选中，再点右上「保存主题」</span></div>
+        <div class="choice-grid">
+          <label class="choice"><input type="radio" name="theme-name" value="paper" checked><span class="choice-t">暖纸白<em>当前默认：米白底 + 金棕强调，最像纸质笔记</em></span></label>
+          <label class="choice"><input type="radio" name="theme-name" value="ink"><span class="choice-t">Linear 冷暗<em>近黑底 + 靛蓝强调，信息密度高、偏工程师审美</em></span></label>
+          <label class="choice"><input type="radio" name="theme-name" value="stripe"><span class="choice-t">Stripe 亮白<em>纯白底 + 靛紫强调，最干净，适合白天看</em></span></label>
+          <label class="choice"><input type="radio" name="theme-name" value="notion"><span class="choice-t">Notion 柔灰<em>浅灰底 + 深墨字，长文阅读最舒服</em></span></label>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><b>访客</b></div>
+        <label class="toggle"><input type="checkbox" id="theme-allow"> 允许访客在「设置」里自己选主题（关掉就只用上面的）</label>
+      </div>
+    </section>
     <section class="pane" id="pane-articles" hidden>
       <div class="bar">
         <div><h1>文章</h1><div class="sub">共 <span id="artCount">0</span> 篇，标题、摘要、正文会显示在站点的文章页</div></div>
         <button type="button" id="artNew">写新文章</button>
       </div>
       <div class="intro">文章用来沉淀长内容：会被搜索引擎收录，也会被 AI 搜索引用。正文支持 Markdown（标题、列表、代码块、链接、图片），写作时右侧实时预览。保存即发布，刷新文章页即可看到。</div>
+      <div class="card">
+        <div class="card-head"><b>分类标签</b><span class="msg">链接里永远用英文（如 /articles/tech/3）</span></div>
+        <label class="toggle"><input type="checkbox" id="artCatEn"> 前台把分类显示成英文（关掉则显示你写的中文分类原文）</label>
+        <div class="hint">中文分类仍会保存在文章数据里，只是不进网址；打开这个开关后，列表和文章页上的分类标签显示成 slug 里的英文词。</div>
+      </div>
       <div class="card">
         <div class="toolbar">
           <input type="text" id="artSearch" placeholder="搜索标题、摘要或正文…">
@@ -3543,9 +3581,11 @@ tr:hover td{background:#fcfbf8}
 (function () {
   'use strict';
   var PW_KEY = 'adminPw';
-  var TABS = ['overview', 'layout', 'articles', 'qa', 'nav', 'seo', 'links', 'ad', 'contact', 'beian', 'submit', 'keys', 'translate'];
+  var TABS = ['overview', 'layout', 'theme', 'articles', 'qa', 'nav', 'seo', 'links', 'ad', 'contact', 'beian', 'submit', 'keys', 'translate'];
   var FIELDS = {
     ad: ['html'],
+    article: ['unlockHint', 'catEn'],
+    theme: ['name', 'allowUser'],
     layout: ['mode', 'side', 'users', 'articleSide'],
     contact: ['title', 'wechat', 'qrUrl', 'email', 'note'],
     beian: ['icp', 'icpUrl', 'police', 'policeUrl', 'text'],
@@ -3815,7 +3855,11 @@ tr:hover td{background:#fcfbf8}
       var el = document.querySelector('[data-vf="' + k + '"]');
       if (el) el.value = vf[k] || '';
     });
-    $('contact-enabled').checked = !!c.enabled;
+      var tn = (s && s.theme && s.theme.name) || 'paper';
+      var radios = document.querySelectorAll('input[name="theme-name"]');
+      for (var ri = 0; ri < radios.length; ri++) radios[ri].checked = radios[ri].value === tn;
+      if ($('theme-allow')) $('theme-allow').checked = !(s && s.theme && s.theme.allowUser === false);
+      if ($('artCatEn')) $('artCatEn').checked = !!(s && s.article && s.article.catEn);
     $('beian-enabled').checked = !!b.enabled;
     var src = { contact: c, beian: b, seo: o, geo: g };
     Object.keys(src).forEach(function (sec) {
@@ -3839,7 +3883,15 @@ tr:hover td{background:#fcfbf8}
     });
   }
   function collect(sec) {
-    if (sec === 'nav') return navState || { groups: [] };
+    if (sec === 'theme') {
+      var pickedTheme = 'paper';
+      var trs = document.querySelectorAll('input[name="theme-name"]');
+      for (var ti = 0; ti < trs.length; ti++) if (trs[ti].checked) pickedTheme = trs[ti].value;
+      return { name: pickedTheme, allowUser: $('theme-allow') ? $('theme-allow').checked : true };
+    }
+    if (sec === 'article') {
+      return { unlockHint: ($('artUnlockHint') && $('artUnlockHint').value) || '', catEn: $('artCatEn') ? $('artCatEn').checked : false };
+    }
     if (sec === 'runtime') {
       var rawCap = $('rtAiCap').value;
       return {

@@ -149,6 +149,24 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
   .mainnav,.head-actions{justify-self:start}
   .bhero h2{font-size:22px}
 }
+
+/* ---- 多主题：ink(Linear 冷暗) / stripe(亮白) / notion(柔灰) ---- */
+html[data-theme="ink"]{
+  --bg:#08090b;--card:#101216;--text:#e8ecf4;--muted:#8b93a7;
+  --border:#1e222b;--accent:#6e79d6;--gold:#6e79d6;--chip:#171a22;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 34px -22px rgba(0,0,0,.7);
+}
+html[data-theme="stripe"]{
+  --bg:#ffffff;--card:#ffffff;--text:#0a2540;--muted:#425466;
+  --border:#e3e8ee;--accent:#635bff;--gold:#635bff;--chip:#f6f9fc;
+  --shadow:0 1px 2px rgba(10,37,64,.06),0 12px 28px -18px rgba(10,37,64,.28);
+}
+html[data-theme="notion"]{
+  --bg:#f7f6f3;--card:#ffffff;--text:#37352f;--muted:#787774;
+  --border:#e9e7e2;--accent:#2f6feb;--gold:#2f6feb;--chip:#efeee9;
+  --shadow:0 1px 2px rgba(55,53,47,.06),0 10px 26px -18px rgba(55,53,47,.22);
+}
+html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
 </style>
 </head>
 <body>
@@ -269,16 +287,38 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
   var $ = function (id) { return document.getElementById(id); };
   var state = { arts: [], site: null, cat: 'all', q: '', sort: 'new', open: null };
 
-  // 主题
+  // 主题：paper / ink / stripe / notion
   var THEME_KEY = 'ghrankTheme';
-  function applyTheme(t) {
-    document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
-    try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+  var THEMES = ['paper', 'ink', 'stripe', 'notion'];
+  var THEME_LABEL = { paper: '暖纸白', ink: 'Linear 冷暗', stripe: 'Stripe 亮白', notion: 'Notion 柔灰' };
+  function applyTheme(t, remember) {
+    if (THEMES.indexOf(t) < 0) t = 'paper';
+    document.documentElement.setAttribute('data-theme', t);
+    if (remember !== false) { try { localStorage.setItem(THEME_KEY, t); } catch (e) {} }
+    var btn = $('btnTheme');
+    if (btn) btn.textContent = THEME_LABEL[t] || '主题';
   }
-  try { applyTheme(localStorage.getItem(THEME_KEY) || 'light'); } catch (e) {}
+  function initTheme() {
+    var st = (state.site && state.site.theme) || { name: 'paper', allowUser: true };
+    var saved = '';
+    try { saved = localStorage.getItem(THEME_KEY) || ''; } catch (e) {}
+    if (saved === 'dark') saved = 'ink';
+    if (saved === 'light') saved = 'paper';
+    var allowed = st.allowUser !== false;
+    applyTheme(allowed && THEMES.indexOf(saved) >= 0 ? saved : (st.name || 'paper'), allowed);
+  }
+  initTheme();
   $('btnTheme').addEventListener('click', function () {
-    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    var cur = document.documentElement.getAttribute('data-theme') || 'paper';
+    applyTheme(THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length]);
   });
+  // 分类标签：后台开关打开时显示英文（slug 第一段），否则显示原文分类
+  function catLabel(a) {
+    var en = !!(state.site && state.site.article && state.site.article.catEn);
+    if (!en) return a.category || '';
+    var first = String(a.slug || '').split('/')[0];
+    return first || a.category || '';
+  }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -373,7 +413,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
       '<h3>' + esc(a.title || '(无标题)') + (a.locked ? ' 🔒' : '') + '</h3>' +
       (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') +
       '<div class="ameta">' +
-        (a.category ? '<span class="tag">' + esc(a.category) + '</span>' : '') + tags +
+        (catLabel(a) ? '<span class="tag">' + esc(catLabel(a)) + '</span>' : '') + tags +
         '<span>' + esc(String(a.date || '').slice(0, 10)) + '</span>' +
         (a.locked ? '<span>加密</span>' : '') +
       '</div></a>';
@@ -452,7 +492,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
     $('rTitle').textContent = a.title || '(无标题)';
     $('rMeta').innerHTML =
       '<span>' + esc(String(a.date || '').slice(0, 10)) + '</span>' +
-      (a.category ? '<span class="tag">' + esc(a.category) + '</span>' : '') +
+      (catLabel(a) ? '<span class="tag">' + esc(catLabel(a)) + '</span>' : '') +
       (a.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') +
       (a.locked ? '<span>🔒 加密文章</span>' : '');
     var idx = state.arts.indexOf(a);
@@ -606,6 +646,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
     ]).then(function (res) {
       state.arts = Array.isArray(res[0]) ? res[0] : [];
       state.site = res[1] || {};
+      initTheme();
       if (state.site.seo && state.site.seo.siteName) {
         document.title = '文章 · ' + state.site.seo.siteName;
         var h1 = document.querySelector('.brand h1 a');
