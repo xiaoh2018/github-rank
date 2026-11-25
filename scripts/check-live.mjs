@@ -161,6 +161,8 @@ const artListRes = await fetch(base + '/articles?v=' + t);
 const artListHtml = await artListRes.text();
 push('文章列表页有「相关阅读」', artListHtml.includes('relatedHtml') && artListHtml.includes('.related .rmeta-in'), 'status=' + artListRes.status);
 push('文章列表页有分页条', artListHtml.includes('id="apager"') && artListHtml.includes('var PER = 9;'), '');
+push('文章搜索有命中片段与高亮', artListHtml.includes('function excerptOf') && artListHtml.includes('mark class="hitmark"') && artListHtml.includes('class="hitsrc"'), '');
+push('文章正文参与搜索匹配', artListHtml.includes('plainOf(a.body)'), '');
 push('首页文章卡片有置顶徽标代码', home.includes('pinchip'), '');
 push('首页最新文章最多 6 篇', home.includes('var HOME_MAX=6;'), '');
 push('导航分组可折叠并记住状态', home.includes('class="gtog"') && home.includes('ghrank-nav-closed'), '');

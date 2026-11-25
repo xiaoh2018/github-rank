@@ -120,6 +120,10 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .reader h1{font-size:27px;line-height:1.35;margin:0 0 10px;letter-spacing:-.5px}
 .rmeta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted);padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:20px}
 .toc{margin:4px 0 18px;padding:12px 16px;border:1px solid var(--border);border-radius:12px;background:var(--chip)}
+.hitline{margin:8px 0 10px}
+.hitsrc{display:inline-block;margin-right:6px;padding:1px 6px;border-radius:6px;background:var(--chip);color:var(--muted);font-size:12px}
+mark.hitmark{background:rgba(212,160,23,.30);color:inherit;padding:0 1px;border-radius:3px}
+html[data-theme="ink"] mark.hitmark{background:rgba(240,200,120,.35);color:inherit}
 .toc summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none}
 .toc summary::-webkit-details-marker{display:none}
 .toc summary::before{content:'▸ ';color:var(--muted)}
@@ -480,7 +484,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var list = state.arts.filter(function (a) {
       if (state.cat !== 'all' && (a.category || '未分类') !== state.cat) return false;
       if (!q) return true;
-      var hay = [a.title, a.summary, a.category, (a.tags || []).join(' ')].join(' ').toLowerCase();
+      var hay = [a.title, a.summary, a.category, (a.tags || []).join(' '), plainOf(a.body)].join(' ').toLowerCase();
       return hay.indexOf(q) >= 0;
     });
     list.sort(function (a, b) {
@@ -501,6 +505,59 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     return Math.max(1, Math.round(cjk / 400 + words / 200));
   }
 
+  // 把 Markdown 正文压成纯文本，用来做「正文也参与搜索」与命中片段
+  function plainOf(s) {
+    return String(s || '')
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/[#>*_`~|]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  // 搜索时给卡片一段「命中片段」：优先摘要，摘要没中就去正文里取上下文
+  function excerptOf(a, q) {
+    var needle = String(q || '').trim();
+    if (!needle) return null;
+    var low = needle.toLowerCase();
+    var src = String(a.summary || '');
+    var from = '摘要';
+    var i = src.toLowerCase().indexOf(low);
+    if (i < 0) {
+      src = plainOf(a.body);
+      from = '正文';
+      i = src.toLowerCase().indexOf(low);
+    }
+    if (i < 0) return null;
+    var start = Math.max(0, i - 34);
+    var end = Math.min(src.length, i + needle.length + 46);
+    return {
+      from: from,
+      text: (start > 0 ? '…' : '') + src.slice(start, end) + (end < src.length ? '…' : '')
+    };
+  }
+
+  // 不区分大小写地把命中词包成 <mark>，其余部分照常转义
+  function markText(s, q) {
+    var needle = String(q || '').trim();
+    var src = String(s || '');
+    if (!needle) return esc(src);
+    var low = src.toLowerCase(), nd = needle.toLowerCase();
+    var out = '', at = 0, idx;
+    while ((idx = low.indexOf(nd, at)) >= 0) {
+      out += esc(src.slice(at, idx)) + '<mark class="hitmark">' + esc(src.slice(idx, idx + needle.length)) + '</mark>';
+      at = idx + needle.length;
+    }
+    return out + esc(src.slice(at));
+  }
+
+  function descOf(a) {
+    var ex = excerptOf(a, state.q);
+    if (ex) return '<p class="hitline"><span class="hitsrc">' + esc(ex.from) + '命中</span>' + markText(ex.text, state.q) + '</p>';
+    return a.summary ? '<p>' + esc(a.summary) + '</p>' : '';
+  }
+
   function cardHtml(a) {
     var tags = (a.tags || []).slice(0, 3).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
     var cover = a.cover
@@ -508,7 +565,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       : '';
     return '<a class="acard" href="' + esc(artPath(a)) + '" data-id="' + esc(a.id) + '">' + cover +
       '<h3>' + (a.pinned ? '<span class="pinchip">置顶</span>' : '') + esc(a.title || '(无标题)') + (a.locked && a.hasLock !== false ? ' 🔒' : '') + '</h3>' +
-      (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') +
+      descOf(a) +
       '<div class="ameta">' +
         (catLabel(a) ? '<span class="tag">' + esc(catLabel(a)) + '</span>' : '') + tags +
         '<span>' + esc(String(a.date || '').slice(0, 10)) + '</span>' +
