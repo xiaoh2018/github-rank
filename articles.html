@@ -87,6 +87,13 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .reader{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 34px 34px;margin-top:22px}
 @media (max-width:600px){.reader{padding:20px 18px 24px}}
 /* 打印 / 存 PDF：只留正文，列表模式则只留卡片 */
+.related{margin:32px 0 0;padding:18px 0 0;border-top:1px solid var(--border)}
+.related h2{font-size:14px;margin:0 0 10px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+.related ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.related li{display:flex;align-items:baseline;gap:12px;min-width:0}
+.related a{flex:1 1 auto;min-width:0;font-size:14.5px;color:var(--fg);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.related a:hover{color:var(--accent);text-decoration:underline}
+.related .rmeta-in{flex:0 0 auto;font-size:12px;color:var(--muted);white-space:nowrap}
 @media print{
   .brand,.mainnav,.head-actions,.bhero,.btools,.chips,.bside,.adslot,#rNav{display:none!important}
   body{background:#fff;color:#111}
@@ -635,6 +642,17 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     return '<div class="rcover" style="background-image:url(\'' + c + '\')"></div>';
   }
 
+  function relatedHtml(a) {
+    var all = (state.arts || []).filter(function (x) { return x && String(x.id) !== String(a.id); });
+    var same = (a.category ? all.filter(function (x) { return (x.category || '') === a.category; }) : []);
+    var pick = same.concat(all.filter(function (x) { return same.indexOf(x) < 0; })).slice(0, 3);
+    if (!pick.length) return '';
+    return '<div class="related"><h2>相关阅读</h2><ul>' + pick.map(function (x) {
+      return '<li><a href="' + esc(artPath(x)) + '">' + esc(x.title || '(无标题)') + '</a>' +
+        '<span class="rmeta-in">' + esc(catLabel(x) || '未分类') + (x.date ? ' · ' + esc(String(x.date).slice(0, 10)) : '') + '</span></li>';
+    }).join('') + '</ul></div>';
+  }
+
   function openReader(id) {
     var a = findArt(id);
     if (!a) { closeReader(); return; }
@@ -680,7 +698,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       askPassword(a.id);
     } else {
       var staleNote = a.locked ? '<p class="locknote-stale">这篇以前标记过加密，但服务端没有加密正文（旧数据）。在后台重新保存一次并设置密码就会正常加密。</p>' : '';
-      body.innerHTML = readerCover(a) + staleNote + md(a.body || '');
+      body.innerHTML = readerCover(a) + staleNote + md(a.body || '') + relatedHtml(a);
       enhanceBody(body);
       mountAd($('adAPAfter'), adSlot['article-after']);
     }
@@ -724,7 +742,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     }).then(function (r) { return r.json(); }).then(function (r) {
       $('pwGo').disabled = false;
       if (r && r.ok && typeof r.body === 'string') {
-        $('rBody').innerHTML = readerCover(state.open || r) + md(r.body);
+        $('rBody').innerHTML = readerCover(state.open || r) + md(r.body) + relatedHtml(state.open || {});
         enhanceBody($('rBody'));
         mountAd($('adAPAfter'), adSlot['article-after']);
         try { $('pwDlg').close(); } catch (e) {}
