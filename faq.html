@@ -46,12 +46,15 @@ h1{font-size:26px;margin:6px 0 8px;letter-spacing:-.3px}
 .qa[open]{border-color:var(--accent);box-shadow:0 10px 26px rgba(0,0,0,.07)}
 .qa summary .qlink{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:1px 7px;font:600 11.5px/1.7 Consolas,ui-monospace,monospace;cursor:pointer;opacity:.7;white-space:nowrap}
 .qa summary .qlink:hover{opacity:1;color:var(--accent);border-color:var(--accent);background:var(--card)}
-.qa summary{list-style:none;cursor:pointer;padding:15px 18px;font-weight:700;font-size:15px;display:grid;grid-template-columns:24px minmax(0,1fr) auto auto;gap:10px;align-items:center}
+.qa summary{list-style:none;cursor:pointer;padding:15px 18px;font-weight:700;font-size:15px;display:grid;grid-template-columns:24px minmax(0,1fr) auto auto 18px;gap:10px;align-items:center}
 .qa summary:hover{background:var(--accent-soft)}
 .qa[open] summary{background:var(--accent-soft);border-bottom:1px solid var(--line)}
 .qa summary>span.qtext{min-width:0;overflow-wrap:anywhere;line-height:1.5}
 .qa summary::-webkit-details-marker{display:none}
 .qa summary:before{content:"Q";width:24px;height:24px;border-radius:8px;background:var(--accent);color:#fff;font-weight:800;font-size:12px;display:grid;place-items:center;opacity:.9}
+.qa summary:after{content:"+";grid-column:5;justify-self:end;color:var(--muted);font-weight:700;font-size:16px;line-height:1}
+.qa[open] summary:after{content:"−";color:var(--accent)}
+.chip b{font-weight:700;opacity:.62;margin-left:5px;font-variant-numeric:tabular-nums}
 
 .qa .ans{padding:14px 20px 18px 52px;color:var(--fg);font-size:14.5px;line-height:1.75}
 .qa .ans p{margin:0 0 10px}
@@ -197,7 +200,7 @@ html[data-theme="notion"]{
     } else {
       box.innerHTML = list.map(function (it, i) {
         var no = QA.items.indexOf(it) + 1;
-        return '<details class="qa" id="q-' + no + '"' + (i === 0 && kw ? ' open' : '') + '>' +
+        return '<details class="qa" id="q-' + no + '"' + (i === 0 ? ' open' : '') + '>' +
           '<summary><span class="qtext">' + esc(it.q) + '</span>' + (it.tag ? '<span class="qtag">' + esc(it.tag) + '</span>' : '') +
           '<button type="button" class="qlink" data-qcopy="' + no + '" title="复制这一条的直达链接">#' + no + '</button></summary>' +
           '<div class="ans">' + md(it.a) + '</div></details>';
@@ -222,8 +225,11 @@ html[data-theme="notion"]{
     var box = document.getElementById('tags');
     if (!tags.length) { box.hidden = true; return; }
     box.hidden = false;
+    var counts = { all: QA.items.length };
+    QA.items.forEach(function (it) { var k = it.tag || ''; if (k) counts[k] = (counts[k] || 0) + 1; });
     box.innerHTML = ['all'].concat(tags).map(function (t) {
-      return '<button type="button" class="chip' + (t === tag ? ' is-on' : '') + '" data-tag="' + esc(t) + '">' + (t === 'all' ? '全部' : esc(t)) + '</button>';
+      var n = counts[t] || 0;
+      return '<button type="button" class="chip' + (t === tag ? ' is-on' : '') + '" data-tag="' + esc(t) + '">' + (t === 'all' ? '全部' : esc(t)) + '<b>' + n + '</b></button>';
     }).join('');
   }
 
