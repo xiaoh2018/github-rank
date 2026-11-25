@@ -1410,7 +1410,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v58';
+const ASSET_V = 'v59';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1729,7 +1729,7 @@ async function llmsTxt(env, origin) {
   lines.push('- 榜单数据每 3 小时由 GitHub Actions 抓取一次，页面走边缘缓存，通常数分钟内可见');
   lines.push('- 只统计公开仓库；排序依据是当前星标数，另有今日增量、活跃度、Fork、最近更新');
   lines.push('');
-  return lines.join('\n');
+  return lines.join(String.fromCharCode(10));
 }
 
 function baiduTokenOf(env, rt) {
@@ -1826,9 +1826,9 @@ async function handleSubmit(request, env, origin) {
     urls.length = 0;
     urls.push(root + '/');
   }
-  const out = { ok: true, urls: urls.length, root: root, host: host, keyLocation: root + '/' + keyNow + '.txt', test: body.test === true, results: {} };
+  const out = { ok: true, urls: urls.length, urlList: urls.slice(0, 50), urlListNote: urls.length > 50 ? '只显示前 50 条（共 ' + urls.length + ' 条）' : '', root: root, host: host, keyLocation: root + '/' + keyNow + '.txt', test: body.test === true, results: {} };
 
-  const sigNow = urls.join('\n');
+  const sigNow = urls.join(String.fromCharCode(10));
   const sameBatch = !!(prevRun && prevRun.sig === sigNow && body.force !== true);
   if ((want === 'all' || want === 'indexnow') && sameBatch) {
     out.results.indexNow = {
@@ -1871,7 +1871,7 @@ async function handleSubmit(request, env, origin) {
             encodeURIComponent(String(root).replace(/^https?:\/\//i, '').replace(/\/.*$/, '')) +
             '&token=' +
             encodeURIComponent(baiduNow),
-          { method: 'POST', headers: { 'content-type': 'text/plain' }, body: urls.join('\n') }
+          { method: 'POST', headers: { 'content-type': 'text/plain' }, body: urls.join(String.fromCharCode(10)) }
         );
         const t = await r.text();
         let note = String(t || '').slice(0, 300);
@@ -2863,7 +2863,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .toggle{display:flex;align-items:center;gap:10px;margin:4px 0 2px;font-weight:600;color:var(--text)}
 .toggle input{width:20px;height:20px;margin:0}
 table{width:100%;border-collapse:collapse}
-th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top;word-break:break-all}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top;word-break:normal;overflow-wrap:anywhere}
+th{white-space:nowrap}
+tbody tr:nth-child(even){background:#fcfdff}
+tbody tr:hover{background:#f6f9fc}
 th{color:var(--muted);font-weight:600;font-size:13px}
 .empty{color:var(--muted);padding:18px 0;text-align:center;font-size:14px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:14px}
@@ -4705,7 +4708,11 @@ tr:hover td{background:#fcfbf8}
     if (!o) return '';
     var head = '<b>' + name + '</b> · ' + (o.ok ? '成功' : '失败') + (o.status ? '（HTTP ' + o.status + '）' : '');
     var raw = o.raw ? '<details class="raw"><summary>看原始返回</summary><pre>' + navEsc(o.raw) + '</pre></details>' : '';
-    return '<div class="tr-box' + (o.ok ? '' : ' tr-bad') + '">' + head + '<br>' + navEsc(o.note || '') + raw + '</div>';
+    var urls = '';
+    if (o.urlList && o.urlList.length) {
+      urls = '<details class="raw"><summary>这次推了 ' + o.urlList.length + ' 条地址' + (o.urlListNote ? '（' + navEsc(o.urlListNote) + '）' : '') + '</summary><pre>' + o.urlList.map(function (u) { return navEsc(u); }).join(String.fromCharCode(10)) + '</pre></details>';
+    }
+    return '<div class="tr-box' + (o.ok ? '' : ' tr-bad') + '">' + head + '<br>' + navEsc(o.note || '') + urls + raw + '</div>';
   }
   function loadSubmit() {
     var box = $('subStatus');

@@ -336,6 +336,7 @@ ok((await r.text()).trim() === subKey, 'IndexNow key 文件可访问');
 
 r = await hit('/api/submit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'pw', action: 'all' }) });
 const subRun = await r.json();
+ok(Array.isArray(subRun.urlList) && subRun.urlList.length > 0, '提交返回里带本次推送地址清单（urlList）', String(subRun.urlList && subRun.urlList.length));
 ok(subRun.ok === true && subRun.results && subRun.results.indexNow && subRun.results.indexNow.ok === false, 'IndexNow 不通时返回原因而不是报错', JSON.stringify(subRun.results.indexNow || {}).slice(0, 100));
 ok(subRun.results && subRun.results.baidu && subRun.results.baidu.ok === false, '没配 BAIDU_TOKEN 时跳过百度推送');
 
@@ -463,6 +464,7 @@ console.log('');
 console.log('== 17. 后台内联脚本可解析 + 面板齐全 ==');
 const adminPage = await (await hit('/admin')).text();
 ok(adminPage.includes('subTimer') && adminPage.includes('冷却中'), '收录提交面板有冷却倒计时');
+ok(adminPage.includes('urlList'), '收录提交面板能展开本次推送地址');
 ok(adminPage.includes('setInterval(tick, 1000)'), '倒计时每秒刷新');
 ok(adminPage.includes('id="pane-submit"'), '后台有 pane-submit 面板');
 const inlineScripts = [...adminPage.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]).filter((s) => s.trim());
