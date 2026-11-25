@@ -1188,10 +1188,30 @@ function toggleRepoOnly() {
   ['stats', 'dist', 'authors', 'changes', 'pager'].forEach(id => { if (!isRepo) $(id).hidden = true; });
 }
 
+function paintFresh() {
+  var note = document.getElementById('srcNote');
+  if (!note || !note.parentNode) return;
+  var box = document.getElementById('freshness');
+  if (!box) {
+    box = document.createElement('p');
+    box.id = 'freshness';
+    box.className = 'fresh';
+    note.parentNode.insertBefore(box, note);
+  }
+  var meta = window.__ghrankMeta || null;
+  var at = meta && meta.generatedAt ? Date.parse(meta.generatedAt) : 0;
+  if (!at) { box.hidden = true; return; }
+  var mins = Math.max(0, Math.round((Date.now() - at) / 60000));
+  var ago = mins < 60 ? mins + ' 分钟前' : (Math.round(mins / 60) + ' 小时前');
+  box.textContent = '数据更新于 ' + ago + ' · 每 3 小时自动抓一次';
+  box.hidden = false;
+}
+
 function render() {
   toggleRepoOnly();
   if (state.view === 'repos') renderRepos(); else renderUsers();
   updateSourceNote();
+  paintFresh();
 }
 
 // ---------- 数据加载 ----------
@@ -1224,6 +1244,7 @@ async function load(bypassCache) {
   const base = buildQuery(state);
   // 默认直接用静态数据（不发网络请求）；缺少对应 range 时降级到实时拉取
   const meta = bypassCache ? null : staticMeta();
+  if (meta) window.__ghrankMeta = meta;
   if (meta) {
     let packed = staticRange(state.range);   // 已加载过（或旧版单文件已就绪）
     if (!packed) {

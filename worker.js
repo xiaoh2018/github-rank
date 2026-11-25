@@ -103,7 +103,7 @@ export default {
         xml += '  <url><loc>' + origin + '/nav</loc><lastmod>' + today + '</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>\n';
         xml += '  <url><loc>' + origin + '/faq</loc><lastmod>' + today + '</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>\n';
         xml += '  <url><loc>' + origin + '/articles</loc><lastmod>' + today + '</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>\n';
-        for (const a of list.slice(0, 200)) {
+        for (const a of list.slice(0, 2000)) {
           if (!a || !a.id) continue;
           const lm = a.date ? String(a.date).slice(0, 10) : '';
           const artPath = a.slug
@@ -119,6 +119,9 @@ export default {
       }
       if (url.pathname === '/keepalive' && request.method === 'GET') {
         return Response.redirect(url.origin + '/admin#keepalive', 302);
+      }
+      if (url.pathname === '/api/health' && request.method === 'GET') {
+        return handleHealth(env, url.origin);
       }
       if (url.pathname === '/api/ai-usage' && request.method === 'GET') {
         return json({ ok: true, usage: await aiUsage(env, await siteRuntime(env)) });
@@ -1410,7 +1413,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v71';
+const ASSET_V = 'v72';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1805,6 +1808,39 @@ function engineHint(kind, status) {
     return '';
   }
   return '';
+}
+
+async function handleHealth(env, origin) {
+  const rt = await siteRuntime(env);
+  const key = indexNowKey(env, rt);
+  let keyFileOk = null;
+  try {
+    const r = await fetch(origin + '/' + key + '.txt', { cf: { cacheTtl: 0 } });
+    const body = r.ok ? (await r.text()).trim() : '';
+    keyFileOk = r.ok && body === key;
+  } catch (e) {
+    keyFileOk = false;
+  }
+  let counts = null;
+  try {
+    const raw = await rawJson(env, 'data/articles.json');
+    const list = Array.isArray(raw) ? raw : [];
+    counts = { articles: list.length };
+    if (list.length !== raw.length) counts.raw = raw.length;
+  } catch (e) {}
+  let st = null;
+  try { st = await getStatusCached(env); } catch (e) {}
+  return json({
+    ok: true,
+    version: ASSET_V,
+    now: new Date().toISOString(),
+    configured: !!(st && st.configured),
+    stateText: st ? st.stateText : '',
+    workflow: st ? st.workflow : null,
+    ai: await aiUsage(env, rt),
+    keyFileOk: keyFileOk,
+    counts: counts,
+  });
 }
 
 async function handleSubmit(request, env, origin) {
@@ -2776,13 +2812,40 @@ async function handleArticles(request, env) {
   if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
     return json({ ok: false, error: '密码不对' }, 403);
   }
-  if (body.action !== 'add' && body.action !== 'update' && body.action !== 'remove') {
-    return json({ ok: false, error: 'action 只能是 add、update 或 remove' }, 400);
+  if (body.action !== 'add' && body.action !== 'update' && body.action !== 'remove' && body.action !== 'bulk') {
+    return json({ ok: false, error: 'action 只能是 add、update、remove 或 bulk' }, 400);
   }
 
   const cur = await readArticles(env);
   if (!cur.ok) return json({ ok: false, error: cur.error }, 502);
   const list = cur.articles;
+
+  if (body.action === 'bulk') {
+    const ids = Array.isArray(body.ids) ? body.ids.map((x) => String(x)) : [];
+    if (!ids.length) return json({ ok: false, error: '没有选中文章' }, 400);
+    if (ids.length > 200) return json({ ok: false, error: '一次最多批量处理 200 篇' }, 400);
+    const set = new Set(ids);
+    const op = body.op === 'category' ? 'category' : 'remove';
+    const cat = typeof body.category === 'string' ? body.category.trim().slice(0, 24) : '';
+    if (op === 'category' && !cat) return json({ ok: false, error: '改分类要填分类名' }, 400);
+    let removed = 0;
+    let changed = 0;
+    const next = [];
+    for (const a of list) {
+      if (a && set.has(String(a.id))) {
+        if (op === 'remove') { removed += 1; continue; }
+        a.category = cat;
+        changed += 1;
+      }
+      next.push(a);
+    }
+    const msg = 'chore: 批量' + (op === 'remove' ? '删除 ' + removed + ' 篇' : '把 ' + changed + ' 篇改成分类「' + cat + '」');
+    const w = await writeArticles(env, next, cur.sha, msg);
+    if (!w.ok) return json({ ok: false, error: w.error }, 500);
+    await purgeEdge(['/articles', '/articles.html', '/data/articles.json', '/sitemap.xml']);
+    await warmEdge('/data/articles.json', JSON.stringify(next, null, 2) + '\n', 'application/json; charset=utf-8');
+    return json({ ok: true, removed: removed, changed: changed, articles: next.map(publicArticle) });
+  }
 
   if (body.action === 'add') {
     const c = checkArticle(body.article);
@@ -3784,6 +3847,11 @@ tr:hover td{background:#fcfbf8}
     <section class="pane" id="pane-articles" hidden>
       <div class="bar">
         <div><h1>文章</h1><div class="sub">共 <span id="artCount">0</span> 篇，标题、摘要、正文会显示在站点的文章页</div></div>
+        <div class="toolbar">
+          <button type="button" class="ghost" id="artBulkDel" disabled>删除选中</button>
+          <input id="artBulkCat" placeholder="改成分类…" style="max-width:150px">
+          <button type="button" class="ghost" id="artBulkApply" disabled>应用分类</button>
+        </div>
         <button type="button" id="artNew">写新文章</button>
       </div>
       <div class="intro">文章用来沉淀长内容：会被搜索引擎收录，也会被 AI 搜索引用。正文支持 Markdown（标题、列表、代码块、链接、图片），写作时右侧实时预览。保存即发布，刷新文章页即可看到。</div>
@@ -3808,7 +3876,7 @@ tr:hover td{background:#fcfbf8}
           <span class="msg" id="artSearchNote"></span>
         </div>
         <table>
-          <thead><tr><th style="width:96px">日期</th><th>标题</th><th>摘要</th><th style="width:170px">操作</th></tr></thead>
+          <thead><tr><th style="width:30px"><input type="checkbox" id="artAll" title="全选"></th><th style="width:96px">日期</th><th>标题</th><th>摘要</th><th style="width:170px">操作</th></tr></thead>
           <tbody id="artTbody"><tr><td colspan="4" class="empty">加载中…</td></tr></tbody>
         </table>
       </div>
@@ -4505,15 +4573,15 @@ tr:hover td{background:#fcfbf8}
     }) : all;
     if ($('artSearchNote')) $('artSearchNote').textContent = q ? '匹配 ' + list.length + ' / ' + all.length + ' 篇' : '';
     if (!all.length) {
-      $('artTbody').innerHTML = '<tr><td colspan="4" class="empty">还没有文章，右上角「写新文章」开始</td></tr>';
+      $('artTbody').innerHTML = '<tr><td colspan="5" class="empty">还没有文章，右上角「写新文章」开始</td></tr>';
       return;
     }
     if (!list.length) {
-      $('artTbody').innerHTML = '<tr><td colspan="4" class="empty">没有匹配的文章</td></tr>';
+      $('artTbody').innerHTML = '<tr><td colspan="5" class="empty">没有匹配的文章</td></tr>';
       return;
     }
     $('artTbody').innerHTML = list.map(function (a) {
-      return '<tr><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b>' +
+      return '<tr><td><input type="checkbox" data-artpick="' + esc(a.id) + '"></td><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b>' +
         (a.locked ? '<span class="art-lock">加密</span>' : '') +
         (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
         '<div class="slugline">/articles/' + esc(a.slug || a.id) + '.html' + (a.category ? ' · ' + esc(a.category) : '') + '</div>' +
@@ -4522,6 +4590,8 @@ tr:hover td{background:#fcfbf8}
         '<button type="button" class="ghost small" data-artview="' + esc(a.id) + '">预览</button> ' +
         '<button type="button" class="danger small" data-artdel="' + esc(a.id) + '">删除</button></td></tr>';
     }).join('');
+    if ($('artAll')) $('artAll').checked = false;
+    artSyncBulk();
   }
   function loadArticles() {
     api('/api/articles').then(function (r) {
@@ -4669,6 +4739,54 @@ tr:hover td{background:#fcfbf8}
       });
     }
   });
+
+    // ---- 文章批量操作 ----
+    function artPicked() {
+      return Array.prototype.slice.call(document.querySelectorAll('[data-artpick]'))
+        .filter(function (x) { return x.checked; })
+        .map(function (x) { return x.getAttribute('data-artpick'); });
+    }
+    function artSyncBulk() {
+      var n = artPicked().length;
+      var d = $('artBulkDel');
+      var a = $('artBulkApply');
+      if (d) { d.disabled = !n; d.textContent = n ? '删除选中（' + n + '）' : '删除选中'; }
+      if (a) a.disabled = !n;
+    }
+    if ($('artAll')) {
+      $('artAll').addEventListener('change', function () {
+        var on = this.checked;
+        Array.prototype.forEach.call(document.querySelectorAll('[data-artpick]'), function (x) { x.checked = on; });
+        artSyncBulk();
+      });
+    }
+    document.addEventListener('change', function (e) {
+      if (e.target && e.target.getAttribute && e.target.getAttribute('data-artpick') != null) artSyncBulk();
+    });
+    if ($('artBulkDel')) {
+      $('artBulkDel').addEventListener('click', function () {
+        var ids = artPicked();
+        if (!ids.length) { toast('先勾选文章', true); return; }
+        askConfirm('批量删除', '确定删除选中的 ' + ids.length + ' 篇吗？', function () {
+          return api('/api/articles', { method: 'POST', body: { password: pw, action: 'bulk', op: 'remove', ids: ids } }).then(function (r) {
+            if (r.ok) { state.articles = r.articles; renderArticles(); toast('已删除 ' + r.removed + ' 篇', true); }
+            return r;
+          });
+        });
+      });
+    }
+    if ($('artBulkApply')) {
+      $('artBulkApply').addEventListener('click', function () {
+        var ids = artPicked();
+        var box = $('artBulkCat');
+        var cat = (box && box.value || '').trim();
+        if (!ids.length) { toast('先勾选文章', true); return; }
+        if (!cat) { toast('先填分类名', true); return; }
+        api('/api/articles', { method: 'POST', body: { password: pw, action: 'bulk', op: 'category', category: cat, ids: ids } }).then(function (r) {
+          if (r.ok) { state.articles = r.articles; renderArticles(); toast('已把 ' + r.changed + ' 篇改成「' + cat + '」', true); }
+        });
+      });
+    }
 
     // ---- 翻译与密钥：只显示状态；实测会真的打两条翻译链路 ----
     function trErr(s) {
