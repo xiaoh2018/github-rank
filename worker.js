@@ -1431,7 +1431,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v85';
+const ASSET_V = 'v86';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2102,6 +2102,8 @@ function adCardHtml(s) {
     '<div class="ad-click"><span class="ad-click-t">点击行为</span>' +
     '<input type="url" data-ad-slot="' + s.id + '" data-ad-field="link" placeholder="跳转链接（可选，新窗口打开）">' +
     '<textarea class="code" rows="2" maxlength="20000" data-ad-slot="' + s.id + '" data-ad-field="modal" placeholder="或：弹窗内容 HTML（填了就点开弹窗，优先于链接）"></textarea>' +
+    '<div class="ad-acts"><button type="button" class="ghost small" data-adprev="' + s.id + '">预览</button>' +
+    '<span class="ad-acts-t">按现在填的内容渲染一张，点开看效果</span></div>' +
     '</div></div>';
 }
 
@@ -3149,6 +3151,10 @@ th{color:var(--muted);font-weight:600;font-size:13px}
   .serp-d{font-size:13px;line-height:1.6;color:#4b5563}
   .cnow{margin-top:4px;font-size:12px;color:#64748b}
   .cnow.cwarn{color:#b91c1c}
+    .ad-acts{display:flex;align-items:center;gap:10px;margin-top:8px}
+  .ad-acts-t{font-size:12px;color:var(--muted)}
+  .ad-prev-wrap{padding:18px 22px 24px;overflow:auto}
+  .ad-prev-wrap .card{margin:0}
   .tr-out{display:grid;gap:10px;margin-top:14px}
 .tr-box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px;background:#f8fafc}
 .tr-box h4{margin:0 0 6px;font-size:12px;color:var(--muted);font-weight:600}
@@ -3770,7 +3776,11 @@ tr:hover td{background:#fcfbf8}
       <div class="actions"><button type="button" class="ghost" id="navImpCancel">取消</button><button type="button" id="navImpGo">导入</button></div>
     </dialog>
 
-        <section class="pane" id="pane-submit" hidden>
+        <dialog id="adPrevDlg" class="wide">
+      <div class="dlg-head"><b>广告预览</b><div class="dlg-head-actions"><button type="button" class="ghost small" id="adPrevX">关闭</button></div></div>
+      <div class="art-col"><div class="ad-prev-wrap" id="adPrevBody"></div></div>
+    </dialog>
+    <section class="pane" id="pane-submit" hidden>
       <div class="bar">
         <div><h1>收录与平台</h1><p class="sub">把新榜单和文章主动告诉搜索引擎与大模型</p></div>
         <div class="bar-actions"><label class="toggle inline"><input type="checkbox" id="subForce"> 强制再推一次</label><button class="btn ghost" type="button" id="subTest">试推 1 条</button><button class="btn ghost" type="button" id="subRunIN">只推 IndexNow</button><button class="btn ghost" type="button" id="subRunBD">只推百度</button><button class="btn primary" type="button" id="subRun">全部提交</button></div>
@@ -5549,6 +5559,22 @@ tr:hover td{background:#fcfbf8}
     });
   })();
 
+  function openAdPrev(id) {
+    var box = document.querySelector('[data-ad-slot="' + id + '"][data-ad-field="html"]');
+    var dlg = $('adPrevDlg');
+    var body = $('adPrevBody');
+    if (!dlg || !body) return;
+    var html = box ? String(box.value || '').trim() : '';
+    if (!html) { toast('这段广告位还没填内容', false); return; }
+    body.innerHTML = html.replace(/<script/gi, '&lt;script');
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-adprev]') : null;
+    if (b) { e.preventDefault(); openAdPrev(b.getAttribute('data-adprev')); }
+  });
+  var adPrevX = $('adPrevX');
+  if (adPrevX) adPrevX.addEventListener('click', function () { var d = $('adPrevDlg'); if (d) d.close(); });
   // ---- 启动 ----
   var saved = sessionStorage.getItem(PW_KEY);
   if (saved) {
