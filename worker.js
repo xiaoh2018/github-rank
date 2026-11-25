@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v139';
+const ASSET_V = 'v140';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3650,6 +3650,8 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
 .slugrow{display:flex;gap:6px;align-items:center;min-width:220px;flex:1}
 .slugrow input{flex:1;min-width:0}
 .slug-sep{color:#9a9285;font-family:ui-monospace,Menlo,Consolas,monospace}
+.slugprev{margin-top:6px;font-size:12px;line-height:1.6;color:#6b7280;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+.slugprev.warn{color:#b4232b}
 .slugline{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px;font-size:11.5px;color:#8a8172;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
 .cthumb{display:inline-block;width:38px;height:21px;vertical-align:-4px;margin-right:7px;border-radius:4px;border:1px solid var(--line);background:var(--chip) center/cover no-repeat}
 .pinchip{display:inline-block;padding:0 6px;margin-right:6px;border-radius:999px;font-size:11px;
@@ -4357,6 +4359,7 @@ tr:hover td{background:#fcfbf8}
           </span>
         </div>
       </div>
+      <div class="slugprev" id="artSlugPrev" aria-live="polite" style="margin:-2px 0 10px"></div>
       <label for="artCover">封面图</label>
       <input type="url" id="artCover" maxlength="300" placeholder="https://…（可选，16:9 横图最好，留空就不显示封面）">
       <div class="hint">建议 1200×675；放图床或仓库 raw 链接都行。</div>
@@ -5193,6 +5196,7 @@ tr:hover td{background:#fcfbf8}
       $('artCat').value = slugParts.length === 2 ? slugParts[0] : '';
       $('artSeq').value = slugParts.length === 2 ? slugParts[1] : '';
     $('artHint').value = (a && a.unlockHint) || '';
+    slugPreview();
     $('artErr').textContent = '';
     paintPreview();
     $('artDlg').showModal();
@@ -5277,6 +5281,56 @@ tr:hover td{background:#fcfbf8}
       grid.classList.toggle('preview-off');
       this.textContent = grid.classList.contains('preview-off') ? '显示预览' : '隐藏预览';
     });
+    function slugPreview() {
+      var box = $('artSlugPrev');
+      if (!box) return;
+      var cat = ($('artCat').value || '').trim().toLowerCase();
+      if (!cat) {
+        var cname = ($('artCategory').value || '').trim().toLowerCase();
+        cat = cname.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        if (!cat && cname) cat = 'cat';
+      }
+      if (!cat) {
+        box.className = 'slugprev';
+        box.textContent = '链接：选好分类后自动生成（英文分类词直接用，中文分类会落成 cat）';
+        return;
+      }
+      var seqIn = ($('artSeq').value || '').trim().toLowerCase();
+      var seq = seqIn;
+      var list = state.articles || [];
+      var auto = false;
+      if (!seq) {
+        var max = 0;
+        list.forEach(function (x) {
+          if (!x || x.id === editingId) return;
+          var parts = String(x.slug || '').split('/');
+          if (parts.length !== 2 || parts[0] !== cat) return;
+          var num = parseInt(parts[1], 10);
+          if (!isNaN(num) && num > max) max = num;
+        });
+        seq = String(max + 1);
+        auto = true;
+      }
+      var slug = cat + '/' + seq;
+      var href = '/articles/' + slug + '.html';
+      var clash = null;
+      list.forEach(function (x) {
+        if (x && x.id !== editingId && String(x.slug || '') === slug) clash = x;
+      });
+      if (clash) {
+        box.className = 'slugprev warn';
+        box.textContent = '保存后地址：' + href + ' —— 这个地址已被《' + String(clash.title || '') + '》占用，保存时会自动变成 ' + slug + '-2';
+      } else {
+        box.className = 'slugprev';
+        box.textContent = '保存后地址：' + href + (auto ? '（序号留空，自动取这个分类的下一个）' : '');
+      }
+    }
+
+    ['artCat', 'artSeq', 'artCategory'].forEach(function (id) {
+      var el = $(id);
+      if (el) el.addEventListener('input', slugPreview);
+    });
+
     $('artSlugGen').addEventListener('click', function () {
       var cat = ($('artCat').value || '').trim().toLowerCase() ||
         (($('artCategory').value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')) ||
@@ -5284,6 +5338,7 @@ tr:hover td{background:#fcfbf8}
       $('artCat').value = cat;
       $('artSeq').value = '';
       toast('链接：/articles/' + cat + '/<自动序号>.html（想固定就自己填序号）');
+      slugPreview();
     });
     $('artFullBtn').addEventListener('click', function () {
       var dlg = $('artDlg');

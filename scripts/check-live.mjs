@@ -194,6 +194,7 @@ const faqTotop = await (await fetch(base + '/faq?v=' + t)).text();
 push('/faq 有返回顶部按钮', faqTotop.includes('id="totop"') && faqTotop.includes('initTotop'), '');
 push('/faq 页脚有 RSS', faqTotop.includes('href="/rss.xml"'), '');
 const admHtml = await (await fetch(base + '/admin?v=' + t)).text();
+push('写文章弹窗有链接实时预览', admHtml.includes('artSlugPrev') && admHtml.includes('function slugPreview'), '');
 push('后台友链有上移/下移按钮', admHtml.includes('data-up=') && admHtml.includes('data-down='), 'bytes=' + admHtml.length);
 push('后台问答行有上移/下移按钮', admHtml.includes('data-qaup=') && admHtml.includes('data-qadn='), '');
 push('后台导航页有分类/站点上下移动', admHtml.includes('data-gup=') && admHtml.includes('data-sup='), '');
