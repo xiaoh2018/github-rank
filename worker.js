@@ -1431,7 +1431,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v87';
+const ASSET_V = 'v88';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3475,6 +3475,7 @@ tr:hover td{background:#fcfbf8}
 .toolbar #navFilter{flex:1 1 320px;min-width:0;max-width:none}
 .toolbar .note{margin-left:auto}
 #linkBody .muted-cell{color:#6b7280;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#linkBody td.row-actions{display:table-cell;white-space:nowrap;width:130px;text-align:right}
 #linkBody .row-actions{white-space:nowrap}
 #linkBody .row-actions .btn{margin-left:6px}
 #linkBody{table-layout:fixed;width:100%}
@@ -3911,8 +3912,8 @@ tr:hover td{background:#fcfbf8}
           <div class="card-head"><div><h2>问答列表</h2><p class="desc">问题 ≤200 字、答案 ≤4000 字；标签用来分类（如「数据」「使用」「收录」）。用 ↑↓ 调顺序，前台和 llms.txt 都按这个顺序。</p></div></div>
           <div class="toolbar" style="margin:0 0 10px"><input type="search" id="qaFilter" placeholder="筛问题 / 标签 / 答案里的关键词" autocomplete="off"><span class="note" id="qaMsg"></span></div>
           <div id="qaList"></div>
+          <div class="actions"><button type="button" data-save="qa">保存问答</button><span class="hint" id="qaMsg"></span></div>
         </div>
-        <div class="card"><div class="actions"><button type="button" data-save="qa">保存问答</button><span class="hint" id="qaMsg"></span></div></div>
       </section>
     <section class="pane" id="pane-theme" hidden>
       <div class="bar">
