@@ -223,10 +223,14 @@ body[data-page="nav"] #insights{display:none!important}
 #top{position:fixed;right:18px;bottom:18px;width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);font-size:18px;cursor:pointer;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s}
 #top.show{opacity:1;pointer-events:auto}
 [id]{scroll-margin-top:16px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 @media (min-width:1440px){
   .wrap{max-width:1360px}
   #list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:stretch}
   .item{height:100%}
+  /* 卡片等高时，内容少的卡片把星标条压到底部，避免中间出现一段空白 */
+  #list .item>div:nth-child(2){display:flex;flex-direction:column;min-width:0}
+  #list .item .starbar{margin-top:auto}
   }
   /* 榜单布局模式（site.json 的 layout.mode，写在 body[data-layout] 上）：auto 沿用上面的规则 */
   body[data-layout="single"] #list{display:flex;flex-direction:column;gap:var(--gap)}
