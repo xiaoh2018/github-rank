@@ -56,6 +56,8 @@ h1{font-size:26px;margin:6px 0 8px;letter-spacing:-.3px}
 .qa summary:after{content:"+";grid-column:5;justify-self:end;color:var(--muted);font-weight:700;font-size:16px;line-height:1}
 .qa[open] summary:after{content:"−";color:var(--accent)}
 .chip b{font-weight:700;opacity:.62;margin-left:5px;font-variant-numeric:tabular-nums}
+.chip.is-empty{opacity:.45}
+.chip.is-empty:hover{opacity:.7}
 .qa .hitmark{background:rgba(203,145,32,.30);color:inherit;border-radius:3px;padding:0 1px}
 html[data-theme="ink"] .qa .hitmark{background:rgba(240,190,90,.32)}
 
@@ -258,6 +260,7 @@ html[data-theme="notion"]{
       }).join('');
     }
     highlightNode(box, kw);
+    renderTags(kw);
     document.getElementById('count').textContent = kw
       ? '共 ' + QA.items.length + ' 条，命中 ' + list.length + ' 条'
       : '共 ' + QA.items.length + ' 条，当前显示 ' + list.length + ' 条';
@@ -273,17 +276,21 @@ html[data-theme="notion"]{
     });
   }
 
-  function renderTags() {
+  function renderTags(kw) {
     var tags = [];
     QA.items.forEach(function (it) { if (it.tag && tags.indexOf(it.tag) < 0) tags.push(it.tag); });
     var box = document.getElementById('tags');
     if (!tags.length) { box.hidden = true; return; }
     box.hidden = false;
-    var counts = { all: QA.items.length };
-    QA.items.forEach(function (it) { var k = it.tag || ''; if (k) counts[k] = (counts[k] || 0) + 1; });
+    // 计数按「关键词命中的条目」算，而不是全量：搜索时看到的数字要和列表一致；
+    // 同时不按当前选中的标签过滤，否则切到某个标签后其它标签全变 0，没法判断该切去哪
+    var pool = QA.items.filter(function (it) { return matches(it, kw || ''); });
+    var counts = { all: pool.length };
+    pool.forEach(function (it) { var k = it.tag || ''; if (k) counts[k] = (counts[k] || 0) + 1; });
     box.innerHTML = ['all'].concat(tags).map(function (t) {
       var n = counts[t] || 0;
-      return '<button type="button" class="chip' + (t === tag ? ' is-on' : '') + '" data-tag="' + esc(t) + '">' + (t === 'all' ? '全部' : esc(t)) + '<b>' + n + '</b></button>';
+      var cls = 'chip' + (t === tag ? ' is-on' : '') + (kw && !n ? ' is-empty' : '');
+      return '<button type="button" class="' + cls + '" data-tag="' + esc(t) + '"' + (kw && !n ? ' aria-disabled="true"' : '') + '>' + (t === 'all' ? '全部' : esc(t)) + '<b>' + n + '</b></button>';
     }).join('');
   }
 
@@ -311,7 +318,6 @@ html[data-theme="notion"]{
     var b = e.target.closest('[data-tag]');
     if (!b) return;
     tag = b.getAttribute('data-tag');
-    renderTags();
     render();
   });
   document.getElementById('q').addEventListener('input', render);
@@ -344,7 +350,6 @@ html[data-theme="notion"]{
     .then(function (qa) {
       QA = { intro: (qa && qa.intro) || '', items: (qa && qa.items) || [] };
       if (QA.intro) document.getElementById('intro').textContent = QA.intro;
-      renderTags();
       render();
     })
     .catch(function () {

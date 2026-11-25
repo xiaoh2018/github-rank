@@ -92,6 +92,8 @@ push('问答折叠标记', faqText.includes('summary:after') && faqText.includes
 push('问答搜索有高亮（highlightNode + hitmark）', faqText.includes('function highlightNode') && faqText.includes("className = 'hitmark'"));
 push('问答计数显示命中条数', faqText.includes('命中') && faqText.includes('当前显示'));
 push('问答答案先转义再解析 markdown', faqText.includes('function inline(s) {') && faqText.includes('return esc(s)'));
+push('问答标签计数跟随搜索', faqText.includes('renderTags(kw)'), '');
+push('问答 0 命中标签被压暗并禁用', faqText.includes('is-empty') && faqText.includes('aria-disabled'), '');
 
 const health = await fetch(base + '/api/health?v=' + t);
 const healthJson = await health.json().catch(() => null);
