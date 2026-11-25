@@ -667,9 +667,14 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     $('catList').innerHTML = names.length
       ? names.map(function (n) { return '<li><a href="#" data-cat="' + esc(n) + '"><span>' + esc(catDisplay(n)) + '</span><small>' + m[n] + '</small></a></li>'; }).join('')
       : '<li><small>暂无分类</small></li>';
-    var recent = state.arts.slice().sort(function (a, b) { return String(b.date || '') > String(a.date || '') ? 1 : -1; }).slice(0, 5);
+    var recent = state.arts.slice().sort(function (a, b) {
+      if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+      var x = String(a.date || ''), y = String(b.date || '');
+      return x === y ? 0 : (x < y ? 1 : -1);
+    }).slice(0, 5);
+    // 用规范地址而不是 #id：侧栏点开的是真链接，复制出去也能直接打开
     $('recentList').innerHTML = recent.length
-      ? recent.map(function (a) { return '<li><a href="#' + encodeURIComponent(a.id) + '"><span>' + esc(a.title || '(无标题)') + '</span><small>' + esc(String(a.date || '').slice(5, 10)) + '</small></a></li>'; }).join('')
+      ? recent.map(function (a) { return '<li><a href="' + esc(artPath(a)) + '" data-id="' + esc(a.id) + '"><span>' + esc(a.title || '(无标题)') + '</span><small>' + esc(String(a.date || '').slice(5, 10)) + '</small></a></li>'; }).join('')
       : '<li><small>暂无文章</small></li>';
     var s = state.site || {};
     if (s.geo && s.geo.summary) $('aboutText').textContent = s.geo.summary;
@@ -963,6 +968,13 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     if (!a) return;
     var cat = a.getAttribute('data-cat');
     if (cat) { e.preventDefault(); state.cat = cat; renderChips(); renderCards(); return; }
+    var did = a.getAttribute('data-id');
+    if (did) {
+      e.preventDefault();
+      history.pushState(null, '', pathOf(did));
+      openReader(did);
+      return;
+    }
     var href = a.getAttribute('href') || '';
     if (href.charAt(0) === '#') {
       e.preventDefault();
