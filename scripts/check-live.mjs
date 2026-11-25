@@ -159,6 +159,7 @@ push('文章列表页有「相关阅读」', artListHtml.includes('relatedHtml')
 push('首页文章卡片有置顶徽标代码', home.includes('pinchip'), '');
 const admHtml = await (await fetch(base + '/admin?v=' + t)).text();
 push('后台友链有上移/下移按钮', admHtml.includes('data-up=') && admHtml.includes('data-down='), 'bytes=' + admHtml.length);
+push('后台问答行有上移/下移按钮', admHtml.includes('data-qaup=') && admHtml.includes('data-qadn='), '');
 push('导航页有「还没有站点」空态', home.includes('导航页还没有站点'), '');
 
 let bad = 0;

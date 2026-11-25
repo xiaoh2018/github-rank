@@ -1614,7 +1614,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v112';
+const ASSET_V = 'v113';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -5880,6 +5880,8 @@ tr:hover td{background:#fcfbf8}
     return '<div class="qa-row" data-i="' + i + '">' +
       '<div class="qa-top"><input class="qa-q" maxlength="200" placeholder="问题，例如：这个榜单的数据多久更新一次？" value="' + qesc(it.q) + '">' +
       '<input class="qa-tag" maxlength="20" placeholder="标签" value="' + qesc(it.tag) + '">' +
+      '<button type="button" class="ghost small" data-qaup="' + i + '" title="上移"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+      '<button type="button" class="ghost small" data-qadn="' + i + '" title="下移"' + (i === qaState.items.length - 1 ? ' disabled' : '') + '>↓</button>' +
       '<button type="button" class="ghost" data-qadel="' + i + '">删除</button></div>' +
       '<textarea class="qa-a" maxlength="4000" placeholder="答案（支持 Markdown）">' + qesc(it.a) + '</textarea>' +
       '</div>';
