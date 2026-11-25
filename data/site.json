@@ -1,12 +1,46 @@
 {
   "ad": {
     "enabled": false,
-    "html": ""
+    "html": "",
+    "slots": {
+      "home-top": {
+        "enabled": false,
+        "html": ""
+      },
+      "list-top": {
+        "enabled": false,
+        "html": ""
+      },
+      "list-bottom": {
+        "enabled": false,
+        "html": ""
+      },
+      "sidebar": {
+        "enabled": false,
+        "html": ""
+      },
+      "article": {
+        "enabled": false,
+        "html": ""
+      },
+      "list-inline": {
+        "enabled": false,
+        "html": ""
+      },
+      "article-inline": {
+        "enabled": false,
+        "html": ""
+      },
+      "nav-inline": {
+        "enabled": false,
+        "html": ""
+      }
+    }
   },
   "layout": {
-    "mode": "auto",
+    "mode": "triple",
     "side": "right",
-    "users": "double"
+    "users": "auto"
   },
   "contact": {
     "enabled": true,
