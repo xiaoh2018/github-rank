@@ -7,7 +7,8 @@ const RANGES = {
   week: { days: 7 },
   month: { days: 30 },
   year: { days: 365 },
-  all: { days: 0 }
+  total: { days: 0 },   // 总榜：全站星标前 500，不分时间
+  all: { days: 0 }      // 旧链接 ?range=all 兼容，数据同 total
 };
 
 const LANGS = ['JavaScript', 'TypeScript', 'Python', 'Go', 'Rust', 'Java', 'C++', 'C', 'C#', 'PHP', 'Ruby', 'Swift', 'Kotlin', 'Dart', 'Shell'];
@@ -178,7 +179,8 @@ const SEGMENTS = {
   week:  [{ lo: 500 }, { lo: 200, hi: 500 }, { lo: 50, hi: 200 }],
   month: [{ lo: 1000 }, { lo: 200, hi: 1000 }, { lo: 50, hi: 200 }],
   year:  [{ lo: 2000 }, { lo: 500, hi: 2000 }, { lo: 100, hi: 500 }, { lo: 50, hi: 100 }],
-  all:   [{ lo: 20000 }, { lo: 5000, hi: 20000 }, { lo: 1000, hi: 5000 }, { lo: 200, hi: 1000 }]
+  total: [{ lo: 1000 }],
+  all:   [{ lo: 1000 }]
 };
 
 function dateStr(daysAgo) {
@@ -260,7 +262,8 @@ const RANGE_FILES = {
   week: 'data/repos-week.js',
   month: 'data/repos-month.js',
   year: 'data/repos-year.js',
-  all: 'data/repos-all.js'
+  total: 'data/repos-total.js',
+  all: 'data/repos-total.js'   // 旧链接兼容，同一份数据
 };
 const rangePending = {};
 
@@ -326,8 +329,11 @@ async function loadRepos(state, bypassCache, onProgress) {
   const out = [];
   const seen = new Set();
   let partial = false;
+  // 总榜要翻得更深（GitHub 搜索最多 1000 条），其它时间范围仍按 3 页/段控制请求量
+  const deep = state.range === 'total' || state.range === 'all';
+  const maxPages = deep ? 10 : PAGES_PER_SEG;
   outer: for (const seg of segs) {
-    for (let page = 1; page <= PAGES_PER_SEG; page++) {
+    for (let page = 1; page <= maxPages; page++) {
       let items;
       try {
         items = await fetchSearch(segQuery(base, seg), 'repositories', 'stars', page);
@@ -697,14 +703,15 @@ async function openDrawer(r) {
 
   // 中文 README 单独请求，到了再替换 README 部分，不再让它拖住整个抽屉
   if (readme && getLang() === 'zh') {
-    view.zhPending = true;
-    renderDrawerBody(r, view);
     const zh = await fetch('/api/readme-zh?repo=' + encodeURIComponent(r.name), { signal: timeoutSignal(20000) })
       .then(x => x.json()).catch(() => null);
     if (drawerTarget !== r.name) return;
-    view.zhPending = false;
-    if (zh && zh.ok && zh.text) { view.readme = zh.text; view.zh = true; view.zhPartial = !!zh.partial; }
-    renderDrawerBody(r, view);
+    if (zh && zh.ok && zh.text) {
+      view.readme = zh.text; view.zh = true; view.zhPartial = !!zh.partial;
+      // 只替换 README 这一块，滚动位置和上面其它内容都不动
+      const old = document.getElementById('readmeWrap');
+      if (old) old.replaceWith(readmeBlock(r, view));
+    }
   }
 }
 
@@ -715,6 +722,75 @@ function timeoutSignal(ms) {
 }
 
 // 按现有数据重画抽屉内容（同一个项目可以多次调用）
+
+// README 是 Markdown 源码：先把 GitHub 上常见的 HTML 片段降级成 Markdown 写法，
+// 再交给 KeeMd（先整体转义再解析），这样抽屉里看到的就是渲染后的样子，也不会有注入风险。
+function sanitizeReadme(t, repoUrl) {
+  let s = String(t || '').replace(/\r/g, '');
+  const dec = x => x.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&nbsp;/g, ' ');
+  // 图片 / 链接（含 <img align="center" ...>、<a href>）
+  s = s.replace(/<img\b[^>]*?src=["']?([^"'\s>]+)["']?[^>]*>/gi, function (m, src) {
+    const u = dec(src);
+    const altM = /alt=["']([^"']*)["']/i.exec(m);
+    const a = dec((altM && altM[1]) || '');
+    return u ? '![' + a + '](' + u + ')' : '';   // 相对图片留给下面的「补全成 raw 地址」处理
+  });
+  s = s.replace(/<a\b[^>]*?href=["']?([^"'\s>]+)["']?[^>]*>([\s\S]*?)<\/a>/gi, function (m, href, txt) {
+    const u = dec(href);
+    const t = dec(txt.replace(/<[^>]+>/g, '')).trim();
+    return /^https?:\/\//i.test(u) && t ? '[' + t + '](' + u + ')' : t;
+  });
+  s = s.replace(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi, function (m, n, txt) {
+    return '\n' + '#'.repeat(Math.min(Number(n), 6)) + ' ' + dec(txt.replace(/<[^>]+>/g, '')).trim() + '\n';
+  });
+  s = s.replace(/<(b|strong)\b[^>]*>([\s\S]*?)<\/\1>/gi, '**$2**');
+  s = s.replace(/<(i|em)\b[^>]*>([\s\S]*?)<\/\1>/gi, '*$2*');
+  s = s.replace(/<code\b[^>]*>([\s\S]*?)<\/code>/gi, '`$1`');
+  s = s.replace(/<li\b[^>]*>/gi, '\n- ');
+  s = s.replace(/<\/li>/gi, '');
+  s = s.replace(/<br\s*\/?>/gi, '\n');
+  s = s.replace(/<hr\b[^>]*>/gi, '\n---\n');
+  s = s.replace(/<p\b[^>]*>/gi, '\n').replace(/<\/p>/gi, '\n');
+  // 其余标签（details/summary/div/picture/table 里的属性等）去掉，文字保留
+  s = s.replace(/<[^>]+>/g, '');
+  s = dec(s);
+  // 站内锚点（#xxx）在抽屉里点了没意义，去掉只留文字
+  s = s.replace(/\[([^\]]+)\]\(#[^)]*\)/g, '$1');
+  // 相对路径的图片/链接补成 GitHub 上的绝对地址，否则渲染出来是死链
+  const base = String(repoUrl || '').replace(/\/$/, '');
+  if (base) {
+    s = s.replace(/!\[([^\]]*)\]\((?!https?:|\/|#)([^)\s]+)\)/g, (m, alt, p) => '![' + alt + '](' + base + '/raw/HEAD/' + p.replace(/^\.\//, '') + ')');
+    s = s.replace(/\[([^\]]+)\]\((?!https?:|\/|#)([^)\s]+)\)/g, (m, txt, p) => '[' + txt + '](' + base + '/blob/HEAD/' + p.replace(/^\.\//, '') + ')');
+  }
+  s = s.replace(/\n{3,}/g, '\n\n').replace(/^\s+/, '');
+  return s;
+}
+
+function readmeBlock(r, v) {
+  const wrap = el('div', 'readme-wrap');
+  wrap.id = 'readmeWrap';
+  const head = el('div', 'readme-head');
+  head.append(el('h4', null, 'README'));
+  if (v.readme && v.zh) head.append(el('span', 'readme-badge', v.zhPartial ? '机器翻译 · 部分段落仍为英文' : '机器翻译 · 仅供参考'));
+  wrap.append(head);
+  const LIMIT = 20000;
+  if (!v.readme) {
+    wrap.append(el('p', 'note', '没有读取到 README。'));
+    return wrap;
+  }
+  const body = el('div', 'article-body readme-body');
+  const canRender = window.KeeMd && window.KeeMd.render;
+  body.innerHTML = canRender ? window.KeeMd.render(sanitizeReadme(v.readme.slice(0, LIMIT), r.url)) : '';
+  if (!canRender) body.textContent = v.readme.slice(0, LIMIT);
+  wrap.append(body);
+  if (v.readme.length > LIMIT) wrap.append(el('p', 'note', '（仅显示前 ' + LIMIT + ' 字符，完整内容请到 GitHub 看原文）'));
+  const more = el('a', 'btn readme-more', '在 GitHub 看完整 README');
+  more.href = r.url; more.target = '_blank'; more.rel = 'noopener noreferrer';
+  wrap.append(more);
+  return wrap;
+}
+
 function renderDrawerBody(r, v) {
   const rows = [];
   const meta = el('div', 'meta');
@@ -758,16 +834,7 @@ function renderDrawerBody(r, v) {
     rows.push(el('p', 'note', '没有读取到贡献者信息。'));
   }
 
-  let readmeTitle = 'README 预览';
-  if (v.zhPending) readmeTitle += '（中文翻译中…）';
-  else if (v.zh) readmeTitle += v.zhPartial ? '（机器翻译，部分段落为英文原文）' : '（机器翻译，仅供参考）';
-  rows.push(el('h4', null, readmeTitle));
-  if (v.readme) {
-    rows.push(el('pre', 'readme', v.readme.slice(0, 4000)));
-    if (v.readme.length > 4000) rows.push(el('p', 'note', '（仅显示前 4000 字符，完整内容请访问仓库）'));
-  } else {
-    rows.push(el('p', 'note', '没有读取到 README。'));
-  }
+  rows.push(readmeBlock(r, v));
   $('drawerBody').replaceChildren(...rows);
 }
 

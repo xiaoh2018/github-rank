@@ -18,7 +18,7 @@ window.__wantNav = (function () {
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>GitHub 热门项目排行榜 - 按星标、增速、活跃度发现热门开源项目</title>
-<meta name="description" content="GitHub 热门项目排行榜：按近 7 天、近 30 天、近 1 年、全部时间查看星标最多的开源仓库，并提供今日增量、活跃度、语言分布、热门开发者与组织榜单。">
+<meta name="description" content="GitHub 热门项目排行榜：按近 7 天、近 30 天、近 1 年查看星标最多的开源仓库，另有 GitHub 全站星标总榜，并提供今日增量、活跃度、语言分布、热门开发者与组织榜单。">
 <meta name="keywords" content="GitHub 排行榜,GitHub 热门项目,GitHub Trending,开源项目,星标排行,热门开发者,GitHub 组织">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://github.661026.xyz/">
@@ -36,7 +36,7 @@ window.__wantNav = (function () {
 <meta name="twitter:description" content="按星标、增速、活跃度发现热门 GitHub 开源项目，附语言分布、热门开发者与组织榜。">
 <meta name="twitter:image" content="https://github.661026.xyz/og-image.png">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://github.661026.xyz/#website","name":"GitHub 热门项目排行榜","url":"https://github.661026.xyz/","inLanguage":"zh-CN","description":"按星标、增速、活跃度查看 GitHub 热门开源项目、开发者与组织。"},{"@type":"WebPage","@id":"https://github.661026.xyz/#webpage","url":"https://github.661026.xyz/","name":"GitHub 热门项目排行榜 - 按星标、增速、活跃度发现热门开源项目","description":"按近 7 天、近 30 天、近 1 年、全部时间查看星标最多的开源仓库，并提供今日增量、活跃度、语言分布、热门开发者与组织榜单。","inLanguage":"zh-CN","isPartOf":{"@id":"https://github.661026.xyz/#website"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://github.661026.xyz/og-image.png","width":1200,"height":630}}]}
+{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://github.661026.xyz/#website","name":"GitHub 热门项目排行榜","url":"https://github.661026.xyz/","inLanguage":"zh-CN","description":"按星标、增速、活跃度查看 GitHub 热门开源项目、开发者与组织。"},{"@type":"WebPage","@id":"https://github.661026.xyz/#webpage","url":"https://github.661026.xyz/","name":"GitHub 热门项目排行榜 - 按星标、增速、活跃度发现热门开源项目","description":"按近 7 天、近 30 天、近 1 年查看星标最多的开源仓库，另有 GitHub 全站星标总榜，并提供今日增量、活跃度、语言分布、热门开发者与组织榜单。","inLanguage":"zh-CN","isPartOf":{"@id":"https://github.661026.xyz/#website"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://github.661026.xyz/og-image.png","width":1200,"height":630}}]}
 </script>
 <style>
 :root{
@@ -255,7 +255,16 @@ body[data-page="nav"] #insights{display:none!important}
 @media (max-width:600px){
   .author-row{grid-template-columns:22px 24px minmax(0,1fr) 48px;gap:8px}
   .layout{grid-template-columns:1fr}
-    .insights{position:static}
+    .readme-wrap{margin-top:4px}
+.readme-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 6px}
+.readme-head h4{margin:0}
+.readme-badge{font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--muted)}
+.readme-body{max-height:56vh;overflow:auto;font-size:13.5px;line-height:1.72;padding:2px 2px 6px}
+.readme-body img{max-width:100%;height:auto}
+.readme-body h1,.readme-body h2,.readme-body h3,.readme-body h4,.readme-body h5,.readme-body h6{font-size:15px;margin:16px 0 8px}
+.readme-body pre{overflow:auto}
+.readme-more{margin:10px 0 2px}
+.insights{position:static}
   .au-bar{display:none}
 }
 .user-item{grid-template-columns:48px 40px 1fr}
@@ -438,7 +447,7 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
         <button class="btn" data-range="week">近 7 天</button>
         <button class="btn" data-range="month">近 30 天</button>
         <button class="btn" data-range="year">近 1 年</button>
-        <button class="btn" data-range="all">全部</button>
+        <button class="btn" data-range="total" title="GitHub 全站星标前 500（不分时间）">总榜</button>
       </div>
       <select id="lang" class="repo-only" aria-label="语言"></select>
       <select id="sort" class="repo-only" aria-label="排序">
@@ -498,8 +507,8 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
               <button class="btn ghost" id="aboutClose" type="button">关闭</button>
             </div>
       <div id="geoSummary">
-        <p>它把 GitHub 上星标数较高的开源仓库按时间范围（近 7 天、近 30 天、近 1 年、全部）整理成排行榜，并提供语言分布、今日增量、活跃度、热门开发者与组织等视图。</p>
-        <p>页面默认读取定时抓取的静态数据，每 3 小时更新一次；数据来自 GitHub 公开的 Search API。筛选条件会写进网址（例如 ?range=month&amp;lang=Python&amp;sort=trend），复制地址栏即可分享同一视图。</p>
+        <p>它把 GitHub 上星标数较高的开源仓库按时间范围（近 7 天、近 30 天、近 1 年）整理成排行榜，并单独提供「总榜」：全站按星标降序的前 500 个仓库，并提供语言分布、今日增量、活跃度、热门开发者与组织等视图。</p>
+        <p>页面默认读取定时抓取的静态数据，每 3 小时更新一次；数据来自 GitHub 公开的 Search API。「总榜」是 GitHub 全站按星标降序的前 500 名（深翻 10 页搜索结果），近 7 天 / 30 天 / 1 年三个榜只收该时间段内新建的仓库。筛选条件会写进网址（例如 ?range=month&amp;lang=Python&amp;sort=trend），复制地址栏即可分享同一视图。</p>
       </div>
       <div id="geoFaq" class="geo-faq" hidden></div>
       </dialog>

@@ -9,7 +9,7 @@
 ## 功能
 
 **榜单**
-- 时间范围（近 7 天、30 天、一年、全部）、语言、排序（星标、今日增量、活跃度、Fork、最近更新）、视图（仓库、开发者、组织）可以组合筛选，URL 参数会同步变化，可以直接分享。
+- 时间范围（近 7 天、30 天、一年、总榜）、语言、排序（星标、今日增量、活跃度、Fork、最近更新）、视图（仓库、开发者、组织）可以组合筛选，URL 参数会同步变化，可以直接分享。前三个范围按**创建时间**圈出「新项目」再按星标排；**总榜**不分创建时间，是 GitHub 全站星标降序前 500（深翻 10 页抓取）。
 - 搜索支持多个词，并自动把常用中文词（如「命令行」「前端」「游戏」）对应到英文主题。
 - 变化榜：显示与上一次记录相比新进入和掉出的仓库。
 - 收藏（保存在浏览器本地）、导出和导入收藏（JSON 文件）。有未导出的收藏改动时，关闭页面会提醒。
@@ -17,7 +17,8 @@
 
 **仓库详情（抽屉）**
 - 点开任意仓库，显示 Star、Fork、许可证、最近提交、Release、主要贡献者和 README。
-- README 可切换中英文；中文译文由机器翻译得到，页面会标注。
+- README 直接渲染成排版后的样子（标题、表格、图片、代码块、任务清单），超长时给「在 GitHub 看完整 README」的入口。
+- README 可切换中英文；中文译文由机器翻译得到，有译文时标注「机器翻译 · 仅供参考」，译文到达时只替换 README 区块，不打断阅读。
 - 详情通过 Worker 代理请求 GitHub，访客不需要自己的 Token。访客也可以在「设置」里填写自己的 GitHub Token，用自己的额度刷新。
 
 **文章**
@@ -69,7 +70,8 @@ data/
   repos-week.js     近 7 天榜（Action 生成）
   repos-month.js    近 30 天榜（Action 生成）
   repos-year.js     近 1 年榜（Action 生成）
-  repos-all.js      全部时间榜（Action 生成）
+  repos-total.js    总榜：全站星标降序前 500（深翻 10 页抓取，Action 生成）
+  repos-all.js      旧「全部」榜，已停更，仅作旧链接兜底
   repos.js          旧版合并数据，已冻结，仅作新 Worker 部署前的兜底
   desc-zh.json      简介中文译文（Action 和 Worker 共同维护）
   readme-zh.json    README 中文译文（Action 生成）
@@ -83,7 +85,7 @@ data/
 
 ## 数据如何流动
 
-1. **榜单**：GitHub Action 每 3 小时运行 `scripts/fetch.js`，生成 `data/repos-meta.js`（元信息 + 开发者/组织榜）和 `data/repos-week.js`、`repos-month.js`、`repos-year.js`、`repos-all.js`（每个时间范围一个文件，页面只下载当前选中的那一个）。只有内容变化时才提交。也可以在 Actions 页面手动运行 `Update data`。
+1. **榜单**：GitHub Action 每 3 小时运行 `scripts/fetch.js`，生成 `data/repos-meta.js`（元信息 + 开发者/组织榜）和 `data/repos-week.js`、`repos-month.js`、`repos-year.js`、`repos-total.js`（每个范围一个文件，页面只下载当前选中的那一个）。前三个范围按创建时间分段搜索、总榜走 `stars:>1000 sort=stars` 深翻 10 页。只有内容变化时才提交。也可以在 Actions 页面手动运行 `Update data`。
 2. **访客打开页面**：Worker 从仓库的 raw 地址读取页面文件和数据，把**成品响应**写进边缘缓存（Cache API）：命中时直接返回，既不回源也不重新拼页面；未命中才回源一次，之后按文件类型带长缓存、`ETag` 和 `stale-while-revalidate`。页面脚本再请求抽屉详情、README 等接口，由 Worker 代为请求 GitHub 并缓存。
 3. **后台保存**：管理员在 `/admin` 修改配置，Worker 使用 `GITHUB_TOKEN` 把修改提交到仓库的 `data/` 目录，并顺手清掉相关成品缓存，刷新即可看到。
 4. **保活**：Cron 每周一 UTC 02:00（北京时间 10:00）运行一次，检查保活状态并记录时间。

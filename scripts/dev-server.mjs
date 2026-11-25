@@ -6,6 +6,8 @@ import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 
+const SAMPLE_README = "# build-your-own-x\n\n<p align=\"center\">\n  <img src=\"https://img.shields.io/badge/stars-565k-gold\" alt=\"stars\">\n  <img src=\"https://img.shields.io/badge/license-MIT-blue\" alt=\"license\">\n</p>\n\n从零开始重构你喜爱的技术，从而掌握编程。**只保留可以动手的部分**，每个项目都能在周末跑通。\n\n## 目录\n\n| 方向 | 代表项目 | 语言 |\n| :--- | :---: | ---: |\n| 数据库 | build-your-own-redis | C |\n| 容器 | build-your-own-docker | Go |\n| 编译器 | build-your-own-lisp | C++ |\n\n## 快速开始\n\n1. 选一个方向\n2. 克隆仓库并跑通示例\n3. 在 `notes/` 里写总结\n\n- [x] 先读 README\n- [ ] 再动手写代码\n\n```bash\ngit clone https://github.com/example/redis-clone\ncd redis-clone && make\n```\n\n> 提示：把 `make` 的输出贴进 issue，方便别人帮你排查。\n\n更多内容见 [官方教程](https://example.com/tutorial) 与 [Wiki](https://example.com/wiki)。";
+
 const root = path.resolve(process.cwd());
 const port = Number(process.argv[2] || 8123);
 const PASSWORD = 'dev';
@@ -50,6 +52,35 @@ globalThis.fetch = async (input, init) => {
     return buf ? new Response(buf) : new Response('not found', { status: 404 });
   }
   if (url.startsWith('https://api.github.com/')) {
+    if (/\/repos\/[^/]+\/[^/]+\/readme/.test(url)) {
+      return new Response(SAMPLE_README, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
+    }
+    if (/\/repos\/[^/]+\/[^/]+\/releases\/latest/.test(url)) {
+      return jsonResp({ tag_name: 'v1.2.3', html_url: 'https://github.com/example/repo/releases/tag/v1.2.3', published_at: '2026-11-01T12:00:00Z' });
+    }
+    if (/\/repos\/[^/]+\/[^/]+\/contributors/.test(url)) {
+      return jsonResp([
+        { login: 'octocat', html_url: 'https://github.com/octocat', avatar_url: 'https://avatars.githubusercontent.com/u/583231?s=64', contributions: 128 },
+        { login: 'torvalds', html_url: 'https://github.com/torvalds', avatar_url: 'https://avatars.githubusercontent.com/u/1024025?s=64', contributions: 42 }
+      ]);
+    }
+    if (/\/repos\/[^/]+\/[^/]+\/commits/.test(url)) {
+      return jsonResp([{ commit: { committer: { date: new Date(Date.now() - 2 * 86400000).toISOString() } } }]);
+    }
+    if (/\/repos\/[^/]+\/[^/]+$/.test(url)) {
+      return jsonResp({
+        full_name: 'example/repo',
+        html_url: 'https://github.com/example/repo',
+        description: '本地预览用的假仓库',
+        stargazers_count: Number(url.length) + 1000,
+        forks_count: 512,
+        open_issues_count: 23,
+        subscribers_count: 88,
+        pushed_at: new Date(Date.now() - 3600000).toISOString(),
+        created_at: '2018-05-09T00:00:00Z',
+        license: { spdx_id: 'MIT' }
+      });
+    }
     if (url.includes('/contents/')) {
       const rel = decodeURIComponent(url.split('/contents/')[1].split('?')[0]);
       if (method === 'PUT') {

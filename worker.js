@@ -25,6 +25,7 @@ const SITE = {
   '/data/repos-week.js': ['data/repos-week.js', 'application/javascript; charset=utf-8'],
   '/data/repos-month.js': ['data/repos-month.js', 'application/javascript; charset=utf-8'],
   '/data/repos-year.js': ['data/repos-year.js', 'application/javascript; charset=utf-8'],
+  '/data/repos-total.js': ['data/repos-total.js', 'application/javascript; charset=utf-8'],
   '/data/repos-all.js': ['data/repos-all.js', 'application/javascript; charset=utf-8'],
   '/sw.js': ['sw.js', 'application/javascript; charset=utf-8'],
   '/manifest.json': ['manifest.json', 'application/manifest+json; charset=utf-8'],

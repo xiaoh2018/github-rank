@@ -31,7 +31,8 @@ const RANGES = {
   week:  { days: 7,   segs: [{ lo: 500 }, { lo: 200, hi: 500 }, { lo: 50, hi: 200 }] },
   month: { days: 30,  segs: [{ lo: 1000 }, { lo: 200, hi: 1000 }, { lo: 50, hi: 200 }] },
   year:  { days: 365, segs: [{ lo: 2000 }, { lo: 500, hi: 2000 }, { lo: 100, hi: 500 }, { lo: 50, hi: 100 }] },
-  all:   { days: 0,   segs: [{ lo: 20000 }, { lo: 5000, hi: 20000 }, { lo: 1000, hi: 5000 }, { lo: 200, hi: 1000 }] },
+  // 总榜：全站按星标降序，不分时间、不做星标分段，单查询深翻 10 页（GitHub 搜索上限 1000 条）
+  total: { days: 0,   deep: 10, minStars: 1000 },
 };
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -117,7 +118,32 @@ async function fetchSegment(base, seg, rangeName) {
   return items;
 }
 
+// 总榜用：单查询 + 深翻页。搜索结果按 star 降序，翻得越深名次越准
+async function fetchDeep(cfg, name) {
+  const min = cfg.minStars || 1000;
+  const q = 'stars:>' + min;
+  const pages = cfg.deep || 10;
+  const map = new Map();
+  for (let page = 1; page <= pages; page++) {
+    const data = await ghSearch('repositories', q,
+      `sort=stars&order=desc&per_page=${PAGE_SIZE}&page=${page}`);
+    const got = data.items || [];
+    for (const r of got) if (!map.has(r.full_name)) map.set(r.full_name, r);
+    console.log(`  [${name}] ${q} 第 ${page} 页取到 ${got.length} 条，累计 ${map.size}`);
+    if (got.length < PAGE_SIZE) break;
+  }
+  return [...map.values()]
+    .sort((a, b) => b.stargazers_count - a.stargazers_count)
+    .slice(0, MAX_KEEP)
+    .map(trimRepo);
+}
+
 async function fetchRange(name, cfg) {
+  if (cfg.deep) {
+    const repos = await fetchDeep(cfg, name);
+    console.log(`[range ${name}] 总榜完成，保留 ${repos.length} 条`);
+    return { repos };
+  }
   const base = 'stars:>' + MIN_STARS + (cfg.days ? ' created:>' + dateStr(cfg.days) : '');
   console.log(`[range ${name}] 基础查询：${base}`);
   const map = new Map();

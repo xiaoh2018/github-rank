@@ -355,5 +355,32 @@ ok(navCc.indexOf('max-age=300') >= 0, '/nav 与首页同一档缓存', navCc);
 r = await hit('/?page=nav');
 ok(r.status === 200, '/?page=nav 返回 200');
 console.log('');
+// ---- 14. 总榜 + README 渲染 ----
+console.log('14. 总榜与 README');
+r = await hit('/data/repos-total.js');
+const totalJs = await r.text();
+ok(r.status === 200, '/data/repos-total.js 返回 200');
+ok((r.headers.get('content-type') || '').indexOf('javascript') >= 0, '总榜文件是 JS');
+const totalCc = r.headers.get('cache-control') || '';
+ok(totalCc.indexOf('max-age=600') >= 0 && totalCc.indexOf('s-maxage=900') >= 0, '总榜走榜单数据缓存档（600/900）', totalCc);
+const totalRange = /window\.__GHRANK_RANGES__\["total"\] = (\{[\s\S]*\});/.exec(totalJs);
+ok(!!totalRange, '总榜文件里有 __GHRANK_RANGES__["total"]');
+let totalRepos = [];
+try { totalRepos = JSON.parse(totalRange[1]).repos || []; } catch (e) {}
+ok(totalRepos.length >= 400, '总榜条数足够（≥400）', totalRepos.length);
+ok(totalRepos.every((x, i) => i === 0 || totalRepos[i - 1].stars >= x.stars), '总榜按星标降序');
+ok(totalRepos[0] && totalRepos[0].stars > 500000, '总榜第一名星标 >50 万', totalRepos[0] && totalRepos[0].stars);
+const fullTop = await hit('/');
+const fullHtml = await fullTop.text();
+ok(fullHtml.indexOf('data-range="total"') > 0, '首页有总榜标签');
+ok(fullHtml.indexOf('总榜') > 0, '首页文案里有「总榜」');
+ok(fullHtml.indexOf('readme-body') > 0, '首页带了 README 渲染样式');
+r = await hit('/js/bundle.js');
+const bundleJs = await r.text();
+ok(bundleJs.indexOf('sanitizeReadme') > 0, 'bundle.js 里有 README 的 HTML→Markdown 转换');
+ok(bundleJs.indexOf("el('pre', 'readme'") < 0, 'README 不再用 <pre> 显示原始文本');
+ok(bundleJs.indexOf('中文翻译中') < 0, '去掉了「中文翻译中…」提示');
+ok(bundleJs.indexOf('readmeWrap') > 0, '译文到了只替换 README 块');
+
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
