@@ -26,12 +26,12 @@
 - 渲染前会转义 HTML，只放行 http(s) 链接和站内路径，不执行页面里的脚本。
 
 **导航页**
-- 页头有两个标签：榜单 / 导航。导航页按分类展示常用站点卡片（图标 + 名称 + 描述 + 域名），带搜索框，数据来自 `data/nav.json`。
+- 页头是三栏：左边站点标题 ｜ 中间胶囊导航「榜单 / 导航 / 文章」｜ 右边工具栏（关于本站 / 友情链接 / 设置 / English / 切换主题）。导航页按分类展示常用站点卡片（图标 + 名称 + 描述 + 域名），带搜索框，数据来自 `data/nav.json`。
 - 后台可以加分类、加站点；填网址点「自动获取」会把网页标题、描述、图标抓回来（抓不到自己写）。
 
 **后台（`/admin`）**
 - 用管理密码登录，11 个标签按「常用 / 内容 / 站点信息 / 运维」分组：概览、榜单布局、文章、SEO 与 GEO、友链、导航页、广告、联系方式、备案信息、收录提交、翻译与密钥。
-- 广告有 8 个位置：5 个固定位（首页顶部、榜单上方、榜单下方、侧栏底部、文章区上方）+ 3 个信息流位（榜单每 10 个项目一条、文章每 2 篇一条、导航每组每 8 个站点一条），每个位置独立开关，不勾就不渲染。位置示意图：[docs/shots/ad-slots.png](docs/shots/ad-slots.png)。
+- 广告有 8 个位置：5 个固定位（首页顶部、榜单上方、榜单下方、侧栏底部、文章区上方）+ 3 个信息流位（榜单、文章、导航，**间隔 1–50 可配**），每个位置独立开关，不勾就不渲染；每格可设「跳转链接」或「弹窗内容」（弹窗优先），另有**页头滚动条**（文字/速度/链接/弹窗）。位置示意图：[docs/shots/ad-slots.png](docs/shots/ad-slots.png)。
 - 收录提交：一键走 IndexNow（Bing / Yandex / Seznam / Naver），配 `BAIDU_TOKEN` 时也会推百度；面板上直接给出 `/sitemap.xml`、`/llms.txt` 与 key 文件的地址。
 - 密钥（GitHub Token、百度 Token 等）只在 Cloudflare 的 Variables and Secrets 里设置，后台只显示「配没配」并可以实测翻译链路。
 
@@ -59,7 +59,7 @@ worker.js           Cloudflare Worker：页面转发、后台、API、保活、�
 scripts/fetch.js    抓取榜单、翻译简介和 README 的脚本（Node 20，无依赖）
 scripts/split-data.js        把旧的合并数据文件拆成按时间范围的新格式（迁移用）
 scripts/make-og-image.ps1    生成 og-image.png（Windows 自带 GDI+，无需额外依赖）
-scripts/check-worker.mjs     本地模拟 Workers 运行时跑 13 组自检（node scripts/check-worker.mjs）
+scripts/check-worker.mjs     本地模拟 Workers 运行时跑 17 组 90+ 断言自检（node scripts/check-worker.mjs）
 scripts/dev-server.mjs       本地真的跑 worker.js（http://127.0.0.1:8123，后台密码 dev）
 scripts/preview-admin.mjs    生成后台各面板的预览页（自动用 dev 密码登录，便于截图核对）
 wrangler.toml       Cloudflare 部署配置（路由也在里面，避免部署时丢路由）
