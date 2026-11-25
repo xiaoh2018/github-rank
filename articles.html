@@ -220,6 +220,10 @@ html[data-theme="notion"]{
   --shadow:0 1px 2px rgba(55,53,47,.06),0 10px 26px -18px rgba(55,53,47,.22);
 }
 html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
+    .totop{position:fixed;right:16px;bottom:16px;z-index:29;width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:16px;line-height:1;cursor:pointer;box-shadow:var(--shadow);display:grid;place-items:center;transition:transform .15s ease,color .15s ease}
+    .totop:hover{transform:translateY(-2px);color:var(--accent)}
+    .totop[hidden]{display:none}
+    @media print{.totop{display:none!important}}
 </style>
 </head>
 <body>
@@ -910,7 +914,21 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   }
   loadAll();
 })();
+  (function(){
+    function initTotop(){
+      var btn = document.getElementById('totop');
+      if (!btn || btn.__bound) return;
+      btn.__bound = true;
+      var tick = function(){ btn.hidden = (window.scrollY || document.documentElement.scrollTop || 0) < 420; };
+      window.addEventListener('scroll', tick, { passive: true });
+      btn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      tick();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initTotop);
+    else initTotop();
+  })();
 </script>
+<button class="totop" id="totop" type="button" aria-label="返回顶部" hidden>↑</button>
 </body>
 </html>
 <!-- build v100 -->
