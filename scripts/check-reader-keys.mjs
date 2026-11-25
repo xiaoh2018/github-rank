@@ -46,6 +46,8 @@ const opened = await evalJs(`(() => { var c = document.querySelector('#cards .ac
 await sleep(1200);
 const vis = await evalJs(`(() => { var r = document.getElementById('reader'); return r ? !r.hidden : false; })()`);
 ok('点卡片能打开阅读器', opened && opened.ok && vis === true, JSON.stringify({ opened, vis }));
+const bar0 = await evalJs(`(() => { var b = document.getElementById('rprogress'); return b ? { hidden: b.hidden, w: parseFloat(b.style.width) || 0 } : null; })()`);
+ok('阅读器打开后进度条出现', bar0 && bar0.hidden === false, JSON.stringify(bar0));
 
 await evalJs(`window.scrollTo(0, 0)`);
 await sleep(300);
@@ -53,6 +55,8 @@ await key('End');
 await sleep(1400);
 const endY = await evalJs(`Math.round(window.scrollY)`);
 ok('按 End 跳到正文末尾', typeof endY === 'number' && endY > 150, String(endY));
+const barEnd = await evalJs(`(() => { var b = document.getElementById('rprogress'); return b ? parseFloat(b.style.width) || 0 : -1; })()`);
+ok('按 End 后进度条前进', typeof barEnd === 'number' && barEnd > 30, String(barEnd));
 
 await key('Home');
 await sleep(1400);
@@ -63,6 +67,21 @@ await key('Escape');
 await sleep(700);
 const closed = await evalJs(`(() => { var r = document.getElementById('reader'); return r ? r.hidden : true; })()`);
 ok('按 Esc 关闭阅读器', closed === true, String(closed));
+const barOff = await evalJs(`(() => { var b = document.getElementById('rprogress'); return b ? b.hidden : null; })()`);
+ok('关闭阅读器后进度条隐藏', barOff === true, String(barOff));
+
+console.log('== 榜单卡片键盘焦点 ==');
+await open('/');
+const focus = await evalJs(`(() => {
+  var a = document.querySelector('#list .item .name');
+  if (!a) return { ok: false };
+  a.focus();
+  var item = a.closest('.item');
+  var cs = getComputedStyle(item);
+  return { ok: true, focused: document.activeElement === a, shadow: cs.boxShadow };
+})()`);
+ok('榜单卡片里的链接可聚焦', focus && focus.ok && focus.focused === true, JSON.stringify(focus));
+ok('聚焦时整张卡有高亮（focus-within）', focus && typeof focus.shadow === 'string' && focus.shadow !== 'none', JSON.stringify(focus));
 
 console.log('== RSS 入口 ==');
 const artHtml = await (await fetch(base + '/articles?v=' + Date.now())).text();

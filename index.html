@@ -128,6 +128,7 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 #list{list-style:none;padding:0;margin:var(--gap) 0 0;display:flex;flex-direction:column;gap:var(--gap)}
 .item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:grid;grid-template-columns:44px 1fr auto;gap:12px;box-shadow:var(--shadow);transition:border-color .15s}
 .item:hover{border-color:var(--gold)}
+.item:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--chip),var(--shadow)}
 .item.faved{border-color:var(--gold);background:linear-gradient(0deg,rgba(240,180,41,.06),rgba(240,180,41,.06)),var(--card)}
 .rank{font-family:Consolas,"JetBrains Mono",ui-monospace,monospace;font-size:15px;font-weight:700;color:var(--muted);text-align:center;padding-top:4px}
 .rank-top{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;color:#10141f;font-size:14px}

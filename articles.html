@@ -227,6 +227,9 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
 }
+  .rprogress{position:fixed;left:0;top:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .08s linear;border-radius:0 2px 2px 0}
+  .rprogress[hidden]{display:none}
+  @media print{.rprogress{display:none!important}}
 </style>
 </head>
 <body>
@@ -693,6 +696,21 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     }).join('') + '</ul></div>';
   }
 
+  function paintProgress() {
+    var bar = document.getElementById('rprogress');
+    var r = document.getElementById('reader');
+    if (!bar || !r || r.hidden) { if (bar) bar.hidden = true; return; }
+    var ab = document.querySelector('#reader .abody') || r;
+    var top = ab.getBoundingClientRect().top + (window.scrollY || 0);
+    var span = Math.max(1, ab.offsetHeight - window.innerHeight * 0.7);
+    var p = ((window.scrollY || 0) - top + 120) / span;
+    p = Math.max(0, Math.min(1, p));
+    bar.hidden = false;
+    bar.style.width = (p * 100).toFixed(1) + '%';
+  }
+  window.addEventListener('scroll', paintProgress, { passive: true });
+  window.addEventListener('resize', paintProgress);
+
   function openReader(id) {
     var a = findArt(id);
     if (!a) { closeReader(); return; }
@@ -701,6 +719,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     $('hero').hidden = true;
     $('adAPTop').hidden = true;
     $('reader').hidden = false;
+    setTimeout(paintProgress, 60);
     $('rTitle').textContent = a.title || '(无标题)';
     $('rMeta').innerHTML =
       '<span>' + esc(String(a.date || '').slice(0, 10)) + '</span>' +
@@ -816,6 +835,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   function closeReader() {
     state.open = null;
     $('reader').hidden = true;
+    var pbar = document.getElementById('rprogress');
+    if (pbar) { pbar.hidden = true; pbar.style.width = '0%'; }
     $('listWrap').classList.remove('is-reading');
     $('hero').hidden = false;
     document.title = '文章 · GitHub 热门项目排行榜';
@@ -942,6 +963,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   })();
 </script>
 <button class="totop" id="totop" type="button" aria-label="返回顶部" hidden>↑</button>
+<div class="rprogress" id="rprogress" hidden></div>
 </body>
 </html>
 <!-- build v100 -->
