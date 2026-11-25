@@ -129,6 +129,58 @@ const navAfter = await (await fetch(base + '/api/nav?v=' + Date.now())).json().c
 const gAfter = ((navAfter.nav || {}).groups) || [];
 ok('线上分类数量没变', gAfter.length === groups.length, groups.length + ' -> ' + gAfter.length);
 
+// 保存链路：换位后点「保存导航页」必须真的落盘；无论成败，finally 里用 API 还原原始结构。
+const originalNav = (navBefore.nav || { groups: [] });
+const fetchNav = async () => {
+  const j = await (await fetch(base + '/api/nav?v=' + Date.now())).json().catch(() => ({}));
+  return ((j.nav || {}).groups) || [];
+};
+const clickSave = async () => {
+  await evalJs(`(() => { const b = document.querySelector('#pane-nav [data-save="nav"]'); if (b) b.click(); return 1; })()`);
+  await sleep(1800);
+};
+
+try {
+  console.log('== 5. 换位后保存要真的落盘 ==');
+  const swapOk = await evalJs(`(() => {
+    const cards = [...document.querySelectorAll('#navAdmin .nav-g')];
+    if (cards.length < 2) return 'skip';
+    const b = cards[0].querySelector('[data-gdn]');
+    if (!b) return 'no-button';
+    b.click();
+    return [...document.querySelectorAll('#navAdmin input[data-gf="name"]')].map(i => i.value);
+  })()`);
+  if (swapOk === 'skip' || swapOk === 'no-button') {
+    console.log('  SKIP  分类不足，跳过保存检查');
+  } else {
+    await clickSave();
+    const savedGroups = await fetchNav();
+    ok('保存后线上第一个分类变成原来的第二个', (savedGroups[0] || {}).name === names0[1], JSON.stringify({ want: names0[1], got: (savedGroups[0] || {}).name }));
+    ok('保存后分类数量没变', savedGroups.length === groups.length, groups.length + ' -> ' + savedGroups.length);
+    await evalJs(`(() => {
+      const cards = [...document.querySelectorAll('#navAdmin .nav-g')];
+      const b = cards[1] ? cards[1].querySelector('[data-gup]') : null;
+      if (b) b.click();
+      return 1;
+    })()`);
+    await clickSave();
+    const backGroups = await fetchNav();
+    ok('再保存一次顺序复原', JSON.stringify(backGroups.map((g) => g.name)) === JSON.stringify(names0), JSON.stringify({ names0, now: backGroups.map((g) => g.name) }));
+  }
+} finally {
+  const nowGroups = await fetchNav();
+  if (JSON.stringify(nowGroups.map((g) => g.name)) !== JSON.stringify(names0)) {
+    await fetch(base + '/api/nav', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ password: PW, nav: originalNav }),
+    }).catch(() => null);
+    await sleep(700);
+    const fixed = await fetchNav();
+    console.log('  INFO  已用 API 还原导航结构：' + (fixed.length === groups.length ? 'ok' : '请人工检查 data/nav.json'));
+  }
+}
+
 console.log(fails ? `导航排序门禁 ${fails} 项失败` : '导航排序门禁全部通过');
 try { await send('Browser.close'); } catch {}
 child.kill();
