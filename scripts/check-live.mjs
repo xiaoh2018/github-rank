@@ -109,6 +109,8 @@ push('/api/submit 状态', subApi.ok && typeof subStatus.urlCount === 'number' &
 
 push('密钥输入默认遮罩', adm.includes('data-eye') && adm.includes('type="password"'));
 
+push('导航批量导入支持选文件', adm.includes('id="navImpFile"'));
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

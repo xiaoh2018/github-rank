@@ -1441,7 +1441,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v97';
+const ASSET_V = 'v98';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3866,6 +3866,10 @@ tr:hover td{background:#fcfbf8}
       <h2>批量导入站点</h2>
       <p class="desc">每行一个，格式：<code>名称 | 网址 | 描述 | 图标(可空)</code>，也支持 Tab 分隔。会导入到<b>第一个分类</b>，导入完记得点保存。</p>
       <textarea class="code" id="navImpText" rows="10" placeholder="GitHub | https://github.com | 全球最大代码托管平台&#10;MDN | https://developer.mozilla.org | Web 开发文档"></textarea>
+      <div class="row" style="margin-top:8px;align-items:center">
+        <input type="file" id="navImpFile" accept=".txt,.csv,text/plain,text/csv" style="max-width:330px">
+        <span class="hint" style="margin:0">或者选一个 .txt / .csv 文件（每行一个站点，列用 | 或 Tab 分隔）</span>
+      </div>
       <div class="actions"><button type="button" class="ghost" id="navImpCancel">取消</button><button type="button" id="navImpGo">导入</button></div>
     </dialog>
 
@@ -5335,6 +5339,18 @@ tr:hover td{background:#fcfbf8}
   $('navImport').addEventListener('click', function () {
     var dlg = $('navImpDlg');
     $('navImpText').value = '';
+    if ($('navImpFile')) {
+      $('navImpFile').value = '';
+      $('navImpFile').addEventListener('change', function () {
+        var f = this.files && this.files[0];
+        if (!f) return;
+        f.text().then(function (txt) {
+          var n = txt.split(String.fromCharCode(10)).filter(function (x) { return x.trim(); }).length;
+          $('navImpText').value = txt;
+          toast('已读取 ' + n + ' 行，确认后点导入');
+        }).catch(function () { toast('这个文件读不出来', true); });
+      });
+    }
     if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
   });
   $('navImpCancel').addEventListener('click', function () { $('navImpDlg').close(); });
