@@ -1073,7 +1073,8 @@ function renderRepos() {
   const pageNodes = [];
   list.slice(start, start + size).forEach((r, i) => {
     pageNodes.push(renderItem(r, start + i + 1, maxStars, state.trend));
-    if ((i + 1) % 10 === 0) {
+    const adEvery = (window.ghrankAdEvery && window.ghrankAdEvery.list) || 10;
+    if (adEvery > 0 && (i + 1) % adEvery === 0) {
       const ad = document.createElement('li');
       ad.className = 'item ad-inline';
       ad.setAttribute('data-ad-inline', 'list');

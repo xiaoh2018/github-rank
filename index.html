@@ -55,7 +55,33 @@ html[data-theme="dark"]{
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.65 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
 .wrap{max-width:1080px;margin:0 auto;padding:32px 16px 56px}
-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:14px 18px;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:2px}
+.brand{grid-column:1;grid-row:1;min-width:0}
+.mainnav{grid-column:2;grid-row:1;justify-self:center}
+.head-actions{grid-column:3;grid-row:1;justify-self:end}
+@media (max-width:1023px){
+  header{grid-template-columns:minmax(0,1fr) auto}
+  .brand{grid-column:1;grid-row:1}
+  .head-actions{grid-column:2;grid-row:1;justify-self:end}
+  .mainnav{grid-column:1 / -1;grid-row:2;justify-self:stretch;width:100%;justify-content:center}
+}
+@media (max-width:640px){
+  header{grid-template-columns:minmax(0,1fr);gap:10px}
+  .brand{grid-column:1;grid-row:1}
+  .head-actions{grid-column:1;grid-row:2;justify-self:start;gap:6px}
+  .head-actions .btn{min-height:34px;padding:4px 10px;font-size:13px}
+  .head-sep{display:none}
+  .mainnav{grid-column:1;grid-row:3}
+  .mnav{padding:7px 16px;font-size:13.5px}
+  .brand h1{font-size:19px;line-height:1.35}
+  .brand .sub{font-size:12.5px}
+}
+.title-row h1 a{color:inherit;text-decoration:none}
+.mainnav{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:4px;box-shadow:var(--shadow)}
+.mnav{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 20px;border:0;border-radius:999px;background:transparent;color:var(--muted);font:inherit;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;transition:background .15s,color .15s}
+.mnav:hover{color:var(--accent)}
+.mnav.is-on{background:var(--text);color:var(--bg)}
+html[data-theme="dark"] .mnav.is-on{background:var(--gold);color:#0a0e1a}
 .title-row{display:flex;align-items:baseline;gap:10px}
 h1{font-size:26px;margin:0;font-weight:700;letter-spacing:-.01em}
 .star-dot{color:var(--gold);font-size:20px}
@@ -131,9 +157,26 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:20px;margin-top:20px;align-items:start}
 .main{min-width:0}
 /* ---- 榜单 / 导航 两个视图 ---- */
-.viewtabs{display:flex;gap:8px;margin:18px 0 0;flex-wrap:wrap}
-.viewtabs .tab{min-height:40px;padding:6px 18px;font-weight:600}
-.viewtabs .tab.is-on{background:var(--card);border-color:var(--accent);color:var(--accent);box-shadow:var(--shadow)}
+.ad-ticker{display:flex;align-items:center;gap:10px;background:var(--text);color:var(--bg);font-size:12.5px;padding:6px 10px 6px 0;overflow:hidden;position:relative}
+html[data-theme="dark"] .ad-ticker{background:var(--gold);color:#0a0e1a}
+.ad-ticker[hidden]{display:none!important}
+.ad-ticker .tk{flex:1;overflow:hidden;white-space:nowrap;position:relative;min-width:0}
+.ad-ticker .tk-in{display:inline-block;padding-left:100%;animation:tk-move var(--tk-speed,18s) linear infinite;will-change:transform}
+.ad-ticker .tk-in[role="link"]{cursor:pointer;text-decoration:underline;text-decoration-color:rgba(255,255,255,.35);text-underline-offset:3px}
+.ad-ticker:hover .tk-in,.ad-ticker:focus-within .tk-in{animation-play-state:paused}
+@keyframes tk-move{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+.ad-ticker .tk-x{flex:none;background:transparent;border:0;color:inherit;opacity:.55;cursor:pointer;font-size:15px;line-height:1;padding:2px 6px}
+.ad-ticker .tk-x:hover{opacity:1}
+@media (prefers-reduced-motion:reduce){.ad-ticker .tk-in{animation:none;padding-left:12px}}
+.ad-slot[role="link"],.ad-inline[role="link"]{cursor:pointer;transition:box-shadow .15s,transform .15s}
+.ad-slot[role="link"]:hover,.ad-inline[role="link"]:hover{box-shadow:0 6px 20px -12px rgba(28,34,48,.5)}
+.ad-modal{width:min(680px,calc(100% - 28px));border:0;border-radius:16px;padding:0;background:var(--card);color:var(--text);box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:hidden}
+.ad-modal::backdrop{background:rgba(10,14,26,.55);backdrop-filter:blur(2px)}
+.ad-modal .am-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 18px;border-bottom:1px solid var(--border);font-weight:700;font-size:13px;color:var(--muted)}
+.ad-modal .am-x{background:transparent;border:0;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;padding:0 4px}
+.ad-modal .am-body{padding:18px;max-height:min(62vh,540px);overflow:auto;font-size:14px}
+.ad-modal .am-body img{max-width:100%}
+.ad-modal .am-foot{display:flex;justify-content:flex-end;gap:10px;padding:12px 18px;border-top:1px solid var(--border);background:var(--card)}
 .navview{margin-top:var(--gap)}
 .ad-inline{display:flex;align-items:center;justify-content:center;min-height:76px;padding:8px;background:var(--card);border:1px dashed var(--border);border-radius:12px;overflow:hidden}
 .ad-inline[hidden]{display:none!important}
@@ -185,12 +228,12 @@ body[data-page="nav"] #insights{display:none!important}
   /* 榜单布局模式（site.json 的 layout.mode，写在 body[data-layout] 上）：auto 沿用上面的规则 */
   body[data-layout="single"] #list{display:flex;flex-direction:column;gap:var(--gap)}
   @media (min-width:900px){
-  body[data-layout="double"] #list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:stretch}
-  body[data-layout="double"] .item{height:100%}
+  body[data-layout="double"] #list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:start}
   }
   /* 三列：默认就给三栏，窄屏逐级退两栏、单栏 */
-  body[data-layout="triple"] #list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);align-items:stretch}
-  body[data-layout="triple"] .item{height:100%}
+  body[data-layout="triple"] #list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);align-items:start}
+  body[data-layout="triple"] #list .item,
+  body[data-layout="double"] #list .item{height:auto!important}
   @media (max-width:1279px){
   body[data-layout="triple"] #list{grid-template-columns:repeat(2,minmax(0,1fr))}
   }
@@ -202,8 +245,7 @@ body[data-page="nav"] #insights{display:none!important}
   body[data-side="below"] .insights{position:static;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--gap);margin-top:var(--gap)}
   body[data-side="below"] .insights>.dist{margin-top:0}
   /* 开发者 / 组织榜列数（layout.users）：只作用于用户视图的条目（列表会带 .users-view） */
-  body[data-users="double"] #list.users-view{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:stretch}
-  body[data-users="double"] #list.users-view .user-item{height:100%}
+  body[data-users="double"] #list.users-view{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:start}
   body[data-users="single"] #list.users-view{display:flex;flex-direction:column;gap:var(--gap)}
   @media (max-width:899px){
   body[data-users="double"] #list.users-view{grid-template-columns:minmax(0,1fr)}
@@ -377,18 +419,23 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
   </style>
 </head>
 <body>
+<div class="ad-ticker" id="adTicker" hidden></div>
 <div class="wrap">
   <header>
-    <div>
+    <div class="brand">
       <div class="title-row">
         <svg class="star-dot" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2l-6.1 3.4 1.4-6.8L2.2 9.1l6.9-.8z"/></svg>
-        <h1>GitHub 热门项目排行榜</h1>
+        <h1><a href="/" id="brandHome">GitHub 热门项目排行榜</a></h1>
       </div>
       <p class="sub">按星标数排序。"近 N 天"指创建时间在此之后的新项目，用来发现新火起来的仓库。</p>
     </div>
+    <nav class="mainnav" id="mainNav" aria-label="主导航">
+      <button class="mnav is-on" id="tabRank" data-view="rank" type="button" aria-selected="true">榜单</button>
+      <button class="mnav" id="tabNav" data-view="nav" type="button" aria-selected="false">导航</button>
+      <a class="mnav" href="/articles">文章</a>
+    </nav>
     <div class="head-actions">
       <button class="btn" id="btnAbout" type="button">关于本站</button>
-      <a class="btn" href="/articles">文章</a>
       <a class="btn" href="#friendLinks" data-target="friendLinks">友情链接</a>
       <span class="head-sep" aria-hidden="true"></span>
       <button class="btn" id="btnSettings">设置</button>
@@ -470,11 +517,6 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
     </div>
     <div class="cats repo-only" id="cats" aria-label="项目分类"></div>
   </section>
-
-  <nav class="viewtabs" role="tablist" aria-label="页面切换">
-    <button class="btn tab is-on" id="tabRank" data-view="rank" role="tab" aria-selected="true">榜单</button>
-    <button class="btn tab" id="tabNav" data-view="nav" role="tab" aria-selected="false">导航</button>
-  </nav>
 
   <div class="ad-slot" id="adHomeTop" role="region" aria-label="广告位（顶部）" hidden></div>
   <div class="stats" id="stats" hidden></div>
@@ -613,10 +655,33 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
     ['sidebar','adSidebar'],
     ['article','adArticle']
   ];
-  function mountAd(el, html){
+  var AD_EVERY={ list:10, article:2, nav:8 };
+  var TICKER_KEY='ghrankTickerClosedAt';
+  function openAdModal(html, link){
+    var dlg=document.getElementById('adModal');
+    if(!dlg) return;
+    var body=dlg.querySelector('.am-body');
+    if(body){ body.innerHTML=''; if(html){ var tpl=document.createElement('template'); tpl.innerHTML=html; body.appendChild(tpl.content); } }
+    var go=dlg.querySelector('.am-go');
+    if(go){
+      if(link){ go.hidden=false; go.href=link; } else { go.hidden=true; go.removeAttribute('href'); }
+    }
+    if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
+  }
+  function bindAdModal(){
+    var dlg=document.getElementById('adModal');
+    if(!dlg) return;
+    var close=function(){ if(dlg.close) dlg.close(); else dlg.removeAttribute('open'); };
+    ['adModalX','adModalClose'].forEach(function(id){ var b=document.getElementById(id); if(b) b.addEventListener('click',close); });
+    dlg.addEventListener('click',function(e){ if(e.target===dlg) close(); });
+  }
+  bindAdModal();
+  function mountAd(el, html, meta){
     if(!el) return;
     var code=(typeof html==='string')?html:'';
-    if(!code.trim()){ el.hidden=true; el.replaceChildren(); return; }
+    var m=meta||{};
+    el.onclick=null; el.onkeydown=null;
+    if(!code.trim()){ el.hidden=true; el.replaceChildren(); el.removeAttribute('role'); el.removeAttribute('tabindex'); return; }
     var tpl=document.createElement('template');
     tpl.innerHTML=code;
     Array.prototype.forEach.call(tpl.content.querySelectorAll('script'),function(old){
@@ -627,6 +692,44 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
     });
     el.replaceChildren(tpl.content);
     el.hidden=false;
+    var modal=(typeof m.modal==='string')?m.modal.trim():'';
+    var link=(typeof m.link==='string')?m.link.trim():'';
+    if(modal||link){
+      el.setAttribute('role','link'); el.setAttribute('tabindex','0');
+      el.onclick=function(){ if(modal) openAdModal(modal,link); else window.open(link,'_blank','noopener'); };
+      el.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.onclick(); } };
+    } else {
+      el.removeAttribute('role'); el.removeAttribute('tabindex');
+    }
+  }
+  function renderTicker(tk){
+    var bar=document.getElementById('adTicker');
+    if(!bar) return;
+    var on=!!(tk&&tk.enabled===true);
+    var text=(tk&&typeof tk.text==='string')?tk.text.trim():'';
+    var modal=(tk&&typeof tk.modal==='string')?tk.modal.trim():'';
+    var link=(tk&&typeof tk.link==='string')?tk.link.trim():'';
+    var closed=false;
+    try{ var at=Number(localStorage.getItem(TICKER_KEY)||0); closed=at>0&&(Date.now()-at)<7*864e5; }catch(e){}
+    if(!on||(!text&&!modal)||closed){ bar.hidden=true; bar.replaceChildren(); return; }
+    var speed=parseInt(tk.speed,10); if(!isFinite(speed)||speed<6||speed>60) speed=18;
+    bar.hidden=false;
+    bar.replaceChildren();
+    var line=document.createElement('div'); line.className='tk';
+    var inner=document.createElement('span'); inner.className='tk-in';
+    inner.style.setProperty('--tk-speed', speed+'s');
+    inner.textContent=text||'查看详情 →';
+    if(modal||link){
+      inner.setAttribute('role','link'); inner.setAttribute('tabindex','0');
+      var go=function(){ if(modal) openAdModal(modal,link); else window.open(link,'_blank','noopener'); };
+      inner.addEventListener('click',go);
+      inner.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
+    }
+    line.appendChild(inner);
+    var x=document.createElement('button');
+    x.type='button'; x.className='tk-x'; x.setAttribute('aria-label','关闭这条公告'); x.textContent='×';
+    x.addEventListener('click',function(){ bar.hidden=true; try{ localStorage.setItem(TICKER_KEY,String(Date.now())); }catch(e){} });
+    bar.appendChild(line); bar.appendChild(x);
   }
   function renderAds(ad){
     var slots=(ad&&typeof ad.slots==='object'&&ad.slots)?ad.slots:null;
@@ -637,28 +740,40 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
       var html=s&&s.enabled===true?s.html:'';
       // 兼容老结构：只有 ad.enabled + ad.html 时，当作首页顶部横幅
       if(!html&&!slots&&id==='home-top'&&ad&&ad.enabled===true) html=ad.html;
-      mountAd(el,html);
+      mountAd(el, html, s||{});
     });
-    // 信息流三位：榜单里的占位由 bundle.js 渲染时插入，文章/导航在自己的渲染里插
     var anyInline=false;
     Object.keys(INLINE_SLOTS).forEach(function(kind){
       var s=slots?slots[INLINE_SLOTS[kind]]:null;
       inlineHtml[kind]=(s&&s.enabled===true&&typeof s.html==='string')?s.html:'';
+      inlineMeta[kind]={ link:(s&&typeof s.link==='string')?s.link:'', modal:(s&&typeof s.modal==='string')?s.modal:'' };
+      var every=parseInt(s&&s.every,10);
+      if(isFinite(every)&&every>=1&&every<=50) AD_EVERY[kind]=every;
       if(inlineHtml[kind].trim()) anyInline=true;
     });
+    window.ghrankAdEvery=AD_EVERY;
+    renderTicker(ad&&ad.ticker);
     mountInlineAds();
-    // 榜单可能已经渲染过（占位才会缺），有广告就让它重排一次
-    if(anyInline&&typeof window.__ghrankRenderList==='function') window.__ghrankRenderList();
+    // 列表可能已经渲染过（占位才会缺），有广告就让它按新间隔重排一次
+    if(anyInline){
+      if(typeof window.__ghrankRenderList==='function') window.__ghrankRenderList();
+      if(typeof window.__ghrankRenderArticles==='function') window.__ghrankRenderArticles();
+      if(typeof window.__ghrankRenderNav==='function') window.__ghrankRenderNav();
+    }
   }
-  function hideAllAds(){ AD_SLOTS.forEach(function(p){ mountAd(document.getElementById(p[1]),''); }); }
+  function hideAllAds(){
+    AD_SLOTS.forEach(function(p){ mountAd(document.getElementById(p[1]),''); });
+    var bar=document.getElementById('adTicker'); if(bar){ bar.hidden=true; bar.replaceChildren(); }
+  }
 
   // ---------- 信息流广告：插在列表/文章/导航卡片之间（占位由各处渲染时插入）----------
   var INLINE_SLOTS={ list:'list-inline', article:'article-inline', nav:'nav-inline' };
   var inlineHtml={ list:'', article:'', nav:'' };
+  var inlineMeta={ list:{}, article:{}, nav:{} };
   function mountInlineAds(){
     Array.prototype.forEach.call(document.querySelectorAll('[data-ad-inline]'),function(el){
       var kind=el.getAttribute('data-ad-inline');
-      mountAd(el, inlineHtml[kind]||'');
+      mountAd(el, inlineHtml[kind]||'', inlineMeta[kind]||{});
     });
   }
   window.ghrankMountInline=mountInlineAds;
@@ -806,6 +921,7 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
       if(box) box.hidden=true;
     }
     function renderArticles(list){
+      window.__ghrankArticles=list||[];
       var box=document.getElementById('articles');
       var wrap=document.getElementById('articleList');
       if(!box||!wrap) return;
@@ -848,7 +964,8 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
           art.appendChild(det);
         }
         frag.appendChild(art);
-        if((idx+1)%2===0){
+        var ae=(window.ghrankAdEvery&&window.ghrankAdEvery.article)||2;
+        if(ae>0&&(idx+1)%ae===0){
           var inlineAd=document.createElement('div');
           inlineAd.className='ad-inline';
           inlineAd.setAttribute('data-ad-inline','article');
@@ -906,6 +1023,7 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
 
     // ---------- 榜单 / 导航 两个视图 ----------
     var VIEW_KEY='ghrankView';
+    window.__ghrankRenderArticles=function(){ try{ if(typeof renderArticles==='function') renderArticles(window.__ghrankArticles||[]); }catch(e){} };
     var navLoaded=false, navData=null;
     function navHost(u){ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return String(u); } }
     function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -931,7 +1049,8 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
             '<span class="nb"><b>'+escH(it.name)+'</b>'+
             (it.desc?'<small>'+escH(it.desc)+'</small>':'')+
             '<span class="host">'+escH(navHost(it.url))+'</span></span></a>';
-          if((idx+1)%8===0) html+='<div class="navcard ad-inline-card" data-ad-inline="nav" hidden></div>';
+          var ne=(window.ghrankAdEvery&&window.ghrankAdEvery.nav)||8;
+          if(ne>0&&(idx+1)%ne===0) html+='<div class="navcard ad-inline-card" data-ad-inline="nav" hidden></div>';
         });
         html+='</div></section>';
       });
@@ -940,6 +1059,7 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
       var cnt=document.getElementById('navCount');
       if(cnt) cnt.textContent = q ? ('匹配 '+shown+' / '+total+' 个') : ('共 '+total+' 个站点');
     }
+    window.__ghrankRenderNav=function(){ try{ if(navLoaded) renderNav(); }catch(e){} };
     function loadNav(){
       if(navLoaded){ renderNav(); return; }
       fetch('/data/nav.json',{cache:'no-cache'}).then(function(r){ return r.json(); }).then(function(d){
@@ -974,5 +1094,10 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
     if(wantNav) setView('nav');
 })();
 </script>
+<dialog id="adModal" class="ad-modal" aria-label="广告详情">
+  <div class="am-head"><span>广告</span><button type="button" class="am-x" id="adModalX" aria-label="关闭">×</button></div>
+  <div class="am-body"></div>
+  <div class="am-foot"><a class="btn am-go" href="#" target="_blank" rel="noopener noreferrer" hidden>前往了解 ↗</a><button type="button" class="btn" id="adModalClose">关闭</button></div>
+</dialog>
 </body>
 </html>

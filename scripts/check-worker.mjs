@@ -354,6 +354,7 @@ const navCc = r.headers.get('cache-control') || '';
 ok(navCc.indexOf('max-age=300') >= 0, '/nav 与首页同一档缓存', navCc);
 r = await hit('/?page=nav');
 ok(r.status === 200, '/?page=nav 返回 200');
+
 console.log('');
 // ---- 14. 总榜 + README 渲染 ----
 console.log('14. 总榜与 README');
@@ -413,7 +414,7 @@ const inlHome = await (await hit('/')).text();
 ok(inlHome.indexOf('ghrankMountInline') > 0 || inlHome.indexOf('data-ad-inline') > 0, '首页脚本带信息流挂载逻辑');
 const inlBundle = await (await hit('/js/bundle.js')).text();
 ok(inlBundle.indexOf("'data-ad-inline', 'list'") > 0 || inlBundle.indexOf("data-ad-inline") > 0, '榜单渲染时插入信息流占位');
-ok(inlBundle.indexOf('每 10 个项目') > 0 || inlBundle.indexOf('% 10') > 0, '榜单每 10 条插一条');
+ok(inlBundle.indexOf('ghrankAdEvery') > 0 && inlBundle.indexOf('% adEvery') > 0, '榜单信息流间隔从配置读取');
 const inlBad = await hit('/api/site', {
   method: 'POST',
   headers: { 'content-type': 'application/json' },
@@ -421,7 +422,56 @@ const inlBad = await hit('/api/site', {
 });
 const inlBadJson = await inlBad.json();
 ok(inlBadJson.ok === false, '未知信息流位置被拒绝');
+console.log('16. 顶部导航 / 滚动条 / 广告点击 / 间隔可配');
+const uiHome = await (await hit('/')).text();
+ok(uiHome.indexOf('id="mainNav"') > 0, '首页顶部有主导航容器');
+ok(uiHome.indexOf('class="mnav') > 0, '主导航有榜单/导航入口');
+ok(uiHome.indexOf('href="/articles"') > 0, '顶部有文章入口');
+ok(uiHome.indexOf('id="adTicker"') > 0, '首页有顶部滚动条容器');
+ok(uiHome.indexOf('id="adModal"') > 0, '首页有广告弹窗容器');
+const uiAdm = await (await hit('/admin')).text();
+ok(uiAdm.indexOf('id="ticker-enabled"') > 0, '后台可以设置滚动条');
+ok(uiAdm.indexOf('data-ad-field="every"') > 0, '后台可以设置信息流间隔');
+ok(uiAdm.indexOf('data-ad-field="modal"') > 0, '后台可以设置点击弹窗');
+const evSave = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'ad', value: { slots: { 'list-inline': { enabled: true, html: '<b>ad</b>', every: 5 } }, ticker: { enabled: true, text: '公告一句话', speed: 12, link: 'https://example.com' } } })
+});
+const evJson = await evSave.json();
+ok(evJson.ok === true, '广告设置（间隔 + 滚动条）可以保存');
+const evAd = (evJson.site && evJson.site.ad) || {};
+ok(!!(evAd.slots && evAd.slots['list-inline'] && evAd.slots['list-inline'].every === 5), '间隔按后台填的值保存');
+ok(!!(evAd.ticker && evAd.ticker.enabled === true && evAd.ticker.text === '公告一句话'), '滚动条设置保存成功');
+const evSpeedBad = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'ad', value: { slots: { 'list-inline': { enabled: true, html: 'x', every: 0 } } } })
+});
+ok((await evSpeedBad.json()).ok === false, '间隔 0 被拒绝');
+const tkBad = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'ad', value: { slots: {}, ticker: { enabled: true, text: '' } } })
+});
+ok((await tkBad.json()).ok === false, '滚动条开启但没文字被拒绝');
+const smXml = await (await hit('/sitemap.xml')).text();
+ok(smXml.indexOf('/nav</loc>') > 0, 'sitemap 里带上导航页');
+
+
 console.log('');
+console.log('== 17. 后台内联脚本可解析 + 面板齐全 ==');
+const adminPage = await (await hit('/admin')).text();
+ok(adminPage.includes('id="pane-submit"'), '后台有 pane-submit 面板');
+const inlineScripts = [...adminPage.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]).filter((s) => s.trim());
+let badSyntax = '';
+for (const code of inlineScripts) {
+  try { new Function(code); } catch (e) { badSyntax = String((e && e.message) || e); }
+}
+ok(!badSyntax, '后台内联脚本语法正确（模板字面量里的 \\n 会被吃掉）', badSyntax);
+const tabIds = [...adminPage.matchAll(/data-tab="([a-z]+)"/g)].map((m) => m[1]);
+const missingPane = [...new Set(tabIds)].filter((t) => !adminPage.includes('id="pane-' + t + '"'));
+ok(missingPane.length === 0, '每个侧栏标签都有对应面板', missingPane.join(','));
 
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);

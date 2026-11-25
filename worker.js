@@ -73,8 +73,10 @@ export default {
         const arts = await rawJson(env, 'data/articles.json');
         const list = Array.isArray(arts) ? arts : [];
         let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-        xml += '  <url><loc>' + origin + '/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n';
-        xml += '  <url><loc>' + origin + '/articles</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>\n';
+        const today = todayBJ().slice(0, 10);
+        xml += '  <url><loc>' + origin + '/</loc><lastmod>' + today + '</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>\n';
+        xml += '  <url><loc>' + origin + '/nav</loc><lastmod>' + today + '</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>\n';
+        xml += '  <url><loc>' + origin + '/articles</loc><lastmod>' + today + '</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>\n';
         for (const a of list.slice(0, 200)) {
           if (!a || !a.id) continue;
           const lm = a.date ? String(a.date).slice(0, 10) : '';
@@ -1405,26 +1407,51 @@ async function handleSubmit(request, env, origin) {
 const SITE_FILE = 'data/site.json';
 const AD_HTML_MAX = 20000;
 // 广告位：id 是前端约定的槽位名，name/where 只用于后台展示
+const AD_EVERY_MAX = 50;
 const AD_SLOTS = [
-  { id: 'home-top', name: '首页顶部横幅', where: '页头下面、统计卡上面，通栏' },
-  { id: 'list-top', name: '榜单上方', where: '搜索筛选栏下面、榜单开始之前' },
-  { id: 'list-bottom', name: '榜单下方', where: '分页器下面、文章区之前' },
-  { id: 'sidebar', name: '侧栏底部', where: '右侧栏「变化」卡片下面；侧栏下沉时跟着走' },
-  { id: 'article', name: '文章区上方', where: '首页文章列表上方（文章详情页顶部也用它）' },
-  { id: 'list-inline', name: '榜单信息流', where: '榜单列表里每 10 个项目之间插一条（分页器不受影响）' },
-  { id: 'article-inline', name: '文章信息流', where: '首页文章列表里每 2 篇文章之间插一条' },
-  { id: 'nav-inline', name: '导航信息流', where: '导航页每个分组里每 8 个站点之间插一条' },
+  { id: 'home-top', kind: 'fixed', name: '首页顶部横幅', where: '页头下面、统计卡上面，通栏' },
+  { id: 'list-top', kind: 'fixed', name: '榜单上方', where: '搜索筛选栏下面、榜单开始之前' },
+  { id: 'list-bottom', kind: 'fixed', name: '榜单下方', where: '分页器下面、文章区之前' },
+  { id: 'sidebar', kind: 'fixed', name: '侧栏底部', where: '右侧栏最底部；侧栏下沉时跟着走' },
+  { id: 'article', kind: 'fixed', name: '文章区上方', where: '首页文章列表上方（文章详情页顶部也用它）' },
+  { id: 'list-inline', kind: 'inline', every: 10, name: '榜单信息流', where: '榜单列表里插在项目之间，分页器不受影响' },
+  { id: 'article-inline', kind: 'inline', every: 2, name: '文章信息流', where: '首页文章列表里插在篇目之间' },
+  { id: 'nav-inline', kind: 'inline', every: 8, name: '导航信息流', where: '导航页每个分组里插在站点之间' },
 ];
 
 function emptyAdSlots() {
   const o = {};
-  for (const s of AD_SLOTS) o[s.id] = { enabled: false, html: '' };
+  for (const s of AD_SLOTS) {
+    o[s.id] = { enabled: false, html: '', every: s.every || 0, link: '', modal: '' };
+  }
   return o;
+}
+
+// 后台「广告」页里每个位置的卡片（用字符串拼接，避免模板字面量嵌套）
+function adCardHtml(s) {
+  const everyInput = s.kind === 'inline'
+    ? '每 <input type="number" class="every-input" min="1" max="' + AD_EVERY_MAX + '" value="' + (s.every || 1) +
+      '" data-ad-slot="' + s.id + '" data-ad-field="every"> 个插一条'
+    : '';
+  return '<div class="card ad-card">' +
+    '<div class="card-head"><div class="ad-title"><b>' + s.name + '</b><code class="slot-id">' + s.id + '</code></div>' +
+    '<label class="toggle"><input type="checkbox" data-ad-slot="' + s.id + '" data-ad-field="enabled">在这里显示</label></div>' +
+    '<div class="hint">' + s.where + (everyInput ? ' · ' + everyInput : '') + '</div>' +
+    '<textarea class="code ad-code" data-ad-slot="' + s.id + '" data-ad-field="html" maxlength="20000" spellcheck="false" placeholder="粘贴广告 HTML 片段…"></textarea>' +
+    '<div class="ad-click"><span class="ad-click-t">点击行为</span>' +
+    '<input type="url" data-ad-slot="' + s.id + '" data-ad-field="link" placeholder="跳转链接（可选，新窗口打开）">' +
+    '<textarea class="code" rows="2" maxlength="20000" data-ad-slot="' + s.id + '" data-ad-field="modal" placeholder="或：弹窗内容 HTML（填了就点开弹窗，优先于链接）"></textarea>' +
+    '</div></div>';
 }
 
 function defaultSite() {
   return {
-    ad: { enabled: false, html: '', slots: emptyAdSlots() },
+    ad: {
+      enabled: false,
+      html: '',
+      slots: emptyAdSlots(),
+      ticker: { enabled: false, text: '', speed: 18, link: '', modal: '' },
+    },
     layout: { mode: 'auto', side: 'right', users: 'auto' },
     contact: { enabled: false, title: '联系我', wechat: '', qrUrl: '', email: '', note: '' },
     beian: { enabled: false, icp: '', icpUrl: 'https://beian.miit.gov.cn/', police: '', policeUrl: '', text: '' },
@@ -1441,18 +1468,37 @@ function normalizeSite(o) {
   const str = (v, fb) => (typeof v === 'string' ? v : fb);
   d.ad.enabled = ad.enabled === true;
   d.ad.html = str(ad.html, '');
+  const num = (v, fb, lo, hi) => {
+    const n = typeof v === 'number' ? v : parseInt(v, 10);
+    if (!isFinite(n)) return fb;
+    return Math.min(hi, Math.max(lo, Math.round(n)));
+  };
   const rawSlots = ad.slots && typeof ad.slots === 'object' ? ad.slots : null;
   if (rawSlots) {
     for (const s of AD_SLOTS) {
       const v = rawSlots[s.id];
       if (v && typeof v === 'object') {
-        d.ad.slots[s.id] = { enabled: v.enabled === true, html: str(v.html, '').slice(0, AD_HTML_MAX) };
+        d.ad.slots[s.id] = {
+          enabled: v.enabled === true,
+          html: str(v.html, '').slice(0, AD_HTML_MAX),
+          every: s.kind === 'inline' ? num(v.every, s.every, 1, AD_EVERY_MAX) : 0,
+          link: str(v.link, '').slice(0, 500),
+          modal: str(v.modal, '').slice(0, AD_HTML_MAX),
+        };
       }
     }
   } else if (d.ad.enabled && d.ad.html.trim()) {
     // 老结构（只有 ad.enabled + ad.html）：当成「首页顶部横幅」，保证升级后原有广告继续显示
-    d.ad.slots['home-top'] = { enabled: true, html: d.ad.html };
+    d.ad.slots['home-top'] = { enabled: true, html: d.ad.html, every: 0, link: '', modal: '' };
   }
+  const tk = ad.ticker && typeof ad.ticker === 'object' ? ad.ticker : {};
+  d.ad.ticker = {
+    enabled: tk.enabled === true,
+    text: str(tk.text, '').slice(0, 200),
+    speed: num(tk.speed, 18, 6, 60),
+    link: str(tk.link, '').slice(0, 500),
+    modal: str(tk.modal, '').slice(0, AD_HTML_MAX),
+  };
   d.contact.enabled = c.enabled === true;
   d.contact.title = str(c.title, '联系我');
   d.contact.wechat = str(c.wechat, '');
@@ -1509,11 +1555,30 @@ function checkSection(section, value) {
     return { ok: false, error: 'value 必须是对象' };
   }
   if (section === 'ad') {
-    // 新结构：{ slots: { '<槽位>': { enabled, html } } }；老结构 { enabled, html } 仍然接受
-    const clean = { enabled: false, html: '', slots: emptyAdSlots() };
+    // 结构：{ slots: { '<槽位>': { enabled, html, every, link, modal } }, ticker: {...} }；老结构 { enabled, html } 仍然接受
+    const clean = { enabled: false, html: '', slots: emptyAdSlots(), ticker: { enabled: false, text: '', speed: 18, link: '', modal: '' } };
+    const tkIn = value.ticker && typeof value.ticker === 'object' ? value.ticker : null;
+    if (tkIn) {
+      if (tkIn.enabled != null && typeof tkIn.enabled !== 'boolean') return { ok: false, error: '顶部滚动条的开关必须是 true 或 false' };
+      const text = tkIn.text == null ? '' : tkIn.text;
+      if (typeof text !== 'string') return { ok: false, error: '滚动文字必须是文字' };
+      if (text.length > 200) return { ok: false, error: '滚动文字不能超过 200 个字符' };
+      const speed = tkIn.speed == null ? 18 : Number(tkIn.speed);
+      if (!isFinite(speed) || speed < 6 || speed > 60) return { ok: false, error: '滚动速度要在 6 到 60 秒之间' };
+      const link = tkIn.link == null ? '' : String(tkIn.link).trim();
+      if (link && !/^https?:\/\//i.test(link)) return { ok: false, error: '滚动条的跳转链接必须是 http(s) 地址' };
+      const modal = tkIn.modal == null ? '' : tkIn.modal;
+      if (typeof modal !== 'string') return { ok: false, error: '滚动条的弹窗内容必须是文字' };
+      if (modal.length > AD_HTML_MAX) return { ok: false, error: '滚动条的弹窗内容不能超过 ' + AD_HTML_MAX + ' 个字符' };
+      if (tkIn.enabled === true && !text.trim() && !modal.trim()) {
+        return { ok: false, error: '开启顶部滚动条要至少填一句滚动的文字' };
+      }
+      clean.ticker = { enabled: tkIn.enabled === true, text: text, speed: Math.round(speed), link: link, modal: modal };
+    }
     if (value.slots && typeof value.slots === 'object' && !Array.isArray(value.slots)) {
       for (const key of Object.keys(value.slots)) {
-        if (!AD_SLOTS.some((s) => s.id === key)) {
+        const meta = AD_SLOTS.find((s) => s.id === key);
+        if (!meta) {
           return { ok: false, error: '不认识的广告位：' + key + '（可选：' + AD_SLOTS.map((s) => s.id).join('、') + '）' };
         }
         const v = value.slots[key] || {};
@@ -1521,7 +1586,20 @@ function checkSection(section, value) {
         const html = v.html == null ? '' : v.html;
         if (typeof html !== 'string') return { ok: false, error: '广告位「' + key + '」的代码必须是文字' };
         if (html.length > AD_HTML_MAX) return { ok: false, error: '广告位「' + key + '」的代码不能超过 ' + AD_HTML_MAX + ' 个字符' };
-        clean.slots[key] = { enabled: v.enabled, html: html };
+        let every = 0;
+        if (meta.kind === 'inline') {
+          every = v.every == null ? meta.every : Number(v.every);
+          if (!isFinite(every) || every < 1 || every > AD_EVERY_MAX) {
+            return { ok: false, error: '广告位「' + key + '」的间隔要是 1 到 ' + AD_EVERY_MAX + ' 之间的整数' };
+          }
+          every = Math.round(every);
+        }
+        const link = v.link == null ? '' : String(v.link).trim();
+        if (link && !/^https?:\/\//i.test(link)) return { ok: false, error: '广告位「' + key + '」的跳转链接必须是 http(s) 地址' };
+        const modal = v.modal == null ? '' : v.modal;
+        if (typeof modal !== 'string') return { ok: false, error: '广告位「' + key + '」的弹窗内容必须是文字' };
+        if (modal.length > AD_HTML_MAX) return { ok: false, error: '广告位「' + key + '」的弹窗内容不能超过 ' + AD_HTML_MAX + ' 个字符' };
+        clean.slots[key] = { enabled: v.enabled, html: html, every: every, link: link, modal: modal };
       }
       // 老字段跟着「首页顶部横幅」走，保持向后兼容
       clean.enabled = clean.slots['home-top'] ? clean.slots['home-top'].enabled : false;
@@ -1534,7 +1612,7 @@ function checkSection(section, value) {
     if (html.length > AD_HTML_MAX) return { ok: false, error: '广告代码不能超过 ' + AD_HTML_MAX + ' 个字符' };
     clean.enabled = value.enabled;
     clean.html = html;
-    clean.slots['home-top'] = { enabled: value.enabled, html: html };
+    clean.slots['home-top'] = { enabled: value.enabled, html: html, every: 0, link: '', modal: '' };
     return { ok: true, clean: clean };
   }
   if (section === 'layout') {
@@ -1921,8 +1999,35 @@ th{color:var(--muted);font-weight:600;font-size:13px}
     .ad-card .hint{margin:2px 0 8px}
     .ad-code{min-height:96px;margin-top:6px}
     code.slot-id{font-size:11px;padding:2px 6px;border-radius:6px;background:#f1f5f9;color:#475569;font-weight:600}
+    .ticker-card{margin-bottom:18px}
+    .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:10px 0}
+    label.field{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
+    label.field input,label.field textarea{display:block;margin-top:6px;width:100%}
+    .ad-sec{display:flex;align-items:baseline;gap:10px;margin:22px 0 10px}
+    .ad-sec b{font-size:15px}
+    .ad-sec span{font-size:12px;color:var(--muted)}
+    .ad-card .ad-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .ad-click{display:block;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+    .ad-click-t{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px}
+    .ad-click input,.ad-click textarea{display:block;width:100%;font-size:13px;margin-bottom:6px}
+    .every-input{width:66px;padding:4px 8px;margin:0 4px;font-weight:700;text-align:center}
+    .ad-note{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);margin-top:8px}
+    .ad-note b{color:var(--text)}
     /* ---- 导航页后台 ---- */
+    .nav-toolbar{display:flex;gap:12px;align-items:center;margin-bottom:14px;padding:12px 14px}
+    .nav-toolbar input{flex:1 1 260px;max-width:420px}
+    .nav-stat,.nav-cnt{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
     #navAdmin .card{margin-bottom:14px}
+    #navAdmin .nav-g .card-head{margin-bottom:10px;align-items:flex-start}
+    .nav-table td{padding:8px 8px;vertical-align:middle}
+    .nav-table td.cell-name .nm{display:flex;align-items:center;gap:8px}
+    .ic-prev{width:24px;height:24px;border-radius:6px;object-fit:contain;background:#f8fafc;border:1px solid var(--line);flex:none}
+    .ic-none{display:inline-flex;align-items:center;justify-content:center;color:#cbd5e1;font-size:12px}
+    .nav-table input{width:100%;font-size:12.5px;padding:6px 8px}
+    .row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+    #navImpDlg{width:min(720px,calc(100% - 28px))}
+    #navImpDlg textarea{min-height:220px;font-family:ui-monospace,Consolas,monospace}
+    #navImpDlg .desc{color:var(--muted);font-size:13px;margin:6px 0 10px}
     .nav-g-head{display:flex;gap:8px;flex-wrap:wrap;flex:1;min-width:0}
     .nav-g-head input{max-width:260px}
     #navAdmin td input{font-size:13px;padding:7px 9px}
@@ -2077,21 +2182,32 @@ dialog{width:calc(100% - 24px)}
     </section>
 
     <section class="pane" id="pane-ad" hidden>
-      <div class="bar"><div><h1>广告</h1><div class="sub">${AD_SLOTS.length} 个广告位，各自独立开关（含 3 个信息流位）</div></div></div>
-      <div class="intro">前台一共有 ${AD_SLOTS.length} 个位置，每个位置单独开关、单独粘代码：勾上并保存就出现在那个位置，不勾就完全不渲染（不会留空占位）。<b>固定位</b>（home-top / list-top / list-bottom / sidebar / article）是通栏；<b>信息流位</b>（list-inline / article-inline / nav-inline）是插在列表中间的——榜单每 10 个项目一条、文章每 2 篇一条、导航每组每 8 个站点一条，位置会自动跟着数据走。代码直接粘贴 HTML 片段（联盟广告、统计脚本都行），带 <code>&lt;script&gt;</code> 也会执行；每格最多 20000 字符。只粘贴来源可信的代码，拿不准就先别勾。位置示意图见 <code>docs/shots/ad-slots.png</code>。</div>
-      <div class="ad-grid">
-${AD_SLOTS.map(
-  (s) => `        <div class="card ad-card">
-          <div class="card-head"><b>${s.name}</b><code class="slot-id">${s.id}</code></div>
-          <div class="hint">${s.where}</div>
-          <label class="toggle"><input type="checkbox" data-ad-slot="${s.id}" data-ad-field="enabled">在这里显示</label>
-          <textarea class="code ad-code" data-ad-slot="${s.id}" data-ad-field="html" maxlength="20000" spellcheck="false" placeholder="粘贴广告 HTML 片段…"></textarea>
-        </div>`
-).join('\n')}
+      <div class="bar"><div><h1>广告</h1><div class="sub">${AD_SLOTS.length} 个位置 + 顶部滚动条：逐格开关、逐格代码、点开可以跳链接或弹窗</div></div></div>
+      <div class="intro">勾上并保存就出现在那个位置，不勾就完全不渲染（不留白）。<b>固定位</b>是通栏，<b>信息流位</b>插在列表中间、间隔自己填（1–${AD_EVERY_MAX} 条之间的任意整数）。每格可以单独设「点击行为」：填弹窗内容 → 点击就地弹窗；只填链接 → 新窗口打开。位置示意图：<code>docs/shots/ad-slots.png</code>。</div>
+
+      <div class="card ticker-card">
+        <div class="card-head"><div><h2>顶部滚动条</h2><p class="desc">页面最上面一条滚动文字，适合活动通知/一句话广告。访客点 × 可以关掉，本机会记住 7 天。</p></div>
+          <label class="toggle"><input type="checkbox" id="ticker-enabled">开启</label></div>
+        <div class="grid2">
+          <label class="field">滚动文字（最多 200 字）<input type="text" id="ticker-text" maxlength="200" placeholder="例如：本站数据每 3 小时自动更新一次"></label>
+          <label class="field">滚动速度（秒 / 圈，6–60，越小越快）<input type="number" id="ticker-speed" min="6" max="60" step="1" value="18"></label>
+        </div>
+        <div class="grid2">
+          <label class="field">点击跳转链接（可选）<input type="url" id="ticker-link" placeholder="https://…"></label>
+          <label class="field">点击弹窗内容（可选，HTML）<textarea class="code" id="ticker-modal" rows="2" maxlength="20000" placeholder="填了就点开弹窗，优先于链接"></textarea></label>
+        </div>
+        <div class="ad-note"><b>提示</b><span>不填文字也不填弹窗内容时不能开启；滚动条只在首页/导航页顶部出现，不影响文章页。</span></div>
       </div>
+
+      <div class="ad-sec"><b>固定位</b><span>通栏，跟着页面布局走</span></div>
+      <div class="ad-grid">${AD_SLOTS.filter((s) => s.kind === 'fixed').map(adCardHtml).join('')}</div>
+
+      <div class="ad-sec"><b>信息流位</b><span>插在列表中间，间隔可调</span></div>
+      <div class="ad-grid">${AD_SLOTS.filter((s) => s.kind === 'inline').map(adCardHtml).join('')}</div>
+
       <div class="card">
-        <div class="actions"><button type="button" data-save="ad">保存全部广告位</button></div>
-        <div class="hint">保存后前台刷新立刻生效（Worker 会把新配置直接写回边缘缓存）。</div>
+        <div class="actions"><button type="button" data-save="ad">保存全部广告设置</button></div>
+        <div class="hint">保存后前台刷新立刻生效（Worker 会把新配置直接写回边缘缓存）。只粘贴来源可信的代码，带 <code>&lt;script&gt;</code> 也会执行。</div>
       </div>
     </section>
 
@@ -2196,45 +2312,52 @@ ${AD_SLOTS.map(
     </section>
 
     <section class="pane" id="pane-nav" hidden>
-      <div class="bar"><div><h1>导航页</h1><div class="sub">前台「榜单 / 导航」两个标签里的导航那一栏</div></div><div class="row-actions"><button type="button" id="navAddGroup">＋ 分类</button></div></div>
-      <div class="intro">前台顶部有「榜单」和「导航」两个标签，这里是导航栏的分类与站点卡片。填了网址可以点「自动获取」把网页标题、描述、图标抓回来（抓不到就自己写），保存后前台刷新立刻生效。分类最多 20 个、站点最多 400 个。</div>
+      <div class="bar"><div><h1>导航页</h1><div class="sub">前台顶部「导航」标签里的分类与站点卡片</div></div>
+        <div class="row-actions"><button type="button" class="ghost" id="navImport">批量导入</button><button type="button" id="navAddGroup">＋ 分类</button></div></div>
+      <div class="intro">分类 + 站点，前台按卡片排（每个分类一块）。填了网址可以点「自动获取」把标题、描述、图标抓回来；抓不到就手填。最多 20 个分类、400 个站点，保存后前台立刻生效。</div>
+      <div class="card nav-toolbar">
+        <input type="search" id="navFilter" placeholder="筛选站点：名称 / 网址 / 描述">
+        <span class="nav-stat" id="navStat">—</span>
+      </div>
       <div id="navAdmin"><p class="empty">读取中…</p></div>
       <div class="card">
-        <div class="actions"><button type="button" data-save="nav">保存导航页</button><span class="msg" id="navMsg"></span></div>
-        <div class="hint">保存会写回仓库的 <code>data/nav.json</code>，并立刻刷新边缘缓存。</div>
+        <div class="actions"><button type="button" data-save="nav">保存导航页</button></div>
+        <div class="hint" id="navMsg">写回 data/nav.json；保存后前台刷新即生效（Worker 会刷边缘缓存）。</div>
       </div>
     </section>
 
-    <section class="pane" id="pane-submit" hidden>
-      <div class="bar"><div><h1>收录提交</h1><div class="sub">把站点推给搜索引擎和 AI 搜索</div></div><div class="row-actions"><button type="button" id="subRun">立即提交</button></div></div>
-      <div class="intro">能自动推的就自动推：<b>IndexNow</b> 一次提交给 Bing / Yandex / Seznam / Naver；<b>百度</b>要在 Cloudflare 配 <b>BAIDU_TOKEN</b> 才能推。豆包、通义千问、DeepSeek、ChatGPT 这些<b>没有公开的提交入口</b>，能做的三件事本站已经都做了：robots.txt 明确放行它们的抓取器、提供 llms.txt 站点说明、提供 sitemap.xml。抓取器来抓的时候拿到的就是最新榜单。</div>
+    <dialog id="navImpDlg">
+      <h2>批量导入站点</h2>
+      <p class="desc">每行一个，格式：<code>名称 | 网址 | 描述 | 图标(可空)</code>，也支持 Tab 分隔。会导入到<b>第一个分类</b>，导入完记得点保存。</p>
+      <textarea class="code" id="navImpText" rows="10" placeholder="GitHub | https://github.com | 全球最大代码托管平台&#10;MDN | https://developer.mozilla.org | Web 开发文档"></textarea>
+      <div class="actions"><button type="button" class="ghost" id="navImpCancel">取消</button><button type="button" id="navImpGo">导入</button></div>
+    </dialog>
+
+        <section class="pane" id="pane-submit" hidden>
+      <div class="bar">
+        <div><h1>收录提交</h1><p class="sub">把新榜单和文章主动告诉搜索引擎与大模型</p></div>
+        <div class="bar-actions"><button class="btn primary" type="button" id="subRun">立即提交</button></div>
+      </div>
+      <p class="intro">提交走 IndexNow（Bing、Yandex、Seznam 共用）和百度主动推送；豆包、通义千问、ChatGPT 这些没有公开的收录接口，靠 robots.txt 放行 + llms.txt + 站点地图被爬到。<b>建议每天点一次，或者交给 Actions 定时。</b></p>
       <div class="card">
-        <div class="card-head"><div><h2>当前状态</h2><p class="desc">key 文件、站点地图、说明书的地址，填到对应平台即可。</p></div><button type="button" class="ghost small" id="subReload">刷新</button></div>
-        <div class="status-list" id="subStatus"><p class="empty">读取中…</p></div>
+        <div class="card-head"><b>当前状态</b><button class="btn sm" type="button" id="subReload">刷新</button></div>
+        <div id="subStatus"><p class="empty">读取中…</p></div>
       </div>
       <div class="card">
-        <div class="card-head"><div><h2>提交结果</h2><p class="desc">点右上角「立即提交」会真的发请求出去。</p></div></div>
-        <div id="subOut"><p class="note">还没提交过。</p></div>
+        <div class="card-head"><b>提交结果</b></div>
+        <div id="subOut"><p class="empty">还没有提交过。点右上角「立即提交」。</p></div>
       </div>
       <div class="card">
-        <div class="card-head"><div><h2>这些 Token 在哪拿</h2><p class="desc">全是免费的，点进去按下面一句话操作就行。</p></div></div>
-        <div class="kv"><b>百度推送 token</b><span><a href="https://ziyuan.baidu.com/dailysubmit/index" target="_blank" rel="noopener">百度搜索资源平台 → 普通收录 → API 提交</a>：先加站点并验证，然后复制页面上的「准入密钥」，到 Cloudflare 变量里存成 <code>BAIDU_TOKEN</code>；同一页能看到当天剩余配额（普通账号每天几百条）。</span></div>
-        <div class="kv"><b>IndexNow key（Bing / Yandex）</b><span>不用申请，本站已经自动生成并挂在 <code>/&lt;key&gt;.txt</code> 上（地址见上方「当前状态」）。想看推送记录去 <a href="https://www.bing.com/webmasters/indexnow" target="_blank" rel="noopener">Bing Webmaster Tools → IndexNow</a>；想换 key 就在 Cloudflare 变量里加 <code>INDEXNOW_KEY</code>（32 位字母数字）。</span></div>
-        <div class="kv"><b>Google</b><span><a href="https://search.google.com/search-console" target="_blank" rel="noopener">Search Console</a> → 左侧「站点地图」→ 填 <code>sitemap.xml</code> → 提交。Google 2023 年就关了 ping 接口，只能在这里交，没有 token。</span></div>
-        <div class="kv"><b>Cloudflare API Token（自动部署用）</b><span><a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener">dash.cloudflare.com/profile/api-tokens</a> → 「创建令牌」→ 选「编辑 Cloudflare Workers」模板 → 权限保留 <code>Account · Workers Scripts · Edit</code> 与 <code>Zone · Workers Routes · Edit</code> → 创建后那一串只显示一次，马上复制。</span></div>
-        <div class="kv"><b>Cloudflare Account ID</b><span><a href="https://dash.cloudflare.com/" target="_blank" rel="noopener">dash.cloudflare.com</a> 首页右侧栏「账户 ID」，或者看地址栏 <code>dash.cloudflare.com/&lt;这一串就是&gt;/...</code>。</span></div>
-        <div class="kv"><b>存到哪里</b><span><a href="https://github.com/xiaoh2018/github-rank/settings/secrets/actions" target="_blank" rel="noopener">仓库 Settings → Secrets and variables → Actions</a>，New repository secret：<code>CLOUDFLARE_API_TOKEN</code>、<code>CLOUDFLARE_ACCOUNT_ID</code>（部署用）、<code>BAIDU_TOKEN</code>（百度推送用，也可放 Cloudflare 变量）。配好之后往 main 推代码就自动部署 Worker，不用再手粘代码。</span></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div><h2>手动入口</h2><p class="desc">自动推送覆盖不到的，去这些地方贴 sitemap 或网址。</p></div></div>
-        <div class="kv"><b>Google</b><span>Search Console → 站点地图 → 填 <code>/sitemap.xml</code>。Google 已停用 ping 接口，只能在这里提交。</span></div>
-        <div class="kv"><b>Bing</b><span>IndexNow 已经自动推；也可以在 Bing Webmaster Tools 里手动贴 sitemap。</span></div>
-        <div class="kv"><b>百度</b><span>搜索资源平台 → 普通收录 → 提交 sitemap；配了 BAIDU_TOKEN 之后本站也能主动推。</span></div>
-        <div class="kv"><b>AI 搜索</b><span>豆包 / 千问 / DeepSeek / Kimi / 秘塔 没有公开提交接口。已放行 GPTBot、ClaudeBot、PerplexityBot、Bytespider、Qwen-Bot 等抓取器，并提供 <code>/llms.txt</code> 作站点说明。</span></div>
+        <div class="card-head"><b>这些 Token 在哪拿</b></div>
+        <div class="kv"><span class="kv-k">百度推送</span><span class="kv-v"><a href="https://ziyuan.baidu.com/dailysubmit/index" target="_blank" rel="noopener">百度搜索资源平台 → 数据引入 → 普通收录 → API 提交</a>，准入密钥就是 <code>BAIDU_TOKEN</code></span></div>
+        <div class="kv"><span class="kv-k">IndexNow</span><span class="kv-v"><a href="https://www.bing.com/webmasters/indexnow" target="_blank" rel="noopener">Bing Webmaster → IndexNow</a>，key 由本站自动生成，不用申请</span></div>
+        <div class="kv"><span class="kv-k">Google</span><span class="kv-v"><a href="https://search.google.com/search-console" target="_blank" rel="noopener">Search Console</a> → 站点地图 → 提交 sitemap.xml</span></div>
+        <div class="kv"><span class="kv-k">Cloudflare Token</span><span class="kv-v"><a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener">API Tokens</a> → 模板「编辑 Cloudflare Workers」→ 权限 Account·Workers Scripts·Edit + Zone·Workers Routes·Edit</span></div>
+        <div class="kv"><span class="kv-k">Account ID</span><span class="kv-v"><a href="https://dash.cloudflare.com/" target="_blank" rel="noopener">Cloudflare 首页</a>右侧栏「账户 ID」</span></div>
+        <div class="kv"><span class="kv-k">存在哪</span><span class="kv-v"><a href="https://github.com/xiaoh2018/github-rank/settings/secrets/actions" target="_blank" rel="noopener">仓库 Settings → Secrets → Actions</a> 加 <code>CLOUDFLARE_API_TOKEN</code>、<code>CLOUDFLARE_ACCOUNT_ID</code>、<code>BAIDU_TOKEN</code></span></div>
       </div>
     </section>
-
-    <section class="pane" id="pane-seo" hidden>
+<section class="pane" id="pane-seo" hidden>
       <div class="bar"><div><h1>SEO 与 GEO</h1><div class="sub">搜索结果、分享卡片，以及给 AI 搜索看的摘要与问答</div></div></div>
       <div class="intro">上半部分写进标题和 meta 标签，决定搜索结果与微信、微博分享卡片的样子；下半部分是给 AI 搜索（ChatGPT、Perplexity 等）看的摘要和问答。两块都在同一个标签里，保存后刷新首页立刻生效（浏览器若还留着旧页面，Ctrl+F5 一次即可）。</div>
       <div class="card">
@@ -2571,17 +2694,26 @@ ${AD_SLOTS.map(
   // ---- 站点配置：广告 / 联系方式 / 备案 / SEO / GEO ----
   function fillSite(s) {
     var a = s.ad || {}, c = s.contact || {}, b = s.beian || {}, o = s.seo || {}, g = s.geo || {};
-    // 广告：5 个槽位各自回填
+    // 广告：每个槽位各自回填（开关 / 代码 / 间隔 / 跳转 / 弹窗）
     var adSlots = (a && a.slots && typeof a.slots === 'object') ? a.slots : null;
     Array.prototype.forEach.call(document.querySelectorAll('[data-ad-slot]'), function (el) {
       var id = el.getAttribute('data-ad-slot');
       var field = el.getAttribute('data-ad-field');
       var v = (adSlots && adSlots[id]) || null;
       if (!v && !adSlots && id === 'home-top') v = { enabled: a.enabled === true, html: a.html || '' };
-      if (!v) v = { enabled: false, html: '' };
+      if (!v) v = {};
       if (field === 'enabled') el.checked = v.enabled === true;
+      else if (field === 'every') el.value = v.every || el.getAttribute('value') || 1;
+      else if (field === 'link') el.value = typeof v.link === 'string' ? v.link : '';
+      else if (field === 'modal') el.value = typeof v.modal === 'string' ? v.modal : '';
       else el.value = typeof v.html === 'string' ? v.html : '';
     });
+    var tk = a.ticker || {};
+    $('ticker-enabled').checked = tk.enabled === true;
+    $('ticker-text').value = typeof tk.text === 'string' ? tk.text : '';
+    $('ticker-speed').value = tk.speed || 18;
+    $('ticker-link').value = typeof tk.link === 'string' ? tk.link : '';
+    $('ticker-modal').value = typeof tk.modal === 'string' ? tk.modal : '';
     $('contact-enabled').checked = !!c.enabled;
     $('beian-enabled').checked = !!b.enabled;
     var src = { contact: c, beian: b, seo: o, geo: g };
@@ -2608,16 +2740,28 @@ ${AD_SLOTS.map(
   function collect(sec) {
     if (sec === 'nav') return navState || { groups: [] };
     if (sec === 'ad') {
-      // 5 个广告位：按 data-ad-slot / data-ad-field 收集
+      // 每个广告位：开关 / 代码 / 间隔 / 跳转 / 弹窗
       var slots = {};
       Array.prototype.forEach.call(document.querySelectorAll('[data-ad-slot]'), function (el) {
         var id = el.getAttribute('data-ad-slot');
         var field = el.getAttribute('data-ad-field');
-        if (!slots[id]) slots[id] = { enabled: false, html: '' };
+        if (!slots[id]) slots[id] = { enabled: false, html: '', every: 0, link: '', modal: '' };
         if (field === 'enabled') slots[id].enabled = el.checked === true;
+        else if (field === 'every') slots[id].every = parseInt(el.value, 10) || 0;
+        else if (field === 'link') slots[id].link = el.value || '';
+        else if (field === 'modal') slots[id].modal = el.value || '';
         else slots[id].html = el.value || '';
       });
-      return { slots: slots };
+      return {
+        slots: slots,
+        ticker: {
+          enabled: $('ticker-enabled').checked === true,
+          text: $('ticker-text').value || '',
+          speed: parseInt($('ticker-speed').value, 10) || 18,
+          link: $('ticker-link').value || '',
+          modal: $('ticker-modal').value || '',
+        },
+      };
     }
     if (sec === 'layout') {
       var pick = function (name, dflt) {
@@ -2822,7 +2966,7 @@ ${AD_SLOTS.map(
     // ---- 翻译与密钥：只显示状态；实测会真的打两条翻译链路 ----
     function trErr(s) {
       var raw = String(s == null ? '' : s);
-      var m = raw.match(/^([a-z-]+):\s*([\s\S]*)$/);
+      var m = raw.match(/^([a-z-]+):\\s*([\\s\\S]*)$/);
       if (!m) return raw;
       var label = {
         network: '网络不通',
@@ -2892,39 +3036,97 @@ ${AD_SLOTS.map(
     var b = $('navItemCount');
     if (b) { b.textContent = String(n); b.hidden = n === 0; }
   }
+  function navFilterText() {
+    var el = $('navFilter');
+    return el ? String(el.value || '').trim().toLowerCase() : '';
+  }
+  function navStats() {
+    var gs = (navState && navState.groups) || [];
+    var n = 0;
+    gs.forEach(function (g) { n += (g.items || []).length; });
+    var el = $('navStat');
+    if (el) el.textContent = gs.length + ' 个分类 · ' + n + ' 个站点';
+  }
   function navRowHtml(gi, ii, it) {
+    var icon = (it && it.icon) ? navEsc(it.icon) : '';
+    var prev = icon
+      ? '<img class="ic-prev" src="' + icon + '" alt="" onerror="this.remove()">'
+      : '<span class="ic-prev ic-none">—</span>';
     return '<tr data-g="' + gi + '" data-i="' + ii + '">' +
-      '<td><input type="text" data-f="name" value="' + navEsc(it.name) + '" placeholder="名称"></td>' +
-      '<td><input type="text" data-f="url" value="' + navEsc(it.url) + '" placeholder="https://…"></td>' +
-      '<td><input type="text" data-f="desc" value="' + navEsc(it.desc) + '" placeholder="一句话描述（可空）"></td>' +
-      '<td><input type="text" data-f="icon" value="' + navEsc(it.icon) + '" placeholder="图标 URL（可空）"></td>' +
-      '<td><div class="row-actions"><button type="button" class="ghost small" data-ifetch="1">自动获取</button>' +
-      '<button type="button" class="ghost small danger" data-idel="1">删</button></div></td></tr>';
+      '<td class="cell-name"><div class="nm">' + prev +
+      '<input type="text" data-f="name" value="' + navEsc(it.name || '') + '" placeholder="名称"></div></td>' +
+      '<td><input type="url" data-f="url" value="' + navEsc(it.url || '') + '" placeholder="https://…"></td>' +
+      '<td><input type="text" data-f="desc" value="' + navEsc(it.desc || '') + '" placeholder="一句话描述"></td>' +
+      '<td><input type="url" data-f="icon" value="' + icon + '" placeholder="图标 URL（可不填）"></td>' +
+      '<td class="cell-act"><div class="row-actions">' +
+      '<button type="button" class="ghost small" data-ifetch="1">自动获取</button>' +
+      '<button type="button" class="ghost small danger" data-idel="1">删除</button></div></td>' +
+      '</tr>';
   }
   function renderNavAdmin() {
     var box = $('navAdmin');
     if (!box) return;
     navBadge();
-    var gs = navState.groups || [];
+    navStats();
+    var gs = (navState && navState.groups) || [];
+    var q = navFilterText();
     if (!gs.length) {
       box.innerHTML = '<p class="empty">还没有分类，点右上角「＋ 分类」开始。</p>';
       return;
     }
     box.innerHTML = gs.map(function (g, gi) {
-      var rows = (g.items || []).map(function (it, ii) { return navRowHtml(gi, ii, it); }).join('');
+      var items = g.items || [];
+      var shown = q ? items.filter(function (it) {
+        return (String(it.name || '') + ' ' + String(it.url || '') + ' ' + String(it.desc || '')).toLowerCase().indexOf(q) >= 0;
+      }) : items;
+      var idx = q ? shown.map(function (it) { return items.indexOf(it); }) : shown.map(function (x, k) { return k; });
+      var rows = shown.map(function (it, k) { return navRowHtml(gi, idx[k], it); }).join('');
       return '<div class="card nav-g">' +
         '<div class="card-head"><div class="nav-g-head">' +
-        '<input type="text" data-gf="name" data-g="' + gi + '" value="' + navEsc(g.name) + '" placeholder="分类名">' +
-        '<input type="text" data-gf="desc" data-g="' + gi + '" value="' + navEsc(g.desc) + '" placeholder="分类说明（可空）">' +
-        '</div><div class="row-actions"><button type="button" class="ghost small" data-gadd="' + gi + '">＋ 站点</button>' +
+        '<input type="text" data-gf="name" data-g="' + gi + '" value="' + navEsc(g.name || '') + '" placeholder="分类名">' +
+        '<input type="text" data-gf="desc" data-g="' + gi + '" value="' + navEsc(g.desc || '') + '" placeholder="分类说明（可空）">' +
+        '</div><div class="row-actions"><span class="nav-cnt">' + items.length + ' 个</span>' +
+        '<button type="button" class="ghost small" data-gadd="' + gi + '">＋ 站点</button>' +
         '<button type="button" class="ghost small danger" data-gdel="' + gi + '">删分类</button></div></div>' +
-        (rows
-          ? '<table><thead><tr><th style="width:150px">名称</th><th style="width:250px">网址</th><th>描述</th>' +
-            '<th style="width:190px">图标</th><th style="width:150px">操作</th></tr></thead><tbody>' + rows + '</tbody></table>'
-          : '<p class="empty">这个分类还没有站点。</p>') +
+        (shown.length
+          ? '<table class="nav-table"><thead><tr><th style="width:215px">名称</th><th style="width:255px">网址</th><th>描述</th><th style="width:200px">图标</th><th style="width:158px">操作</th></tr></thead><tbody>' + rows + '</tbody></table>'
+          : '<p class="empty">' + (q ? '这个分类里没有匹配的站点。' : '这个分类还没有站点。') + '</p>') +
         '</div>';
     }).join('');
   }
+  function navImportText(raw) {
+    var CR = String.fromCharCode(13), LF = String.fromCharCode(10);
+    var lines = String(raw || '').replace(new RegExp(CR, 'g'), '').split(LF);
+    if (!(navState.groups || []).length) {
+      navState.groups = [{ id: 'imported', name: '导入', desc: '', items: [] }];
+    }
+    var g = navState.groups[0];
+    g.items = g.items || [];
+    var added = 0;
+    lines.forEach(function (line) {
+      var t = line.trim();
+      if (!t || t.charAt(0) === '#') return;
+      var parts = t.split(/\\s*\\|\\s*|\\t+/);
+      var url = (parts[1] || '').trim();
+      if (!/^https?:\\/\\//i.test(url)) return;
+      var host = url.replace(/^https?:\\/\\//i, '').split('/')[0];
+      g.items.push({ name: (parts[0] || '').trim() || host, url: url, desc: (parts[2] || '').trim(), icon: (parts[3] || '').trim() });
+      added++;
+    });
+    renderNavAdmin();
+    toast(added ? '已导入 ' + added + ' 个站点到「' + g.name + '」，记得点保存' : '没识别到可导入的行（第二列要是 http(s) 网址）', added > 0);
+  }
+  $('navFilter').addEventListener('input', renderNavAdmin);
+  $('navImport').addEventListener('click', function () {
+    var dlg = $('navImpDlg');
+    $('navImpText').value = '';
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+  });
+  $('navImpCancel').addEventListener('click', function () { $('navImpDlg').close(); });
+  $('navImpGo').addEventListener('click', function () {
+    navImportText($('navImpText').value);
+    $('navImpDlg').close();
+  });
   function loadNavAdmin() {
     api('/api/nav').then(function (r) {
       if (!r.ok) {
