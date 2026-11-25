@@ -4,7 +4,7 @@
     "html": ""
   },
   "layout": {
-    "mode": "single"
+    "mode": "auto"
   },
   "contact": {
     "enabled": true,
