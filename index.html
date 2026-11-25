@@ -1266,6 +1266,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     try{ var ncv=JSON.parse(localStorage.getItem('ghrank-nav-closed')||'{}'); if(ncv&&typeof ncv==='object') navClosed=ncv; }catch(e){ navClosed={}; }
     function navGroupKey(g, gi){ return String((g&&g.id)||('g'+gi)); }
     var NAV_PAGE=12, navOpen={};
+    // 「显示全部」的展开状态也记下来：刷新/从榜单切回来别又缩回 12 个
+    try{ var nov=JSON.parse(localStorage.getItem('ghrank-nav-open')||'{}'); if(nov&&typeof nov==='object') navOpen=nov; }catch(e){ navOpen={}; }
     function navHost(u){ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return String(u); } }
     function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
     function navHl(s){
@@ -1344,6 +1346,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
           if(more){
             var mk=more.getAttribute('data-gkey')||'';
             navOpen[mk]=1;
+            try{ localStorage.setItem('ghrank-nav-open', JSON.stringify(navOpen)); }catch(err3){}
             renderNav();
             var sec2=box.querySelector('.navgroup[data-gkey="'+mk+'"]');
             if(sec2) sec2.scrollIntoView({ block:'start', behavior:'auto' });

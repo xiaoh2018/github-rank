@@ -178,6 +178,7 @@ push('文章正文参与搜索匹配', artListHtml.includes('plainOf(a.body)'), 
 push('首页文章卡片有置顶徽标代码', home.includes('pinchip'), '');
 push('首页最新文章最多 6 篇', home.includes('var HOME_MAX=6;'), '');
 push('导航分组可折叠并记住状态', home.includes('class="gtog"') && home.includes('ghrank-nav-closed'), '');
+push('导航「显示全部」状态跨刷新保留', home.includes('ghrank-nav-open'), '');
 push('首页尊重「减少动效」偏好', home.includes('prefers-reduced-motion: reduce'), '');
 push('榜单分页器有「跳到第 N 页」', home.includes('id="pgJump"') && home.includes('class="pjump"'), '');
 push('跳页逻辑已绑定（bundle）', bundleJs.includes('goJump'), '');
