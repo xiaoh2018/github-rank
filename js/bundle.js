@@ -1119,6 +1119,10 @@ function renderRepos() {
   $('pageInfo').textContent = `第 ${state.page} / ${pages} 页，共 ${list.length} 个`;
   $('prev').disabled = state.page <= 1;
   $('next').disabled = state.page >= pages;
+  if ($('pgJump')) {
+    $('pgJump').max = String(pages);
+    $('pgJump').value = String(state.page);
+  }
   translateDescs();
 }
 
@@ -1474,6 +1478,20 @@ $('pageSize').onchange = e => { state.pageSize = +e.target.value; state.page = 1
 $('q').oninput = e => { state.q = e.target.value; state.page = 1; render(); };
 $('prev').onclick = () => { state.page--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 $('next').onclick = () => { state.page++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+if ($('pgJump')) {
+  const goJump = () => {
+    const total = Math.max(1, Math.ceil(visibleRepos().length / state.pageSize));
+    const n = parseInt($('pgJump').value, 10);
+    if (!isFinite(n)) { $('pgJump').value = String(state.page); return; }
+    state.page = Math.min(total, Math.max(1, n));
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  $('pgJump').addEventListener('change', goJump);
+  $('pgJump').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); goJump(); }
+  });
+}
 $('btnFavFilter').onclick = () => {
   state.favOnly = !state.favOnly;
   $('btnFavFilter').classList.toggle('on', state.favOnly);

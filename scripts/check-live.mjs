@@ -16,6 +16,7 @@ push('首页弹窗焦点陷阱', home.includes('bindDialogA11y'));
 push('首页卡片入场', home.includes('@keyframes cardIn'));
 push('首页广告位容器', home.includes('id="adHomeTop"') && home.includes('id="adSidebar"'));
 
+const bundleJs = await (await fetch(base + '/js/bundle.js?v=' + t)).text();
 const art = await (await fetch(base + '/articles?v=' + t)).text();
 push('文章搜索防抖', art.includes('searchTimer'));
 push('文章目录跟随滚动', art.includes('spyToc') && art.includes('a.is-cur'));
@@ -161,6 +162,8 @@ push('首页文章卡片有置顶徽标代码', home.includes('pinchip'), '');
 push('首页最新文章最多 6 篇', home.includes('var HOME_MAX=6;'), '');
 push('导航分组可折叠并记住状态', home.includes('class="gtog"') && home.includes('ghrank-nav-closed'), '');
 push('首页尊重「减少动效」偏好', home.includes('prefers-reduced-motion: reduce'), '');
+push('榜单分页器有「跳到第 N 页」', home.includes('id="pgJump"') && home.includes('class="pjump"'), '');
+push('跳页逻辑已绑定（bundle）', bundleJs.includes('goJump'), '');
 push('榜单卡片键盘聚焦有高亮', home.includes(".item:focus-within"), '');
 push('/articles 有返回顶部按钮', artListHtml.includes('id="totop"') && artListHtml.includes('initTotop'), '');
 push('/articles 页脚有 RSS 订阅', artListHtml.includes('href="/rss.xml"'), '');

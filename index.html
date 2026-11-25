@@ -150,6 +150,10 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 .fav.on{color:var(--gold)}
 .pager{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:20px}
 #pageInfo{font-family:Consolas,ui-monospace,monospace;font-size:13px;color:var(--muted)}
+.pjump{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.pjump input{width:64px;height:32px;padding:0 6px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:inherit;text-align:center}
+.pjump input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+@media print{.pjump{display:none!important}}
 .toolrow{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--gap);margin-top:var(--gap)}
 /* 骨架屏 */
 .skel{height:auto;min-height:124px;padding:14px 16px;border-radius:12px;background:var(--card);border:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
@@ -645,6 +649,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   <nav class="pager" id="pager" hidden>
     <button class="btn" id="prev">上一页</button>
     <span id="pageInfo"></span>
+    <label class="pjump">跳到 <input id="pgJump" type="number" min="1" max="999" step="1" value="1" inputmode="numeric" aria-label="跳到第几页"> 页</label>
     <button class="btn" id="next">下一页</button>
   </nav>
   <div class="ad-slot" id="adList" role="region" aria-label="广告位" hidden></div>
