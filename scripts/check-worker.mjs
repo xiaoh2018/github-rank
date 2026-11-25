@@ -702,6 +702,22 @@ const a22Good = await hit('/api/site', {
 });
 const a22GoodJson = await a22Good.json();
 ok(a22Good.status === 200 && a22GoodJson.ok === true, '验证码可以保存');
+
+// ============ §29 首页文章卡片 + 问答页结构 + 视图记忆 ============
+console.log("");
+console.log("§29 首页文章卡片 / 问答页 / 视图记忆");
+{
+  const homeHtml = await (await hit('/')).text();
+  ok(homeHtml.includes('artgrid'), '首页有文章卡片栅格 .artgrid');
+  ok(homeHtml.includes('.artcard{'), '首页有 .artcard 卡片样式');
+  ok(homeHtml.includes('id="artNote"'), '首页有 artNote 计数位');
+  ok(homeHtml.includes('function artHref'), '首页文章链接用 slug.html（artHref）');
+  ok(!homeHtml.includes('sessionStorage.getItem(VIEW_KEY)'), '不再按历史记忆切导航视图');
+  const faqHtml = await (await hit('/faq')).text();
+  ok(faqHtml.includes('grid-template-columns:24px minmax(0,1fr) auto auto'), '问答摘要四列 grid');
+  ok(faqHtml.includes('id="expandAll"'), '问答有展开全部按钮');
+  ok(faqHtml.includes('span class="qtext"'), '问答问题文字包 .qtext');
+}
 console.log('');
 console.log('== 23. 每个设置板块的保存→回读闭环 ==');
 // 目的：后台每个面板点保存时，值要真的落到 /data/site.json，且前台读到的就是新值。

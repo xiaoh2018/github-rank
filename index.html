@@ -407,12 +407,24 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
   .geo-qa summary{cursor:pointer;font-size:14px;font-weight:600;min-height:32px;display:flex;align-items:center}
   .geo-qa p{margin:6px 0 0;color:var(--muted);font-size:13px}
   .articles{margin-top:28px;padding:var(--pad);background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);min-width:0}
-  .articles h2{font-size:16px;margin:0 0 10px}
-  .article-item{border-top:1px solid var(--border);padding:10px 0;min-width:0}
-  .article-item h3{font-size:15px;margin:0 0 4px;overflow-wrap:anywhere}
-  .article-meta{margin:0;font-size:12px;color:var(--muted);font-family:Consolas,ui-monospace,monospace}
-  .article-item>p{margin:6px 0 0;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
-  .article-item details{margin-top:6px}
+  .arthead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+  .arthead h2{font-size:16px;margin:0}
+  .arthead .artnote{font-size:12px;color:var(--muted)}
+  .arthead .artmore{margin-left:auto;font-size:13px;color:var(--accent);font-weight:600}
+  .artgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+  .artcard{display:flex;flex-direction:column;gap:8px;padding:14px 15px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);transition:border-color .15s,transform .15s,box-shadow .15s}
+  .artcard:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow)}
+  .artcard-top{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+  .artcard-cat{padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--accent);font-weight:600}
+  .artcard-top time{margin-left:auto;font-family:Consolas,ui-monospace,monospace}
+  .artcard h3{font-size:15px;line-height:1.45;margin:0;overflow-wrap:anywhere}
+  .artcard h3 a{color:var(--fg)}
+  .artcard h3 a:hover{color:var(--accent);text-decoration:none}
+  .artcard-sum{margin:0;font-size:13px;color:var(--muted);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .artcard-foot{margin-top:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted)}
+  .artcard-foot .read{color:var(--accent);font-weight:600}
+  .artcard-foot .lock{color:var(--gold)}
+  @media (max-width:600px){.artgrid{grid-template-columns:1fr}}
 .article-body{font-size:13px}
 .article-body p,.article-body li{margin:6px 0;line-height:1.7;overflow-wrap:anywhere}
 .article-body h2,.article-body h3,.article-body h4{font-size:14px;margin:12px 0 4px}
@@ -621,7 +633,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       <div id="geoFaq" class="geo-faq" hidden></div>
       </dialog>
     <section class="articles" id="articles" aria-labelledby="articlesTitle" hidden>
-      <h2 id="articlesTitle">文章</h2>
+      <div class="arthead"><h2 id="articlesTitle">最新文章</h2><span class="artnote" id="artNote"></span><a class="artmore" href="/articles">全部文章 →</a></div>
       <div class="ad-slot" id="adArticle" role="region" aria-label="广告位（文章区）" hidden></div>
       <div id="articleList"></div>
     </section>
@@ -984,6 +996,13 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       var box=document.getElementById('articles');
       if(box) box.hidden=true;
     }
+    function artHref(it){
+      var slug=str(it.slug)||'';
+      if(!slug) return '/articles';
+      var parts=slug.split('/').filter(Boolean).map(function(x){ return encodeURIComponent(x); }).join('/');
+      return '/articles/'+parts+'.html';
+    }
+
     function renderArticles(list){
       window.__ghrankArticles=list||[];
       var box=document.getElementById('articles');
@@ -992,55 +1011,57 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       var items=Array.isArray(list)?list.filter(function(it){ return it&&str(it.title); }):[];
       if(!items.length){ hideArticles(); return; }
       items.sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); });
-      var frag=document.createDocumentFragment();
+      var note=document.getElementById('artNote');
+      if(note) note.textContent='共 '+items.length+' 篇';
+      var grid=document.createElement('div');
+      grid.className='artgrid';
       items.forEach(function(it,idx){
-        var art=document.createElement('article');
-        art.className='article-item';
-        var h=document.createElement('h3');
-        h.textContent=str(it.title);
-        art.appendChild(h);
+        var card=document.createElement('article');
+        card.className='artcard';
+        var top=document.createElement('div');
+        top.className='artcard-top';
+        var c=document.createElement('span');
+        c.className='artcard-cat';
+        c.textContent=str(it.category)||'随笔';
+        top.appendChild(c);
         var date=str(it.date);
         if(date){
-          var meta=document.createElement('p');
-          meta.className='article-meta';
           var tm=document.createElement('time');
           tm.setAttribute('datetime',date);
-          tm.textContent=date;
-          meta.appendChild(tm);
-          art.appendChild(meta);
+          tm.textContent=date.slice(0,10);
+          top.appendChild(tm);
         }
+        card.appendChild(top);
+        var h=document.createElement('h3');
+        var a=document.createElement('a');
+        a.href=artHref(it);
+        a.textContent=str(it.title);
+        h.appendChild(a);
+        card.appendChild(h);
         var sum=str(it.summary);
-        if(sum){
-          var sp=document.createElement('p');
-          sp.textContent=sum;
-          art.appendChild(sp);
-        }
-        var body=String(it.body||'');
-        if(body.trim()){
-          var det=document.createElement('details');
-          var ds=document.createElement('summary');
-          ds.textContent='阅读全文';
-          var bd=document.createElement('div');
-          bd.className='article-body';
-          if(window.KeeMd) bd.innerHTML=KeeMd.render(body); else fillParas(bd,body);
-          det.appendChild(ds);
-          det.appendChild(bd);
-          art.appendChild(det);
-        }
-        frag.appendChild(art);
+        if(sum){ var p=document.createElement('p'); p.className='artcard-sum'; p.textContent=sum; card.appendChild(p); }
+        var foot=document.createElement('div');
+        foot.className='artcard-foot';
+        var read=document.createElement('a');
+        read.className='read';
+        read.href=artHref(it);
+        read.textContent='阅读全文 →';
+        foot.appendChild(read);
+        if(it.locked){ var lk=document.createElement('span'); lk.className='lock'; lk.textContent='🔒 需要密码'; foot.appendChild(lk); }
+        card.appendChild(foot);
+        grid.appendChild(card);
         var ae=(window.ghrankAdEvery&&window.ghrankAdEvery.article)||2;
         if(ae>0&&(idx+1)%ae===0){
           var inlineAd=document.createElement('div');
           inlineAd.className='ad-inline';
           inlineAd.setAttribute('data-ad-inline','article');
-          frag.appendChild(inlineAd);
+          grid.appendChild(inlineAd);
         }
       });
-      wrap.replaceChildren(frag);
+      wrap.replaceChildren(grid);
       box.hidden=false;
       if(window.ghrankMountInline) window.ghrankMountInline();
     }
-
 
     // ---------- 关于本站：弹窗（原生 dialog）----------
     var aboutDlg=document.getElementById('aboutDialog');
@@ -1219,7 +1240,6 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       var tr=document.getElementById('tabRank'), tn=document.getElementById('tabNav');
       if(tr){ tr.classList.toggle('is-on',!isNav); tr.setAttribute('aria-selected',String(!isNav)); }
       if(tn){ tn.classList.toggle('is-on',isNav); tn.setAttribute('aria-selected',String(isNav)); }
-      try{ sessionStorage.setItem(VIEW_KEY,isNav?'nav':'rank'); }catch(e){}
       try{ if(history.replaceState) history.replaceState(null,'', isNav?'/?page=nav':'/'); }catch(e){}
       if(isNav) loadNav();
     }
@@ -1229,8 +1249,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var navSearchBox=document.getElementById('navSearch');
     if(navSearchBox) navSearchBox.addEventListener('input',function(){ if(navLoaded) renderNav(); });
     // 直接打开导航页：/nav、/?page=nav、/#nav 都认（head 里已提前记下意图）
+    // 只认 URL 里的意图（/nav、/?page=nav、/#nav）；不读历史记忆，否则从 /faq 点「榜单」会跳到导航页
     var wantNav = window.__wantNav === true;
-    try{ if(!wantNav && sessionStorage.getItem(VIEW_KEY)==='nav') wantNav=true; }catch(e){}
     if(wantNav) setView('nav');
 })();
 </script>
