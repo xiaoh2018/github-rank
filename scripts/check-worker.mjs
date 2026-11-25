@@ -665,6 +665,7 @@ ok(a22Admin.includes('data-adsec="fixed"') && a22Admin.includes('data-adsec="inl
 ok(a22Admin.includes('geo-plat') && a22Admin.includes('字节 / 豆包'), '收录页有 GEO 平台矩阵');
 ok(a22Admin.includes('side-extra') && a22Admin.includes('打开前台首页'), '侧栏有返回首页入口');
 ok(a22Admin.includes('class="brandlink"'), '侧栏标题可点回首页');
+ok(/var TABS = \[[^\]]*'qa'/.test(a22Admin), 'TABS 含 qa（否则点问答会跳概览）');
 ok(a22Admin.includes('data-vf="bytedance"') && a22Admin.includes('data-vf="sogou"') && a22Admin.includes('data-vf="shenma"'), '设置页有平台验证码输入');
 const a22Home = await (await hit('/')).text();
 ok(a22Home.indexOf('{{GHRANK_VERIFY}}') < 0, '首页没有未替换的验证码占位');

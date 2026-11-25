@@ -1321,7 +1321,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v50';
+const ASSET_V = 'v51';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1728,12 +1728,21 @@ async function handleSubmit(request, env, origin) {
   const arts = await rawJson(env, 'data/articles.json');
   const urls = [root + '/', root + '/articles'];
   (Array.isArray(arts) ? arts : []).slice(0, 100).forEach((a) => {
-    if (a && a.id) urls.push(root + '/articles#' + encodeURIComponent(String(a.id)));
+    if (a && a.id) urls.push(root + '/articles/' + encodeURIComponent(String(a.slug || a.id)));
   });
   const want = String(body.action || 'all');
   const out = { ok: true, urls: urls.length, root: root, results: {} };
 
-  if (want === 'all' || want === 'indexnow') {
+  const sigNow = urls.join('\n');
+  const sameBatch = !!(prevRun && prevRun.sig === sigNow && body.force !== true);
+  if ((want === 'all' || want === 'indexnow') && sameBatch) {
+    out.results.indexNow = {
+      ok: true,
+      skipped: true,
+      note: '这批地址上次已经推过，IndexNow 对同一批有频率限制，1 小时内不重复推（要强推就勾「强制再推一次」）',
+    };
+  }
+  if ((want === 'all' || want === 'indexnow') && !sameBatch) {
     const key = keyNow;
     try {
       const r = await fetch('https://api.indexnow.org/indexnow', {
@@ -1745,7 +1754,7 @@ async function handleSubmit(request, env, origin) {
       const good = r.ok || r.status === 202;
       let note;
       if (good) note = '已收下，等搜索引擎自己来抓（通常几分钟到几小时）';
-      else if (r.status === 429) note = '被限流了：同一批地址短时间内重复提交会这样，等 10 分钟再试，别连点';
+      else if (r.status === 429) note = '被限流了（TooManyRequests）：IndexNow 对同一批地址有频率限制，等 10 分钟再试；本站下次会自动跳过重复批次';
       else if (r.status === 422) note = 'Key 校验没过：确认站点根目录的 key 文件能打开，且提交的 host 与 keyLocation 同域';
       else if (r.status === 403) note = 'Key 文件打不开或内容不对：先把 Worker 部署到最新版，再回本页点「刷新」看自检那行';
       else note = 'IndexNow 返回 HTTP ' + r.status + '，见下面的原始返回';
@@ -1761,7 +1770,10 @@ async function handleSubmit(request, env, origin) {
     } else {
       try {
         const r = await fetch(
-          'http://data.zz.baidu.com/urls?site=' + encodeURIComponent(root) + '&token=' + encodeURIComponent(baiduNow),
+          'http://data.zz.baidu.com/urls?site=' +
+            encodeURIComponent(String(root).replace(/^https?:\/\//i, '').replace(/\/.*$/, '')) +
+            '&token=' +
+            encodeURIComponent(baiduNow),
           { method: 'POST', headers: { 'content-type': 'text/plain' }, body: urls.join('\n') }
         );
         const t = await r.text();
@@ -1792,6 +1804,7 @@ async function handleSubmit(request, env, origin) {
   }
 
   out.at = new Date().toISOString();
+  out.sig = sigNow;
   await saveLastSubmit(out);
   return json(out);
 }
@@ -2314,6 +2327,12 @@ async function readArticles(env) {
     }
   } catch (e) {
     return { ok: false, status: 500, error: 'data/articles.json 不是合法的 JSON 数组，请先在仓库里修正' };
+  }
+  if (articles.length) {
+    articles = articles.map((a) => {
+      if (a && !a.slug) a.slug = slugify(a.title) || 'p-' + a.id;
+      return a;
+    });
   }
   return { ok: true, status: 200, articles: articles, sha: cur.data.sha || null };
 }
@@ -2904,6 +2923,9 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
 .lockrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0 2px;padding:10px 12px;border:1px dashed var(--line);border-radius:12px;background:#fdfbf6}
 .lockrow input[type="password"]{flex:1 1 240px;min-width:0}
 .lockrow .toggle.inline{margin:0;white-space:nowrap}
+.slugrow{display:flex;gap:6px;align-items:center;min-width:220px;flex:1}
+.slugrow input{flex:1;min-width:0}
+.slugline{font-size:11.5px;color:#8a8172;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
 .art-lock{font-size:11px;padding:1px 6px;border-radius:6px;background:#f6e7c8;color:#7a5a11;font-weight:600;margin-left:6px}
 
 /* UI v4 · 中性纸感：去掉渐变与光晕，只留细线、留白和一种强调色 */
@@ -3433,7 +3455,7 @@ tr:hover td{background:#fcfbf8}
       <div class="lockrow">
         <label class="toggle inline"><input type="checkbox" id="artLock"> 加密这篇（读者要输密码才能看）</label>
         <input type="password" id="artPw" maxlength="60" autocomplete="new-password" placeholder="访问密码，至少 4 位；编辑时留空 = 沿用原密码">
-        <input id="artSlug" maxlength="60" placeholder="链接别名（留空自动生成，只用小写字母数字和连字符）">
+        <span class="slugrow"><input id="artSlug" maxlength="60" placeholder="链接别名，如 blog-layout-test（只用小写字母、数字、连字符）"><button type="button" class="ghost small" id="artSlugGen">按标题生成</button></span>
         <textarea id="artHint" maxlength="300" rows="2" placeholder="怎么拿到密码？例如：加微信 flyfish2026 回复「密码」；留空用站点默认提示"></textarea>
       </div>
       <div class="row-actions">
@@ -3461,7 +3483,7 @@ tr:hover td{background:#fcfbf8}
 (function () {
   'use strict';
   var PW_KEY = 'adminPw';
-  var TABS = ['overview', 'layout', 'articles', 'nav', 'seo', 'links', 'ad', 'contact', 'beian', 'submit', 'keys', 'translate'];
+  var TABS = ['overview', 'layout', 'articles', 'qa', 'nav', 'seo', 'links', 'ad', 'contact', 'beian', 'submit', 'keys', 'translate'];
   var FIELDS = {
     ad: ['html'],
     layout: ['mode', 'side', 'users', 'articleSide'],
@@ -3896,6 +3918,7 @@ tr:hover td{background:#fcfbf8}
       return '<tr><td>' + esc(a.date) + '</td><td><b>' + esc(a.title) + '</b>' +
         (a.locked ? '<span class="art-lock">加密</span>' : '') +
         (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
+        '<div class="slugline">/articles/' + esc(a.slug || a.id) + '</div>' +
         '</td><td>' + esc(a.summary) +
         '</td><td><button type="button" class="ghost small" data-artedit="' + esc(a.id) + '">编辑</button> ' +
         '<button type="button" class="ghost small" data-artview="' + esc(a.id) + '">预览</button> ' +
@@ -4002,6 +4025,16 @@ tr:hover td{background:#fcfbf8}
       var grid = document.querySelector('#artDlg .art-grid');
       grid.classList.toggle('preview-off');
       this.textContent = grid.classList.contains('preview-off') ? '显示预览' : '隐藏预览';
+    });
+    $('artSlugGen').addEventListener('click', function () {
+      var t = ($('artTitleIn').value || '').trim();
+      var sl = t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+      if (!sl) {
+        toast('标题里没有英文字母，先用英文起个短名，或自己填（如 about-me）');
+        return;
+      }
+      $('artSlug').value = sl;
+      toast('别名：/articles/' + sl);
     });
     $('artFullBtn').addEventListener('click', function () {
       var dlg = $('artDlg');
