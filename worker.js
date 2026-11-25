@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v142';
+const ASSET_V = 'v143';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3340,6 +3340,11 @@ tbody tr:nth-child(even){background:#fcfdff}
 tbody tr:hover{background:#f6f9fc}
 th{color:var(--muted);font-weight:600;font-size:13px}
 .empty{color:var(--muted);padding:18px 0;text-align:center;font-size:14px}
+.empty-card{padding:30px 20px;margin:6px 0;border:1px dashed var(--line);border-radius:14px;background:linear-gradient(180deg,#fcfdff,#f8fafc);text-align:center}
+.empty-card b{display:block;font-size:15px;color:var(--ink);margin-bottom:6px}
+.empty-card p{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.7}
+.empty-card .btn{display:inline-flex}
+td>.empty-card{margin:0}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:14px}
 .stat{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .stat b{display:block;font-size:12px;color:var(--muted);font-weight:500}
@@ -4692,7 +4697,7 @@ tr:hover td{background:#fcfbf8}
     $('linkCount').textContent = state.links.length;
     var b = $('linkBody');
     if (!state.links.length) {
-      b.innerHTML = '<tr><td colspan="4" class="empty">还没有友链，点右上角「添加友链」</td></tr>';
+      b.innerHTML = '<tr><td colspan="4"><div class="empty-card"><b>还没有友链</b><p>友链会显示在首页底部，建议 4–12 个、每个带一句描述。</p><button type="button" class="btn" data-empty-act="link-add">添加友链</button></div></td></tr>';
       return;
     }
     b.innerHTML = state.links.map(function (l, i) {
@@ -4854,7 +4859,7 @@ tr:hover td{background:#fcfbf8}
     if (tb) {
       tb.innerHTML = catState.length
         ? catState.map(catRow).join('')
-        : '<tr><td colspan="4" class="empty">还没有分类，点下面「新增分类」建一个</td></tr>';
+        : '<tr><td colspan="4"><div class="empty-card"><b>还没有分类</b><p>分类的英文词会进文章链接，例如 tech → /articles/tech/1.html。</p><button type="button" class="btn" data-empty-act="cat-add">新增分类</button></div></td></tr>';
     }
     var dl = $('artCatList');
     if (dl) {
@@ -5079,7 +5084,7 @@ tr:hover td{background:#fcfbf8}
         '"></div><div><label>回答</label><textarea class="fa" aria-label="回答" maxlength="500">' + esc(f.a) +
         '</textarea></div><div><button type="button" class="ghost small" data-faqdel="' + i + '">删除</button></div></div>';
     }).join('');
-    $('faqList').innerHTML = h || '<p class="empty">还没有问答，点下方「新增一条」</p>';
+    $('faqList').innerHTML = h || '<div class="empty-card"><b>还没有问答</b><p>问答会同时出现在 /faq 页和 llms.txt，用来回答「数据哪来的」这类问题。</p><button type="button" class="btn" data-empty-act="qa-add">新增一条</button></div>';
   }
   $('faqAdd').addEventListener('click', function () {
     syncFaq();
@@ -5110,6 +5115,25 @@ tr:hover td{background:#fcfbf8}
     }
     sel.value = state.artCat || '';
   }
+  // 空态卡里的按钮统一走委托，映射到已有的工具栏按钮
+  var EMPTY_ACT = { 'art-new': 'artNew', 'link-add': 'addLinkBtn', 'cat-add': 'catAdd', 'qa-add': 'faqAdd' };
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-empty-act]') : null;
+    if (!b) return;
+    var act = b.getAttribute('data-empty-act');
+    if (act === 'artreset') {
+      if ($('artSearch')) $('artSearch').value = '';
+      if ($('artCatFilter')) $('artCatFilter').value = '';
+      state.artCat = '';
+      state.artPage = 1;
+      renderArticles();
+      if ($('artSearch')) $('artSearch').focus();
+      return;
+    }
+    var id = EMPTY_ACT[act];
+    if (id && $(id)) $(id).click();
+  });
+
   function renderArticles() {
     var box = $('artSearch');
     var q = (box && box.value || '').trim().toLowerCase();
@@ -5145,12 +5169,12 @@ tr:hover td{background:#fcfbf8}
     var pageList = list.slice((page - 1) * per, page * per);
     state.artFiltered = list.map(function (a) { return String(a.id); });
     if (!all.length) {
-      $('artTbody').innerHTML = '<tr><td colspan="5" class="empty">还没有文章，右上角「写新文章」开始</td></tr>';
+      $('artTbody').innerHTML = '<tr><td colspan="5"><div class="empty-card"><b>还没有文章</b><p>写第一篇之后，前台 /articles 会按分类列出来，同时进站点地图和 llms.txt。</p><button type="button" class="btn" data-empty-act="art-new">写新文章</button></div></td></tr>';
       if ($('artPager')) $('artPager').hidden = true;
       return;
     }
     if (!list.length) {
-      $('artTbody').innerHTML = '<tr><td colspan="5" class="empty">没有匹配的文章</td></tr>';
+      $('artTbody').innerHTML = '<tr><td colspan="5"><div class="empty-card"><b>没有匹配的文章</b><p>换个关键词，或清掉分类筛选看全部。</p><button type="button" class="btn ghost" data-empty-act="artreset">清空搜索与筛选</button></div></td></tr>';
       if ($('artPager')) $('artPager').hidden = true;
       return;
     }
