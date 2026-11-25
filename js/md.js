@@ -38,10 +38,59 @@
     });
     s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/\*([^*\s][^*]*)\*/g, '<em>$1</em>');
+    s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
     for (var n = 0; n < 5 && /\u0001\d+\u0001/.test(s); n++) {
       s = s.replace(/\u0001(\d+)\u0001/g, function (_, i) { return keep[Number(i)]; });
     }
     return s;
+  }
+
+  // ---------- 表格（GFM） ----------
+  // | 名称 | 地址 |   /  :--- | ---: |  / 单元格里可以有 `code`、**粗体**、链接
+  var RE_SEP = /^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$/;
+  function splitRow(line) {
+    var t = String(line).trim();
+    if (t.charAt(0) === '|') t = t.slice(1);
+    if (t.charAt(t.length - 1) === '|') t = t.slice(0, -1);
+    var cells = [];
+    var buf = '';
+    var inCode = false;
+    for (var i = 0; i < t.length; i++) {
+      var ch = t.charAt(i);
+      if (ch === '`') inCode = !inCode;
+      // 代码里的 | 和转义的 \| 都不当分隔符
+      if (ch === '|' && !inCode && t.charAt(i - 1) !== '\\') { cells.push(buf); buf = ''; continue; }
+      buf += ch;
+    }
+    cells.push(buf);
+    return cells.map(function (c) { return c.trim().replace(/\\\|/g, '|'); });
+  }
+  function isTableStart(lines, i) {
+    if (i + 1 >= lines.length) return false;
+    if (String(lines[i]).indexOf('|') < 0) return false;
+    if (!RE_SEP.test(lines[i + 1])) return false;
+    return splitRow(lines[i]).length === splitRow(lines[i + 1]).length;
+  }
+  function alignOf(cell) {
+    var t = cell.trim();
+    var l = t.charAt(0) === ':';
+    var r = t.charAt(t.length - 1) === ':';
+    if (l && r) return 'center';
+    if (r) return 'right';
+    if (l) return 'left';
+    return '';
+  }
+  function renderTable(rows, aligns) {
+    function cell(tag, text, idx) {
+      var a = aligns[idx] || '';
+      var attr = a ? ' style="text-align:' + a + '"' : '';
+      return '<' + tag + attr + '>' + inline(text) + '</' + tag + '>';
+    }
+    var head = rows[0].map(function (c, idx) { return cell('th', c, idx); }).join('');
+    var body = rows.slice(1).map(function (r) {
+      return '<tr>' + r.map(function (c, idx) { return cell('td', c, idx); }).join('') + '</tr>';
+    }).join('');
+    return '<div class="md-table"><table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table></div>';
   }
 
   function render(md) {
@@ -68,9 +117,9 @@
         continue;
       }
       if (!line.trim()) { flush(); i++; continue; }
-      if ((m = /^(#{1,3})\s+(.*)$/.exec(line))) {
+      if ((m = /^(#{1,6})\s+(.*)$/.exec(line))) {
         flush();
-        var lv = m[1].length + 2;
+        var lv = Math.min(m[1].length + 2, 6);
         out.push('<h' + lv + '>' + inline(m[2]) + '</h' + lv + '>');
         i++;
         continue;
@@ -83,13 +132,34 @@
         out.push('<blockquote>' + q.map(inline).join('<br>') + '</blockquote>');
         continue;
       }
+      if (isTableStart(lines, i)) {
+        flush();
+        var headCells = splitRow(lines[i]);
+        var aligns = splitRow(lines[i + 1]).map(alignOf);
+        var trows = [headCells];
+        i += 2;
+        while (i < lines.length && lines[i].trim() && lines[i].indexOf('|') >= 0) {
+          trows.push(splitRow(lines[i]));
+          i++;
+        }
+        out.push(renderTable(trows, aligns));
+        continue;
+      }
       if (/^\s*[-*+]\s+/.test(line) || /^\s*\d+\.\s+/.test(line)) {
         flush();
         var ordered = /^\s*\d+\.\s+/.test(line);
         var re = ordered ? /^\s*\d+\.\s+/ : /^\s*[-*+]\s+/;
         var items = [];
         while (i < lines.length && re.test(lines[i])) {
-          items.push('<li>' + inline(lines[i].replace(re, '')) + '</li>');
+          var txt = lines[i].replace(re, '');
+          var task = /^\[([ xX])\]\s+/.exec(txt);
+          if (task) {
+            var on = task[1].toLowerCase() === 'x';
+            txt = txt.slice(task[0].length);
+            items.push('<li class="md-task"><input type="checkbox" disabled' + (on ? ' checked' : '') + '> ' + inline(txt) + '</li>');
+          } else {
+            items.push('<li>' + inline(txt) + '</li>');
+          }
           i++;
         }
         out.push((ordered ? '<ol>' : '<ul>') + items.join('') + (ordered ? '</ol>' : '</ul>'));

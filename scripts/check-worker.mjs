@@ -235,6 +235,125 @@ ok(/immutable/.test(immCC), '带 ?v= 的数据文件一年 immutable', immCC);
 r = await hit('/?t=' + Date.now());
 ok((r.headers.get('link') || '').indexOf('rel=preload') >= 0, '首页带 Link: preload 头', r.headers.get('link'));
 
+// ---- 11. 广告位（5 个位置独立开关）----
+console.log('== 11. 广告位 ==');
+r = await hit('/admin');
+const adAdminHtml = await r.text();
+const slotIds = ['home-top', 'list-top', 'list-bottom', 'sidebar', 'article'];
+const slotMissing = slotIds.filter((id) => adAdminHtml.indexOf('data-ad-slot="' + id + '"') < 0);
+ok(slotMissing.length === 0, '后台 5 个广告位都在', slotMissing.join(',') || 'ok');
+
+r = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({
+    password: 'pw',
+    section: 'ad',
+    value: {
+      slots: {
+        'list-top': { enabled: true, html: '<b id="x">ad</b>' },
+        sidebar: { enabled: false, html: 's' },
+      },
+    },
+  }),
+});
+const adRes = await r.json();
+const adSlots = (adRes.site && adRes.site.ad && adRes.site.ad.slots) || {};
+ok(adRes.ok === true && adSlots['list-top'] && adSlots['list-top'].enabled === true, '广告位按槽保存', JSON.stringify(adSlots).slice(0, 120));
+ok(!!adSlots['home-top'] && adSlots['home-top'].enabled === false, '没勾的槽保持关闭', JSON.stringify(adSlots['home-top']));
+ok(!!adSlots.sidebar && adSlots.sidebar.html === 's', '各槽 html 互相独立', JSON.stringify(adSlots.sidebar));
+
+r = await hit('/api/site', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'pw', section: 'ad', value: { slots: { bogus: { enabled: true, html: '' } } } }),
+});
+const badAd = await r.json();
+ok(badAd.ok === false && /广告位/.test(badAd.error || ''), '未知广告位被拒绝', String(badAd.error).slice(0, 60));
+
+r = await hit('/');
+const adHomeHtml = await r.text();
+ok(adHomeHtml.indexOf('id="adHomeTop"') >= 0 && adHomeHtml.indexOf('id="adSidebar"') >= 0, '前台 5 个广告容器都在');
+
+// ---- 12. 导航页 + 收录提交 ----
+console.log('== 12. 导航页 + 收录提交 ==');
+r = await hit('/admin');
+const navAdminHtml = await r.text();
+ok(navAdminHtml.indexOf('id="pane-nav"') >= 0 && navAdminHtml.indexOf('id="navAdmin"') >= 0, '后台有导航页面板');
+ok(navAdminHtml.indexOf('data-tab="submit"') >= 0 && navAdminHtml.indexOf('id="pane-submit"') >= 0, '后台有收录提交面板');
+
+r = await hit('/api/nav');
+const navRes = await r.json();
+const navGroups = (navRes.nav && navRes.nav.groups) || [];
+ok(navRes.ok === true && navGroups.length >= 5, 'GET /api/nav 返回分类', navGroups.length + ' 组');
+const navItemTotal = navGroups.reduce((n, g) => n + ((g.items || []).length), 0);
+ok(navItemTotal >= 20, '导航站点数合理', navItemTotal + ' 站');
+
+const navBody = JSON.stringify({
+  password: 'pw',
+  nav: { groups: [{ id: 'T1', name: '测试分类', desc: '', items: [{ name: '', url: 'https://example.com', desc: '', icon: '' }] }] },
+});
+r = await hit('/api/nav', { method: 'POST', headers: { 'content-type': 'application/json' }, body: navBody });
+const navSave = await r.json();
+const savedG = (navSave.nav && navSave.nav.groups && navSave.nav.groups[0]) || {};
+ok(navSave.ok === true, 'POST /api/nav 保存成功');
+ok(savedG.id === 't1' && savedG.name === '测试分类', '分类 id 被规范化成小写', JSON.stringify(savedG).slice(0, 80));
+ok(savedG.items && savedG.items[0] && savedG.items[0].name === 'example.com', '站点没填名称时用域名兜底', JSON.stringify(savedG.items));
+
+r = await hit('/api/nav', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'wrong', nav: { groups: [] } }) });
+ok((await r.json()).ok === false, '导航页保存要密码');
+
+r = await hit('/data/nav.json');
+await r.text();
+ok(((r.headers.get('cache-control') || '').indexOf('max-age=60') >= 0), '导航 JSON 也是 60 秒短缓存', r.headers.get('cache-control'));
+
+r = await hit('/api/fetch-meta?url=' + encodeURIComponent('http://127.0.0.1/'));
+ok((await r.json()).ok === false, '拒绝抓取本机地址');
+r = await hit('/api/fetch-meta?url=' + encodeURIComponent('file:///etc/passwd'));
+ok((await r.json()).ok === false, '拒绝非 http(s) 地址');
+
+r = await hit('/robots.txt');
+const robots = await r.text();
+ok(robots.indexOf('User-agent: GPTBot') >= 0 && robots.indexOf('User-agent: Bytespider') >= 0 && robots.indexOf('Sitemap:') >= 0, 'robots.txt 放行 AI 抓取器并带 sitemap');
+ok(((r.headers.get('cache-control') || '').indexOf('max-age=') >= 0), 'robots.txt 有缓存头', r.headers.get('cache-control'));
+
+r = await hit('/llms.txt');
+const llms = await r.text();
+ok(r.status === 200 && llms.indexOf('# ') === 0 && llms.indexOf('## 页面') > 0, 'llms.txt 有站点说明');
+ok(llms.indexOf('/sitemap.xml') > 0 && llms.indexOf('## 数据说明') > 0, 'llms.txt 含 sitemap 与数据说明');
+
+r = await hit('/sitemap.xml');
+const sitemap = await r.text();
+ok(r.status === 200 && sitemap.indexOf('<urlset') >= 0, 'sitemap.xml 可访问');
+ok(sitemap.indexOf('articles') > 0, 'sitemap 含文章页');
+
+r = await hit('/api/submit');
+const subStatus = await r.json();
+const subKey = (subStatus.status && subStatus.status.indexNowKey) || '';
+ok(subStatus.ok === true && !!subKey, 'GET /api/submit 返回 IndexNow key', subKey);
+r = await hit('/' + subKey + '.txt');
+ok((await r.text()).trim() === subKey, 'IndexNow key 文件可访问');
+
+r = await hit('/api/submit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'pw', action: 'all' }) });
+const subRun = await r.json();
+ok(subRun.ok === true && subRun.results && subRun.results.indexNow && subRun.results.indexNow.ok === false, 'IndexNow 不通时返回原因而不是报错', JSON.stringify(subRun.results.indexNow || {}).slice(0, 100));
+ok(subRun.results && subRun.results.baidu && subRun.results.baidu.ok === false, '没配 BAIDU_TOKEN 时跳过百度推送');
+
+r = await hit('/api/submit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'x', action: 'all' }) });
+ok((await r.json()).ok === false, '提交也要密码');
+
+// ---- 13. 导航视图可以直接打开（/nav、/?page=nav） ----
+console.log('13. 导航视图');
+r = await hit('/nav');
+const navPage = await r.text();
+ok(r.status === 200, '/nav 返回 200');
+ok((r.headers.get('content-type') || '').indexOf('text/html') >= 0, '/nav 是 HTML');
+ok(navPage.indexOf('id="tabNav"') > 0, '/nav 的页面里有导航标签');
+ok(navPage.indexOf('page=nav') > 0, '页面里记下了 page=nav 的意图（bundle.js 会重写地址栏）');
+const navCc = r.headers.get('cache-control') || '';
+ok(navCc.indexOf('max-age=300') >= 0, '/nav 与首页同一档缓存', navCc);
+r = await hit('/?page=nav');
+ok(r.status === 200, '/?page=nav 返回 200');
 console.log('');
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);

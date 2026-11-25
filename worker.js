@@ -16,6 +16,7 @@ const DEFAULT_BRANCH = 'main';
 const SITE = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/index.html': ['index.html', 'text/html; charset=utf-8'],
+  '/nav': ['index.html', 'text/html; charset=utf-8'],
   '/js/bundle.js': ['js/bundle.js', 'application/javascript; charset=utf-8'],
   '/js/md.js': ['js/md.js', 'application/javascript; charset=utf-8'],
   '/data/repos.js': ['data/repos.js', 'application/javascript; charset=utf-8'],
@@ -33,6 +34,7 @@ const SITE = {
   '/data/links.json': ['data/links.json', 'application/json; charset=utf-8'],
   '/data/articles.json': ['data/articles.json', 'application/json; charset=utf-8'],
   '/data/site.json': ['data/site.json', 'application/json; charset=utf-8'],
+  '/data/nav.json': ['data/nav.json', 'application/json; charset=utf-8'],
   '/articles': ['articles.html', 'text/html; charset=utf-8'],
   '/articles.html': ['articles.html', 'text/html; charset=utf-8'],
 };
@@ -49,13 +51,39 @@ export default {
         return serveSiteEdge(env, url.pathname, SITE[url.pathname], request);
       }
       if (url.pathname === '/robots.txt' && (request.method === 'GET' || request.method === 'HEAD')) {
-        return new Response('User-agent: *\nAllow: /\nSitemap: ' + url.origin + '/sitemap.xml\n', { headers: { 'content-type': 'text/plain; charset=utf-8' } });
+        return new Response(robotsTxt(url.origin), {
+          headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },
+        });
+      }
+      if (url.pathname === '/llms.txt' && (request.method === 'GET' || request.method === 'HEAD')) {
+        return new Response(await llmsTxt(env, url.origin), {
+          headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },
+        });
+      }
+      if (url.pathname === '/' + indexNowKey(env) + '.txt' && (request.method === 'GET' || request.method === 'HEAD')) {
+        const key = indexNowKey(env);
+        return new Response(request.method === 'HEAD' ? null : key, {
+          headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },
+        });
       }
       if (url.pathname === '/sitemap.xml' && (request.method === 'GET' || request.method === 'HEAD')) {
         const seoSite = (await loadSiteRaw(env)).seo;
         const origin = seoSite.siteUrl ? seoSite.siteUrl.replace(/\/+$/, '') : url.origin;
-        const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>' + origin + '/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n  <url><loc>' + origin + '/articles</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>\n</urlset>\n';
-        return new Response(xml, { headers: { 'content-type': 'application/xml; charset=utf-8' } });
+        const arts = await rawJson(env, 'data/articles.json');
+        const list = Array.isArray(arts) ? arts : [];
+        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+        xml += '  <url><loc>' + origin + '/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n';
+        xml += '  <url><loc>' + origin + '/articles</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>\n';
+        for (const a of list.slice(0, 200)) {
+          if (!a || !a.id) continue;
+          const lm = a.date ? String(a.date).slice(0, 10) : '';
+          xml += '  <url><loc>' + origin + '/articles#' + encodeURIComponent(String(a.id)) + '</loc>' +
+            (lm ? '<lastmod>' + lm + '</lastmod>' : '') + '<changefreq>monthly</changefreq><priority>0.5</priority></url>\n';
+        }
+        xml += '</urlset>\n';
+        return new Response(request.method === 'HEAD' ? null : xml, {
+          headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=600' },
+        });
       }
       if (url.pathname === '/keepalive' && request.method === 'GET') {
         return Response.redirect(url.origin + '/admin#keepalive', 302);
@@ -90,6 +118,16 @@ export default {
       }
       if (url.pathname === '/api/translate' && (request.method === 'GET' || request.method === 'POST')) {
         return handleTranslate(request, env);
+      }
+      if (url.pathname === '/api/nav' && (request.method === 'GET' || request.method === 'POST')) {
+        return handleNav(request, env);
+      }
+      if (url.pathname === '/api/fetch-meta' && (request.method === 'POST' || request.method === 'GET')) {
+        const q = url.searchParams.get('url') || '';
+        return handleFetchMeta(q, env);
+      }
+      if (url.pathname === '/api/submit' && (request.method === 'GET' || request.method === 'POST')) {
+        return handleSubmit(request, env, url.origin);
       }
       if (url.pathname === '/api/articles' && (request.method === 'GET' || request.method === 'POST')) {
         return handleArticles(request, env);
@@ -266,39 +304,134 @@ function splitForTranslate(md) {
   return out;
 }
 
-async function translateMM(text, env) {
-  let url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=en|zh-CN';
-  // 带上联系邮箱，MyMemory 每天额度从 5000 提到 50000 字符
-  url += '&de=' + encodeURIComponent(env.TRANSLATE_EMAIL || 'xiaoh2018@gmail.com');
+// 长文本按句子切成小块：MyMemory 单次 q 上限约 500 字符，m2m100 太长也会被截断
+function chunkText(text, max) {
+  const out = [];
+  let rest = String(text == null ? '' : text).replace(/\s+/g, ' ').trim();
+  if (!rest) return out;
+  while (rest.length > max) {
+    const win = rest.slice(0, max);
+    const m = win.match(/^[\s\S]*[.!?;\u3002\uff01\uff1f\uff1b]\s?/);
+    let cut = m ? m[0].length : -1;
+    if (cut < max * 0.5) {
+      const sp = win.lastIndexOf(' ');
+      cut = sp > max * 0.5 ? sp : max;
+    }
+    out.push(rest.slice(0, cut).trim());
+    rest = rest.slice(cut).trim();
+  }
+  if (rest) out.push(rest);
+  return out;
+}
+
+// 译文缓存：同一段英文只翻一次（键在 Worker 自己名下，不会和站点文件撞）
+function trKey(text) {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return 'https://edge.ghrank.internal/__tr/' + h.toString(16) + '-' + text.length;
+}
+
+async function readTranslation(text) {
+  if (!text || text.length > 4000) return null;
   try {
-    const r = await fetch(url);
-    if (!r.ok) return null;
-    const d = await r.json();
-    const out = d.responseData && d.responseData.translatedText;
-    if (d.responseStatus !== 200 || !out || /MYMEMORY WARNING|QUOTA/i.test(out)) return null;
-    return out;
+    const hit = await EDGE_CACHE.match(trKey(text));
+    if (!hit) return null;
+    const body = await hit.text();
+    return body && body.trim() ? body : null;
   } catch (e) {
     return null;
   }
+}
+
+async function saveTranslation(text, zh) {
+  if (!text || !zh || text.length > 4000) return;
+  try {
+    await EDGE_CACHE.put(
+      trKey(text),
+      new Response(zh, { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'max-age=31536000' } })
+    );
+  } catch (e) {
+    /* 缓存写失败不影响结果 */
+  }
+}
+
+// MyMemory：免费、无需 Key。返回 { ok, text, error }，error 带类型前缀方便后台显示
+async function translateMM(text, env) {
+  const chunks = chunkText(text, 450);
+  if (!chunks.length) return { ok: false, error: 'empty: 没有可翻译的内容' };
+  const parts = [];
+  for (const piece of chunks) {
+    let url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(piece) + '&langpair=en|zh-CN';
+    // 带上联系邮箱，MyMemory 每天额度从 5000 提到 50000 字符
+    url += '&de=' + encodeURIComponent(env.TRANSLATE_EMAIL || 'xiaoh2018@gmail.com');
+    let r;
+    try {
+      r = await fetch(url);
+    } catch (e) {
+      return { ok: false, error: 'network: 连不上 MyMemory（' + (e && e.message ? e.message : 'fetch failed') + '）' };
+    }
+    if (r.status === 429 || r.status === 403) {
+      return { ok: false, error: 'quota: MyMemory 当天免费额度用完了（HTTP ' + r.status + '），明天自动恢复' };
+    }
+    if (!r.ok) return { ok: false, error: 'http: MyMemory 返回 HTTP ' + r.status };
+    let d = null;
+    try {
+      d = await r.json();
+    } catch (e) {
+      return { ok: false, error: 'parse: MyMemory 返回的不是 JSON' };
+    }
+    if (d && d.responseStatus !== 200) {
+      const detail = String(d.responseDetails || d.responseStatus || '').slice(0, 90);
+      if (/quota|limit/i.test(detail)) return { ok: false, error: 'quota: MyMemory 额度用尽（' + detail + '）' };
+      return { ok: false, error: 'status: MyMemory 报错「' + detail + '」' };
+    }
+    const t = d && d.responseData && d.responseData.translatedText;
+    if (!t || /MYMEMORY WARNING|QUOTA/i.test(t)) {
+      return { ok: false, error: 'quota: MyMemory 提示额度用尽（' + String(t || '').slice(0, 60) + '）' };
+    }
+    parts.push(String(t));
+  }
+  return { ok: true, text: parts.join(' ') };
 }
 
 // Workers AI 翻译（m2m100）：需要在 Worker 上绑定 AI（变量名 AI）；没有绑定时直接跳过
 async function translateAI(text, env) {
-  if (!env.AI) return null;
-  try {
-    const r = await env.AI.run('@cf/meta/m2m100-1.2b', { text: text, source_lang: 'english', target_lang: 'chinese' });
-    const out = r && (r.translated_text || r.translation);
-    return out ? String(out) : null;
-  } catch (e) {
-    return null;
+  if (!env.AI) return { ok: false, error: 'not-bound: 没有绑定 Workers AI（变量名必须是 AI）' };
+  const chunks = chunkText(text, 900);
+  if (!chunks.length) return { ok: false, error: 'empty: 没有可翻译的内容' };
+  const parts = [];
+  for (const piece of chunks) {
+    let r;
+    try {
+      r = await env.AI.run('@cf/meta/m2m100-1.2b', { text: piece, source_lang: 'english', target_lang: 'chinese' });
+    } catch (e) {
+      return { ok: false, error: 'run: 模型调用失败（' + (e && e.message ? e.message : 'unknown') + '）' };
+    }
+    const t = r && (r.translated_text || r.translation);
+    if (!t) return { ok: false, error: 'empty: 模型返回空结果' };
+    parts.push(String(t));
   }
+  return { ok: true, text: parts.join('') };
 }
 
-// 翻译顺序：MyMemory（免 Key）→ Workers AI（绑定即用）
+// 翻译顺序：缓存 → MyMemory（免 Key）→ Workers AI（绑定即用）
 async function translateText(text, env) {
+  const cached = await readTranslation(text);
+  if (cached) return cached;
   const mm = await translateMM(text, env);
-  if (mm) return mm;
-  return translateAI(text, env);
+  if (mm.ok && mm.text) {
+    await saveTranslation(text, mm.text);
+    return mm.text;
+  }
+  const ai = await translateAI(text, env);
+  if (ai.ok && ai.text) {
+    await saveTranslation(text, ai.text);
+    return ai.text;
+  }
+  return null;
 }
 
 // 读取 GitHub Action 预翻译的 README 译文（data/readme-zh.json，格式 {"owner/repo": {partial, text}}）
@@ -358,14 +491,14 @@ const EDGE_KEY_BASE = 'https://edge.ghrank.internal';
 const RAW_TTL = 60;
 
 // 后台随时会改的三个 JSON：缓存必须很短，否则改完前台还是旧值（实测过）
-const CONFIG_FILES = ['/data/site.json', '/data/links.json', '/data/articles.json'];
+const CONFIG_FILES = ['/data/site.json', '/data/links.json', '/data/articles.json', '/data/nav.json'];
 
 // ttl=边缘保留秒数；browser=浏览器 max-age；swr=stale-while-revalidate
 function cachePolicy(pathname) {
   if (pathname === '/sw.js') return { ttl: 60, browser: 60, sMaxAge: 60 };
   if (CONFIG_FILES.indexOf(pathname) >= 0) return { ttl: 60, browser: 60, sMaxAge: 60, swr: 300 };
   if (pathname.indexOf('/data/') === 0) return { ttl: 900, browser: 600, sMaxAge: 900, swr: 86400 };
-  if (pathname === '/' || pathname === '/index.html' || pathname === '/articles' || pathname === '/articles.html') {
+  if (pathname === '/' || pathname === '/index.html' || pathname === '/nav' || pathname === '/articles' || pathname === '/articles.html') {
     return { ttl: 600, browser: 300, sMaxAge: 600, swr: 3600 };
   }
   // js / css / 图标 / manifest 这类 shell 文件几个月才变一次，浏览器可以放心长缓存
@@ -905,12 +1038,389 @@ async function handleLinks(request, env) {
 }
 
 // ---- 站点配置（广告 / 联系方式）：数据存在仓库 data/site.json ----
+// ---------- 导航页（data/nav.json）----------
+// 结构：{ updatedAt, groups:[ {id, name, desc, items:[{name, url, desc, icon}]} ] }
+const NAV_FILE = 'data/nav.json';
+
+function emptyNav() {
+  return { updatedAt: '', groups: [] };
+}
+
+// 不管仓库里存的是什么，先过一遍清洗，前台就不用再防了
+function normalizeNav(raw) {
+  const out = emptyNav();
+  const src = raw && typeof raw === 'object' ? raw : {};
+  const groups = Array.isArray(src.groups) ? src.groups : [];
+  const used = {};
+  groups.forEach((g, gi) => {
+    if (!g || typeof g !== 'object') return;
+    let id = String(g.id || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 24);
+    if (!id) id = 'g' + (gi + 1);
+    while (used[id]) id = id + 'x';
+    used[id] = 1;
+    const items = (Array.isArray(g.items) ? g.items : [])
+      .map((it) => {
+        if (!it || typeof it !== 'object') return null;
+        const url = String(it.url || '').trim();
+        if (!/^https?:\/\//i.test(url) || url.length > 300) return null;
+        let name = String(it.name || '').trim().slice(0, 40);
+        if (!name) name = url.replace(/^https?:\/\//i, '').split('/')[0];
+        return {
+          name: name,
+          url: url,
+          desc: String(it.desc || '').trim().slice(0, 200),
+          icon: String(it.icon || '').trim().slice(0, 300),
+        };
+      })
+      .filter(Boolean);
+    out.groups.push({
+      id: id,
+      name: String(g.name || '未命名分类').trim().slice(0, 24),
+      desc: String(g.desc || '').trim().slice(0, 80),
+      items: items,
+    });
+  });
+  out.updatedAt = typeof src.updatedAt === 'string' ? src.updatedAt : '';
+  return out;
+}
+
+async function readNav(env) {
+  const miss = checkConfig(env);
+  if (miss.length) return { ok: false, status: 500, error: '还没配置变量：' + miss.join('、') };
+  const cur = await gh(env, '/contents/' + NAV_FILE + '?ref=' + encodeURIComponent(branch(env)));
+  if (cur.status === 404) return { ok: true, status: 404, nav: emptyNav(), sha: null };
+  if (!cur.ok || !cur.data) {
+    return { ok: false, status: cur.status, error: '读取导航失败：' + cur.status + ' ' + cur.text.slice(0, 200) };
+  }
+  let nav = emptyNav();
+  try {
+    const bin = atob(String(cur.data.content || '').replace(/\n/g, ''));
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    const txt = new TextDecoder().decode(bytes);
+    if (txt.trim()) nav = normalizeNav(JSON.parse(txt));
+  } catch (e) {
+    return { ok: false, status: 500, error: 'data/nav.json 不是合法的 JSON，请先在仓库里修正' };
+  }
+  return { ok: true, status: 200, nav: nav, sha: cur.data.sha || null };
+}
+
+async function writeNav(env, nav, sha, msg) {
+  const body = {
+    message: msg,
+    content: utf8ToBase64(JSON.stringify(nav, null, 2) + '\n'),
+    branch: branch(env),
+  };
+  if (sha) body.sha = sha;
+  const put = await gh(env, '/contents/' + NAV_FILE, {
+    method: 'PUT',
+    headers: ghHeaders(env, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify(body),
+  });
+  if (!put.ok) return { ok: false, error: '写入失败：' + put.status + ' ' + put.text };
+  return { ok: true };
+}
+
+async function handleNav(request, env) {
+  if (request.method === 'GET') {
+    const r = await readNav(env);
+    if (!r.ok) return json({ ok: false, error: r.error }, 502);
+    return json({ ok: true, nav: r.nav });
+  }
+  if (!env.ADMIN_PASSWORD) {
+    return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
+  }
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== 'object') {
+    return json({ ok: false, error: '请求体必须是 JSON 对象' }, 400);
+  }
+  if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
+    return json({ ok: false, error: '密码不对' }, 403);
+  }
+  if (!body.nav || typeof body.nav !== 'object') {
+    return json({ ok: false, error: '缺少 nav（整个导航结构）' }, 400);
+  }
+  const nav = normalizeNav(body.nav);
+  nav.updatedAt = new Date().toISOString();
+  if (nav.groups.length > 20) return json({ ok: false, error: '最多 20 个分类' }, 400);
+  let total = 0;
+  for (const g of nav.groups) total += g.items.length;
+  if (total > 400) return json({ ok: false, error: '站点总数不能超过 400 个' }, 400);
+
+  const cur = await readNav(env);
+  if (!cur.ok) return json({ ok: false, error: cur.error }, 502);
+  const put = await writeNav(env, nav, cur.sha, 'chore: 更新导航页（后台保存）');
+  if (!put.ok) return json({ ok: false, error: put.error }, 502);
+  await warmEdge('/data/nav.json', JSON.stringify(nav, null, 2) + '\n', 'application/json; charset=utf-8');
+  return json({ ok: true, nav: nav });
+}
+
+// 抓一个网址的标题/描述/图标，后台「自动填描述」用
+async function handleFetchMeta(rawUrl, env) {
+  const input = String(rawUrl || '').trim();
+  let u = null;
+  try {
+    u = new URL(input);
+  } catch (e) {
+    return json({ ok: false, error: '网址格式不对，要写完整的 https://…' }, 400);
+  }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+    return json({ ok: false, error: '只支持 http / https' }, 400);
+  }
+  if (/^(localhost$|127\.|0\.0\.0\.0$|10\.|192\.168\.|169\.254\.|\[?::1$)/i.test(u.hostname) ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(u.hostname)) {
+    return json({ ok: false, error: '内网地址不抓取' }, 400);
+  }
+  let r = null;
+  try {
+    r = await fetch(u.toString(), {
+      headers: { 'user-agent': 'Mozilla/5.0 (compatible; ghrank-nav/1.0; +https://github.661026.xyz)' },
+      cf: { cacheTtl: 3600, cacheEverything: true },
+    });
+  } catch (e) {
+    return json({ ok: false, error: '抓取失败：' + (e && e.message ? e.message : 'network') }, 502);
+  }
+  if (!r.ok) return json({ ok: false, error: '抓取失败：HTTP ' + r.status }, 502);
+  const ct = (r.headers.get('content-type') || '').toLowerCase();
+  if (ct.indexOf('html') < 0 && ct.indexOf('text/plain') < 0) {
+    return json({ ok: false, error: '这不是网页（content-type: ' + ct + '）' }, 400);
+  }
+  const html = (await r.text()).slice(0, 500000);
+  const decode = (s) =>
+    String(s || '')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  const grab = (re) => {
+    const m = html.match(re);
+    return m && m[1] ? decode(m[1]) : '';
+  };
+  const title =
+    grab(/<title[^>]*>([\s\S]{1,300}?)<\/title>/i) ||
+    grab(/<meta[^>]+property=["']og:site_name["'][^>]*content=["']([^"']{1,200})/i);
+  let desc =
+    grab(/<meta[^>]+name=["']description["'][^>]*content=["']([^"']{1,400})/i) ||
+    grab(/<meta[^>]+property=["']og:description["'][^>]*content=["']([^"']{1,400})/i) ||
+    grab(/<meta[^>]+content=["']([^"']{1,400})["'][^>]*name=["']description["']/i) ||
+    grab(/<meta[^>]+content=["']([^"']{1,400})["'][^>]*property=["']og:description["']/i);
+  if (!desc) {
+    const m = html.match(/<p[^>]*>([\s\S]{1,600}?)<\/p>/i);
+    if (m) desc = decode(m[1].replace(/<[^>]+>/g, '')).slice(0, 200);
+  }
+  let icon =
+    grab(/<link[^>]+rel=["'][^"']*apple-touch-icon[^"']*["'][^>]+href=["']([^"']+)/i) ||
+    grab(/<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]+href=["']([^"']+)/i) ||
+    grab(/<meta[^>]+property=["']og:image["'][^>]*content=["']([^"']+)/i);
+  if (icon && !/^https?:/i.test(icon)) {
+    try {
+      icon = new URL(icon, u).toString();
+    } catch (e) {
+      icon = '';
+    }
+  }
+  if (!icon) icon = u.origin + '/favicon.ico';
+  return json({
+    ok: true,
+    meta: {
+      name: (title || u.hostname).slice(0, 40),
+      desc: desc.slice(0, 200),
+      icon: icon.slice(0, 300),
+      url: u.toString(),
+    },
+  });
+}
+
+// ---------- 收录提交（搜索引擎 + AI 抓取器）----------
+const AI_BOTS = [
+  'GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'anthropic-ai', 'Claude-Web',
+  'PerplexityBot', 'Google-Extended', 'Applebot-Extended', 'Bytespider', 'Baiduspider',
+  'Sogou web spider', 'YisouSpider', 'PetalBot', 'Qwen-Bot', 'DeepSeek-Bot', 'Amazonbot', 'CCBot'
+];
+
+function robotsTxt(origin) {
+  let t = 'User-agent: *\nAllow: /\n\n';
+  t += '# 各家 AI 搜索 / 大模型的抓取器：明确放行\n';
+  for (const b of AI_BOTS) t += 'User-agent: ' + b + '\nAllow: /\n\n';
+  t += 'Sitemap: ' + origin + '/sitemap.xml\n';
+  t += '# 给大模型读的站点说明：' + origin + '/llms.txt\n';
+  return t;
+}
+
+// IndexNow 的 key 会在 /<key>.txt 上公开，用来证明域名归属
+function indexNowKey(env) {
+  if (env.INDEXNOW_KEY && String(env.INDEXNOW_KEY).trim()) return String(env.INDEXNOW_KEY).trim();
+  const seed = String(env.REPO_OWNER || '') + '/' + String(env.REPO_NAME || '') + '/' + branch(env);
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  let h2 = 5381;
+  for (let i = seed.length - 1; i >= 0; i--) h2 = ((h2 * 33) ^ seed.charCodeAt(i)) >>> 0;
+  return 'ghrank' + h.toString(16) + h2.toString(16);
+}
+
+async function rawJson(env, path) {
+  if (!env.REPO_OWNER || !env.REPO_NAME) return null;
+  try {
+    const r = await fetch(
+      'https://raw.githubusercontent.com/' + env.REPO_OWNER + '/' + env.REPO_NAME + '/' + branch(env) + '/' + path,
+      { cf: { cacheTtl: RAW_TTL, cacheEverything: true } }
+    );
+    if (!r.ok) return null;
+    return await r.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+// llms.txt：给大模型看的站点说明（llmstxt.org 约定）
+async function llmsTxt(env, origin) {
+  const site = (await loadSiteRaw(env)).seo || {};
+  const root = site.siteUrl ? String(site.siteUrl).replace(/\/+$/, '') : origin;
+  const arts = await rawJson(env, 'data/articles.json');
+  const nav = await rawJson(env, 'data/nav.json');
+  const lines = [];
+  lines.push('# ' + (site.siteName || 'GitHub 热门项目排行榜'));
+  lines.push('');
+  lines.push('> ' + (site.description || '按星标数排序的 GitHub 热门项目榜单，支持近 7 天 / 30 天 / 1 年 / 全部，另有开发者榜、组织榜与常用站点导航。'));
+  lines.push('');
+  lines.push('## 页面');
+  lines.push('');
+  lines.push('- 榜单首页：' + root + '/ （项目榜，可切语言、时间范围、排序方式；另有开发者榜、组织榜）');
+  lines.push('- 文章列表：' + root + '/articles （使用说明与更新记录）');
+  lines.push('- 站点地图：' + root + '/sitemap.xml');
+  lines.push('');
+  const list = Array.isArray(arts) ? arts : [];
+  if (list.length) {
+    lines.push('## 文章');
+    lines.push('');
+    for (const a of list.slice(0, 50)) {
+      if (!a || !a.title) continue;
+      lines.push('- ' + String(a.title) + (a.date ? '（' + String(a.date).slice(0, 10) + '）' : '') +
+        (a.summary ? '：' + String(a.summary) : ''));
+    }
+    lines.push('');
+  }
+  const groups = nav && Array.isArray(nav.groups) ? nav.groups : [];
+  if (groups.length) {
+    lines.push('## 导航（常用站点）');
+    lines.push('');
+    for (const g of groups) {
+      const items = (g.items || []).slice(0, 12).map((it) => '[' + it.name + '](' + it.url + ')').join('、');
+      if (items) lines.push('- ' + (g.name || '未命名') + '：' + items);
+    }
+    lines.push('');
+  }
+  lines.push('## 数据说明');
+  lines.push('');
+  lines.push('- 榜单数据每 3 小时由 GitHub Actions 抓取一次，页面走边缘缓存，通常数分钟内可见');
+  lines.push('- 只统计公开仓库；排序依据是当前星标数，另有今日增量、活跃度、Fork、最近更新');
+  lines.push('');
+  return lines.join('\n');
+}
+
+// 主动提交：IndexNow（Bing / Yandex / Seznam / Naver 共用）、百度普通收录推送
+async function handleSubmit(request, env, origin) {
+  if (request.method === 'GET') {
+    const key = indexNowKey(env);
+    return json({
+      ok: true,
+      status: {
+        indexNowKey: key,
+        keyFile: origin + '/' + key + '.txt',
+        sitemap: origin + '/sitemap.xml',
+        llms: origin + '/llms.txt',
+        baiduToken: !!env.BAIDU_TOKEN,
+      },
+    });
+  }
+  if (!env.ADMIN_PASSWORD) return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== 'object') return json({ ok: false, error: '请求体必须是 JSON' }, 400);
+  if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
+    return json({ ok: false, error: '密码不对' }, 403);
+  }
+  const site = (await loadSiteRaw(env)).seo || {};
+  const root = site.siteUrl ? String(site.siteUrl).replace(/\/+$/, '') : origin;
+  let host = '';
+  try {
+    host = new URL(root).host;
+  } catch (e) {
+    host = '';
+  }
+  const arts = await rawJson(env, 'data/articles.json');
+  const urls = [root + '/', root + '/articles'];
+  (Array.isArray(arts) ? arts : []).slice(0, 100).forEach((a) => {
+    if (a && a.id) urls.push(root + '/articles#' + encodeURIComponent(String(a.id)));
+  });
+  const want = String(body.action || 'all');
+  const out = { ok: true, urls: urls.length, root: root, results: {} };
+
+  if (want === 'all' || want === 'indexnow') {
+    const key = indexNowKey(env);
+    try {
+      const r = await fetch('https://api.indexnow.org/indexnow', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({ host: host, key: key, keyLocation: root + '/' + key + '.txt', urlList: urls }),
+      });
+      out.results.indexNow = {
+        ok: r.ok || r.status === 202,
+        status: r.status,
+        note: r.ok || r.status === 202
+          ? '已提交给 IndexNow（Bing / Yandex / Seznam / Naver 共用一套）'
+          : 'IndexNow 返回 HTTP ' + r.status,
+      };
+    } catch (e) {
+      out.results.indexNow = { ok: false, status: 0, note: '连不上 api.indexnow.org：' + ((e && e.message) || 'network') };
+    }
+  }
+
+  if (want === 'all' || want === 'baidu') {
+    if (!env.BAIDU_TOKEN) {
+      out.results.baidu = { ok: false, status: 0, note: '没配 BAIDU_TOKEN（百度搜索资源平台的准入密钥），跳过百度推送' };
+    } else {
+      try {
+        const r = await fetch(
+          'https://data.zz.baidu.com/urls?site=' + encodeURIComponent(root) + '&token=' + encodeURIComponent(env.BAIDU_TOKEN),
+          { method: 'POST', headers: { 'content-type': 'text/plain' }, body: urls.join('\n') }
+        );
+        const t = await r.text();
+        out.results.baidu = { ok: r.ok, status: r.status, note: String(t).slice(0, 300) };
+      } catch (e) {
+        out.results.baidu = { ok: false, status: 0, note: '连不上百度推送接口：' + ((e && e.message) || 'network') };
+      }
+    }
+  }
+
+  return json(out);
+}
+
 const SITE_FILE = 'data/site.json';
 const AD_HTML_MAX = 20000;
+// 广告位：id 是前端约定的槽位名，name/where 只用于后台展示
+const AD_SLOTS = [
+  { id: 'home-top', name: '首页顶部横幅', where: '页头下面、统计卡上面，通栏' },
+  { id: 'list-top', name: '榜单上方', where: '搜索筛选栏下面、榜单开始之前' },
+  { id: 'list-bottom', name: '榜单下方', where: '分页器下面、文章区之前' },
+  { id: 'sidebar', name: '侧栏底部', where: '右侧栏「变化」卡片下面；侧栏下沉时跟着走' },
+  { id: 'article', name: '文章区上方', where: '首页文章列表上方（文章详情页顶部也用它）' },
+];
+
+function emptyAdSlots() {
+  const o = {};
+  for (const s of AD_SLOTS) o[s.id] = { enabled: false, html: '' };
+  return o;
+}
 
 function defaultSite() {
   return {
-    ad: { enabled: false, html: '' },
+    ad: { enabled: false, html: '', slots: emptyAdSlots() },
     layout: { mode: 'auto', side: 'right', users: 'auto' },
     contact: { enabled: false, title: '联系我', wechat: '', qrUrl: '', email: '', note: '' },
     beian: { enabled: false, icp: '', icpUrl: 'https://beian.miit.gov.cn/', police: '', policeUrl: '', text: '' },
@@ -927,6 +1437,18 @@ function normalizeSite(o) {
   const str = (v, fb) => (typeof v === 'string' ? v : fb);
   d.ad.enabled = ad.enabled === true;
   d.ad.html = str(ad.html, '');
+  const rawSlots = ad.slots && typeof ad.slots === 'object' ? ad.slots : null;
+  if (rawSlots) {
+    for (const s of AD_SLOTS) {
+      const v = rawSlots[s.id];
+      if (v && typeof v === 'object') {
+        d.ad.slots[s.id] = { enabled: v.enabled === true, html: str(v.html, '').slice(0, AD_HTML_MAX) };
+      }
+    }
+  } else if (d.ad.enabled && d.ad.html.trim()) {
+    // 老结构（只有 ad.enabled + ad.html）：当成「首页顶部横幅」，保证升级后原有广告继续显示
+    d.ad.slots['home-top'] = { enabled: true, html: d.ad.html };
+  }
   d.contact.enabled = c.enabled === true;
   d.contact.title = str(c.title, '联系我');
   d.contact.wechat = str(c.wechat, '');
@@ -983,11 +1505,33 @@ function checkSection(section, value) {
     return { ok: false, error: 'value 必须是对象' };
   }
   if (section === 'ad') {
+    // 新结构：{ slots: { '<槽位>': { enabled, html } } }；老结构 { enabled, html } 仍然接受
+    const clean = { enabled: false, html: '', slots: emptyAdSlots() };
+    if (value.slots && typeof value.slots === 'object' && !Array.isArray(value.slots)) {
+      for (const key of Object.keys(value.slots)) {
+        if (!AD_SLOTS.some((s) => s.id === key)) {
+          return { ok: false, error: '不认识的广告位：' + key + '（可选：' + AD_SLOTS.map((s) => s.id).join('、') + '）' };
+        }
+        const v = value.slots[key] || {};
+        if (typeof v.enabled !== 'boolean') return { ok: false, error: '广告位「' + key + '」的开关必须是 true 或 false' };
+        const html = v.html == null ? '' : v.html;
+        if (typeof html !== 'string') return { ok: false, error: '广告位「' + key + '」的代码必须是文字' };
+        if (html.length > AD_HTML_MAX) return { ok: false, error: '广告位「' + key + '」的代码不能超过 ' + AD_HTML_MAX + ' 个字符' };
+        clean.slots[key] = { enabled: v.enabled, html: html };
+      }
+      // 老字段跟着「首页顶部横幅」走，保持向后兼容
+      clean.enabled = clean.slots['home-top'] ? clean.slots['home-top'].enabled : false;
+      clean.html = clean.slots['home-top'] ? clean.slots['home-top'].html : '';
+      return { ok: true, clean: clean };
+    }
     if (typeof value.enabled !== 'boolean') return { ok: false, error: '广告开关必须是 true 或 false' };
     const html = value.html == null ? '' : value.html;
     if (typeof html !== 'string') return { ok: false, error: '广告代码必须是文字' };
     if (html.length > AD_HTML_MAX) return { ok: false, error: '广告代码不能超过 ' + AD_HTML_MAX + ' 个字符' };
-    return { ok: true, clean: { enabled: value.enabled, html: html } };
+    clean.enabled = value.enabled;
+    clean.html = html;
+    clean.slots['home-top'] = { enabled: value.enabled, html: html };
+    return { ok: true, clean: clean };
   }
   if (section === 'layout') {
     const mode = value.mode == null ? '' : value.mode;
@@ -1102,17 +1646,34 @@ async function writeSite(env, site, sha) {
     }
     const text = ((body.text == null ? '' : String(body.text)).trim() || 'A fast, static GitHub trending board built on Cloudflare Workers.').slice(0, 400);
     const out = { ok: true, text: text, status: status };
+    const cached = await readTranslation(text);
+    if (cached) {
+      out.cached = true;
+      out.myMemory = { ok: true, text: cached, ms: 0, error: null, fromCache: true };
+      out.ai = { ok: false, text: '', ms: 0, error: '没试：命中译文缓存，没有产生调用' };
+      out.effective = 'cache';
+      return json(out);
+    }
+    out.cached = false;
     const t0 = Date.now();
     const mm = await translateMM(text, env);
-    out.myMemory = { ok: !!mm, text: mm || '', ms: Date.now() - t0, error: mm ? null : '没有拿到结果：可能当天额度用完、网络不通，或这段文字被 MyMemory 判为无效' };
+    out.myMemory = { ok: mm.ok === true, text: mm.text || '', ms: Date.now() - t0, error: mm.ok ? null : String(mm.error || 'unknown') };
     if (env.AI) {
       const t1 = Date.now();
       const ai = await translateAI(text, env);
-      out.ai = { ok: !!ai, text: ai || '', ms: Date.now() - t1, error: ai ? null : '没有拿到结果：模型调用失败，检查 AI 绑定和账户额度' };
+      out.ai = { ok: ai.ok === true, text: ai.text || '', ms: Date.now() - t1, error: ai.ok ? null : String(ai.error || 'unknown') };
     } else {
-      out.ai = { ok: false, text: '', ms: 0, error: '没有绑定 Workers AI（绑定变量名必须是 AI）' };
+      out.ai = { ok: false, text: '', ms: 0, error: 'not-bound: 没有绑定 Workers AI（变量名必须是 AI）' };
     }
-    out.effective = out.myMemory.ok ? 'myMemory' : out.ai.ok ? 'ai' : 'none';
+    if (out.myMemory.ok && out.myMemory.text) {
+      await saveTranslation(text, out.myMemory.text);
+      out.effective = 'myMemory';
+    } else if (out.ai.ok && out.ai.text) {
+      await saveTranslation(text, out.ai.text);
+      out.effective = 'ai';
+    } else {
+      out.effective = 'none';
+    }
     return json(out);
   }
 
@@ -1350,6 +1911,18 @@ th{color:var(--muted);font-weight:600;font-size:13px}
 .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .toolbar input[type=text]{max-width:320px}
 .row-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 4px}
+    /* ---- 广告位 ---- */
+    .ad-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-bottom:14px}
+    .ad-card{margin:0}
+    .ad-card .hint{margin:2px 0 8px}
+    .ad-code{min-height:96px;margin-top:6px}
+    code.slot-id{font-size:11px;padding:2px 6px;border-radius:6px;background:#f1f5f9;color:#475569;font-weight:600}
+    /* ---- 导航页后台 ---- */
+    #navAdmin .card{margin-bottom:14px}
+    .nav-g-head{display:flex;gap:8px;flex-wrap:wrap;flex:1;min-width:0}
+    .nav-g-head input{max-width:260px}
+    #navAdmin td input{font-size:13px;padding:7px 9px}
+    #navAdmin table{margin-top:6px}
 /* ---- 单选卡片（布局设置） ---- */
 .choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;margin:10px 0 4px}
 .choice{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0;cursor:pointer;background:#fff;font-weight:600;color:var(--text)}
@@ -1395,6 +1968,13 @@ dialog.wide.full{width:calc(100% - 16px);max-height:calc(100dvh - 16px)}
 .art-prev code{font-family:Consolas,ui-monospace,monospace;font-size:.92em}
 .art-prev img{max-width:100%;border-radius:8px}
 .art-prev blockquote{margin:8px 0;padding-left:12px;border-left:3px solid var(--line);color:var(--muted)}
+    .art-prev .md-table{overflow-x:auto;margin:10px 0;border-radius:8px}
+    .art-prev table{border-collapse:collapse;width:100%;font-size:13px}
+    .art-prev th,.art-prev td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top;overflow-wrap:anywhere}
+    .art-prev thead th{background:#f8fafc;font-weight:600;white-space:nowrap}
+    .art-prev tbody tr:nth-child(even){background:rgba(15,23,42,.02)}
+    .art-prev li.md-task{list-style:none;margin-left:-18px}
+    .art-prev li.md-task input{margin-right:6px;vertical-align:-1px}
 .field-row{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:12px;align-items:start}
 @media (max-width:900px){
 .art-grid{grid-template-columns:1fr}
@@ -1445,11 +2025,13 @@ dialog{width:calc(100% - 24px)}
     <div class="navgroup">内容</div>
     <button type="button" class="nav" data-tab="seo">SEO 与 GEO</button>
     <button type="button" class="nav" data-tab="links">友链</button>
+    <button type="button" class="nav" data-tab="nav">导航页<span class="nav-badge" id="navItemCount" hidden>0</span></button>
     <button type="button" class="nav" data-tab="ad">广告</button>
     <div class="navgroup">站点信息</div>
     <button type="button" class="nav" data-tab="contact">联系方式</button>
     <button type="button" class="nav" data-tab="beian">备案信息</button>
     <div class="navgroup">运维</div>
+    <button type="button" class="nav" data-tab="submit">收录提交</button>
     <button type="button" class="nav" data-tab="translate">翻译与密钥</button>
     </aside>
 
@@ -1491,20 +2073,27 @@ dialog{width:calc(100% - 24px)}
     </section>
 
     <section class="pane" id="pane-ad" hidden>
-      <div class="bar"><div><h1>广告</h1><div class="sub">站点上的广告位代码</div></div></div>
-      <div class="intro">这里放广告代码（如联盟广告、统计代码）。开关打开后，代码会显示在站点页面上；关闭时页面不显示广告。代码直接粘贴 HTML 片段，最多 20000 字符。</div>
+      <div class="bar"><div><h1>广告</h1><div class="sub">5 个广告位，各自独立开关</div></div></div>
+      <div class="intro">前台一共有 5 个位置，每个位置单独开关、单独粘代码：勾上并保存就出现在那个位置，不勾就完全不渲染（不会留空占位）。代码直接粘贴 HTML 片段（联盟广告、统计脚本都行），带 <code>&lt;script&gt;</code> 也会执行；每格最多 20000 字符。只粘贴来源可信的代码，拿不准就先别勾。</div>
+      <div class="ad-grid">
+${AD_SLOTS.map(
+  (s) => `        <div class="card ad-card">
+          <div class="card-head"><b>${s.name}</b><code class="slot-id">${s.id}</code></div>
+          <div class="hint">${s.where}</div>
+          <label class="toggle"><input type="checkbox" data-ad-slot="${s.id}" data-ad-field="enabled">在这里显示</label>
+          <textarea class="code ad-code" data-ad-slot="${s.id}" data-ad-field="html" maxlength="20000" spellcheck="false" placeholder="粘贴广告 HTML 片段…"></textarea>
+        </div>`
+).join('\n')}
+      </div>
       <div class="card">
-        <label class="toggle"><input type="checkbox" id="ad-enabled">显示广告</label>
-        <label for="ad-html">广告代码（HTML）</label>
-        <textarea class="code" id="ad-html" maxlength="20000" spellcheck="false"></textarea>
-        <div class="hint">只粘贴来源可信的代码。拿不准时先关闭开关再保存，访客就看不到。</div>
-        <div class="actions"><button type="button" data-save="ad">保存广告</button></div>
+        <div class="actions"><button type="button" data-save="ad">保存全部广告位</button></div>
+        <div class="hint">保存后前台刷新立刻生效（Worker 会把新配置直接写回边缘缓存）。</div>
       </div>
     </section>
 
       <section class="pane" id="pane-translate" hidden>
         <div class="bar"><div><h1>翻译与密钥</h1><div class="sub">简介的中文是自动翻的；这里看链路状态、实测一次、确认密钥是否就位</div></div></div>
-        <div class="intro">翻译顺序：先 MyMemory（免费、不需要 Key，每天约 5 万字符），拿不到再用 Workers AI（需要在 Cloudflare 绑定，变量名必须是 <b>AI</b>）。两条链路都不用在后台填任何东西，GitHub Token 也只放在 Cloudflare 的 Variables and Secrets 里。</div>
+        <div class="intro">翻译顺序：<b>先查译文缓存</b>（同一段英文只翻一次，不会重复花钱花额度）→ <b>MyMemory</b>（免费、不需要 Key，带联系邮箱每天约 5 万字符）→ <b>Workers AI</b>（需要在 Cloudflare 绑定，变量名必须是 <b>AI</b>）。长文本会按句子切成小块逐段翻，失败原因会分类显示（网络不通 / 额度用完 / 服务端报错 / 未绑定）。两条链路都不用在后台填任何东西，GitHub Token 也只放在 Cloudflare 的 Variables and Secrets 里。</div>
         <div class="card">
           <div class="card-head"><div><h2>链路状态</h2><p class="desc">只显示「有没有」，不会显示任何密钥内容。</p></div><button type="button" class="ghost small" id="trReload">刷新</button></div>
           <div class="status-list" id="trStatus"><p class="empty">读取中…</p></div>
@@ -1599,6 +2188,36 @@ dialog{width:calc(100% - 24px)}
         <input type="text" id="beian-text" maxlength="200" placeholder="© 2026 你的网站名">
         <div class="hint">版权或其他说明，200 字以内，可留空。</div>
         <div class="actions"><button type="button" data-save="beian">保存备案信息</button></div>
+      </div>
+    </section>
+
+    <section class="pane" id="pane-nav" hidden>
+      <div class="bar"><div><h1>导航页</h1><div class="sub">前台「榜单 / 导航」两个标签里的导航那一栏</div></div><div class="row-actions"><button type="button" id="navAddGroup">＋ 分类</button></div></div>
+      <div class="intro">前台顶部有「榜单」和「导航」两个标签，这里是导航栏的分类与站点卡片。填了网址可以点「自动获取」把网页标题、描述、图标抓回来（抓不到就自己写），保存后前台刷新立刻生效。分类最多 20 个、站点最多 400 个。</div>
+      <div id="navAdmin"><p class="empty">读取中…</p></div>
+      <div class="card">
+        <div class="actions"><button type="button" data-save="nav">保存导航页</button><span class="msg" id="navMsg"></span></div>
+        <div class="hint">保存会写回仓库的 <code>data/nav.json</code>，并立刻刷新边缘缓存。</div>
+      </div>
+    </section>
+
+    <section class="pane" id="pane-submit" hidden>
+      <div class="bar"><div><h1>收录提交</h1><div class="sub">把站点推给搜索引擎和 AI 搜索</div></div><div class="row-actions"><button type="button" id="subRun">立即提交</button></div></div>
+      <div class="intro">能自动推的就自动推：<b>IndexNow</b> 一次提交给 Bing / Yandex / Seznam / Naver；<b>百度</b>要在 Cloudflare 配 <b>BAIDU_TOKEN</b> 才能推。豆包、通义千问、DeepSeek、ChatGPT 这些<b>没有公开的提交入口</b>，能做的三件事本站已经都做了：robots.txt 明确放行它们的抓取器、提供 llms.txt 站点说明、提供 sitemap.xml。抓取器来抓的时候拿到的就是最新榜单。</div>
+      <div class="card">
+        <div class="card-head"><div><h2>当前状态</h2><p class="desc">key 文件、站点地图、说明书的地址，填到对应平台即可。</p></div><button type="button" class="ghost small" id="subReload">刷新</button></div>
+        <div class="status-list" id="subStatus"><p class="empty">读取中…</p></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h2>提交结果</h2><p class="desc">点右上角「立即提交」会真的发请求出去。</p></div></div>
+        <div id="subOut"><p class="note">还没提交过。</p></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h2>手动入口</h2><p class="desc">自动推送覆盖不到的，去这些地方贴 sitemap 或网址。</p></div></div>
+        <div class="kv"><b>Google</b><span>Search Console → 站点地图 → 填 <code>/sitemap.xml</code>。Google 已停用 ping 接口，只能在这里提交。</span></div>
+        <div class="kv"><b>Bing</b><span>IndexNow 已经自动推；也可以在 Bing Webmaster Tools 里手动贴 sitemap。</span></div>
+        <div class="kv"><b>百度</b><span>搜索资源平台 → 普通收录 → 提交 sitemap；配了 BAIDU_TOKEN 之后本站也能主动推。</span></div>
+        <div class="kv"><b>AI 搜索</b><span>豆包 / 千问 / DeepSeek / Kimi / 秘塔 没有公开提交接口。已放行 GPTBot、ClaudeBot、PerplexityBot、Bytespider、Qwen-Bot 等抓取器，并提供 <code>/llms.txt</code> 作站点说明。</span></div>
       </div>
     </section>
 
@@ -1719,7 +2338,7 @@ dialog{width:calc(100% - 24px)}
 (function () {
   'use strict';
   var PW_KEY = 'adminPw';
-  var TABS = ['overview', 'layout', 'articles', 'seo', 'links', 'ad', 'contact', 'beian', 'translate'];
+  var TABS = ['overview', 'layout', 'articles', 'nav', 'seo', 'links', 'ad', 'contact', 'beian', 'submit', 'translate'];
   var FIELDS = {
     ad: ['html'],
     layout: ['mode', 'side', 'users'],
@@ -1770,6 +2389,8 @@ dialog{width:calc(100% - 24px)}
     loadLinks();
     loadSite();
     loadArticles();
+    loadNavAdmin();
+    loadSubmit();
     loadTranslate();
     }
   $('loginForm').addEventListener('submit', function (e) {
@@ -1937,8 +2558,17 @@ dialog{width:calc(100% - 24px)}
   // ---- 站点配置：广告 / 联系方式 / 备案 / SEO / GEO ----
   function fillSite(s) {
     var a = s.ad || {}, c = s.contact || {}, b = s.beian || {}, o = s.seo || {}, g = s.geo || {};
-    $('ad-enabled').checked = !!a.enabled;
-    $('ad-html').value = a.html || '';
+    // 广告：5 个槽位各自回填
+    var adSlots = (a && a.slots && typeof a.slots === 'object') ? a.slots : null;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ad-slot]'), function (el) {
+      var id = el.getAttribute('data-ad-slot');
+      var field = el.getAttribute('data-ad-field');
+      var v = (adSlots && adSlots[id]) || null;
+      if (!v && !adSlots && id === 'home-top') v = { enabled: a.enabled === true, html: a.html || '' };
+      if (!v) v = { enabled: false, html: '' };
+      if (field === 'enabled') el.checked = v.enabled === true;
+      else el.value = typeof v.html === 'string' ? v.html : '';
+    });
     $('contact-enabled').checked = !!c.enabled;
     $('beian-enabled').checked = !!b.enabled;
     var src = { contact: c, beian: b, seo: o, geo: g };
@@ -1963,6 +2593,19 @@ dialog{width:calc(100% - 24px)}
     });
   }
   function collect(sec) {
+    if (sec === 'nav') return navState || { groups: [] };
+    if (sec === 'ad') {
+      // 5 个广告位：按 data-ad-slot / data-ad-field 收集
+      var slots = {};
+      Array.prototype.forEach.call(document.querySelectorAll('[data-ad-slot]'), function (el) {
+        var id = el.getAttribute('data-ad-slot');
+        var field = el.getAttribute('data-ad-field');
+        if (!slots[id]) slots[id] = { enabled: false, html: '' };
+        if (field === 'enabled') slots[id].enabled = el.checked === true;
+        else slots[id].html = el.value || '';
+      });
+      return { slots: slots };
+    }
     if (sec === 'layout') {
       var pick = function (name, dflt) {
         var r = document.querySelector('input[name="' + name + '"]:checked');
@@ -1980,11 +2623,19 @@ dialog{width:calc(100% - 24px)}
     btn.addEventListener('click', function () {
       var sec = btn.getAttribute('data-save');
       btn.disabled = true;
-      api('/api/site', { method: 'POST', body: { password: pw, section: sec, value: collect(sec) } }).then(function (r) {
+      var done = function (r) {
         btn.disabled = false;
         if (r.ok) toast('已保存', true);
         else toast(r.error || '保存失败', false);
-      });
+      };
+      if (sec === 'nav') {
+        api('/api/nav', { method: 'POST', body: { password: pw, nav: collect('nav') } }).then(function (r) {
+          done(r);
+          if (r.ok && r.nav) { navState = r.nav; renderNavAdmin(); }
+        });
+        return;
+      }
+      api('/api/site', { method: 'POST', body: { password: pw, section: sec, value: collect(sec) } }).then(done);
     });
   });
 
@@ -2156,6 +2807,23 @@ dialog{width:calc(100% - 24px)}
   });
 
     // ---- 翻译与密钥：只显示状态；实测会真的打两条翻译链路 ----
+    function trErr(s) {
+      var raw = String(s == null ? '' : s);
+      var m = raw.match(/^([a-z-]+):\s*([\s\S]*)$/);
+      if (!m) return raw;
+      var label = {
+        network: '网络不通',
+        quota: '额度用完',
+        http: 'HTTP 错误',
+        status: '服务端报错',
+        parse: '返回格式异常',
+        'not-bound': '未绑定',
+        run: '模型调用失败',
+        empty: '空结果',
+        unknown: '未知原因'
+      }[m[1]] || m[1];
+      return label + '：' + m[2];
+    }
     function paintTranslate(st) {
       st = st || {};
       var rows = [
@@ -2185,17 +2853,203 @@ dialog{width:calc(100% - 24px)}
           out.innerHTML = '<div class="tr-box tr-bad">' + esc(r.error || '实测失败') + '</div>';
           return;
         }
-        var eff = { myMemory: 'MyMemory', ai: 'Workers AI', none: '两条都没通' }[r.effective] || r.effective;
+        var eff = { myMemory: 'MyMemory', ai: 'Workers AI', cache: '命中译文缓存（没有产生调用）', none: '两条都没通' }[r.effective] || r.effective;
         note.textContent = '实际生效：' + eff;
         function box(name, o) {
           if (!o) return '';
-          return '<div class="tr-box' + (o.ok ? '' : ' tr-bad') + '"><h4>' + esc(name) + ' · ' + (o.ok ? '成功' : '失败') +
-            ' · ' + esc(String(o.ms)) + ' ms</h4><p>' + esc(o.ok ? o.text : (o.error || '')) + '</p></div>';
+          var tag = o.ok ? (o.fromCache ? '成功（缓存）' : '成功') : '失败';
+          return '<div class="tr-box' + (o.ok ? '' : ' tr-bad') + '"><h4>' + esc(name) + ' · ' + tag +
+            ' · ' + esc(String(o.ms)) + ' ms</h4><p>' + esc(o.ok ? o.text : trErr(o.error)) + '</p></div>';
         }
         out.innerHTML = box('MyMemory', r.myMemory) + box('Workers AI', r.ai);
         paintTranslate(r.status);
       });
     });
+
+  // ---- 导航页（分类 + 站点） ----
+  var navState = { groups: [] };
+  function navEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function navBadge() {
+    var n = 0;
+    (navState.groups || []).forEach(function (g) { n += (g.items || []).length; });
+    var b = $('navItemCount');
+    if (b) { b.textContent = String(n); b.hidden = n === 0; }
+  }
+  function navRowHtml(gi, ii, it) {
+    return '<tr data-g="' + gi + '" data-i="' + ii + '">' +
+      '<td><input type="text" data-f="name" value="' + navEsc(it.name) + '" placeholder="名称"></td>' +
+      '<td><input type="text" data-f="url" value="' + navEsc(it.url) + '" placeholder="https://…"></td>' +
+      '<td><input type="text" data-f="desc" value="' + navEsc(it.desc) + '" placeholder="一句话描述（可空）"></td>' +
+      '<td><input type="text" data-f="icon" value="' + navEsc(it.icon) + '" placeholder="图标 URL（可空）"></td>' +
+      '<td><div class="row-actions"><button type="button" class="ghost small" data-ifetch="1">自动获取</button>' +
+      '<button type="button" class="ghost small danger" data-idel="1">删</button></div></td></tr>';
+  }
+  function renderNavAdmin() {
+    var box = $('navAdmin');
+    if (!box) return;
+    navBadge();
+    var gs = navState.groups || [];
+    if (!gs.length) {
+      box.innerHTML = '<p class="empty">还没有分类，点右上角「＋ 分类」开始。</p>';
+      return;
+    }
+    box.innerHTML = gs.map(function (g, gi) {
+      var rows = (g.items || []).map(function (it, ii) { return navRowHtml(gi, ii, it); }).join('');
+      return '<div class="card nav-g">' +
+        '<div class="card-head"><div class="nav-g-head">' +
+        '<input type="text" data-gf="name" data-g="' + gi + '" value="' + navEsc(g.name) + '" placeholder="分类名">' +
+        '<input type="text" data-gf="desc" data-g="' + gi + '" value="' + navEsc(g.desc) + '" placeholder="分类说明（可空）">' +
+        '</div><div class="row-actions"><button type="button" class="ghost small" data-gadd="' + gi + '">＋ 站点</button>' +
+        '<button type="button" class="ghost small danger" data-gdel="' + gi + '">删分类</button></div></div>' +
+        (rows
+          ? '<table><thead><tr><th style="width:150px">名称</th><th style="width:250px">网址</th><th>描述</th>' +
+            '<th style="width:190px">图标</th><th style="width:150px">操作</th></tr></thead><tbody>' + rows + '</tbody></table>'
+          : '<p class="empty">这个分类还没有站点。</p>') +
+        '</div>';
+    }).join('');
+  }
+  function loadNavAdmin() {
+    api('/api/nav').then(function (r) {
+      if (!r.ok) {
+        $('navAdmin').innerHTML = '<p class="empty">' + navEsc(r.error || '读取失败') + '</p>';
+        return;
+      }
+      navState = r.nav || { groups: [] };
+      renderNavAdmin();
+    });
+  }
+  $('navAddGroup').addEventListener('click', function () {
+    navState.groups = navState.groups || [];
+    if (navState.groups.length >= 20) { toast('最多 20 个分类', false); return; }
+    navState.groups.push({ id: 'g' + (navState.groups.length + 1), name: '新分类', desc: '', items: [] });
+    renderNavAdmin();
+  });
+  $('navAdmin').addEventListener('input', function (e) {
+    var el = e.target;
+    if (!el || !el.getAttribute) return;
+    var gf = el.getAttribute('data-gf');
+    if (gf) {
+      var gi = parseInt(el.getAttribute('data-g'), 10);
+      if (navState.groups[gi]) navState.groups[gi][gf] = el.value;
+      return;
+    }
+    var f = el.getAttribute('data-f');
+    if (!f) return;
+    var tr = el.closest ? el.closest('tr') : null;
+    if (!tr) return;
+    var g = parseInt(tr.getAttribute('data-g'), 10);
+    var i = parseInt(tr.getAttribute('data-i'), 10);
+    if (navState.groups[g] && navState.groups[g].items[i]) navState.groups[g].items[i][f] = el.value;
+  });
+  $('navAdmin').addEventListener('click', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('button') : null;
+    if (!el) return;
+    var gadd = el.getAttribute('data-gadd');
+    if (gadd != null) {
+      var gi = parseInt(gadd, 10);
+      if (!navState.groups[gi]) return;
+      navState.groups[gi].items = navState.groups[gi].items || [];
+      if (navState.groups[gi].items.length >= 60) { toast('一个分类最多 60 个站点', false); return; }
+      navState.groups[gi].items.push({ name: '', url: '', desc: '', icon: '' });
+      renderNavAdmin();
+      return;
+    }
+    var gdel = el.getAttribute('data-gdel');
+    if (gdel != null) {
+      var di = parseInt(gdel, 10);
+      var nm = navState.groups[di] ? navState.groups[di].name : '';
+      askConfirm('删除分类「' + nm + '」？', '这个分类和它下面的站点会一起删掉，点「保存导航页」后才真正生效。', function () {
+        navState.groups.splice(di, 1);
+        renderNavAdmin();
+        return Promise.resolve({ ok: true });
+      });
+      return;
+    }
+    var tr = el.closest ? el.closest('tr') : null;
+    if (!tr) return;
+    var g = parseInt(tr.getAttribute('data-g'), 10);
+    var i = parseInt(tr.getAttribute('data-i'), 10);
+    if (!navState.groups[g] || !navState.groups[g].items[i]) return;
+    if (el.hasAttribute('data-idel')) {
+      navState.groups[g].items.splice(i, 1);
+      renderNavAdmin();
+      return;
+    }
+    if (el.hasAttribute('data-ifetch')) {
+      var item = navState.groups[g].items[i];
+      var u = String(item.url || '').trim();
+      if (!u) { toast('先填网址再抓取', false); return; }
+      el.disabled = true;
+      el.textContent = '抓取中…';
+      api('/api/fetch-meta?url=' + encodeURIComponent(u)).then(function (r) {
+        el.disabled = false;
+        el.textContent = '自动获取';
+        if (!r.ok || !r.meta) { toast(r.error || '抓取失败，手动填吧', false); return; }
+        if (!String(item.name || '').trim()) item.name = r.meta.name || '';
+        item.desc = r.meta.desc || item.desc || '';
+        item.icon = r.meta.icon || item.icon || '';
+        renderNavAdmin();
+        toast('已抓取：' + (r.meta.name || 'ok'), true);
+      });
+    }
+  });
+
+  // ---- 收录提交 ----
+  function subLine(label, value, ok) {
+    return '<div class="status-item"><b>' + label + '</b><span' +
+      (ok === false ? ' class="tr-bad"' : '') + '>' + value + '</span></div>';
+  }
+  function loadSubmit() {
+    var box = $('subStatus');
+    if (!box) return;
+    api('/api/submit').then(function (r) {
+      if (!r.ok || !r.status) {
+        box.innerHTML = '<p class="empty">' + navEsc(trErr(r.error || '读取失败')) + '</p>';
+        return;
+      }
+      var s = r.status;
+      box.innerHTML =
+        subLine('IndexNow key', '<code>' + navEsc(s.indexNowKey) + '</code>　key 文件：<code>' + navEsc(s.keyFile) + '</code>', true) +
+        subLine('站点地图', '<a href="' + navEsc(s.sitemap) + '" target="_blank" rel="noopener">' + navEsc(s.sitemap) + '</a>', true) +
+        subLine('大模型说明', '<a href="' + navEsc(s.llms) + '" target="_blank" rel="noopener">' + navEsc(s.llms) + '</a>（llms.txt，抓到就是最新榜单）', true) +
+        subLine('百度推送', s.baiduToken ? '已配置 BAIDU_TOKEN，可以主动推' : '没配 BAIDU_TOKEN，点提交时会跳过百度', !!s.baiduToken);
+    });
+  }
+  $('subReload').addEventListener('click', function () {
+    $('subStatus').innerHTML = '<p class="empty">读取中…</p>';
+    loadSubmit();
+  });
+  $('subRun').addEventListener('click', function () {
+    var btn = $('subRun');
+    var out = $('subOut');
+    btn.disabled = true;
+    btn.textContent = '提交中…';
+    out.innerHTML = '<p class="note">正在提交…</p>';
+    api('/api/submit', { method: 'POST', body: { password: pw, action: 'all' } }).then(function (r) {
+      btn.disabled = false;
+      btn.textContent = '立即提交';
+      if (!r.ok) {
+        out.innerHTML = '<div class="tr-box tr-bad">' + navEsc(trErr(r.error || '提交失败')) + '</div>';
+        return;
+      }
+      var res = r.results || {};
+      var html = '<div class="tr-box">本次提交 <b>' + (r.urls || 0) + '</b> 个地址（首页 + 文章列表 + 每篇文章）</div>';
+      var keys = [['indexNow', 'IndexNow（Bing / Yandex / Naver）'], ['baidu', '百度普通收录']];
+      keys.forEach(function (kv) {
+        var o = res[kv[0]];
+        if (!o) return;
+        html += '<div class="tr-box' + (o.ok ? '' : ' tr-bad') + '"><b>' + kv[1] + '</b>· ' +
+          (o.ok ? '成功' : '失败') + (o.status ? '（HTTP ' + o.status + '）' : '') +
+          '<br>' + navEsc(o.note || '') + '</div>';
+      });
+      out.innerHTML = html;
+      toast('提交完成', true);
+    });
+  });
 
   // ---- 启动 ----
   var saved = sessionStorage.getItem(PW_KEY);

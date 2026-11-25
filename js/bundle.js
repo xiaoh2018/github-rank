@@ -889,6 +889,9 @@ let legacyRange = false; // 从旧链接 #week/... 进来时，地址里明确�
   if (state.cat) sp.set('cat', state.cat);
   if (state.sort !== 'stars') sp.set('sort', state.sort);
   if (state.view !== 'repos') sp.set('view', state.view);
+  // page=nav 是「导航页」这个视图的地址标记（与榜单的 view 参数不是一回事），同步地址时保留它
+  const pageMark = new URLSearchParams(location.search).get('page');
+  if (pageMark === 'nav') sp.set('page', 'nav');
   const qs = sp.toString();
   history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
 }

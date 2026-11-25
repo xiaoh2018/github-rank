@@ -1,0 +1,63 @@
+{
+  "updatedAt": "2026-11-25T10:50:00.000Z",
+  "groups": [
+    {
+      "id": "dev",
+      "name": "开发工具",
+      "desc": "写代码、查文档、托管仓库",
+      "items": [
+        { "name": "GitHub", "url": "https://github.com", "desc": "全球最大的代码托管平台，找项目、看源码、提 PR 都在这", "icon": "https://github.githubassets.com/favicons/favicon.svg" },
+        { "name": "MDN Web Docs", "url": "https://developer.mozilla.org/zh-CN/", "desc": "HTML / CSS / JavaScript 最权威的参考手册，中文版齐全", "icon": "https://developer.mozilla.org/favicon.ico" },
+        { "name": "Can I use", "url": "https://caniuse.com", "desc": "查某个前端特性在各大浏览器里的兼容性，做兼容前先看这里", "icon": "https://caniuse.com/favicon.ico" },
+        { "name": "Cloudflare Workers 文档", "url": "https://developers.cloudflare.com/workers/", "desc": "本站后端跑在 Workers 上，路由、缓存、KV、AI 绑定的官方说明", "icon": "https://developers.cloudflare.com/favicon.ico" },
+        { "name": "正则表达式测试", "url": "https://regex101.com", "desc": "实时高亮正则匹配结果，支持多种方言，写正则不用靠猜", "icon": "https://regex101.com/favicon.ico" },
+        { "name": "JSON 格式化", "url": "https://jsonhero.io", "desc": "把一坨 JSON 变成可点开的结构树，查接口返回很方便", "icon": "https://jsonhero.io/favicon.ico" }
+      ]
+    },
+    {
+      "id": "ai",
+      "name": "AI 工具",
+      "desc": "对话、写代码、画图、翻译",
+      "items": [
+        { "name": "ChatGPT", "url": "https://chatgpt.com", "desc": "通用对话模型，写文案、解释代码、翻译都能用", "icon": "" },
+        { "name": "Claude", "url": "https://claude.ai", "desc": "长文本理解强，读整份文档、改大段代码比较稳", "icon": "https://claude.ai/favicon.ico" },
+        { "name": "DeepSeek", "url": "https://chat.deepseek.com", "desc": "国产模型，中文和代码都不错，响应快", "icon": "https://chat.deepseek.com/favicon.ico" },
+        { "name": "豆包", "url": "https://www.doubao.com", "desc": "字节的对话助手，日常问答、写作、读文档", "icon": "https://www.doubao.com/favicon.ico" },
+        { "name": "通义千问", "url": "https://tongyi.aliyun.com/qianwen/", "desc": "阿里的对话模型，支持长文档和联网检索", "icon": "https://tongyi.aliyun.com/favicon.ico" },
+        { "name": "Hugging Face", "url": "https://huggingface.co", "desc": "开源模型与数据集的集散地，找模型、试 demo 都在这", "icon": "https://huggingface.co/favicon.ico" }
+      ]
+    },
+    {
+      "id": "design",
+      "name": "设计素材",
+      "desc": "图标、配色、插画、字体",
+      "items": [
+        { "name": "Iconfont", "url": "https://www.iconfont.cn", "desc": "阿里矢量图标库，中文搜索好用，可批量下载 SVG", "icon": "https://www.iconfont.cn/favicon.ico" },
+        { "name": "Lucide Icons", "url": "https://lucide.dev", "desc": "开源线性图标集，风格统一，直接复制 SVG 就能用", "icon": "https://lucide.dev/favicon.ico" },
+        { "name": "Coolors", "url": "https://coolors.co", "desc": "按空格换一套配色，快速试主题色", "icon": "https://coolors.co/favicon.ico" },
+        { "name": "Google Fonts", "url": "https://fonts.google.com", "desc": "免费可商用字体，支持中文子集与按需加载", "icon": "https://fonts.google.com/favicon.ico" }
+      ]
+    },
+    {
+      "id": "learn",
+      "name": "学习资源",
+      "desc": "教程、书、题库",
+      "items": [
+        { "name": "freeCodeCamp", "url": "https://www.freecodecamp.org/chinese/", "desc": "从零到能写项目的免费课程，带交互练习", "icon": "https://www.freecodecamp.org/favicon.ico" },
+        { "name": "廖雪峰的教程", "url": "https://liaoxuefeng.com", "desc": "中文技术教程，Python / JavaScript / Git 都讲得清楚", "icon": "https://liaoxuefeng.com/favicon.ico" },
+        { "name": "菜鸟教程", "url": "https://www.runoob.com", "desc": "查语法最快的地方，示例短、能直接跑", "icon": "https://www.runoob.com/favicon.ico" }
+      ]
+    },
+    {
+      "id": "tool",
+      "name": "效率工具",
+      "desc": "在线转换、截图、测速、图片处理",
+      "items": [
+        { "name": "Squoosh", "url": "https://squoosh.app", "desc": "浏览器里压图，WebP / AVIF 一键对比体积", "icon": "https://squoosh.app/favicon.ico" },
+        { "name": "TinyPNG", "url": "https://tinypng.com", "desc": "PNG / JPG 无损压缩，做分享图前先过一遍", "icon": "https://tinypng.com/favicon.ico" },
+        { "name": "Carbon", "url": "https://carbon.now.sh", "desc": "把代码片段生成好看的图片，写文章配图用", "icon": "https://carbon.now.sh/favicon.ico" },
+        { "name": "it-tools", "url": "https://it-tools.tech", "desc": "一堆小工具的合集：时间戳、Base64、哈希、UUID", "icon": "https://it-tools.tech/favicon.ico" }
+      ]
+    }
+  ]
+}
