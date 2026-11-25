@@ -185,6 +185,8 @@ push('文章目录窄屏有专用排版', artListHtml.includes('@media (max-widt
 push('文章页打印前会展开目录', artListHtml.includes('beforeprint') && artListHtml.includes('__wasOpen'), '');
 push('后台文章面板有分类筛选', admHtml.includes('id="artCatFilter"') && admHtml.includes('fillCatFilter'), '');
 push('后台分类筛选有「全部分类」选项', admHtml.includes('全部分类'), '');
+push('后台问答面板有按标签筛选', admHtml.includes('id="qaTagFilter"') && admHtml.includes('fillQaTags'), '');
+push('后台问答筛选能真过滤', admHtml.includes('没有匹配的问答'), '');
 push('导航页有「还没有站点」空态', home.includes('导航页还没有站点'), '');
 
 let bad = 0;

@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v128';
+const ASSET_V = 'v129';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4223,7 +4223,7 @@ tr:hover td{background:#fcfbf8}
         </div>
         <div class="card">
           <div class="card-head"><div><h2>问答列表</h2><p class="desc">问题 ≤200 字、答案 ≤4000 字；标签用来分类（如「数据」「使用」「收录」）。用 ↑↓ 调顺序，前台和 llms.txt 都按这个顺序。</p></div></div>
-          <div class="toolbar" style="margin:0 0 10px"><input type="search" id="qaFilter" placeholder="筛问题 / 标签 / 答案里的关键词" autocomplete="off"><span class="note" id="qaMsg"></span></div>
+          <div class="toolbar" style="margin:0 0 10px"><input type="search" id="qaFilter" placeholder="筛问题 / 标签 / 答案里的关键词" autocomplete="off"><select id="qaTagFilter" aria-label="按标签筛问题" style="max-width:150px"><option value="">全部标签</option></select><span class="note" id="qaMsg"></span></div>
           <div id="qaList"></div>
           <div class="actions"><button type="button" data-save="qa">保存问答</button><span class="hint" id="qaSaveMsg"></span></div>
         </div>
@@ -5101,7 +5101,7 @@ tr:hover td{background:#fcfbf8}
     (all || []).forEach(function (a) { if (a && a.category) names[a.category] = 1; });
     var names2 = Object.keys(names).sort();
     var want = ['|'].concat(names2).join('|');
-    var has = ['|'].concat(Array.prototype.map.call(sel.options, function (o) { return o.value; })).join('|');
+    var has = ['|'].concat(Array.prototype.map.call(sel.options, function (o) { return o.value; }).filter(function (v) { return v !== ''; })).join('|');
     if (has !== want) {
       sel.innerHTML = '<option value="">全部分类</option>' + names2.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
     }
@@ -6011,18 +6011,48 @@ tr:hover td{background:#fcfbf8}
     });
     var f = $('qaFilter');
     if (f && f.dataset.bound !== '1') { f.dataset.bound = '1'; f.addEventListener('input', renderQa); }
+    var tf = $('qaTagFilter');
+    if (tf && tf.dataset.bound !== '1') { tf.dataset.bound = '1'; tf.addEventListener('change', renderQa); }
+  }
+  function fillQaTags() {
+    var sel = $('qaTagFilter');
+    if (!sel) return;
+    var tags = {};
+    (qaState.items || []).forEach(function (it) { var t = String((it && it.tag) || '').trim(); if (t) tags[t] = 1; });
+    var arr = Object.keys(tags).sort();
+    var want = ['|'].concat(arr).join('|');
+    var has = ['|'].concat(Array.prototype.map.call(sel.options, function (o) { return o.value; }).filter(function (v) { return v !== ''; })).join('|');
+    if (has !== want) {
+      sel.innerHTML = '<option value="">全部标签</option>' + arr.map(function (t) { return '<option value="' + qesc(t) + '">' + qesc(t) + '</option>'; }).join('');
+    }
+    if (arr.indexOf(sel.value) < 0) sel.value = '';
   }
   function renderQa() {
     bindQaActions();
     var box = $('qaList');
     if (!box) return;
+    fillQaTags();
+    var qInp = $('qaFilter'), tagSel = $('qaTagFilter');
+    var q = String((qInp && qInp.value) || '').trim().toLowerCase();
+    var tag = String((tagSel && tagSel.value) || '');
+    var rows = [];
     if (!qaState.items.length) {
       box.innerHTML = '<div class="empty">还没有问答。点右上角「＋ 新问题」开始。</div>';
     } else {
-      box.innerHTML = qaState.items.map(qaRow).join('');
+      qaState.items.forEach(function (it, i) {
+        if (tag && String((it && it.tag) || '').trim() !== tag) return;
+        if (q) {
+          var hay = (String((it && it.q) || '') + ' ' + String((it && it.a) || '') + ' ' + String((it && it.tag) || '')).toLowerCase();
+          if (hay.indexOf(q) < 0) return;
+        }
+        rows.push(qaRow(it, i));
+      });
+      box.innerHTML = rows.length ? rows.join('') : '<div class="empty">没有匹配的问答</div>';
     }
     var m = $('qaMsg');
-    if (m) m.textContent = '共 ' + qaState.items.length + ' 条';
+    if (m) m.textContent = (q || tag)
+      ? ('显示 ' + rows.length + ' / 共 ' + qaState.items.length + ' 条')
+      : ('共 ' + qaState.items.length + ' 条');
   }
   function readQaForm() {
     var items = [];
