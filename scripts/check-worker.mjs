@@ -363,10 +363,19 @@ ok(r.status === 200, '/data/repos-total.js 返回 200');
 ok((r.headers.get('content-type') || '').indexOf('javascript') >= 0, '总榜文件是 JS');
 const totalCc = r.headers.get('cache-control') || '';
 ok(totalCc.indexOf('max-age=600') >= 0 && totalCc.indexOf('s-maxage=900') >= 0, '总榜走榜单数据缓存档（600/900）', totalCc);
-const totalRange = /window\.__GHRANK_RANGES__\["total"\] = (\{[\s\S]*\});/.exec(totalJs);
-ok(!!totalRange, '总榜文件里有 __GHRANK_RANGES__["total"]');
+const totalRange = /window\.__GHRANK_RANGES__\["total"\]/.test(totalJs);
+ok(totalRange, '总榜文件里有 __GHRANK_RANGES__["total"]');
+// 数据文件是 JS 字面量（键不加引号），不能用 JSON.parse，直接当脚本跑一遍取 window
 let totalRepos = [];
-try { totalRepos = JSON.parse(totalRange[1]).repos || []; } catch (e) {}
+try {
+  const sandbox = {};
+  new Function('window', totalJs)(sandbox);
+  const bag = sandbox.__GHRANK_RANGES__ || {};
+  const rr = bag.total || bag.all || {};
+  totalRepos = rr.repos || [];
+} catch (e) {
+  ok(false, '总榜文件能被当成脚本执行', e.message);
+}
 ok(totalRepos.length >= 400, '总榜条数足够（≥400）', totalRepos.length);
 ok(totalRepos.every((x, i) => i === 0 || totalRepos[i - 1].stars >= x.stars), '总榜按星标降序');
 ok(totalRepos[0] && totalRepos[0].stars > 500000, '总榜第一名星标 >50 万', totalRepos[0] && totalRepos[0].stars);
