@@ -71,7 +71,7 @@
   "layout": {
     "mode": "auto",
     "side": "right",
-    "users": "auto"
+    "users": "double"
   },
   "contact": {
     "enabled": true,
