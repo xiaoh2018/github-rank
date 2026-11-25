@@ -115,6 +115,9 @@ push('批量改分类是下拉', adm.includes('<select id="artBulkCat"'));
 
 push('前台搜索支持 / 快捷键', home.includes('按 / 快速定位'));
 
+push('问答保存按钮有独立回执位', adm.includes('id="qaSaveMsg"'));
+push('后台无重复 id', (adm.match(/id="qaMsg"/g) || []).length === 1);
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

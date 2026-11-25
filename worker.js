@@ -1441,7 +1441,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v100';
+const ASSET_V = 'v101';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4008,7 +4008,7 @@ tr:hover td{background:#fcfbf8}
           <div class="card-head"><div><h2>问答列表</h2><p class="desc">问题 ≤200 字、答案 ≤4000 字；标签用来分类（如「数据」「使用」「收录」）。用 ↑↓ 调顺序，前台和 llms.txt 都按这个顺序。</p></div></div>
           <div class="toolbar" style="margin:0 0 10px"><input type="search" id="qaFilter" placeholder="筛问题 / 标签 / 答案里的关键词" autocomplete="off"><span class="note" id="qaMsg"></span></div>
           <div id="qaList"></div>
-          <div class="actions"><button type="button" data-save="qa">保存问答</button><span class="hint" id="qaMsg"></span></div>
+          <div class="actions"><button type="button" data-save="qa">保存问答</button><span class="hint" id="qaSaveMsg"></span></div>
         </div>
       </section>
     <section class="pane" id="pane-theme" hidden>
@@ -4792,7 +4792,6 @@ tr:hover td{background:#fcfbf8}
         if (r.ok) toast('已保存', true);
         else toast(r.error || '保存失败', false);
       };
-      if (sec === 'nav') {
       if (sec === 'qa') {
         var qaPayload = readQaForm();
         api('/api/qa', { method: 'POST', body: { password: pw, qa: qaPayload } }).then(function (r) {
@@ -4800,10 +4799,12 @@ tr:hover td{background:#fcfbf8}
           qaState = { intro: r.qa.intro, items: r.qa.items };
           if ($('qa-intro')) $('qa-intro').value = qaState.intro;
           renderQa();
+          if ($('qaSaveMsg')) $('qaSaveMsg').textContent = '已保存 · ' + new Date().toLocaleTimeString();
           toast('问答已保存');
         });
         return;
       }
+      if (sec === 'nav') {
         api('/api/nav', { method: 'POST', body: { password: pw, nav: collect('nav') } }).then(function (r) {
           done(r);
           if (r.ok && r.nav) { navState = r.nav; renderNavAdmin(); }
