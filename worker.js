@@ -1431,7 +1431,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v84';
+const ASSET_V = 'v85';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3119,12 +3119,14 @@ th{color:var(--muted);font-weight:600;font-size:13px}
     #navAdmin td input{font-size:13px;padding:7px 9px}
     #navAdmin table{margin-top:6px}
 /* ---- 单选卡片（布局设置） ---- */
-.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;margin:10px 0 4px}
-.choice{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0;cursor:pointer;background:#fff;font-weight:600;color:var(--text)}
+.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(224px,1fr));gap:10px;margin:10px 0 4px}
+.choice{display:flex;flex-wrap:wrap;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0;cursor:pointer;background:#fff;font-weight:600;color:var(--text)}
 .choice:hover{border-color:#94a3b8}
 .choice input{width:18px;height:18px;margin:0;flex:none}
 .choice:has(input:checked){border-color:var(--brand);background:#eff6ff;box-shadow:0 0 0 1px var(--brand) inset}
-.choice-t{display:flex;flex-direction:column;font-size:14px}
+.choice .sw{display:inline-flex;gap:4px;margin-right:10px;vertical-align:middle;flex:none}
+.choice .sw i{width:15px;height:15px;border-radius:5px;display:block;border:1px solid rgba(0,0,0,.08)}
+.choice-t{display:flex;flex-direction:column;font-size:14px;flex:1 1 100%;margin-top:2px}
 .choice-t b{font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
 /* ---- 状态清单 / 键值 ---- */
 .status-list{display:grid;gap:8px;margin-top:8px}
@@ -3911,10 +3913,10 @@ tr:hover td{background:#fcfbf8}
       <div class="card">
         <div class="card-head"><b>配色</b><span class="msg">点一下选中，再点右上「保存主题」</span></div>
         <div class="choice-grid">
-          <label class="choice"><input type="radio" name="theme-name" value="paper" checked><span class="choice-t">暖纸白<em>当前默认：米白底 + 金棕强调，最像纸质笔记</em></span></label>
-          <label class="choice"><input type="radio" name="theme-name" value="ink"><span class="choice-t">Linear 冷暗<em>近黑底 + 靛蓝强调，信息密度高、偏工程师审美</em></span></label>
-          <label class="choice"><input type="radio" name="theme-name" value="stripe"><span class="choice-t">Stripe 亮白<em>纯白底 + 靛紫强调，最干净，适合白天看</em></span></label>
-          <label class="choice"><input type="radio" name="theme-name" value="notion"><span class="choice-t">Notion 柔灰<em>浅灰底 + 深墨字，长文阅读最舒服</em></span></label>
+          <label class="choice"><input type="radio" name="theme-name" value="paper" checked><span class="sw"><i style="background:#fffbf3"></i><i style="background:#e6dcc4"></i><i style="background:#b8860b"></i></span><span class="choice-t">暖纸白<em>当前默认：米白底 + 金棕强调，最像纸质笔记</em></span></label>
+          <label class="choice"><input type="radio" name="theme-name" value="ink"><span class="sw"><i style="background:#0b0d11"></i><i style="background:#1b1f27"></i><i style="background:#6366f1"></i></span><span class="choice-t">Linear 冷暗<em>近黑底 + 靛蓝强调，信息密度高、偏工程师审美</em></span></label>
+          <label class="choice"><input type="radio" name="theme-name" value="stripe"><span class="sw"><i style="background:#ffffff"></i><i style="background:#f1f2f6"></i><i style="background:#635bff"></i></span><span class="choice-t">Stripe 亮白<em>纯白底 + 靛紫强调，最干净，适合白天看</em></span></label>
+          <label class="choice"><input type="radio" name="theme-name" value="notion"><span class="sw"><i style="background:#f7f6f3"></i><i style="background:#e8e6e1"></i><i style="background:#37352f"></i></span><span class="choice-t">Notion 柔灰<em>浅灰底 + 深墨字，长文阅读最舒服</em></span></label>
         </div>
       </div>
       <div class="card">
