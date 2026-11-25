@@ -357,9 +357,13 @@ const EDGE_KEY_BASE = 'https://edge.ghrank.internal';
 // 最多还要旧 5 分钟才换新；压到 60s，再用 warmEdge 主动换新，改完基本立刻生效。
 const RAW_TTL = 60;
 
+// 后台随时会改的三个 JSON：缓存必须很短，否则改完前台还是旧值（实测过）
+const CONFIG_FILES = ['/data/site.json', '/data/links.json', '/data/articles.json'];
+
 // ttl=边缘保留秒数；browser=浏览器 max-age；swr=stale-while-revalidate
 function cachePolicy(pathname) {
   if (pathname === '/sw.js') return { ttl: 60, browser: 60, sMaxAge: 60 };
+  if (CONFIG_FILES.indexOf(pathname) >= 0) return { ttl: 60, browser: 60, sMaxAge: 60, swr: 300 };
   if (pathname.indexOf('/data/') === 0) return { ttl: 900, browser: 600, sMaxAge: 900, swr: 86400 };
   if (pathname === '/' || pathname === '/index.html' || pathname === '/articles' || pathname === '/articles.html') {
     return { ttl: 600, browser: 300, sMaxAge: 600, swr: 3600 };

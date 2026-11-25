@@ -166,6 +166,11 @@ ok(siteRes.ok === true && siteRes.site.layout.mode === want, 'POST /api/site 保
 r = await hit('/data/site.json');
 const siteAfter = await r.json();
 ok(siteAfter.layout.mode === want, '保存后立刻 GET /data/site.json 就是新布局（不再等 5~15 分钟）', siteAfter.layout.mode);
+const cfgCC = r.headers.get('cache-control') || '';
+ok(/max-age=60/.test(cfgCC) && !/max-age=600/.test(cfgCC), '后台可改的 JSON 只缓存 60 秒（不再是 600/900）', cfgCC);
+r = await hit('/data/repos-week.js');
+const dataCC = r.headers.get('cache-control') || '';
+ok(/max-age=600/.test(dataCC), '榜单数据文件仍然是长缓存 600 秒（省流量靠它）', dataCC);
 
 console.log('== 8. 既有能力没被破坏 ==');
 r = await hit('/');
