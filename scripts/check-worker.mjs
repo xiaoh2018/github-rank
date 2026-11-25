@@ -462,6 +462,8 @@ ok(smXml.indexOf('/nav</loc>') > 0, 'sitemap 里带上导航页');
 console.log('');
 console.log('== 17. 后台内联脚本可解析 + 面板齐全 ==');
 const adminPage = await (await hit('/admin')).text();
+ok(adminPage.includes('subTimer') && adminPage.includes('冷却中'), '收录提交面板有冷却倒计时');
+ok(adminPage.includes('setInterval(tick, 1000)'), '倒计时每秒刷新');
 ok(adminPage.includes('id="pane-submit"'), '后台有 pane-submit 面板');
 const inlineScripts = [...adminPage.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]).filter((s) => s.trim());
 let badSyntax = '';

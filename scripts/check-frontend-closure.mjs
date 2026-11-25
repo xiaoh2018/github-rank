@@ -120,6 +120,32 @@ const site = JSON.parse(fs.readFileSync('data/site.json', 'utf8'));
   ok(faq.includes(q) || (await (await fetch(BASE + '/data/qa.json?probe=' + Date.now())).text()).includes(q), '问答回读一致（/faq 或 data/qa.json）');
 }
 
+// 11) 文章生命周期：新增 → 数据/sitemap → 301 → 删除
+{
+  const title = '闭环文章 ' + Date.now();
+  const add = await post('/api/articles', {
+    action: 'add',
+    article: { title, summary: '闭包测试摘要', body: '# 标题\n\n闭包测试正文', category: 'tech', tags: ['closure'] },
+  });
+  ok(add.status === 200, '新增文章', 'status=' + add.status + ' ' + (add.j && add.j.error ? add.j.error : ''));
+  const list = (add.j && add.j.articles) || [];
+  const art = list.find((a) => a && a.title === title);
+  const slug = (art && art.slug) || '';
+  ok(!!slug, '返回里带 slug', slug || 'none');
+  const data = await (await fetch(BASE + '/data/articles.json?probe=' + Date.now())).text();
+  ok(data.includes(title), '文章落盘 /data/articles.json');
+  const sm = await getText('/sitemap.xml');
+  ok(!!slug && sm.includes('/articles/' + slug + '.html'), 'sitemap 收录 .html 地址', slug);
+  const canon = await fetch(BASE + '/articles/' + slug + '.html', { redirect: 'manual' });
+  ok(canon.status === 200, '.html 规范地址 200', 'status=' + canon.status);
+  const bare = await fetch(BASE + '/articles/' + slug, { redirect: 'manual' });
+  ok(bare.status === 301, '不带 .html 自动 301', 'status=' + bare.status);
+  const del = await post('/api/articles', { action: 'remove', id: art && art.id });
+  ok(del.status === 200, '删除测试文章', 'status=' + del.status);
+  const sm2 = await getText('/sitemap.xml');
+  ok(!slug || !sm2.includes('/articles/' + slug + '.html'), 'sitemap 里已移除');
+}
+
 // 还原
 for (const [f, buf] of snapshot) fs.writeFileSync(f, buf);
 console.log(fail === 0 ? '\n全部通过（已还原数据）' : '\n' + fail + ' 项失败（已还原数据）');

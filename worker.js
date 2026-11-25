@@ -1410,7 +1410,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v56';
+const ASSET_V = 'v57';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4710,6 +4710,7 @@ tr:hover td{background:#fcfbf8}
   function loadSubmit() {
     var box = $('subStatus');
     if (!box) return;
+    if (subTimer) { clearInterval(subTimer); subTimer = null; }
     api('/api/submit').then(function (r) {
       if (!r.ok || !r.status) {
         box.innerHTML = '<p class="empty">' + navEsc(trErr(r.error || '读取失败')) + '</p>';
@@ -4727,6 +4728,23 @@ tr:hover td{background:#fcfbf8}
         subLine('Workers AI 今日', s.aiUsage ? (s.aiUsage.used + ' / ' + (s.aiUsage.unlimited ? '不限制' : s.aiUsage.cap) + ' 次' + (s.aiUsage.capSource === 'admin' ? '（上限来自后台）' : '')) : '—', true) +
         subLine('冷却状态', (s.cooldown && s.cooldown.seconds > 0) ? '还要等 ' + s.cooldown.seconds + ' 秒才能再推（防 IndexNow 429）' : '可以提交', !(s.cooldown && s.cooldown.seconds > 0)) +
         subLine('最近一次提交', last ? (new Date(last.at || Date.now()).toLocaleString() + '　' + ((last.results && last.results.indexNow && last.results.indexNow.ok) ? 'IndexNow 成功' : 'IndexNow 未成功')) : '还没提交过', !!last);
+      var cool = (s.cooldown && s.cooldown.seconds) ? s.cooldown.seconds : 0;
+      (function () {
+        var wrap = $('subStatus');
+        if (!wrap) return;
+        var el = $('subCool');
+        if (!el) { el = document.createElement('div'); el.id = 'subCool'; wrap.appendChild(el); }
+        var left = cool;
+        var tick = function () {
+          el.innerHTML = left > 0
+            ? '<p class="note">冷却中：还要等 <b>' + left + '</b> 秒才能再推（防 IndexNow 429）</p>'
+            : '<p class="note">现在可以提交</p>';
+          if (left <= 0) { if (subTimer) { clearInterval(subTimer); subTimer = null; } return; }
+          left -= 1;
+        };
+        tick();
+        if (cool > 0) subTimer = setInterval(tick, 1000);
+      })();
       if (last && last.results) {
         box.innerHTML += '<div style="margin-top:10px">' +
           subBox('上次 IndexNow', last.results.indexNow) + subBox('上次百度', last.results.baidu) + '</div>';
@@ -4738,6 +4756,7 @@ tr:hover td{background:#fcfbf8}
     loadSubmit();
   });
   var subAction = 'all';
+  var subTimer = null;
   function runSubmit(action, isTest) {
     subAction = action || 'all';
     var btn = $('subRun');
