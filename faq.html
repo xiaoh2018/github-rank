@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>常见问答 · GitHub 热门项目排行榜</title>
+<meta name="description" content="关于 GitHub 热门项目排行榜的常见问题：数据从哪来、多久更新一次、收录与提交方式、密码文章怎么解锁、如何联系站长。">
+<link rel="canonical" href="https://github.661026.xyz/faq">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#faf7f0; --card:#fffdf8; --fg:#33291c; --muted:#7a6b56; --line:#e8e0cf;
+  --accent:#b07d10; --accent-soft:#f6eddc; --chip:#f3ecdc; --shadow:0 1px 2px rgba(60,45,20,.06),0 8px 24px rgba(60,45,20,.05);
+  --gap:16px; --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#15130f; --card:#1e1a14; --fg:#f0e9dc; --muted:#a99a82; --line:#332c22; --accent:#e0b457; --accent-soft:#2a2419; --chip:#241f17; --shadow:0 1px 2px rgba(0,0,0,.4); }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 60px}
+header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:18px 0 10px}
+.brand{font-size:17px;font-weight:800;color:var(--fg);letter-spacing:.2px}
+.mainnav{display:flex;gap:6px;justify-self:center;flex-wrap:wrap}
+.mnav{display:inline-flex;align-items:center;min-height:36px;padding:4px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-weight:600;font-size:13.5px}
+.mnav:hover{color:var(--fg);text-decoration:none}
+.mnav.is-on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.head-actions{display:flex;gap:8px;justify-self:end;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:4px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-size:13.5px;cursor:pointer}
+.btn:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+@media (max-width:760px){ header{grid-template-columns:1fr;gap:10px} .mainnav{justify-self:start} .head-actions{justify-self:start;flex-wrap:wrap} }
+.hero{padding:8px 0 20px}
+h1{font-size:26px;margin:6px 0 8px;letter-spacing:-.3px}
+.lead{color:var(--muted);margin:0;max-width:760px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0 6px}
+#q{flex:1 1 280px;min-width:0;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-size:14px}
+#q:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(176,125,16,.12)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 22px}
+.chip{padding:4px 12px;border-radius:999px;background:var(--chip);border:1px solid transparent;color:var(--muted);font-size:12.5px;cursor:pointer}
+.chip.is-on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.qalist{display:grid;gap:12px}
+.qa{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:0;overflow:hidden}
+.qa summary{list-style:none;cursor:pointer;padding:16px 18px;font-weight:700;font-size:15px;display:flex;gap:10px;align-items:flex-start}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary:before{content:"Q";flex:none;width:22px;height:22px;border-radius:7px;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:12px;display:grid;place-items:center;margin-top:2px}
+.qa[open] summary{border-bottom:1px dashed var(--line)}
+.qa .ans{padding:14px 18px 18px 50px;color:var(--fg);font-size:14.5px}
+.qa .ans p{margin:0 0 10px}
+.qa .ans ul,.qa .ans ol{margin:0 0 10px;padding-left:22px}
+.qa .ans code{background:var(--chip);border-radius:5px;padding:1px 5px;font-size:13px}
+.qa .ans table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}
+.qa .ans th,.qa .ans td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+.qa .ans a{word-break:break-all}
+.qtag{display:inline-block;margin-left:auto;flex:none;font-size:11px;font-weight:600;color:var(--muted);background:var(--chip);border-radius:999px;padding:2px 9px}
+.note{color:var(--muted);font-size:13px;margin-top:22px}
+footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;gap:12px;flex-wrap:wrap}
+.empty{color:var(--muted);padding:22px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="/">GitHub 热门项目排行榜</a>
+    <nav class="mainnav" aria-label="主导航">
+      <a class="mnav" href="/">榜单</a>
+      <a class="mnav" href="/?page=nav">导航</a>
+      <a class="mnav" href="/articles">文章</a>
+      <a class="mnav is-on" href="/faq" aria-current="page">问答</a>
+    </nav>
+    <div class="head-actions">
+      <a class="btn" href="/">← 回榜单</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>常见问答</h1>
+    <p class="lead" id="intro">关于本站的高频问题：数据从哪来、多久更新、怎么被收录、加密文章怎么解锁。</p>
+    <div class="tools">
+      <input id="q" type="search" placeholder="搜索问题或关键词，例如「更新」「收录」「密码」" autocomplete="off">
+      <span class="note" id="count" style="margin:0"></span>
+    </div>
+    <div class="chips" id="tags"></div>
+  </section>
+
+  <main class="qalist" id="list">
+    <div class="qa"><summary>加载中…</summary></div>
+  </main>
+
+  <p class="note">找不到答案？把问题发到 <a href="https://github.com/xiaoh2018/github-rank/issues" target="_blank" rel="noopener">GitHub Issues</a>，或直接用「关于本站」里的联系方式。</p>
+
+  <footer>
+    <span>数据来自 GitHub API，每 3 小时自动更新</span>
+    <a href="/articles">文章</a>
+    <a href="/?page=nav">导航</a>
+    <a href="/sitemap.xml">站点地图</a>
+    <a href="/llms.txt">llms.txt</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var QA = { intro: '', items: [] };
+  var tag = 'all';
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // 极简 Markdown：段落 / 列表 / 粗体 / 行内代码 / 链接 / 表格
+  function inline(s) {
+    return s
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  }
+
+  function md(src) {
+    var lines = String(src || '').replace(/\r/g, '').split('\n');
+    var out = [];
+    var i = 0;
+    while (i < lines.length) {
+      var line = lines[i];
+      if (/^\s*\|/.test(line) && i + 1 < lines.length && /^\s*\|?[\s:|-]+\|/.test(lines[i + 1])) {
+        var head = line.split('|').map(function (c) { return c.trim(); });
+        head = head.slice(1, head.length - 1);
+        var rows = [];
+        i += 2;
+        while (i < lines.length && /^\s*\|/.test(lines[i])) {
+          var cells = lines[i].split('|').map(function (c) { return c.trim(); });
+          rows.push(cells.slice(1, cells.length - 1));
+          i++;
+        }
+        out.push('<table><thead><tr>' + head.map(function (h) { return '<th>' + inline(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+          rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + inline(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>');
+        continue;
+      }
+      if (/^\s*[-*]\s+/.test(line)) {
+        var items = [];
+        while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*[-*]\s+/, '')); i++; }
+        out.push('<ul>' + items.map(function (t) { return '<li>' + inline(t) + '</li>'; }).join('') + '</ul>');
+        continue;
+      }
+      if (!line.trim()) { i++; continue; }
+      var buf = [];
+      while (i < lines.length && lines[i].trim() && !/^\s*[-*]\s+/.test(lines[i]) && !/^\s*\|/.test(lines[i])) { buf.push(lines[i]); i++; }
+      out.push('<p>' + inline(buf.join(' ')) + '</p>');
+    }
+    return out.join('');
+  }
+
+  function matches(it, kw) {
+    if (!kw) return true;
+    var s = (it.q + ' ' + it.a + ' ' + (it.tag || '')).toLowerCase();
+    return kw.split(/\s+/).every(function (w) { return s.indexOf(w) >= 0; });
+  }
+
+  function render() {
+    var kw = (document.getElementById('q').value || '').trim().toLowerCase();
+    var list = QA.items.filter(function (it) {
+      if (tag !== 'all' && (it.tag || '') !== tag) return false;
+      return matches(it, kw);
+    });
+    var box = document.getElementById('list');
+    if (!list.length) {
+      box.innerHTML = '<div class="empty">没有匹配的问题，换个关键词试试。</div>';
+    } else {
+      box.innerHTML = list.map(function (it, i) {
+        return '<details class="qa"' + (i === 0 && kw ? ' open' : '') + '>' +
+          '<summary>' + esc(it.q) + (it.tag ? '<span class="qtag">' + esc(it.tag) + '</span>' : '') + '</summary>' +
+          '<div class="ans">' + md(it.a) + '</div></details>';
+      }).join('');
+    }
+    document.getElementById('count').textContent = '共 ' + QA.items.length + ' 条，当前显示 ' + list.length + ' 条';
+  }
+
+  function renderTags() {
+    var tags = [];
+    QA.items.forEach(function (it) { if (it.tag && tags.indexOf(it.tag) < 0) tags.push(it.tag); });
+    var box = document.getElementById('tags');
+    if (!tags.length) { box.hidden = true; return; }
+    box.hidden = false;
+    box.innerHTML = ['all'].concat(tags).map(function (t) {
+      return '<button type="button" class="chip' + (t === tag ? ' is-on' : '') + '" data-tag="' + esc(t) + '">' + (t === 'all' ? '全部' : esc(t)) + '</button>';
+    }).join('');
+  }
+
+  document.getElementById('tags').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tag]');
+    if (!b) return;
+    tag = b.getAttribute('data-tag');
+    renderTags();
+    render();
+  });
+  document.getElementById('q').addEventListener('input', render);
+
+  fetch('/data/qa.json', { cache: 'no-cache' })
+    .then(function (r) { return r.json(); })
+    .then(function (qa) {
+      QA = { intro: (qa && qa.intro) || '', items: (qa && qa.items) || [] };
+      if (QA.intro) document.getElementById('intro').textContent = QA.intro;
+      renderTags();
+      render();
+    })
+    .catch(function () {
+      document.getElementById('list').innerHTML = '<div class="empty">问答数据没加载出来，稍后刷新再试。</div>';
+    });
+})();
+</script>
+</body>
+</html>

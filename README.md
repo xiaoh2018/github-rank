@@ -190,3 +190,8 @@ MyMemory 的免费额度有限，额度用完时会改用 Workers AI（需绑定
 ## 许可证
 
 本项目使用 MIT 许可证，详见仓库根目录的 `LICENSE` 文件。
+
+## 问答（GEO）
+
+`/faq` 是一个专门给搜索引擎和 AI 用的问答页：后台「问答」里维护 `data/qa.json`，页面服务端会把问答注入 `FAQPage` 结构化数据；sitemap 与 `llms.txt` 都指向它。文章支持可读 slug（`/articles/<slug>`）与「怎么拿到密码」提示。
+

@@ -36,8 +36,11 @@ const SITE = {
   '/data/articles.json': ['data/articles.json', 'application/json; charset=utf-8'],
   '/data/site.json': ['data/site.json', 'application/json; charset=utf-8'],
   '/data/nav.json': ['data/nav.json', 'application/json; charset=utf-8'],
+  '/data/qa.json': ['data/qa.json', 'application/json; charset=utf-8'],
   '/articles': ['articles.html', 'text/html; charset=utf-8'],
   '/articles.html': ['articles.html', 'text/html; charset=utf-8'],
+  '/faq': ['faq.html', 'text/html; charset=utf-8'],
+  '/faq.html': ['faq.html', 'text/html; charset=utf-8'],
 };
 
 export default {
@@ -80,6 +83,7 @@ export default {
         const today = todayBJ().slice(0, 10);
         xml += '  <url><loc>' + origin + '/</loc><lastmod>' + today + '</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>\n';
         xml += '  <url><loc>' + origin + '/nav</loc><lastmod>' + today + '</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>\n';
+        xml += '  <url><loc>' + origin + '/faq</loc><lastmod>' + today + '</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>\n';
         xml += '  <url><loc>' + origin + '/articles</loc><lastmod>' + today + '</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>\n';
         for (const a of list.slice(0, 200)) {
           if (!a || !a.id) continue;
@@ -129,6 +133,9 @@ export default {
       }
       if (url.pathname === '/api/translate' && (request.method === 'GET' || request.method === 'POST')) {
         return handleTranslate(request, env);
+      }
+      if (url.pathname === '/api/qa' && (request.method === 'GET' || request.method === 'POST')) {
+        return handleQa(request, env);
       }
       if (url.pathname === '/api/nav' && (request.method === 'GET' || request.method === 'POST')) {
         return handleNav(request, env);
@@ -583,6 +590,15 @@ async function serveSite(env, entry) {
   if (!r.ok) {
       return text('读取站点文件失败：' + r.status + '（请确认仓库是公开的，且文件已经推送到 ' + branch(env) + ' 分支）', 502);
     }
+    if (entry[0] === 'faq.html') {
+      let html = await r.text();
+      try {
+        html = await injectFaqLd(env, html);
+      } catch (e) {}
+      return new Response(html, {
+        headers: { 'content-type': entry[1], 'cache-control': 'public, max-age=300' },
+      });
+    }
     if (entry[0] === 'index.html') {
       let html = applySeo(await r.text(), (await loadSiteRaw(env)).seo);
       html = html.replace(/(["'])(\/?js\/[\w.-]+\.js)(["'])/g, function (m, q1, p1, q2) {
@@ -608,7 +624,7 @@ const EDGE_KEY_BASE = 'https://edge.ghrank.internal';
 const RAW_TTL = 60;
 
 // 后台随时会改的三个 JSON：缓存必须很短，否则改完前台还是旧值（实测过）
-const CONFIG_FILES = ['/data/site.json', '/data/links.json', '/data/articles.json', '/data/nav.json'];
+const CONFIG_FILES = ['/data/site.json', '/data/links.json', '/data/articles.json', '/data/nav.json', '/data/qa.json'];
 
 // ttl=边缘保留秒数；browser=浏览器 max-age；swr=stale-while-revalidate
 function cachePolicy(pathname) {
@@ -1162,9 +1178,127 @@ async function handleLinks(request, env) {
 // ---------- 导航页（data/nav.json）----------
 // 结构：{ updatedAt, groups:[ {id, name, desc, items:[{name, url, desc, icon}]} ] }
 const NAV_FILE = 'data/nav.json';
+// ---------- 问答（GEO）----------
+// 存在 data/qa.json：前台 /faq 展示，并把 FAQPage 结构化数据注入页面 head，
+// 让搜索引擎和 AI 检索器直接读到问答对（这是 GEO 最有效的抓手之一）。
+const QA_FILE = 'data/qa.json';
+
+function emptyQa() {
+  return { updatedAt: '', intro: '', items: [] };
+}
+
+function normalizeQa(raw) {
+  const out = emptyQa();
+  const src = raw && typeof raw === 'object' ? raw : {};
+  out.intro = String(src.intro || '').slice(0, 600);
+  const items = Array.isArray(src.items) ? src.items : [];
+  out.items = items
+    .slice(0, 200)
+    .map(function (it) {
+      const o = it && typeof it === 'object' ? it : {};
+      return {
+        q: String(o.q || '').trim().slice(0, 200),
+        a: String(o.a || '').trim().slice(0, 4000),
+        tag: String(o.tag || '').trim().slice(0, 20),
+      };
+    })
+    .filter(function (it) {
+      return it.q && it.a;
+    });
+  out.updatedAt = typeof src.updatedAt === 'string' ? src.updatedAt : '';
+  return out;
+}
+
+async function readQa(env) {
+  const miss = checkConfig(env);
+  if (miss.length) return { ok: false, status: 500, error: '还没配置变量：' + miss.join('、') };
+  const cur = await gh(env, '/contents/' + QA_FILE + '?ref=' + encodeURIComponent(branch(env)));
+  if (cur.status === 404) return { ok: true, status: 404, qa: emptyQa(), sha: null };
+  if (!cur.ok || !cur.data) {
+    return { ok: false, status: cur.status, error: '读取问答失败：' + cur.status + ' ' + cur.text.slice(0, 200) };
+  }
+  let qa = emptyQa();
+  try {
+    const bin = atob(String(cur.data.content || '').replace(/\n/g, ''));
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    const txt = new TextDecoder().decode(bytes);
+    if (txt.trim()) qa = normalizeQa(JSON.parse(txt));
+  } catch (e) {
+    return { ok: false, status: 500, error: 'data/qa.json 不是合法的 JSON，请先在仓库里修正' };
+  }
+  return { ok: true, status: 200, qa: qa, sha: cur.data.sha || null };
+}
+
+async function writeQa(env, qa, sha, msg) {
+  const body = {
+    message: msg,
+    content: utf8ToBase64(JSON.stringify(qa, null, 2) + '\n'),
+    branch: branch(env),
+  };
+  if (sha) body.sha = sha;
+  const put = await gh(env, '/contents/' + QA_FILE, {
+    method: 'PUT',
+    headers: ghHeaders(env, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify(body),
+  });
+  if (!put.ok) return { ok: false, error: '写入失败：' + put.status + ' ' + put.text };
+  return { ok: true };
+}
+
+async function handleQa(request, env) {
+  if (request.method === 'GET') {
+    const r = await readQa(env);
+    if (!r.ok) return json({ ok: false, error: r.error }, r.status || 500);
+    return json({ ok: true, qa: r.qa });
+  }
+  let body = {};
+  try {
+    body = await request.json();
+  } catch (e) {
+    return json({ ok: false, error: '请求体不是 JSON' }, 400);
+  }
+  if (!env.ADMIN_PASSWORD) return json({ ok: false, error: '还没配置 ADMIN_PASSWORD' }, 500);
+  if (String(body.password || '') !== String(env.ADMIN_PASSWORD)) return json({ ok: false, error: '密码不对' }, 401);
+  const cur = await readQa(env);
+  if (!cur.ok) return json({ ok: false, error: cur.error }, cur.status || 500);
+  const qa = normalizeQa(body.qa);
+  qa.updatedAt = new Date().toISOString();
+  const w = await writeQa(env, qa, cur.sha, 'chore(qa): 更新问答');
+  if (!w.ok) return json({ ok: false, error: w.error }, 500);
+  try {
+    await warmEdge('/data/qa.json', JSON.stringify(qa), 'application/json; charset=utf-8');
+  } catch (e) {}
+  return json({ ok: true, qa: qa });
+}
+
+// 给 /faq 页注入 FAQPage 结构化数据：AI 与搜索引擎读源码就能拿到问答对
+async function injectFaqLd(env, html) {
+  let qa = emptyQa();
+  try {
+    const r = await readQa(env);
+    if (r.ok) qa = r.qa;
+  } catch (e) {}
+  const items = qa.items.slice(0, 60);
+  if (!items.length) return html;
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map(function (it) {
+      return {
+        '@type': 'Question',
+        name: it.q,
+        acceptedAnswer: { '@type': 'Answer', text: it.a },
+      };
+    }),
+  };
+  const tag = '<script type="application/ld+json">' + JSON.stringify(ld).replace(/</g, '\\u003c') + '</' + 'script>';
+  if (html.indexOf('</head>') < 0) return html;
+  return html.replace('</head>', tag + '\n</head>');
+}
+
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v49';
+const ASSET_V = 'v50';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1453,6 +1587,7 @@ async function llmsTxt(env, origin) {
   lines.push('');
   lines.push('- 榜单首页：' + root + '/ （项目榜，可切语言、时间范围、排序方式；另有开发者榜、组织榜）');
   lines.push('- 文章列表：' + root + '/articles （使用说明与更新记录）');
+  lines.push('- 常见问答：' + root + '/faq （按主题整理的高频提问，页面带 FAQPage 结构化数据，方便 AI 直接引用）');
   lines.push('- 站点地图：' + root + '/sitemap.xml');
   lines.push('');
   const list = Array.isArray(arts) ? arts : [];
@@ -2779,6 +2914,11 @@ tr:hover td{background:#fcfbf8}
 #errBar{background:#fdf2f0;background-image:none;color:#a2311f;border-bottom:1px solid #f3cfc8}
 .raw pre{background:#fbfaf7;background-image:none;border:1px solid #ecebe5}
 ::-webkit-scrollbar-thumb{background:#d6d3cc;border:2px solid transparent;background-clip:content-box}
+#qaList .qa-row{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff}
+#qaList .qa-top{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+#qaList .qa-q{flex:1 1 320px;min-width:0;font-weight:600}
+#qaList .qa-tag{width:110px}
+#qaList .qa-a{width:100%;min-height:96px;font-size:13.5px;line-height:1.7}
 </style>
 </head>
 <body>
@@ -2800,6 +2940,7 @@ tr:hover td{background:#fcfbf8}
     <button type="button" class="nav" data-tab="overview">概览</button>
     <button type="button" class="nav" data-tab="layout">榜单布局</button>
     <button type="button" class="nav" data-tab="articles">文章<span class="nav-badge" id="navArtCount" hidden>0</span></button>
+    <button type="button" class="nav" data-tab="qa">问答<span class="nav-badge" id="navQaCount" hidden>0</span></button>
     <div class="navgroup">内容</div>
     <button type="button" class="nav" data-tab="seo">SEO 与 GEO</button>
     <button type="button" class="nav" data-tab="links">友链</button>
@@ -3138,6 +3279,20 @@ tr:hover td{background:#fcfbf8}
       </div>
     </section>
 
+      <section class="pane" id="pane-qa" hidden>
+        <div class="bar"><div><h1>问答（GEO）</h1><p class="sub">访客最常问的问题与答案。前台在 <code>/faq</code> 展示，并把 FAQPage 结构化数据写进页面 head，搜索引擎和 AI 检索器读源码就能拿到。</p></div><div class="actions"><button type="button" class="ghost" id="qaNew">＋ 新问题</button></div></div>
+        <div class="intro">答案支持 Markdown（标题、列表、表格、代码块）。写法建议：第一句先给结论，再补细节和数字——AI 搜索最容易抽取这种结构。最多 200 条。</div>
+        <div class="card">
+          <label for="qa-intro">页面导语</label>
+          <textarea id="qa-intro" maxlength="600" placeholder="这里整理了关于本站的高频问题：数据从哪来、多久更新、怎么收录、密码怎么拿……"></textarea>
+          <div class="hint">600 字以内，显示在问答页顶部。</div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h2>问答列表</h2><p class="desc">问题 ≤200 字、答案 ≤4000 字；标签用来分类（如「数据」「使用」「收录」）。</p></div></div>
+          <div id="qaList"></div>
+        </div>
+        <div class="card"><div class="actions"><button type="button" data-save="qa">保存问答</button><span class="hint" id="qaMsg"></span></div></div>
+      </section>
     <section class="pane" id="pane-articles" hidden>
       <div class="bar">
         <div><h1>文章</h1><div class="sub">共 <span id="artCount">0</span> 篇，标题、摘要、正文会显示在站点的文章页</div></div>
@@ -3276,6 +3431,7 @@ tr:hover td{background:#fcfbf8}
     loadSite();
     loadArticles();
     loadNavAdmin();
+    loadQa();
     loadSubmit();
     loadTranslate();
     }
@@ -3570,6 +3726,17 @@ tr:hover td{background:#fcfbf8}
         else toast(r.error || '保存失败', false);
       };
       if (sec === 'nav') {
+      if (sec === 'qa') {
+        var qaPayload = readQaForm();
+        api('/api/qa', { method: 'POST', body: { password: pw, qa: qaPayload } }).then(function (r) {
+          if (!r.ok) { toast(r.error || '保存失败'); return; }
+          qaState = { intro: r.qa.intro, items: r.qa.items };
+          if ($('qa-intro')) $('qa-intro').value = qaState.intro;
+          renderQa();
+          toast('问答已保存');
+        });
+        return;
+      }
         api('/api/nav', { method: 'POST', body: { password: pw, nav: collect('nav') } }).then(function (r) {
           done(r);
           if (r.ok && r.nav) { navState = r.nav; renderNavAdmin(); }
@@ -4122,6 +4289,68 @@ tr:hover td{background:#fcfbf8}
     });
   });
 
+  // ---------- 问答（GEO）----------
+  var qaState = { intro: '', items: [] };
+  function qesc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function qaRow(it, i) {
+    return '<div class="qa-row" data-i="' + i + '">' +
+      '<div class="qa-top"><input class="qa-q" maxlength="200" placeholder="问题，例如：这个榜单的数据多久更新一次？" value="' + qesc(it.q) + '">' +
+      '<input class="qa-tag" maxlength="20" placeholder="标签" value="' + qesc(it.tag) + '">' +
+      '<button type="button" class="ghost" data-qadel="' + i + '">删除</button></div>' +
+      '<textarea class="qa-a" maxlength="4000" placeholder="答案（支持 Markdown）">' + qesc(it.a) + '</textarea>' +
+      '</div>';
+  }
+  function renderQa() {
+    var box = $('qaList');
+    if (!box) return;
+    if (!qaState.items.length) {
+      box.innerHTML = '<div class="empty">还没有问答。点右上角「＋ 新问题」开始。</div>';
+    } else {
+      box.innerHTML = qaState.items.map(qaRow).join('');
+    }
+    var m = $('qaMsg');
+    if (m) m.textContent = '共 ' + qaState.items.length + ' 条';
+  }
+  function readQaForm() {
+    var items = [];
+    Array.prototype.forEach.call(document.querySelectorAll('#qaList .qa-row'), function (row) {
+      var q = row.querySelector('.qa-q').value.trim();
+      var a = row.querySelector('.qa-a').value.trim();
+      var tag = row.querySelector('.qa-tag').value.trim();
+      if (q && a) items.push({ q: q, a: a, tag: tag });
+    });
+    return { intro: $('qa-intro').value, items: items };
+  }
+  function loadQa() {
+    api('/api/qa').then(function (r) {
+      if (!r.ok) { toast(r.error || '读不到问答'); return; }
+      qaState = { intro: (r.qa && r.qa.intro) || '', items: (r.qa && r.qa.items) || [] };
+      if ($('qa-intro')) $('qa-intro').value = qaState.intro;
+      renderQa();
+    });
+  }
+  if ($('qaNew')) {
+    $('qaNew').addEventListener('click', function () {
+      qaState = readQaForm();
+      if (qaState.items.length >= 200) { toast('最多 200 条'); return; }
+      qaState.items.push({ q: '', a: '', tag: '' });
+      renderQa();
+      var rows = document.querySelectorAll('#qaList .qa-row');
+      var last = rows[rows.length - 1];
+      if (last) last.querySelector('.qa-q').focus();
+    });
+  }
+  if ($('qaList')) {
+    $('qaList').addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-qadel]') : null;
+      if (!b) return;
+      qaState = readQaForm();
+      qaState.items.splice(Number(b.getAttribute('data-qadel')), 1);
+      renderQa();
+    });
+  }
   // ---- 启动 ----
   var saved = sessionStorage.getItem(PW_KEY);
   if (saved) {

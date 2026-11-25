@@ -607,5 +607,54 @@ await hit('/api/articles', {
   body: JSON.stringify({ password: 'pw', action: 'remove', id: a20One.id })
 });
 
+console.log('');
+console.log('§21 问答（GEO）');
+
+const qaAdmin = await (await hit('/admin')).text();
+ok(qaAdmin.includes('id="pane-qa"'), '后台有问答面板');
+ok(qaAdmin.includes('data-tab="qa"'), '侧栏有问答入口');
+ok(qaAdmin.includes('id="qaList"'), '后台有问答列表容器');
+
+const qaGet = await (await hit('/api/qa')).json();
+ok(qaGet.ok === true && Array.isArray(qaGet.qa.items) && qaGet.qa.items.length >= 5, 'GET /api/qa 返回问答列表');
+
+const qaBad = await hit('/api/qa', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ password: 'wrong', qa: { items: [] } })
+});
+ok(qaBad.status === 401, '密码不对保存问答被拒');
+
+const qaSave = await (await hit('/api/qa', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({
+    password: 'pw',
+    qa: {
+      intro: '测试导语',
+      items: [
+        { q: '问题一', a: '答案一', tag: '测试' },
+        { q: '', a: '没有问题的答案会被丢掉', tag: '' }
+      ]
+    }
+  })
+})).json();
+ok(qaSave.ok === true && qaSave.qa.intro === '测试导语', '保存问答：导语写回');
+ok(Array.isArray(qaSave.qa.items) && qaSave.qa.items.length === 1, '保存问答：空问题被丢弃');
+
+const faqPage = await hit('/faq');
+const faqHtml = await faqPage.text();
+ok(faqPage.status === 200, '/faq 返回 200');
+ok(faqHtml.includes('application/ld+json') && faqHtml.includes('FAQPage'), '/faq 输出 FAQPage 结构化数据');
+ok(faqHtml.includes('id="list"'), '/faq 有问答列表容器');
+
+const qaFile = await hit('/data/qa.json');
+ok((qaFile.headers.get('cache-control') || '').indexOf('max-age=60') >= 0, '/data/qa.json 走 60 秒配置档');
+
+const sm21 = await (await hit('/sitemap.xml')).text();
+ok(sm21.includes('/faq</loc>'), 'sitemap 含 /faq');
+const llms21 = await (await hit('/llms.txt')).text();
+ok(llms21.includes('/faq'), 'llms.txt 提到 /faq');
+
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
