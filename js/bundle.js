@@ -1491,6 +1491,36 @@ if ($('pgJump')) {
   $('pgJump').addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); goJump(); }
   });
+  let jumpTimer = 0;
+  const stepBy = (d) => {
+    const el = $('pgJump');
+    if (!el) return;
+    const max = Math.max(1, parseInt(el.max, 10) || 1);
+    let cur = parseInt(el.value, 10);
+    if (!isFinite(cur)) cur = state.page;
+    el.value = String(Math.min(max, Math.max(1, cur + d)));
+    if (jumpTimer) clearTimeout(jumpTimer);
+    jumpTimer = setTimeout(() => { jumpTimer = 0; goJump(); }, 520);
+  };
+  const bindHold = (id, d) => {
+    const btn = $(id);
+    if (!btn || btn.__hold) return;
+    btn.__hold = true;
+    let t1 = 0, t2 = 0;
+    const stop = () => { if (t1) clearTimeout(t1); if (t2) clearInterval(t2); t1 = t2 = 0; };
+    const start = () => {
+      stop();
+      stepBy(d);
+      t1 = setTimeout(() => { t2 = setInterval(() => stepBy(d), 90); }, 420);
+    };
+    btn.addEventListener('pointerdown', e => { if (e.button !== undefined && e.button !== 0) return; e.preventDefault(); start(); });
+    ['pointerup', 'pointerleave', 'pointercancel', 'blur'].forEach(ev => btn.addEventListener(ev, stop));
+    btn.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stepBy(d); }
+    });
+  };
+  bindHold('pgDec', -1);
+  bindHold('pgInc', 1);
 }
 $('btnFavFilter').onclick = () => {
   state.favOnly = !state.favOnly;

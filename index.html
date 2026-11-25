@@ -153,6 +153,11 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 .pjump{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
 .pjump input{width:64px;height:32px;padding:0 6px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:inherit;text-align:center}
 .pjump input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.pjbtn{width:30px;height:32px;padding:0;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-size:15px;line-height:1;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.pjbtn:hover{border-color:var(--gold);color:var(--accent)}
+.pjbtn:active{transform:translateY(1px)}
+.pjbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pjbtn[disabled]{opacity:.45;cursor:default}
 @media print{.pjump{display:none!important}}
 .toolrow{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--gap);margin-top:var(--gap)}
 /* 骨架屏 */
@@ -654,7 +659,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   <nav class="pager" id="pager" hidden>
     <button class="btn" id="prev">上一页</button>
     <span id="pageInfo"></span>
-    <label class="pjump">跳到 <input id="pgJump" type="number" min="1" max="999" step="1" value="1" inputmode="numeric" aria-label="跳到第几页"> 页</label>
+      <span class="pjump"><label for="pgJump">跳到</label><button type="button" class="pjbtn" id="pgDec" aria-label="页码减一">−</button><input id="pgJump" type="number" min="1" max="999" step="1" value="1" inputmode="numeric" aria-label="跳到第几页"><button type="button" class="pjbtn" id="pgInc" aria-label="页码加一">＋</button><label for="pgJump">页</label></span>
     <button class="btn" id="next">下一页</button>
   </nav>
   <div class="ad-slot" id="adList" role="region" aria-label="广告位" hidden></div>

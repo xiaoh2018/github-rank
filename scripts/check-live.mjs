@@ -167,6 +167,8 @@ push('导航分组可折叠并记住状态', home.includes('class="gtog"') && ho
 push('首页尊重「减少动效」偏好', home.includes('prefers-reduced-motion: reduce'), '');
 push('榜单分页器有「跳到第 N 页」', home.includes('id="pgJump"') && home.includes('class="pjump"'), '');
 push('跳页逻辑已绑定（bundle）', bundleJs.includes('goJump'), '');
+push('分页器有 −/＋ 步进按钮', home.includes('id="pgDec"') && home.includes('id="pgInc"') && home.includes('class="pjbtn"'), '');
+push('步进器支持长按连点（bundle）', bundleJs.includes("bindHold('pgInc'") && bundleJs.includes('setInterval'), '');
 push('榜单卡片键盘聚焦有高亮', home.includes(".item:focus-within"), '');
 push('/articles 有返回顶部按钮', artListHtml.includes('id="totop"') && artListHtml.includes('initTotop'), '');
 push('/articles 页脚有 RSS 订阅', artListHtml.includes('href="/rss.xml"'), '');
