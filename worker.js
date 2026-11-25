@@ -1785,6 +1785,28 @@ async function aiUsage(env, rt) {
 }
 
 // 主动提交：IndexNow（Bing / Yandex / Seznam / Naver 共用）、百度普通收录推送
+function engineHint(kind, status) {
+  const s = Number(status) || 0;
+  if (kind === 'indexnow') {
+    if (s === 202 || s === 200) return '（已接收：搜索引擎会自己来抓，Bing 站长工具的 IndexNow 页通常 24-72 小时才显示记录）';
+    if (s === 429) return '（被限流：等 10 分钟再试，或勾「强制再推一次」改成只推首页 1 条）';
+    if (s === 422) return '（Key 校验没过：确认 key 文件和后台填的 IndexNow Key 完全一致）';
+    if (s === 403) return '（Key 文件打不开：确认 /<key>.txt 能直接访问，且站点是 https）';
+    if (s === 400) return '（请求格式不对：检查 host 是否带协议头，host 只填域名）';
+    if (s >= 500) return '（IndexNow 侧故障：过一会儿重试）';
+    return '';
+  }
+  if (kind === 'baidu') {
+    if (s === 200) return '（已接收：看下面的原始返回，success 是本次收录条数、remain 是当天剩余配额）';
+    if (s === 400) return '（site 参数不对：必须是裸域名，如 github.661026.xyz，不带 https:// 也不带路径）';
+    if (s === 401) return '（准入密钥无效：到 ziyuan.baidu.com 的「普通收录 → API 提交」重新复制 token）';
+    if (s === 526) return '（站点校验没通过：先在百度搜索资源平台把该域名验证掉，推送域名要和验证的一级域名一致）';
+    if (s === 507) return '（当天配额用完：明天再推，或减少一次推的 URL 数）';
+    return '';
+  }
+  return '';
+}
+
 async function handleSubmit(request, env, origin) {
   const rtSubmit = await siteRuntime(env);
   const keyNow = indexNowKey(env, rtSubmit);
@@ -1913,7 +1935,7 @@ async function handleSubmit(request, env, origin) {
       else if (r.status === 422) note = 'Key 校验没过：确认站点根目录的 key 文件能打开，且提交的 host 与 keyLocation 同域';
       else if (r.status === 403) note = 'Key 文件打不开或内容不对：先把 Worker 部署到最新版，再回本页点「刷新」看自检那行';
       else note = 'IndexNow 返回 HTTP ' + r.status + '，见下面的原始返回';
-      out.results.indexNow = { ok: good, status: r.status, ms: Date.now() - t0, note: note, raw: String(rawText || '').slice(0, 300) };
+      out.results.indexNow = { ok: good, status: r.status, ms: Date.now() - t0, note: note + engineHint('indexnow', r.status), raw: String(rawText || '').slice(0, 300) };
     } catch (e) {
       out.results.indexNow = { ok: false, status: 0, note: '连不上 api.indexnow.org：' + ((e && e.message) || 'network') };
     }
@@ -1952,7 +1974,7 @@ async function handleSubmit(request, env, origin) {
         if (r.status === 526) note = '526 是 Cloudflare 报的「源站证书无效」—— 百度 https 端点握手失败，不是站点没验证；本版已改成走 http 端点（百度自己的文档也用 http）';
         if (String(t||'').indexOf('success') >= 0) note = note + '｜百度已收下：' + String(t||'').slice(0,120);
         if (!good && /^\\s*</.test(String(t || ''))) note = '百度返回的是网页错误页（不是接口 JSON），多半是 token 与站点不匹配或接口被拦，见下面的原始返回';
-        out.results.baidu = { ok: good, status: r.status, ms: Date.now() - t1, note: note, raw: String(t || '').slice(0, 300) };
+        out.results.baidu = { ok: good, status: r.status, ms: Date.now() - t1, note: note + engineHint('baidu', r.status), raw: String(t || '').slice(0, 300) };
       } catch (e) {
         out.results.baidu = { ok: false, status: 0, note: '连不上百度推送接口：' + ((e && e.message) || 'network') };
       }
@@ -3310,6 +3332,14 @@ tr:hover td{background:#fcfbf8}
 }
   :focus-visible{outline:2px solid #2563eb;outline-offset:2px;border-radius:6px}
   .main table thead th{position:sticky;top:0;z-index:2;background:#f8fafc}
+  .cmdk{width:min(540px,calc(100% - 24px));padding:0;border:0;border-radius:16px;box-shadow:0 24px 60px rgba(15,23,42,.22)}
+  .cmdk .ck-box{padding:12px 12px 10px}
+  .cmdk input{width:100%;padding:11px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px}
+  .ck-list{max-height:330px;overflow:auto;margin-top:8px}
+  .ck-item{display:flex;justify-content:space-between;gap:10px;padding:9px 10px;border-radius:9px;font-size:13.5px;cursor:pointer}
+  .ck-item.on{background:#eff6ff;color:#1d4ed8}
+  .ck-item small{color:#94a3b8}
+  .ck-foot{padding:4px 4px 0;font-size:12px;color:#94a3b8}
   .side .nav:focus-visible{outline-offset:-2px;box-shadow:0 0 0 3px rgba(37,99,235,.25)}
   .navgroup:first-child .nav{margin-top:0}
   .skip-link{position:absolute;left:-9999px;top:8px;z-index:99;background:#fff;border:1px solid #2563eb;border-radius:8px;padding:8px 12px;font-size:13px}
@@ -3786,6 +3816,13 @@ tr:hover td{background:#fcfbf8}
 
   </main>
 </div>
+<dialog id="cmdk" class="cmdk" aria-label="快速跳转">
+  <div class="ck-box">
+    <input id="ckInput" type="search" placeholder="跳到面板…（↑↓ 选择，Enter 打开，Esc 关闭）" autocomplete="off">
+    <div class="ck-list" id="ckList"></div>
+    <div class="ck-foot">Ctrl/⌘ + K 或 / 随时打开</div>
+  </div>
+</dialog>
 <dialog id="addDlg">
   <h3>添加友链</h3>
   <p class="msg">名称和网址都会显示在排行榜页面上。</p>
@@ -3976,6 +4013,46 @@ tr:hover td{background:#fcfbf8}
   });
 
   // ---- 弹窗 ----
+  var CK_NAMES = {
+    overview: '概览', layout: '榜单布局', articles: '文章', nav: '导航页',
+    seo: 'SEO 与 GEO', links: '友链', ad: '广告', contact: '联系方式',
+    beian: '备案信息', submit: '收录提交', keys: '设置与密钥', translate: '翻译',
+  };
+  var ckItems = [], ckIndex = 0, ckOpen = false;
+
+  function paintCmdk(q) {
+    var box = $('ckList');
+    if (!box) return;
+    var list = TABS.filter(function (t) {
+      var name = CK_NAMES[t] || t;
+      var hit = !q || name.indexOf(q) >= 0 || t.indexOf(q.toLowerCase()) >= 0;
+      return hit;
+    });
+    ckItems = list;
+    if (ckIndex >= list.length) ckIndex = 0;
+    box.innerHTML = list.map(function (t, i) {
+      return '<div class="ck-item' + (i === ckIndex ? ' on' : '') + '" data-ck="' + t + '"><span>' + (CK_NAMES[t] || t) + '</span><small>' + t + '</small></div>';
+    }).join('') || '<div class="ck-foot">没有匹配的面板</div>';
+  }
+
+  function closeCmdk() {
+    var d = $('cmdk');
+    if (!d) return;
+    ckOpen = false;
+    if (d.open) d.close();
+  }
+
+  function openCmdk() {
+    var d = $('cmdk');
+    if (!d) return;
+    ckOpen = true;
+    ckIndex = 0;
+    if (!d.open) d.showModal();
+    var inp = $('ckInput');
+    if (inp) { inp.value = ''; inp.focus(); }
+    paintCmdk('');
+  }
+
   function askConfirm(title, note, fn) {
     $('delTitle').textContent = title;
     $('delNote').textContent = note;
@@ -5086,6 +5163,31 @@ tr:hover td{background:#fcfbf8}
       renderQa();
     });
   }
+  (function bindCmdk() {
+    var d = $('cmdk'), inp = $('ckInput'), list = $('ckList');
+    if (!d || !inp || !list) return;
+    inp.addEventListener('input', function () { ckIndex = 0; paintCmdk(this.value.trim()); });
+    inp.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); ckIndex = Math.min(ckIndex + 1, ckItems.length - 1); paintCmdk(this.value.trim()); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); ckIndex = Math.max(ckIndex - 1, 0); paintCmdk(this.value.trim()); }
+      else if (e.key === 'Enter') { e.preventDefault(); var t = ckItems[ckIndex]; if (t) { closeCmdk(); go(t); } }
+    });
+    list.addEventListener('click', function (e) {
+      var it = e.target.closest('[data-ck]');
+      if (!it) return;
+      closeCmdk();
+      go(it.getAttribute('data-ck'));
+    });
+    d.addEventListener('click', function (e) { if (e.target === d) closeCmdk(); });
+    document.addEventListener('keydown', function (e) {
+      var tag = (e.target && e.target.tagName) || '';
+      var typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (e.target && e.target.isContentEditable);
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); ckOpen ? closeCmdk() : openCmdk(); return; }
+      if (e.key === '/' && !typing) { e.preventDefault(); openCmdk(); return; }
+      if (e.key === 'Escape' && ckOpen) closeCmdk();
+    });
+  })();
+
   // ---- 启动 ----
   var saved = sessionStorage.getItem(PW_KEY);
   if (saved) {

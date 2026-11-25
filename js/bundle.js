@@ -1166,7 +1166,7 @@ function renderUsers() {
     li.append(el('div', 'rank', String(i + 1).padStart(2, '0')));
     const img = document.createElement('img');
     img.className = 'avatar';
-    img.src = u.avatar; img.alt = ''; img.width = 40; img.height = 40; img.loading = 'lazy';
+    img.src = u.avatar; img.alt = ''; img.width = 40; img.height = 40; img.loading = 'lazy'; img.decoding = 'async';
     const body = el('div');
     const a = el('a', 'name', u.login);
     a.href = u.url; a.target = '_blank'; a.rel = 'noopener noreferrer';

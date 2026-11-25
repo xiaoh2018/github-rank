@@ -834,6 +834,10 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
     const nfText = await nf.text();
     ok(nf.status === 404 && (nf.headers.get('content-type') || '').indexOf('text/html') >= 0, '404 返回 HTML 页', '');
     ok(nfText.indexOf('这个页面不存在') >= 0 && nfText.indexOf('href="/nav"') >= 0, '404 页带导航入口', '');
+    ok(admMobile.indexOf('id="cmdk"') >= 0 && admMobile.indexOf('CK_NAMES') >= 0, '后台命令面板（Ctrl+K 跳面板）', '');
+    ok(artHtml.indexOf("e.key === 'ArrowLeft'") >= 0 && artHtml.indexOf('rpos') >= 0, '阅读器左右键翻篇', '');
+    const bundleSrc = await (await hit('/js/bundle.js')).text();
+    ok(bundleSrc.indexOf("img.decoding = 'async'") >= 0, '头像图片异步解码', '');
     ok((nf.headers.get('cache-control') || '').indexOf('no-store') >= 0, '404 不缓存', '');
     ok(homeHtml.indexOf('@keyframes cardIn') >= 0, '首页卡片入场动画', '');
   }
