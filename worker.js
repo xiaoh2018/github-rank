@@ -1441,7 +1441,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v101';
+const ASSET_V = 'v102';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4067,6 +4067,10 @@ tr:hover td{background:#fcfbf8}
         <textarea id="artUnlockHint" maxlength="300" placeholder="例如：本文是内部笔记，密码在群里发；需要全文请在页面底部联系我。"></textarea>
         <div class="hint">留空则使用默认文案「这篇文章需要密码才能阅读…」。单篇文章也可以在写作弹窗里单独填，优先用单篇的。</div>
       </div>
+      <div class="actions">
+        <button type="button" data-save="article">保存文章设置</button>
+        <span class="hint" id="artSaveMsg">改了分类或提示语记得点这里保存</span>
+      </div>
       <div class="card">
         <div class="toolbar">
           <input type="text" id="artSearch" placeholder="搜索标题、摘要或正文…">
@@ -4719,6 +4723,8 @@ tr:hover td{background:#fcfbf8}
     });
   }
   function collect(sec) {
+    if (sec === 'nav') return navState || { groups: [] };
+    if (sec === 'qa') return readQaForm();
     if (sec === 'theme') {
       var pickedTheme = 'paper';
       var trs = document.querySelectorAll('input[name="theme-name"]');
@@ -4778,7 +4784,8 @@ tr:hover td{background:#fcfbf8}
       return { mode: pick('layout-mode', 'auto'), side: pick('layout-side', 'right'), users: pick('layout-users', 'auto'), articleSide: pick('layout-articleSide', 'right') };
     }
     var v = {};
-    if (sec !== 'seo' && sec !== 'geo') v.enabled = $(sec + '-enabled').checked;
+    var enBox = $(sec + '-enabled');
+    if (sec !== 'seo' && sec !== 'geo') v.enabled = enBox ? !!enBox.checked : false;
     FIELDS[sec].forEach(function (k) { v[k] = $(sec + '-' + k).value; });
     if (sec === 'geo') v.faq = readFaq();
     return v;
