@@ -200,6 +200,7 @@ body[data-page="nav"] #insights{display:none!important}
 .navhead .sub{margin:0;color:var(--muted);font-size:13px}
 .navtools{display:flex;gap:10px;align-items:center;margin:14px 0 4px;flex-wrap:wrap}
 .navtools input{flex:1 1 240px;min-width:0}
+.navclear{min-height:36px;padding:6px 12px;flex:none}
 .navgroup{margin-top:20px}
 .navgroup>h3{margin:0 0 2px;font-size:15px;display:flex;align-items:center;gap:8px}
 .navgroup>h3 .cnt{font-size:11px;color:var(--muted);font-weight:400}
@@ -634,6 +635,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     </div>
     <div class="navtools">
       <input type="search" id="navSearch" placeholder="搜站点名 / 描述 / 网址…" autocomplete="off">
+      <button type="button" class="btn navclear" id="navClear" hidden>清空</button>
       <span class="note" id="navCount"></span>
     </div>
     <div id="navBody"><p class="note">加载中…</p></div>
@@ -1139,6 +1141,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       var box=document.getElementById('navBody'); if(!box) return;
       var inp=document.getElementById('navSearch');
       var q=(inp&&inp.value?inp.value:'').trim().toLowerCase();
+      var nc=document.getElementById('navClear'); if(nc) nc.hidden=!q;
+      if(nc && !nc.dataset.bound){ nc.dataset.bound='1'; nc.addEventListener('click', function(){ var i2=document.getElementById('navSearch'); if(i2){ i2.value=''; renderNav(); i2.focus(); } }); var i3=document.getElementById('navSearch'); if(i3){ i3.addEventListener('input', function(){ nc.hidden=!i3.value; }); } }
       var groups=(navData&&navData.groups)||[];
       var total=0, shown=0, html='';
       groups.forEach(function(g){

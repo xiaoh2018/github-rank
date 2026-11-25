@@ -65,10 +65,10 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .chip{appearance:none;border:1px solid var(--border);background:var(--card);color:var(--muted);font:600 12.5px/1 inherit;padding:7px 12px;border-radius:999px;cursor:pointer}
 .chip.is-on{background:var(--accent);border-color:var(--accent);color:#fff}
 .chip b{font-weight:600;opacity:.75;margin-left:4px;font-size:11px}
-.cards{display:flex;flex-direction:column;gap:12px}
+.cards{display:flex;flex-direction:column;gap:14px}
 .acard{display:block;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);transition:transform .12s,border-color .12s,box-shadow .12s;cursor:pointer;text-decoration:none;color:inherit}
 .acard:hover{transform:translateY(-1px);border-color:var(--accent);text-decoration:none}
-.acard h3{margin:0 0 6px;font-size:17px;letter-spacing:-.2px}
+.acard h3{margin:0 0 6px;font-size:17px;letter-spacing:-.2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .acard p{margin:0;color:var(--muted);font-size:13px;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ameta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:12px;color:var(--muted)}
 .tag{background:var(--chip);color:var(--accent);border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600}
@@ -101,7 +101,7 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .abody pre{position:relative}
 .abody pre .cp{position:absolute;top:8px;right:8px;font:500 11px/1 var(--font,system-ui);padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;opacity:.85}
 .abody pre .cp:hover{opacity:1;color:var(--accent)}
-.abody{font-size:15px;line-height:1.85;color:var(--text);overflow-wrap:anywhere}
+.abody{font-size:15.5px;line-height:1.9;color:var(--text);overflow-wrap:anywhere;max-width:72ch;margin:0 auto}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 .abody h1,.abody h2,.abody h3,.abody h4,.abody h5,.abody h6{line-height:1.4;margin:1.6em 0 .6em;letter-spacing:-.2px}
 .abody h1{font-size:23px}.abody h2{font-size:21px}.abody h3{font-size:18px}.abody h4{font-size:16px}.abody h5,.abody h6{font-size:15px}
