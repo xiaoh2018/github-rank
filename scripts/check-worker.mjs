@@ -827,6 +827,14 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
     ok(artToc.indexOf('scroll-margin-top:18px') >= 0, '文章页标题滚动留白', '');
     ok(admMobile.indexOf('.side .nav:focus-visible') >= 0, '后台键盘焦点环', '');
     ok(admMobile.indexOf('skip-link') >= 0, '后台跳到内容链接', '');
+    ok(admMobile.indexOf('thead th{position:sticky') >= 0, '后台长表格表头吸附', '');
+    ok(homeHtml.indexOf('bindDialogA11y') >= 0, '首页弹窗焦点陷阱', '');
+    ok(artHtml.indexOf('searchTimer') >= 0 && artHtml.indexOf('clearTimeout') >= 0, '文章搜索防抖', '');
+    const nf = await hit('/nope-xyz');
+    const nfText = await nf.text();
+    ok(nf.status === 404 && (nf.headers.get('content-type') || '').indexOf('text/html') >= 0, '404 返回 HTML 页', '');
+    ok(nfText.indexOf('这个页面不存在') >= 0 && nfText.indexOf('href="/nav"') >= 0, '404 页带导航入口', '');
+    ok((nf.headers.get('cache-control') || '').indexOf('no-store') >= 0, '404 不缓存', '');
     ok(homeHtml.indexOf('@keyframes cardIn') >= 0, '首页卡片入场动画', '');
   }
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');

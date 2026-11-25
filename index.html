@@ -1045,6 +1045,24 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var aboutDlg=document.getElementById('aboutDialog');
     var btnAbout=document.getElementById('btnAbout');
     var aboutClose=document.getElementById('aboutClose');
+    function bindDialogA11y(dlg){
+      if(!dlg) return;
+      var sel='button,[href],input,textarea,select,[tabindex]:not([tabindex="-1"])';
+      var lastFocus=null;
+      dlg.addEventListener('close',function(){ if(lastFocus&&lastFocus.focus) lastFocus.focus(); });
+      dlg.addEventListener('keydown',function(e){
+        if(e.key!=='Tab') return;
+        var f=Array.prototype.filter.call(dlg.querySelectorAll(sel),function(el){ return !el.disabled && el.offsetParent!==null; });
+        if(!f.length) return;
+        var first=f[0], last=f[f.length-1];
+        if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+        else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+      });
+      var nativeOpen=dlg.showModal.bind(dlg);
+      dlg.showModal=function(){ lastFocus=document.activeElement; nativeOpen(); var f=dlg.querySelector(sel); if(f) setTimeout(function(){ f.focus(); },30); };
+    }
+    bindDialogA11y(document.getElementById('adModal'));
+    bindDialogA11y(document.getElementById('aboutDialog'));
     if(btnAbout&&aboutDlg) btnAbout.addEventListener('click',function(){ aboutDlg.showModal(); });
     if(aboutClose&&aboutDlg) aboutClose.addEventListener('click',function(){ aboutDlg.close(); });
     // 点背景关闭：点击目标是 dialog 本身，且坐标落在弹窗矩形之外（内边距区域的点击不关闭）

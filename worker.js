@@ -200,7 +200,7 @@ export default {
         const r = await triggerRefresh(env);
         return json(r, r.ok ? 200 : (r.status || 500));
       }
-      return new Response('Not found', { status: 404 });
+      return notFoundPage(url.origin);
     } catch (e) {
       return json({ ok: false, error: String((e && e.message) || e) }, 500);
     }
@@ -1410,7 +1410,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v69';
+const ASSET_V = 'v70';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1610,6 +1610,28 @@ const AI_BOTS = [
   'PerplexityBot', 'Google-Extended', 'Applebot-Extended', 'Bytespider', 'Baiduspider',
   'Sogou web spider', 'YisouSpider', 'PetalBot', 'Qwen-Bot', 'DeepSeek-Bot', 'Amazonbot', 'CCBot'
 ];
+
+function notFoundPage(origin) {
+  const html = '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<title>页面不存在 · 排行榜</title><meta name="robots" content="noindex">'
+    + '<style>'
+    + 'body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f6f7f9;color:#111;font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}'
+    + '.box{max-width:520px;padding:34px 30px;background:#fff;border:1px solid #e6e8ec;border-radius:18px;box-shadow:0 12px 34px rgba(16,24,40,.06);text-align:center}'
+    + '.code{font-size:46px;font-weight:800;letter-spacing:.02em;background:linear-gradient(90deg,#2563eb,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}'
+    + 'h1{font-size:18px;margin:6px 0 4px}p{color:#5b6472;margin:0 0 18px}'
+    + '.links{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}'
+    + '.links a{padding:9px 14px;border-radius:10px;border:1px solid #e6e8ec;color:#1f2937;text-decoration:none;font-weight:600;font-size:13.5px}'
+    + '.links a:hover{border-color:#2563eb;color:#2563eb}'
+    + '.links a.pri{background:#2563eb;border-color:#2563eb;color:#fff}'
+    + '</style></head><body><div class="box">'
+    + '<div class="code">404</div>'
+    + '<h1>这个页面不存在</h1>'
+    + '<p>链接可能过期了，或者地址打错了一个字符。</p>'
+    + '<div class="links"><a class="pri" href="/">回排行榜</a><a href="/nav">导航</a><a href="/articles">文章</a><a href="/faq">问答</a></div>'
+    + '</div></body></html>';
+  return new Response(html, { status: 404, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } });
+}
 
 function robotsTxt(origin) {
   let t = 'User-agent: *\nAllow: /\n\n';
@@ -3287,6 +3309,7 @@ tr:hover td{background:#fcfbf8}
   .faq-row{grid-template-columns:1fr}
 }
   :focus-visible{outline:2px solid #2563eb;outline-offset:2px;border-radius:6px}
+  .main table thead th{position:sticky;top:0;z-index:2;background:#f8fafc}
   .side .nav:focus-visible{outline-offset:-2px;box-shadow:0 0 0 3px rgba(37,99,235,.25)}
   .navgroup:first-child .nav{margin-top:0}
   .skip-link{position:absolute;left:-9999px;top:8px;z-index:99;background:#fff;border:1px solid #2563eb;border-radius:8px;padding:8px 12px;font-size:13px}

@@ -99,6 +99,7 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .toc a{color:var(--text);text-decoration:none}
 .toc a:hover{color:var(--accent);text-decoration:underline}
 .toc a.is-cur{color:var(--accent);font-weight:600}
+.empty .btn{margin-top:10px}
 .toc a.is-cur::before{content:"▸ ";font-size:12px}
 .abody h3,.abody h4,.abody h5,.abody h6{scroll-margin-top:18px}
 html{scroll-behavior:smooth}
@@ -727,7 +728,15 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     renderChips();
     renderCards();
   });
-  $('search').addEventListener('input', function () { state.q = this.value; renderCards(); });
+  var searchTimer = null;
+  $('search').addEventListener('input', function () {
+    var v = this.value;
+    if (searchTimer) clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () { state.q = v; renderCards(); }, 150);
+  });
+  $('search').addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { this.value = ''; state.q = ''; renderCards(); }
+  });
   $('sort').addEventListener('change', function () { state.sort = this.value; renderCards(); });
   window.addEventListener('popstate', function () { route(); });
   window.addEventListener('hashchange', function () { route(); });
