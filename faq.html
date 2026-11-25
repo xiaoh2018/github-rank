@@ -42,6 +42,9 @@ h1{font-size:26px;margin:6px 0 8px;letter-spacing:-.3px}
 .chip.is-on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
 .qalist{display:grid;gap:12px}
 .qa{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:0;overflow:hidden}
+.qa[open]{border-color:var(--accent);box-shadow:0 10px 26px rgba(0,0,0,.07)}
+.qa summary .qlink{margin-left:auto;flex:none;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:8px;padding:2px 7px;font:600 11.5px/1.6 inherit;cursor:pointer;opacity:.75}
+.qa summary .qlink:hover{opacity:1;color:var(--accent);border-color:var(--accent)}
 .qa summary{list-style:none;cursor:pointer;padding:16px 18px;font-weight:700;font-size:15px;display:flex;gap:10px;align-items:flex-start}
 .qa summary::-webkit-details-marker{display:none}
 .qa summary:before{content:"Q";flex:none;width:22px;height:22px;border-radius:7px;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:12px;display:grid;place-items:center;margin-top:2px}
@@ -187,8 +190,10 @@ html[data-theme="notion"]{
       box.innerHTML = '<div class="empty">没有匹配的问题，换个关键词试试。</div>';
     } else {
       box.innerHTML = list.map(function (it, i) {
-        return '<details class="qa"' + (i === 0 && kw ? ' open' : '') + '>' +
-          '<summary>' + esc(it.q) + (it.tag ? '<span class="qtag">' + esc(it.tag) + '</span>' : '') + '</summary>' +
+        var no = QA.items.indexOf(it) + 1;
+        return '<details class="qa" id="q-' + no + '"' + (i === 0 && kw ? ' open' : '') + '>' +
+          '<summary>' + esc(it.q) + (it.tag ? '<span class="qtag">' + esc(it.tag) + '</span>' : '') +
+          '<button type="button" class="qlink" data-qcopy="' + no + '" title="复制这一条的直达链接"># ' + no + '</button></summary>' +
           '<div class="ans">' + md(it.a) + '</div></details>';
       }).join('');
     }
@@ -204,6 +209,22 @@ html[data-theme="notion"]{
     box.innerHTML = ['all'].concat(tags).map(function (t) {
       return '<button type="button" class="chip' + (t === tag ? ' is-on' : '') + '" data-tag="' + esc(t) + '">' + (t === 'all' ? '全部' : esc(t)) + '</button>';
     }).join('');
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-qcopy]');
+    if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    var url = location.origin + '/faq#q-' + b.getAttribute('data-qcopy');
+    var done = function () { b.textContent = '✓ 已复制'; setTimeout(function () { b.textContent = '# ' + b.getAttribute('data-qcopy'); }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, done); else done();
+  });
+
+  function openFromHash() {
+    var m = /^#q-(\d+)$/.exec(location.hash || '');
+    if (!m) return;
+    var d = document.getElementById('q-' + m[1]);
+    if (d) { d.open = true; d.scrollIntoView({ block: 'center' }); }
   }
 
   document.getElementById('tags').addEventListener('click', function (e) {

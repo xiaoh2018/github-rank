@@ -1410,7 +1410,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v64';
+const ASSET_V = 'v65';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -1656,6 +1656,7 @@ async function llmsTxt(env, origin) {
   const root = site.siteUrl ? String(site.siteUrl).replace(/\/+$/, '') : origin;
   const arts = await rawJson(env, 'data/articles.json');
   const nav = await rawJson(env, 'data/nav.json');
+  const qa = await rawJson(env, 'data/qa.json');
   const lines = [];
   const name = site.siteName || 'GitHub 热门项目排行榜';
   lines.push('# ' + name);
@@ -1695,6 +1696,15 @@ async function llmsTxt(env, origin) {
   lines.push('- 引用榜单时请注明「数据来自 GitHub API，由 ' + name + ' 整理」，并链接到 ' + root + '/');
   lines.push('- 页面自带 300–900 秒缓存，请勿高频轮询；需要最新数据请拉上面的 JS/JSON 文件并带 ?v=<生成时间> 参数');
   lines.push('');
+  const qaItems = (qa && qa.items) || [];
+  if (qaItems.length) {
+    lines.push('## 常见问答');
+    lines.push('');
+    qaItems.slice(0, 12).forEach((it, i) => {
+      if (it && it.q) lines.push('- ' + String(it.q) + ' — ' + root + '/faq#q-' + (i + 1));
+    });
+    lines.push('');
+  }
   lines.push('## 页面');
   lines.push('');
   lines.push('- 榜单首页：' + root + '/ （项目榜，可切语言、时间范围、排序方式；另有开发者榜、组织榜）');
@@ -3621,7 +3631,8 @@ tr:hover td{background:#fcfbf8}
           <div class="hint">600 字以内，显示在问答页顶部。</div>
         </div>
         <div class="card">
-          <div class="card-head"><div><h2>问答列表</h2><p class="desc">问题 ≤200 字、答案 ≤4000 字；标签用来分类（如「数据」「使用」「收录」）。</p></div></div>
+          <div class="card-head"><div><h2>问答列表</h2><p class="desc">问题 ≤200 字、答案 ≤4000 字；标签用来分类（如「数据」「使用」「收录」）。用 ↑↓ 调顺序，前台和 llms.txt 都按这个顺序。</p></div></div>
+          <div class="toolbar" style="margin:0 0 10px"><input type="search" id="qaFilter" placeholder="筛问题 / 标签 / 答案里的关键词" autocomplete="off"><span class="note" id="qaMsg"></span></div>
           <div id="qaList"></div>
         </div>
         <div class="card"><div class="actions"><button type="button" data-save="qa">保存问答</button><span class="hint" id="qaMsg"></span></div></div>
@@ -4908,7 +4919,27 @@ tr:hover td{background:#fcfbf8}
       '<textarea class="qa-a" maxlength="4000" placeholder="答案（支持 Markdown）">' + qesc(it.a) + '</textarea>' +
       '</div>';
   }
+  function bindQaActions() {
+    var box = $('qaList');
+    if (!box || box.dataset.bound === '1') return;
+    box.dataset.bound = '1';
+    box.addEventListener('click', function (e) {
+      var up = e.target.closest('[data-qaup]'), dn = e.target.closest('[data-qadn]');
+      if (up) {
+        readQaForm();
+        var i = +up.getAttribute('data-qaup');
+        if (i > 0) { var t = qaState.items[i - 1]; qaState.items[i - 1] = qaState.items[i]; qaState.items[i] = t; renderQa(); }
+      } else if (dn) {
+        readQaForm();
+        var j = +dn.getAttribute('data-qadn');
+        if (j < qaState.items.length - 1) { var u = qaState.items[j + 1]; qaState.items[j + 1] = qaState.items[j]; qaState.items[j] = u; renderQa(); }
+      }
+    });
+    var f = $('qaFilter');
+    if (f && f.dataset.bound !== '1') { f.dataset.bound = '1'; f.addEventListener('input', renderQa); }
+  }
   function renderQa() {
+    bindQaActions();
     var box = $('qaList');
     if (!box) return;
     if (!qaState.items.length) {

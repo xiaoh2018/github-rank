@@ -470,6 +470,15 @@ ok(adminPage.includes('urlList'), '收录提交面板能展开本次推送地址
 ok(adminPage.includes('healthBox') && adminPage.includes('loadHealth'), '概览页有站点体检卡');
 ok(adminPage.includes('data-copy="https://github.661026.xyz/sitemap.xml"'), '体检卡能一键复制 sitemap 地址');
 ok(adminPage.includes('id="healthBar"'), '体检异常时概览页顶部有红条提示');
+{
+  const qaFaq = await (await hit('/faq')).text();
+  ok(qaFaq.includes('data-qcopy'), '问答页每条能复制直达链接');
+  ok(adminPage.includes('id="qaFilter"'), '后台问答列表有筛选框');
+  const qaRaw = JSON.parse(fs.readFileSync('data/qa.json', 'utf8'));
+  const qaLlms = await (await hit('/llms.txt')).text();
+  if ((qaRaw.items || []).length) ok(qaLlms.includes('## 常见问答'), 'llms.txt 带常见问答段落');
+  else ok(true, 'llms.txt 问答段（本地 qa.json 为空，跳过）');
+}
 ok(adminPage.includes('setInterval(tick, 1000)'), '倒计时每秒刷新');
 ok(adminPage.includes('id="pane-submit"'), '后台有 pane-submit 面板');
 const inlineScripts = [...adminPage.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]).filter((s) => s.trim());
