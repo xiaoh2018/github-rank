@@ -505,11 +505,11 @@ function renderItem(r, rank, maxStars, trend) {
   }
 
   const act = activityScore(r);
-  const actEl = el('span', 'act', '活跃 ' + act);
+  const actEl = el('span', 'act', '活跃度 ' + act);
   actEl.title = '按最近提交、星标、Fork、Issue 综合计算（0-100）';
   meta.append(actEl);
   meta.append(el('span', null, 'Fork ' + fmt(r.forks)));
-  meta.append(el('span', null, '更新于 ' + timeAgo(r.updated)));
+  meta.append(el('span', null, timeAgo(r.updated) + '更新'));
 
   const copy = el('button', 'mini', '复制');
   copy.title = '复制项目名、描述和链接';
@@ -529,7 +529,18 @@ function renderItem(r, rank, maxStars, trend) {
 
   if (r.topics.length) {
     const tags = el('div', 'tags');
-    r.topics.forEach(tp => tags.append(el('span', 'tag', tp)));
+    const shown = r.topics.slice(0, 3);
+    shown.forEach(tp => {
+      const one = el('span', 'tag', tp);
+      one.title = tp;
+      tags.append(one);
+    });
+    if (r.topics.length > shown.length) {
+      const rest = r.topics.slice(shown.length);
+      const more = el('span', 'tag more', '+' + rest.length);
+      more.title = rest.join('、');
+      tags.append(more);
+    }
     body.append(tags);
   }
   const bar = el('div', 'starbar');

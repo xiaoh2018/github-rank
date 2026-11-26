@@ -159,6 +159,7 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 .meta .stars{color:var(--accent);font-weight:500}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .tag{background:var(--chip);border-radius:999px;padding:1px 10px;font-size:12px;color:var(--muted)}
+.tag.more{background:transparent;border:1px dashed var(--border);cursor:help}
 .lang-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:1px}
 .starbar{height:3px;border-radius:2px;background:var(--bar-track);margin-top:10px;overflow:hidden}
 .starbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#ffd977);border-radius:2px}
@@ -284,6 +285,13 @@ html[data-theme="ink"] .navcard .hitmark,html[data-theme="ink"] .navjump .hitmar
 .dist-track i{display:block;height:100%;border-radius:4px}
 .dist-n{font-family:Consolas,ui-monospace,monospace;color:var(--muted);text-align:right}
 .mini{background:var(--chip);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:0 8px;font:inherit;font-size:12px;cursor:pointer}
+@media (hover:hover) and (pointer:fine){
+  #list .item .mini{opacity:0;transition:opacity .15s ease}
+  #list .item:hover .mini,#list .item:focus-within .mini{opacity:1}
+}
+@media (hover:none){
+  #list .item .mini{display:none}
+}
 .mini:hover{color:var(--accent);border-color:var(--gold)}
 /* 回到顶部 */
 #top{position:fixed;right:18px;bottom:18px;width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);font-size:18px;cursor:pointer;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s}
@@ -292,11 +300,9 @@ html[data-theme="ink"] .navcard .hitmark,html[data-theme="ink"] .navjump .hitmar
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 @media (min-width:1440px){
   .wrap{max-width:1360px}
-  #list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:stretch}
-  .item{height:100%}
-  /* 卡片等高时，内容少的卡片把星标条压到底部，避免中间出现一段空白 */
+  /* 卡片各自取自然高度：强行等高会让没标签的卡片中间空一大块 */
+  #list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:start}
   #list .item>div:nth-child(2){display:flex;flex-direction:column;min-width:0}
-  #list .item .starbar{margin-top:auto}
   }
   /* 榜单布局模式（site.json 的 layout.mode，写在 body[data-layout] 上）：auto 沿用上面的规则 */
   body[data-layout="single"] #list{display:flex;flex-direction:column;gap:var(--gap)}

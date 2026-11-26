@@ -266,6 +266,10 @@ push('问答视图也收起榜单工具栏', home.includes('body[data-page="faq"
 push('bundle 同步地址时保留 page=faq', bundleJs.includes("pageMark === 'faq'"), '');
 push('文案不再宣传加密文章', !home.includes('加密文章需要密码') && !artText.includes('加密文章需要输入密码') && !faqText.includes('加密文章怎么解锁'), '');
 push('/faq 顶栏指向站内视图', faqText.includes('href="/?page=faq"') && faqText.includes('href="/?page=articles"'), '');
+push('榜单卡标签折叠有 +N 样式', home.includes('.tag.more{background:transparent'), '');
+push('榜单卡复制/卡片按钮 hover 才出现', home.includes('#list .item .mini{opacity:0') && home.includes('@media (hover:none)'), '');
+push('榜单卡文案：活跃度 + 短更新时间', bundleJs.includes("'活跃度 '") && bundleJs.includes("'更新'") , '');
+push('榜单卡取自然高度（不再强行等高留白）', home.includes('gap:var(--gap);align-items:start}') , '');
 
 let bad = 0;
 for (const r of rows) {
