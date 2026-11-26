@@ -1,6 +1,0 @@
-feat(a11y): 对话框焦点圈、关闭还焦点、aria-modal（v212）
-
-- index.html：bindDialogA11y 重写（SEL/items/showModal 包裹/Tab 前后循环/close 还原焦点），artDlg 补绑，Esc 走与「×」相同的关闭路径并回落焦点到「文章」标签
-- articles.html：追加 trap(dlg)，绑 #pwDlg / #adModal（aria-modal + 初始焦点 + Tab 不出框）
-- 新门禁 scripts/check-dialog-a11y.mjs（13 项，三个对话框各自新开页面隔离测试）
-- check-live +3 断言；docs §177；ASSET_V v212
