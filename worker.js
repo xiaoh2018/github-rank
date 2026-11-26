@@ -693,7 +693,7 @@ async function injectVerifyMeta(env, html) {
 ));
 }
 
-async function serveSite(env, entry) {
+async function serveSite(env, entry, pathname) {
   if (!repoOf(env).owner || !repoOf(env).name) {
     return text('还没配置 REPO_OWNER / REPO_NAME 变量，请按部署说明添加', 503);
   }
@@ -713,7 +713,11 @@ async function serveSite(env, entry) {
       });
     }
     if (entry[0] === 'index.html') {
-      let html = applySeo(await r.text(), (await loadSiteRaw(env)).seo);
+      const siteCfg = await loadSiteRaw(env);
+      let html = applySeo(await r.text(), siteCfg.seo);
+      // /nav 复用的是 index.html，但它是独立地址：标题/描述/canonical 必须指向自己，
+      // 否则搜索引擎把它当首页的重复内容（sitemap 里还挂着 /nav，等于自相矛盾）。
+      if (pathname === '/nav') html = applyNavSeo(html, siteCfg.seo);
       try {
         html = await injectVerifyMeta(env, html);
       } catch (e) {}
@@ -823,7 +827,7 @@ async function serveSiteEdge(env, pathname, entry, request) {
     return new Response(await hit.arrayBuffer(), { status: hit.status, headers: headers });
   }
 
-  const res = await serveSite(env, entry);
+  const res = await serveSite(env, entry, pathname);
   const status = res.status;
   const buf = status === 200 ? await res.arrayBuffer() : null;
   const headers = new Headers();
@@ -965,6 +969,27 @@ function plainTextOf(md, max) {
     .trim();
   if (!t) return '';
   return t.length > max ? t.slice(0, max) + '…' : t;
+}
+
+// /nav：同一份 index.html 的另一个地址，换成自己的标题/描述/canonical
+function applyNavSeo(html, seo) {
+  const base = seo && seo.siteUrl ? String(seo.siteUrl).replace(/\/+$/, '') : '';
+  const full = base + '/nav';
+  const siteName = (seo && (seo.siteName || seo.title)) || '';
+  const title = '站点导航' + (siteName ? ' · ' + siteName : '');
+  const desc = '按分类整理的常用站点：开发工具、AI 与大模型、设计素材、学习资料、效率工具，每条都带一句说明。';
+  let out = html;
+  const put = (re, tag) => {
+    if (re.test(out)) out = out.replace(re, () => tag);
+    else out = out.replace(/<\/head>/i, () => tag + '\n</head>');
+  };
+  put(/<title>[\s\S]*?<\/title>/i, '<title>' + escAttr(title) + '</title>');
+  put(/<meta\s+name=["']description["'][^>]*>/i, '<meta name="description" content="' + escAttr(desc) + '">');
+  put(/<meta\s+property=["']og:title["'][^>]*>/i, '<meta property="og:title" content="' + escAttr(title) + '">');
+  put(/<meta\s+property=["']og:description["'][^>]*>/i, '<meta property="og:description" content="' + escAttr(desc) + '">');
+  put(/<meta\s+property=["']og:url["'][^>]*>/i, '<meta property="og:url" content="' + escAttr(full) + '">');
+  put(/<link\s+rel=["']canonical["'][^>]*>/i, '<link rel="canonical" href="' + escAttr(full) + '">');
+  return out;
 }
 
 function applyArticleSeo(html, seo, art, origin, path) {
@@ -1630,7 +1655,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v191';
+const ASSET_V = 'v192';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };

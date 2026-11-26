@@ -6,6 +6,16 @@
 <title>文章 · GitHub 热门项目排行榜</title>
 <meta name="description" content="站长写的文章，按时间倒序。GitHub 热门项目排行榜的博客栏目。">
 <link rel="canonical" href="https://github.661026.xyz/articles">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GitHub 热门项目排行榜">
+<meta property="og:title" content="文章 · GitHub 热门项目排行榜">
+<meta property="og:description" content="站长写的文章，按时间倒序。GitHub 热门项目排行榜的博客栏目。">
+<meta property="og:url" content="https://github.661026.xyz/articles">
+<meta property="og:image" content="https://github.661026.xyz/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="文章 · GitHub 热门项目排行榜">
+<meta name="twitter:description" content="站长写的文章，按时间倒序。GitHub 热门项目排行榜的博客栏目。">
+<meta name="twitter:image" content="https://github.661026.xyz/og-image.png">
 <link rel="alternate" type="application/rss+xml" title="文章 RSS" href="https://github.661026.xyz/rss.xml">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.json">
@@ -30,8 +40,8 @@ a:hover{text-decoration:underline}
 /* 页头：与首页一致（品牌 + 胶囊导航 + 右侧操作） */
 header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:14px;padding:10px 0 18px;border-bottom:1px solid var(--border)}
 .brand .title-row{display:flex;align-items:center;gap:8px}
-.brand h1{font-size:17px;margin:0;letter-spacing:.2px}
-.brand h1 a{color:var(--text)}
+.brand h1,.brand .brandt{font-size:17px;margin:0;letter-spacing:.2px;font-weight:700}
+.brand h1 a,.brand .brandt a{color:var(--text)}
 .brand .sub{margin:2px 0 0;color:var(--muted);font-size:12px}
 .star-dot{color:var(--gold);flex:none}
 .mainnav{display:flex;gap:6px;justify-self:center;background:var(--chip);padding:4px;border-radius:999px}
@@ -45,7 +55,7 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .btn.small{min-height:30px;padding:6px 10px;font-size:12.5px}
 /* hero */
 .bhero{padding:26px 0 18px}
-.bhero h2{font-size:26px;margin:0 0 6px;letter-spacing:-.4px}
+.bhero h1{font-size:26px;margin:0 0 6px;letter-spacing:-.4px}
 .bhero p{margin:0;color:var(--muted);font-size:13.5px;max-width:62ch}
 .bstats{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
 .bstat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;min-width:104px;box-shadow:var(--shadow)}
@@ -175,8 +185,8 @@ html[data-artcols="auto"] .cards{display:grid;grid-template-columns:repeat(auto-
   @media (max-width:600px){.rtools{justify-content:flex-start}}
   .rback{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-bottom:14px;cursor:pointer;background:none;border:0;padding:0;font-family:inherit}
 .rback:hover{color:var(--accent)}
-.reader h1{font-size:27px;line-height:1.35;margin:0 0 10px;letter-spacing:-.5px}
-@media (max-width:600px){.reader h1{font-size:23px;line-height:1.45;letter-spacing:-.2px}.rmeta{gap:8px;font-size:12px;padding-bottom:12px;margin-bottom:16px}}
+.reader h1,.reader h2{font-size:27px;line-height:1.35;margin:0 0 10px;letter-spacing:-.5px}
+@media (max-width:600px){.reader h1,.reader h2{font-size:23px;line-height:1.45;letter-spacing:-.2px}.rmeta{gap:8px;font-size:12px;padding-bottom:12px;margin-bottom:16px}}
 .rmeta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted);padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:20px}
 .toc{margin:4px 0 18px;padding:12px 16px;border:1px solid var(--border);border-radius:12px;background:var(--chip)}
 .hitline{margin:8px 0 10px}
@@ -276,7 +286,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
 @media (max-width:640px){
   header{grid-template-columns:1fr;gap:10px}
   .mainnav,.head-actions{justify-self:start}
-  .bhero h2{font-size:22px}
+  .bhero h1{font-size:22px}
 }
 
 /* ---- 多主题：ink(Linear 冷暗) / stripe(亮白) / notion(柔灰) ---- */
@@ -323,7 +333,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     <div class="brand">
       <div class="title-row">
         <svg class="star-dot" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2l-6.1 3.4 1.4-6.8L2.2 9.1l6.9-.8z"/></svg>
-        <h1><a href="/">GitHub 热门项目排行榜</a></h1>
+        <p class="brandt"><a href="/">GitHub 热门项目排行榜</a></p>
       </div>
     </div>
     <nav class="mainnav" aria-label="主导航">
@@ -339,7 +349,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   </header>
 
   <div class="bhero" id="hero">
-    <h2>文章</h2>
+    <h1>文章</h1>
     <p>站长写的一些记录，按时间倒序，最新的在最前面。</p>
 
   </div>
@@ -364,7 +374,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
 
   <article class="reader" id="reader" hidden>
     <button class="rback" id="rback" type="button">← 返回文章列表</button>
-    <h1 id="rTitle"></h1>
+    <h2 id="rTitle"></h2>
     <div class="rmeta" id="rMeta"></div>
     <div class="rtools" id="rTools" hidden>
       <span class="rfont">字号
