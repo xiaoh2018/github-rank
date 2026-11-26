@@ -50,6 +50,7 @@ const M = `(function(){
     theadDisplay: thead ? getComputedStyle(thead).display : 'missing',
     rowH: Math.round(tr.getBoundingClientRect().height),
     titleSize: tds[2] ? getComputedStyle(tds[2]).fontSize : 'missing',
+  catH: (function(){var x=tr.querySelector('[data-artcat]');return x?Math.round(x.getBoundingClientRect().height):0;})() ,
     clamp: tds[3] ? getComputedStyle(tds[3]).webkitLineClamp : 'missing',
     summaryW: tds[3] ? Math.round(tds[3].getBoundingClientRect().width) : 0,
     cardW: Math.round(card.getBoundingClientRect().width),
@@ -69,7 +70,8 @@ const M = `(function(){
   const m = await e(M);
   ok('[390] 每行变成卡片（display:grid）', m.trDisplay === 'grid', m.trDisplay);
   ok('[390] 表头隐藏', m.theadDisplay === 'none', m.theadDisplay);
-  ok('[390] 行高不再被摘要撑到 600+', m.rowH > 90 && m.rowH <= 230, 'rowH=' + m.rowH);
+  ok('[390] 行高不再被摘要撑到 600+（行内分类下拉占一行）', m.rowH > 90 && m.rowH <= 260, 'rowH=' + m.rowH);
+  ok('[390] 行内分类下拉是触摸尺寸（34–46）', m.catH >= 34 && m.catH <= 46, 'catH=' + m.catH);
   ok('[390] 摘要占满整行且最多两行', m.clamp === '2' && m.summaryW >= m.cardW - 80, JSON.stringify({ clamp: m.clamp, summaryW: m.summaryW, cardW: m.cardW }));
   ok('[390] 标题字号加大到 15px', m.titleSize === '15px', m.titleSize);
   ok('[390] 卡片不再横向滚动', m.cardScroll <= m.cardW + 1, JSON.stringify({ cardScroll: m.cardScroll, cardW: m.cardW }));

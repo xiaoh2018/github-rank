@@ -1688,7 +1688,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v218';
+const ASSET_V = 'v219';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3239,8 +3239,9 @@ async function handleArticles(request, env) {
     if (ids.length > 200) return json({ ok: false, error: '一次最多批量处理 200 篇' }, 400);
     const set = new Set(ids);
     const op = body.op === 'category' ? 'category' : 'remove';
-    const cat = typeof body.category === 'string' ? body.category.trim().slice(0, 24) : '';
-    if (op === 'category' && !cat) return json({ ok: false, error: '改分类要填分类名' }, 400);
+    const hasCat = typeof body.category === 'string';
+    const cat = hasCat ? body.category.trim().slice(0, 24) : '';
+    if (op === 'category' && !hasCat) return json({ ok: false, error: '改分类要带 category 字段（要清空就传空字符串）' }, 400);
     let removed = 0;
     let changed = 0;
     const next = [];
@@ -3250,6 +3251,7 @@ async function handleArticles(request, env) {
         if (op === 'remove') { removed += 1; continue; }
         a.category = cat;
         changed += 1;
+        if (!cat) { next.push(a); continue; }
         // 链接里的分类词跟着分类走：tech/3 → note/3（序号能留就留），旧地址记账后 301
         const ck = catKeyFrom(siteForBulk, cat);
         const segs = String(a.slug || '').split('/');
@@ -3264,7 +3266,7 @@ async function handleArticles(request, env) {
       }
       next.push(a);
     }
-    const msg = 'chore: 批量' + (op === 'remove' ? '删除 ' + removed + ' 篇' : '把 ' + changed + ' 篇改成分类「' + cat + '」');
+    const msg = 'chore: 批量' + (op === 'remove' ? '删除 ' + removed + ' 篇' : (cat ? '把 ' + changed + ' 篇改成分类「' + cat + '」' : '把 ' + changed + ' 篇清空分类'));
     const w = await writeArticles(env, next, cur.sha, msg);
     if (!w.ok) return json({ ok: false, error: w.error }, 500);
     await purgeEdge(['/articles', '/articles.html', '/data/articles.json', '/sitemap.xml']);
@@ -3719,7 +3721,7 @@ dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
     #artTbody td{display:block;border:0;padding:0;min-width:0;white-space:normal}
     #artTbody td:nth-child(1){grid-column:1;grid-row:1;align-self:center}
     #artTbody td:nth-child(2){grid-column:2;grid-row:1;font-size:11.5px;color:var(--muted);letter-spacing:.02em}
-    #artTbody td:nth-child(3){grid-column:1 / -1;grid-row:2;font-size:15px;font-weight:600;line-height:1.5}
+    #pane-articles #artTbody td:nth-child(3){grid-column:1 / -1;grid-row:2;font-size:15px;font-weight:600;line-height:1.5}
     #artTbody td:nth-child(4){grid-column:1 / -1;grid-row:3;font-size:12.5px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     #pane-articles table{min-width:0;width:100%;table-layout:auto}
     #artTbody td:last-child{white-space:normal}
@@ -3795,6 +3797,8 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
 .slugprev.warn{color:#b4232b}
 .slugline{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px;font-size:11.5px;color:#8a8172;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
 .cthumb{display:inline-block;width:38px;height:21px;vertical-align:-4px;margin-right:7px;border-radius:4px;border:1px solid var(--line);background:var(--chip) center/cover no-repeat}
+.artcatrow{margin-top:5px}
+.artcat{max-width:150px;font-size:12.5px;padding:1px 6px;min-height:24px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--text)}
 .covprev{display:flex;align-items:center;gap:10px;margin:8px 0 10px;padding:8px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
 .covprev[hidden]{display:none}
 .covprev img{width:160px;height:90px;object-fit:cover;border-radius:8px;background:var(--chip);flex:0 0 auto}
@@ -4502,6 +4506,7 @@ tr:hover td{background:#fcfbf8}
           <select id="artCatFilter" aria-label="按分类筛选文章" style="max-width:150px"><option value="">全部分类</option></select>
           <button type="button" class="ghost" id="artUndo" disabled>撤销上一步</button>
           <span class="msg" id="artSelNote" hidden></span>
+        <span class="save-msg" id="artInlineMsg" role="status" aria-live="polite"></span>
         </div>
         <button type="button" id="artNew">写新文章</button>
       </div>
@@ -5503,6 +5508,42 @@ tr:hover td{background:#fcfbf8}
     if (id && $(id)) $(id).click();
   });
 
+  function artCatNames() {
+    var names = {};
+    (catState || []).forEach(function (c) { if (c && c.name) names[c.name] = 1; });
+    (state.articles || []).forEach(function (a) { if (a && a.category) names[a.category] = 1; });
+    return Object.keys(names).sort();
+  }
+  function artCatOptions(cur) {
+    var names = artCatNames();
+    if (cur && names.indexOf(cur) < 0) names = [cur].concat(names);
+    var html = '<option value=""' + (cur ? '' : ' selected') + '>未分类</option>';
+    return html + names.map(function (x) {
+      return '<option value="' + esc(x) + '"' + (x === cur ? ' selected' : '') + '>' + esc(x) + '</option>';
+    }).join('');
+  }
+  function artInlineSay(text, kind) {
+    var box = $('artInlineMsg');
+    if (!box) return;
+    box.className = 'save-msg' + (kind === 'err' ? ' err' : kind === 'ok' ? ' ok' : '');
+    box.textContent = text;
+  }
+  function setArtCat(id, cat) {
+    var a = state.articles.filter(function (x) { return String(x.id) === String(id); })[0];
+    if (!a) return;
+    var label = cat || '未分类';
+    artInlineSay('正在把《' + a.title + '》改成「' + label + '」…');
+    api('/api/articles', { method: 'POST', body: { action: 'bulk', password: pw, ids: [String(id)], op: 'category', category: cat } }).then(function (r) {
+      if (!r.ok) {
+        artInlineSay('改分类失败：' + (r.error || '未知原因') + '，已恢复原值', 'err');
+        renderArticles();
+        return;
+      }
+      if (r.articles) state.articles = r.articles;
+      renderArticles();
+      artInlineSay('已把《' + a.title + '》改成「' + label + '」· 链接和旧地址已同步（工具栏可撤销）', 'ok');
+    });
+  }
   function renderArticles() {
     var box = $('artSearch');
     var q = (box && box.value || '').trim().toLowerCase();
@@ -5550,7 +5591,7 @@ tr:hover td{background:#fcfbf8}
     $('artTbody').innerHTML = pageList.map(function (a) {
       return '<tr><td><input type="checkbox" aria-label="选中这篇文章" data-artpick="' + esc(a.id) + '"' + (state.artSel.has(String(a.id)) ? ' checked' : '') + '></td><td>' + esc(a.date) + '</td><td>' + (a.cover ? '<span class="cthumb" style="background-image:url(' + "'" + esc(a.cover).replace(/["'()<> ]/g, '') + "'" + ')"></span>' : '') + '<b>' + esc(a.title) + '</b>' +
         (a.locked ? '<span class="art-lock">加密</span>' : '') +
-        (a.category ? ' <span class="slot-id">' + esc(a.category) + '</span>' : '') +
+        '<div class="artcatrow"><select class="artcat" data-artcat="' + esc(a.id) + '" aria-label="《' + esc(a.title) + '》的分类">' + artCatOptions(a.category) + '</select></div>' +
         '<div class="slugline">/articles/' + esc(a.slug || a.id) + '.html' + (a.category ? ' · ' + esc(a.category) : ' · 未分类') + (a.prevCount ? ' · 旧地址 ' + a.prevCount + ' 个（已 301）' : '') + '</div>' +
         '</td><td>' + esc(a.summary) +
         '</td><td><button type="button" class="ghost small" data-artedit="' + esc(a.id) + '">编辑</button> ' +
@@ -5937,7 +5978,14 @@ tr:hover td{background:#fcfbf8}
       var all = $('artAllMatch');
       if (all) all.disabled = !(state.artFiltered || []).length;
     }
-    function artSyncBulk() {
+    if ($('artTbody')) {
+    $('artTbody').addEventListener('change', function (e) {
+      var t = e.target;
+      var id = t && t.getAttribute && t.getAttribute('data-artcat');
+      if (id != null) setArtCat(id, t.value);
+    });
+  }
+  function artSyncBulk() {
       var n = artPicked().length;
       var d = $('artBulkDel');
       var a = $('artBulkApply');
