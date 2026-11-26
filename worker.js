@@ -1677,7 +1677,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v213';
+const ASSET_V = 'v214';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2448,10 +2448,10 @@ function adCardHtml(s) {
     '<div class="card-head"><div class="ad-title"><b>' + s.name + '</b><code class="slot-id">' + s.id + '</code></div>' +
     '<label class="toggle"><input type="checkbox" data-ad-slot="' + s.id + '" data-ad-field="enabled">在这里显示</label></div>' +
     '<div class="hint">' + s.where + (everyInput ? ' · ' + everyInput : '') + '</div>' +
-    '<textarea class="code ad-code" data-ad-slot="' + s.id + '" data-ad-field="html" maxlength="20000" spellcheck="false" placeholder="粘贴广告 HTML 片段…"></textarea>' +
+    '<textarea class="code ad-code" aria-label="' + s.name + '：广告 HTML 片段" data-ad-slot="' + s.id + '" data-ad-field="html" maxlength="20000" spellcheck="false" placeholder="粘贴广告 HTML 片段…"></textarea>' +
     '<div class="ad-click"><span class="ad-click-t">点击行为</span>' +
-    '<input type="url" data-ad-slot="' + s.id + '" data-ad-field="link" placeholder="跳转链接（可选，新窗口打开）">' +
-    '<textarea class="code" rows="2" maxlength="20000" data-ad-slot="' + s.id + '" data-ad-field="modal" placeholder="或：弹窗内容 HTML（填了就点开弹窗，优先于链接）"></textarea>' +
+    '<input type="url" aria-label="' + s.name + '：点击跳转链接" data-ad-slot="' + s.id + '" data-ad-field="link" placeholder="跳转链接（可选，新窗口打开）">' +
+    '<textarea class="code" rows="2" aria-label="' + s.name + '：点击弹出的弹窗内容" maxlength="20000" data-ad-slot="' + s.id + '" data-ad-field="modal" placeholder="或：弹窗内容 HTML（填了就点开弹窗，优先于链接）"></textarea>' +
     '<div class="ad-acts"><button type="button" class="ghost small" data-adprev="' + s.id + '">预览</button>' +
     '<span class="ad-acts-t">按现在填的内容渲染一张，点开看效果</span></div>' +
     '</div></div>';
@@ -4287,7 +4287,7 @@ tr:hover td{background:#fcfbf8}
         <div class="row-actions"><button type="button" class="ghost" id="navImport">批量导入</button><button type="button" id="navAddGroup">＋ 分类</button></div></div>
       <div class="intro">分类 + 站点，前台按卡片排（每个分类一块）。填了网址可以点「自动获取」把标题、描述、图标抓回来；抓不到就手填。最多 20 个分类、400 个站点，保存后前台立刻生效。</div>
       <div class="card nav-toolbar">
-        <input type="search" id="navFilter" placeholder="筛选站点：名称 / 网址 / 描述">
+        <input type="search" id="navFilter" aria-label="筛选常用站点" placeholder="筛选站点：名称 / 网址 / 描述">
         <span class="nav-stat" id="navStat">—</span>
       </div>
       <div id="navAdmin"><p class="empty">读取中…</p></div>
@@ -4418,7 +4418,7 @@ tr:hover td{background:#fcfbf8}
       </div>
       <div class="card">
         <div class="card-head"><div><h2>GEO 摘要</h2><p class="desc">2–3 句话说清网站是什么、收录了什么、多久更新一次，AI 搜索更容易引用。</p></div></div>
-        <textarea id="geo-summary" maxlength="500" placeholder="本站每 3 小时自动抓取 GitHub 热门开源项目，按星标数、今日增量、语言分类整理成排行榜……"></textarea>
+        <textarea id="geo-summary" aria-label="站点简介（给 AI 搜索看的一段话）" maxlength="500" placeholder="本站每 3 小时自动抓取 GitHub 热门开源项目，按星标数、今日增量、语言分类整理成排行榜……"></textarea>
         <div class="hint">500 字以内。</div>
         <h2 style="margin-top:22px">常见问答</h2>
         <p class="desc">写访客最常问的问题和简短回答，最多 20 条。</p>
@@ -4441,7 +4441,7 @@ tr:hover td{background:#fcfbf8}
         </div>
         <div class="card">
           <div class="card-head"><div><h2>问答列表</h2><p class="desc">问题 ≤200 字、答案 ≤4000 字；标签用来分类（如「数据」「使用」「收录」）。用 ↑↓ 调顺序，前台和 llms.txt 都按这个顺序。</p></div></div>
-          <div class="toolbar" style="margin:0 0 10px"><input type="search" id="qaFilter" placeholder="筛问题 / 标签 / 答案里的关键词" autocomplete="off"><select id="qaTagFilter" aria-label="按标签筛问题" style="max-width:150px"><option value="">全部标签</option></select><span class="note" id="qaMsg"></span></div>
+          <div class="toolbar" style="margin:0 0 10px"><input type="search" id="qaFilter" aria-label="筛选问答（问题、答案、标签）" placeholder="筛问题 / 标签 / 答案里的关键词" autocomplete="off"><select id="qaTagFilter" aria-label="按标签筛问题" style="max-width:150px"><option value="">全部标签</option></select><span class="note" id="qaMsg"></span></div>
           <div id="qaList"></div>
           <div class="actions"><button type="button" data-save="qa">保存问答</button><span class="hint" id="qaSaveMsg"></span></div>
         </div>
@@ -4510,7 +4510,7 @@ tr:hover td{background:#fcfbf8}
       </div>
       <div class="card">
         <div class="card-head"><b>加密文章提示语</b><span class="msg">读者点开加密文章时看到的一句说明</span></div>
-        <textarea id="artUnlockHint" maxlength="300" placeholder="例如：本文是内部笔记，密码在群里发；需要全文请在页面底部联系我。"></textarea>
+        <textarea id="artUnlockHint" aria-label="解锁提示文案（加密文章的说明）" maxlength="300" placeholder="例如：本文是内部笔记，密码在群里发；需要全文请在页面底部联系我。"></textarea>
         <div class="hint">留空则使用默认文案「这篇文章需要密码才能阅读…」。单篇文章也可以在写作弹窗里单独填，优先用单篇的。</div>
       </div>
       <div class="actions">
@@ -4519,7 +4519,7 @@ tr:hover td{background:#fcfbf8}
       </div>
       <div class="card">
         <div class="toolbar">
-          <input type="text" id="artSearch" placeholder="搜索标题、摘要或正文…">
+          <input type="text" id="artSearch" aria-label="搜索文章标题与摘要" placeholder="搜索标题、摘要或正文…">
           <span class="msg" id="artSearchNote"></span>
         </div>
         <table>

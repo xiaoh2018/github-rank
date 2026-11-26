@@ -249,6 +249,9 @@ push('/faq 有返回顶部按钮', faqTotop.includes('id="totop"') && faqTotop.i
 push('/faq 页脚有 RSS', faqTotop.includes('href="/rss.xml"'), '');
 const admHtml = await (await fetch(base + '/admin?v=' + t)).text();
 push('后台也有 reduced-motion 兜底', admHtml.includes('@media (prefers-reduced-motion: reduce)'));
+push('后台控件都有可访问名（广告槽位）', admHtml.includes('：广告 HTML 片段') && admHtml.includes('：点击跳转链接'));
+push('后台筛选框有可访问名', admHtml.includes('筛选问答（问题、答案、标签）') && admHtml.includes('筛选常用站点'));
+push('后台摘要/提示框有可访问名', admHtml.includes('站点简介（给 AI 搜索看的一段话）') && admHtml.includes('解锁提示文案'));
 // —— 后台文章列表手机端变卡片（v181）
 push('文章表格手机端变卡片（tr grid）', admHtml.includes('#artTbody tr{display:grid'), '');
 push('卡片摘要最多两行', admHtml.includes('-webkit-line-clamp:2;-webkit-box-orient:vertical'), '');
