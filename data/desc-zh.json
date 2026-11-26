@@ -4510,5 +4510,7 @@
  "Etcher for Windows 10/11. Flashes ISO and disk image files to USB drives and SD cards, writing bootable installers or live systems for Linux distros and single-board computers.": "适用于 Windows 10/11 的 Etcher。将 ISO 和磁盘映像文件刷写到 U 盘和 SD 卡，为 Linux 发行版和单板计算机写入可引导安装程序或 Live 系统。",
  "Peerblock for Windows 10/11. Blocks connections to known ad, tracking and malware servers by filtering IP traffic against community blocklists, so you can browse and download with fewer unwanted peers and requests reaching your machine.": "适用于 Windows 10/11 的 Peerblock。通过对照社区屏蔽列表过滤 IP 流量，阻止与已知广告、跟踪和恶意软件服务器的连接，让您在浏览和下载时，更少有不必要的对等方和请求到达您的设备。",
  "iOS accessory-level location simulator over local loopback (iAP2 / MFi-v3 / NMEA)": "通过本地环回的 iOS 配件级位置模拟器（iAP2/MFi-v3/NMEA）",
- "Google Antigravity 桌面端增强插件：Codex 昼夜双主题、自定义本机字体、5h/7d 模型额度显示、原生设置页与一键热更新、2000+ 中文汉化、四态状态灯与实时用量监控（含分屏 / 旁路提问 / SSH 远端）、可选 Tab 下一句预测。不改安装包，按需安装。": "Google Antigravity 桌面端增强插件：Codex 昼夜双主题、自定义本机字体、5 小时/7 天模型额度显示、原生设置页与一键热更新、2000+ 中文汉化、四态状态灯与实时用量监控（含分屏/旁路提问/SSH 远端）、可选 Tab 下一句预测。不改安装包，按需安装。"
+ "Google Antigravity 桌面端增强插件：Codex 昼夜双主题、自定义本机字体、5h/7d 模型额度显示、原生设置页与一键热更新、2000+ 中文汉化、四态状态灯与实时用量监控（含分屏 / 旁路提问 / SSH 远端）、可选 Tab 下一句预测。不改安装包，按需安装。": "Google Antigravity 桌面端增强插件：Codex 昼夜双主题、自定义本机字体、5 小时/7 天模型额度显示、原生设置页与一键热更新、2000+ 中文汉化、四态状态灯与实时用量监控（含分屏/旁路提问/SSH 远端）、可选 Tab 下一句预测。不改安装包，按需安装。",
+ "Self-hosted real-time speech-to-speech translation with live captions and translated audio. Web community edition and a Go quickstart for the VUI Labs v3 API.": "自托管实时语音到语音翻译，提供实时字幕和翻译后的音频。VUI Labs v3 API 的 Web 社区版和 Go 快速入门。",
+ "数鉴（MathInsight）· 高中数学智能学情分析与个性化辅导系统｜高考真题库 · Rasch 学情模型 · 横纵对比与归因 · 个性化练习 · 梯度组卷": "数鉴（MathInsight）· 高中数学智能学情分析与个性化辅导系统｜高考真题库 · Rasch 学情模型 · 横纵对比与归因 · 个性化练习 · 梯度组卷"
 }
