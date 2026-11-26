@@ -20,14 +20,15 @@ const LANG_COLORS = {
 };
 
 // 分类在已拉取的项目里按 topics / 描述关键词过滤（GitHub 搜索不支持 OR 分组）
+// hint 是给读者看的一句话解释（title），不要放技术标签原文
 const CATS = [
   { id: '', label: '全部' },
-  { id: 'ai', label: 'AI / LLM', topics: ['ai', 'llm', 'machine-learning', 'deep-learning', 'gpt', 'agents', 'ai-agents', 'openai', 'claude', 'diffusion'], kw: ['ai', 'llm', 'gpt', 'neural', 'model'] },
-  { id: 'tools', label: '工具 / 效率', topics: ['cli', 'tools', 'automation', 'productivity', 'utility'], kw: ['tool', 'cli', '自动化', '效率'] },
-  { id: 'frontend', label: '前端 / Web', topics: ['frontend', 'react', 'vue', 'web', 'css', 'nextjs', 'typescript'], kw: ['web', '前端', 'react', 'vue'] },
+  { id: 'ai', label: 'AI 与大模型', topics: ['ai', 'llm', 'machine-learning', 'deep-learning', 'gpt', 'agents', 'ai-agents', 'openai', 'claude', 'diffusion'], kw: ['ai', 'llm', 'gpt', 'neural', 'model'] },
+  { id: 'tools', label: '效率工具', topics: ['cli', 'tools', 'automation', 'productivity', 'utility'], kw: ['tool', 'cli', '自动化', '效率'] },
+  { id: 'frontend', label: 'Web 前端', topics: ['frontend', 'react', 'vue', 'web', 'css', 'nextjs', 'typescript'], kw: ['web', '前端', 'react', 'vue'] },
   { id: 'devtools', label: '开发工具', topics: ['developer-tools', 'devtools', 'ide', 'editor', 'debugger'], kw: ['developer', 'ide', '编辑器'] },
   { id: 'security', label: '安全', topics: ['security', 'pentest', 'vulnerability', 'cve', 'privacy'], kw: ['security', '安全', '隐私'] },
-  { id: 'data', label: '数据 / 后端', topics: ['database', 'sql', 'backend', 'api', 'server'], kw: ['database', '数据库', 'api', '后端'] },
+  { id: 'data', label: '数据与后端', topics: ['database', 'sql', 'backend', 'api', 'server'], kw: ['database', '数据库', 'api', '后端'] },
   { id: 'game', label: '游戏', topics: ['game', 'gamedev', 'game-engine', 'games'], kw: ['game', '游戏'] },
   { id: 'learn', label: '学习资源', topics: ['awesome', 'tutorial', 'learning', 'interview', 'course'], kw: ['tutorial', '教程', '学习'] }
 ];
@@ -959,7 +960,11 @@ refreshLangBtn();
 $('lang').append(new Option('全部语言', ''), ...LANGS.map(l => new Option(l, l)));
 CATS.forEach(c => {
   const b = el('button', 'cat', c.label);
+  b.type = 'button';
   b.dataset.cat = c.id;
+  b.setAttribute('aria-pressed', String(c.id === ''));
+  if (c.id) b.title = '只看' + c.label + '相关的项目（再点一次取消）';
+  else b.title = '显示所有分类';
   b.onclick = () => {
     if (state.cat === c.id) return;
     state.cat = c.id; state.page = 1; markCat(); syncHash(); load();
@@ -967,7 +972,11 @@ CATS.forEach(c => {
   $('cats').append(b);
 });
 function markCat() {
-  document.querySelectorAll('.cat').forEach(x => x.classList.toggle('on', x.dataset.cat === state.cat));
+  document.querySelectorAll('.cat').forEach(x => {
+    const on = x.dataset.cat === state.cat;
+    x.classList.toggle('on', on);
+    x.setAttribute('aria-pressed', String(on));
+  });
 }
 
 // ---------- 设置：Token ----------
