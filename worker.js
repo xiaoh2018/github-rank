@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v149';
+const ASSET_V = 'v150';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3734,6 +3734,13 @@ tr:hover td{background:#fcfbf8}
 
 /* ===== 移动端（≤760px）：后置覆盖 UI v2 的两列布局 ===== */
 @media (max-width:760px){
+  /* 手机上字号小于 16px 时，iOS Safari 聚焦会自动放大页面；用 #app 提权，压过 .nav-table input 之类的局部规则 */
+  #app input:not([type=checkbox]):not([type=radio]),#app select,#app textarea{font-size:16px;min-height:36px}
+  #qaFilter,#navFilter,#geoSm,#geoLlms{font-size:16px;min-height:36px}
+  #app .qa-q,#app .qa-tag,#app .nav-table input{font-size:16px;min-height:36px}
+  /* #qaList .qa-a 的 (1,1,0) 比 #app textarea 高，要单独压 */
+  #app #qaList .qa-a{font-size:16px;min-height:120px}
+  .main .btn,.main button,.main a.btn,.ghost.small{min-height:38px;display:inline-flex;align-items:center;justify-content:center}
   .app{grid-template-columns:1fr}
   .side{position:sticky;top:0;height:auto;display:flex;overflow-x:auto;padding:0;border-right:0;border-bottom:1px solid #16233a;background:linear-gradient(180deg,#0b1220 0%,#0d1a2f 100%)}
   .side .brandlink{display:none}
