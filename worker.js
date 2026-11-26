@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v173';
+const ASSET_V = 'v174';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3373,6 +3373,11 @@ button.small{padding:6px 12px;min-height:32px;font-size:13px}
 button:disabled{opacity:.5;cursor:not-allowed}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
 .msg{color:var(--muted);font-size:14px}
+.save-msg{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;margin-left:10px;font-size:12.5px;line-height:1.7;color:var(--muted)}
+.save-msg.ok{color:#15803d}
+.save-msg.err{color:var(--bad)}
+.save-msg .linkbtn{margin:0;padding:0 2px;min-height:0;border:0;background:none;color:inherit;font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer;box-shadow:none}
+.save-msg .linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 .toggle{display:flex;align-items:center;gap:10px;margin:4px 0 2px;font-weight:600;color:var(--text)}
 .toggle input{width:20px;height:20px;margin:0}
 table{width:100%;border-collapse:collapse}
@@ -3789,6 +3794,7 @@ tr:hover td{background:#fcfbf8}
   .main .btn,.main button,.main a.btn,.ghost.small{min-height:38px;display:inline-flex;align-items:center;justify-content:center}
   .card .actions{position:sticky;bottom:0;z-index:2;display:flex;gap:8px;flex-wrap:wrap;padding:10px 0 12px 70px;margin-top:8px;background:var(--card);border-top:1px solid var(--line)}
   .card .actions>button,.card .actions>.btn{flex:1 1 100%;min-height:44px}
+  .card .actions>.save-msg,.bar .save-msg{flex:1 1 100%;margin-left:0}
   #cmdk .ck-item{min-height:44px;padding:11px 12px;font-size:14px}
   #cmdk .ck-box{max-height:calc(100dvh - 32px)}
   .app{grid-template-columns:1fr}
@@ -5179,35 +5185,83 @@ tr:hover td{background:#fcfbf8}
     if (sec === 'geo') v.faq = readFaq();
     return v;
   }
+  function saveMsgFor(btn) {
+    var el = btn.getAttribute('data-save') === 'qa' ? $('qaSaveMsg') : null;
+    if (!el) {
+      el = btn.parentNode.querySelector('.save-msg');
+      if (!el) {
+        el = document.createElement('span');
+        el.className = 'save-msg';
+        el.setAttribute('role', 'status');
+        el.setAttribute('aria-live', 'polite');
+        btn.parentNode.appendChild(el);
+      }
+    }
+    return el;
+  }
+  function saveLabel(btn, text) {
+    if (!btn.dataset.label) btn.dataset.label = btn.textContent;
+    btn.textContent = text || btn.dataset.label;
+  }
+  function saveReason(r) {
+    var e = String((r && r.error) || '');
+    if (/网络错误|Failed to fetch|连不上|请求失败/.test(e)) return '网络断了或服务器连不上，检查网络后再试';
+    if (/密码/.test(e)) return e + '（刷新页面重新登录）';
+    if (/非 JSON|50[0-9]/.test(e)) return '服务器那边出错了（' + e + '），过一会儿再试';
+    return e || '未知原因';
+  }
+  function saveRun(btn, task) {
+    var msg = saveMsgFor(btn);
+    btn.disabled = true;
+    saveLabel(btn, '保存中…');
+    msg.className = 'save-msg';
+    msg.textContent = '正在保存…';
+    Promise.resolve().then(task).then(function (r) {
+      btn.disabled = false;
+      saveLabel(btn);
+      if (r && r.ok) {
+        msg.className = 'save-msg ok';
+        msg.textContent = '已保存 · ' + new Date().toLocaleTimeString();
+        return;
+      }
+      msg.className = 'save-msg err';
+      msg.textContent = '保存失败：' + saveReason(r) + ' ';
+      var again = document.createElement('button');
+      again.type = 'button';
+      again.className = 'linkbtn';
+      again.textContent = '重试';
+      again.addEventListener('click', function () { btn.click(); });
+      msg.appendChild(again);
+    });
+  }
   document.querySelectorAll('[data-save]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var sec = btn.getAttribute('data-save');
-      btn.disabled = true;
-      var done = function (r) {
-        btn.disabled = false;
-        if (r.ok) toast('已保存', true);
-        else toast(r.error || '保存失败', false);
-      };
       if (sec === 'qa') {
-        var qaPayload = readQaForm();
-        api('/api/qa', { method: 'POST', body: { password: pw, qa: qaPayload } }).then(function (r) {
-          if (!r.ok) { toast(r.error || '保存失败'); return; }
-          qaState = { intro: r.qa.intro, items: r.qa.items };
-          if ($('qa-intro')) $('qa-intro').value = qaState.intro;
-          renderQa();
-          if ($('qaSaveMsg')) $('qaSaveMsg').textContent = '已保存 · ' + new Date().toLocaleTimeString();
-          toast('问答已保存');
+        saveRun(btn, function () {
+          return api('/api/qa', { method: 'POST', body: { password: pw, qa: readQaForm() } }).then(function (r) {
+            if (r.ok && r.qa) {
+              qaState = { intro: r.qa.intro, items: r.qa.items };
+              if ($('qa-intro')) $('qa-intro').value = qaState.intro;
+              renderQa();
+            }
+            return r;
+          });
         });
         return;
       }
       if (sec === 'nav') {
-        api('/api/nav', { method: 'POST', body: { password: pw, nav: collect('nav') } }).then(function (r) {
-          done(r);
-          if (r.ok && r.nav) { navState = r.nav; renderNavAdmin(); }
+        saveRun(btn, function () {
+          return api('/api/nav', { method: 'POST', body: { password: pw, nav: collect('nav') } }).then(function (r) {
+            if (r.ok && r.nav) { navState = r.nav; renderNavAdmin(); }
+            return r;
+          });
         });
         return;
       }
-      api('/api/site', { method: 'POST', body: { password: pw, section: sec, value: collect(sec) } }).then(done);
+      saveRun(btn, function () {
+        return api('/api/site', { method: 'POST', body: { password: pw, section: sec, value: collect(sec) } });
+      });
     });
   });
 

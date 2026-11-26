@@ -297,6 +297,9 @@ push('榜单分类胶囊窄屏单行横滚 + 渐隐', home.includes('#cats{flex-
 push('数据没读到时给错误卡片（而不是空白）', bundleJs.includes('function errReason') && bundleJs.includes("'err-card'") && home.includes('.errbox{'), '');
 push('错误卡给「重试 / 稍后再看」并安抚本地数据', bundleJs.includes("el('button', 'btn', '重试')") && bundleJs.includes("el('button', 'btn ghost', '稍后再看')") && bundleJs.includes('收藏和主题设置存在你自己的浏览器里'), '');
 push('静态数据没读到会立刻改说实时拉取', bundleJs.includes('静态数据没读到，正在从 GitHub 实时拉取') && bundleJs.includes('还在拉取…GitHub 响应有点慢'), '');
+push('后台保存有常驻状态行（不再是 toast）', admHtml.includes('.save-msg.err{color:var(--bad)}') && admHtml.includes('function saveRun') && admHtml.includes("role','status"), '');
+push('保存按钮文字会变「保存中…」并恢复', admHtml.includes("saveLabel(btn, '保存中…')") && admHtml.includes('btn.textContent = text || btn.dataset.label'), '');
+push('保存失败给人话原因 + 重试', admHtml.includes("msg.textContent = '保存失败：' + saveReason(r)") && admHtml.includes("again.textContent = '重试'"), '');
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
