@@ -68,6 +68,24 @@ for (const p of ['/', '/articles', '/faq']) {
   check(p + ' 在 ' + W + 'px 下没有横向溢出', o.sw <= o.vw + 1, 'vw=' + o.vw + ' sw=' + o.sw);
 }
 
+// 页头 5 个胶囊在窄屏要排成整齐的行（不是「4 个 + 1 个孤儿」）
+await send('Page.navigate', { url: BASE + '/?h=' + Date.now() });
+await sleep(2600);
+const head = JSON.parse(await ev(`(() => {
+  const btns = [...document.querySelectorAll('.head-actions .btn')];
+  const rows = {};
+  btns.forEach((b) => { const r = b.getBoundingClientRect(); const k = Math.round(r.top / 4); rows[k] = (rows[k] || 0) + 1; });
+  const ws = btns.map((b) => Math.round(b.getBoundingClientRect().width));
+  return JSON.stringify({ n: btns.length, rows: Object.values(rows), min: Math.min(...ws), max: Math.max(...ws), over: document.documentElement.scrollWidth > document.documentElement.clientWidth });
+})()`));
+if (W <= 380) {
+  check('页头 5 个胶囊都在', head.n === 5, 'n=' + head.n);
+  check('窄屏排成 2 行（不是 4+1 孤儿）', head.rows.length === 2 && head.rows[0] === 3 && head.rows[1] === 2, JSON.stringify(head.rows));
+  check('五个胶囊宽度一致（网格等宽）', head.max - head.min <= 3, head.min + '~' + head.max);
+  check('页头不溢出', !head.over, '');
+} else {
+  console.log('（' + W + 'px > 380，页头仍用弹性换行，跳过网格断言）');
+}
 const failed = results.filter((x) => !x.pass);
 console.log('\n' + (failed.length ? 'FAILED ' + failed.length + '/' + results.length : 'ALL OK (' + results.length + ' 项，' + W + 'px)'));
 try { await send('Browser.close'); } catch {}

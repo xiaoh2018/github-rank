@@ -733,6 +733,17 @@ window.__imeBind = function (el, fn) {
   });
 };
 </script>
+
+<style>
+/* 320~380：页头 5 个胶囊原来会排成「4 个 + 1 个孤儿」，看着像没对齐。
+   窄屏改成三列等宽网格：第一行 3 个、第二行 2 个，左边对齐，视觉有秩序。 */
+@media (max-width:380px){
+  .head-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+  .head-actions .btn{width:100%;justify-content:center;padding-left:4px;padding-right:4px;font-size:13px}
+  .head-sep{display:none}
+  #btnTheme{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+</style>
 </head>
 <body>
 <a class="skip" href="#list">跳到榜单内容</a>
