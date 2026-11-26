@@ -12,6 +12,11 @@ push('404 带导航', nfText.includes('href="/nav"') && nfText.includes('这个�
 push('404 不缓存', (nf.headers.get('cache-control') || '').includes('no-store'));
 
 const home = await (await fetch(base + '/?v=' + t)).text();
+const siteCfg = await (await fetch(base + '/api/site?t=' + t)).json();
+const adCfg = ((siteCfg && siteCfg.site) || siteCfg || {}).ad || {};
+push('顶部滚动条是关的、文案为空（没有占位广告）', !!adCfg.ticker && adCfg.ticker.enabled === false && String(adCfg.ticker.text || '') === '', adCfg.ticker);
+push('首页的滚动条容器默认隐藏', home.includes('id="adTicker" hidden'), '');
+push('隐藏的滚动条不占高度（CSS 兜底在）', home.includes('.ad-ticker[hidden]{display:none!important'), '');
 push('切视图会改标签页标题（榜单保留服务器那条）', home.includes('VIEW_TITLES') && home.includes("nav:'站点导航") && home.includes('window.__rankTitle'), '');
 push('有读屏播报区（aria-live + 视觉隐藏）', home.includes('id="viewLive" aria-live="polite"') && home.includes('.sr{position:absolute;width:1px'), '');
 push('切换时写 document.title 与播报文案', home.includes("document.title = v2==='rank'") && home.includes("'已切换到'"), '');

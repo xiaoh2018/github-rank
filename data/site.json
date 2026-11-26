@@ -75,19 +75,17 @@
       }
     },
     "ticker": {
-      "enabled": true,
-      "text": "123",
+      "enabled": false,
+      "text": "",
       "speed": 18,
-      "link": "https://github.661026.xyz/admin#ad",
-      "modal": "123"
-    },
-    "article": {
-      "unlockHint": ""
+      "link": "",
+      "modal": ""
     }
   },
   "article": {
     "unlockHint": "",
     "catEn": false,
+    "cols": "double",
     "categories": [
       {
         "key": "tech",
@@ -109,7 +107,7 @@
     "mode": "auto",
     "side": "right",
     "users": "triple",
-    "articleSide": "none"
+    "articleSide": "right"
   },
   "contact": {
     "enabled": true,

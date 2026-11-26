@@ -1688,7 +1688,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v227';
+const ASSET_V = 'v228';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2693,6 +2693,12 @@ function checkSection(section, value) {
       if (tkIn.enabled === true && !text.trim() && !modal.trim()) {
         return { ok: false, error: '开启顶部滚动条要至少填一句滚动的文字' };
       }
+      if (tkIn.enabled === true) {
+        // 开启时文案要能读：太短或明显是占位（123 / test / TODO）就不许上线
+        const bare = text.trim();
+        if (bare.length < 6) return { ok: false, error: '滚动条的文案太短（' + bare.length + ' 个字）：至少写一句 6 个字以上的话，例如「本站数据每 3 小时自动更新」。' };
+        if (/^[\d\s._-]+$/.test(bare) || /^(test|todo|asdf|demo|example|placeholder|示例|测试|占位)/i.test(bare)) return { ok: false, error: '滚动条的文案像占位内容（「' + bare.slice(0, 20) + '」）：请写一句真的要对读者说的话。' };
+      }
       clean.ticker = { enabled: tkIn.enabled === true, text: text, speed: Math.round(speed), link: link, modal: modal };
     }
     if (value.slots && typeof value.slots === 'object' && !Array.isArray(value.slots)) {
@@ -2726,6 +2732,8 @@ function checkSection(section, value) {
       clean.html = clean.slots['home-top'] ? clean.slots['home-top'].html : '';
       return { ok: true, clean: clean };
     }
+    // 只改顶部滚动条（没带 slots、也没带老结构 enabled/html）时，其余保持默认空槽位
+    if (tkIn && value.slots == null && value.enabled == null) return { ok: true, clean: clean };
     if (typeof value.enabled !== 'boolean') return { ok: false, error: '广告开关必须是 true 或 false' };
     const html = value.html == null ? '' : value.html;
     if (typeof html !== 'string') return { ok: false, error: '广告代码必须是文字' };
