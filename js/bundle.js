@@ -1040,6 +1040,9 @@ let legacyRange = false; // 从旧链接 #week/... 进来时，地址里明确�
   // 否则刷新/分享会掉回榜单
   const pageMark = new URLSearchParams(location.search).get('page');
   if (pageMark === 'nav' || pageMark === 'articles' || pageMark === 'faq') sp.set('page', pageMark);
+  // ?post= 是「哪篇文章正开着」的标记，同步筛选时必须原样保留，否则刷新会掉回列表
+  const postMark = new URLSearchParams(location.search).get('post');
+  if (postMark) sp.set('post', postMark);
   const qs = sp.toString();
   history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
 }

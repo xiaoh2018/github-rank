@@ -1278,13 +1278,13 @@ window.__imeBind = function (el, fn) {
     }
     function artHref(it){
       var slug=str(it.slug)||'';
-      if(!slug) return '/articles';
-      var parts=slug.split('/').filter(Boolean).map(function(x){ return encodeURIComponent(x); }).join('/');
-      return '/articles/'+parts+'.html';
+      if(!slug) return '/?page=articles';
+      return '/?page=articles&post='+encodeURIComponent(slug);
     }
 
     // ---------- 文章视图（页内 tab，不整页跳转）----------
     var artv={loaded:false,loading:null,list:[],q:'',cat:'all',sort:'new'};
+    window.__artv=artv;
     function artvEsc(s){
       return String(s==null?'':s).replace(/[&<>"']/g,function(c){
         return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
@@ -1332,6 +1332,7 @@ window.__imeBind = function (el, fn) {
       var h=document.createElement('h3');
       var a=document.createElement('a');
       a.href=artHref(it);
+      a.setAttribute('data-artpost', String(it.slug||''));
       a.textContent=str(it.title);
       h.appendChild(a);
       card.appendChild(h);
@@ -1342,6 +1343,7 @@ window.__imeBind = function (el, fn) {
       var read=document.createElement('a');
       read.className='read';
       read.href=artHref(it);
+      read.setAttribute('data-artpost', String(it.slug||''));
       read.textContent='阅读全文 →';
       foot.appendChild(read);
       if(it.locked && it.hasLock!==false){ var lk=document.createElement('span'); lk.className='lock'; lk.textContent='🔒 需要密码'; foot.appendChild(lk); }
@@ -1532,6 +1534,7 @@ window.__imeBind = function (el, fn) {
         var h=document.createElement('h3');
         var a=document.createElement('a');
         a.href=artHref(it);
+      a.setAttribute('data-artpost', String(it.slug||''));
         a.textContent=str(it.title);
         h.appendChild(a);
         card.appendChild(h);
@@ -1542,6 +1545,7 @@ window.__imeBind = function (el, fn) {
         var read=document.createElement('a');
         read.className='read';
         read.href=artHref(it);
+      read.setAttribute('data-artpost', String(it.slug||''));
         read.textContent='阅读全文 →';
         foot.appendChild(read);
         // 只有真的存了密文才显示锁：老数据可能 locked=true 但没有 lock.ct，点了会问密码却永远解不开
@@ -1838,7 +1842,7 @@ getJSON('/data/site.json').then(function(site){
         el.classList.toggle('is-on',on);
         el.setAttribute('aria-selected',String(on));
       });
-      try{ if(history.replaceState) history.replaceState(null,'', v2==='nav'?'/?page=nav':(v2==='articles'?'/?page=articles':(v2==='faq'?'/?page=faq':'/'))); }catch(e){}
+      try{ if(history.replaceState){ var keepPost=(/[?&]post=([^&]+)/.exec(location.search)||[])[1]; var viewUrl=v2==='nav'?'/?page=nav':(v2==='articles'?'/?page=articles':(v2==='faq'?'/?page=faq':'/')); if(v2==='articles'&&keepPost) viewUrl+='&post='+keepPost; history.replaceState(null,'',viewUrl); } }catch(e){}
       if(v2==='nav') loadNav();
       if(v2==='articles') loadArtView();
       if(v2==='faq') loadFaq();
@@ -1935,6 +1939,120 @@ getJSON('/data/site.json').then(function(site){
 })();
 </script>
 
+<dialog class="artdlg" id="artDlg" aria-labelledby="artDlgT">
+  <div class="adl-head">
+    <div class="adl-ttl">
+      <h2 id="artDlgT"></h2>
+      <div class="adl-meta" id="artDlgMeta"></div>
+    </div>
+    <button type="button" class="adl-x" id="artDlgX" aria-label="关闭">×</button>
+  </div>
+  <div class="adl-body" id="artDlgBody"></div>
+  <div class="adl-lock" id="artDlgLock" hidden>
+    <p class="adl-lockt">这篇需要密码才能看，问站长要。</p>
+    <div class="adl-row"><input type="password" id="artDlgPw" placeholder="输入密码" autocomplete="off"><button type="button" class="btn" id="artDlgGo">解锁</button></div>
+    <p class="adl-err" id="artDlgErr" hidden></p>
+  </div>
+</dialog>
+<style>
+.artdlg{width:min(760px,calc(100% - 24px));max-height:min(88vh,900px);padding:0;border:0;border-radius:16px;background:var(--card);color:var(--text);box-shadow:0 30px 80px -30px rgba(15,23,42,.55)}
+.artdlg[open]{display:grid;grid-template-rows:auto minmax(0,1fr)}
+.artdlg::backdrop{background:rgba(15,23,42,.5)}
+.adl-head{display:flex;gap:12px;align-items:flex-start;padding:20px 22px 12px;border-bottom:1px solid var(--border);background:var(--card)}
+.adl-ttl{min-width:0}
+.adl-ttl h2{margin:0;font-size:22px;line-height:1.35}
+.adl-meta{margin-top:6px;font-size:12.5px;color:var(--muted)}
+.adl-x{margin-left:auto;flex:0 0 auto;width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:inherit;font-size:18px;line-height:1;cursor:pointer}
+.adl-x:hover{color:var(--accent);border-color:var(--accent)}
+.adl-x:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.adl-body{padding:18px 22px 30px;overflow:auto;font-size:17px;line-height:1.85}
+.adl-body h1,.adl-body h2,.adl-body h3{margin:1.2em 0 .5em;line-height:1.4}
+.adl-body p{margin:.7em 0}
+.adl-body pre{overflow:auto;padding:12px 14px;border-radius:10px;background:var(--chip);font-size:13.5px}
+.adl-body img{max-width:100%;height:auto;border-radius:10px}
+.adl-body table{width:auto;min-width:100%;border-collapse:collapse}
+.adl-body th,.adl-body td{border:1px solid var(--border);padding:6px 10px}
+.adl-lock{padding:22px}
+.adl-lockt{margin:0 0 12px;color:var(--muted)}
+.adl-row{display:flex;gap:8px;flex-wrap:wrap}
+.adl-row input{flex:1 1 180px;height:40px;border:1px solid var(--border);border-radius:10px;padding:0 12px;font-size:16px;background:var(--card);color:var(--text)}
+.adl-err{margin:10px 0 0;color:#b4232b;font-size:13px}
+@media (max-width:640px){.artdlg{width:100%;max-width:100%;max-height:100dvh;height:100dvh;border-radius:0}.adl-head{padding:14px 14px 10px}.adl-ttl h2{font-size:19px}.adl-body{padding:14px 14px 80px}.adl-body{font-size:16.5px}}
+</style>
+<script>
+(function(){
+  var dlg=document.getElementById('artDlg');
+  if(!dlg) return;
+  var tEl=document.getElementById('artDlgT'), metaEl=document.getElementById('artDlgMeta');
+  var bodyEl=document.getElementById('artDlgBody'), lockEl=document.getElementById('artDlgLock');
+  var pwEl=document.getElementById('artDlgPw'), goEl=document.getElementById('artDlgGo'), errEl=document.getElementById('artDlgErr');
+  var cache=null, cur=null, backY=0;
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function md(raw){ if(window.KeeMd && typeof window.KeeMd.render==='function'){ try{ return window.KeeMd.render(String(raw||'')); }catch(e){} } return '<p>'+esc(raw).replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>')+'</p>'; }
+  function mins(a){ var b=String(a.body||''); if(!b) return 0; var cjk=(b.match(/[\u4e00-\u9fa5]/g)||[]).length; var w=b.replace(/[\u4e00-\u9fa5]/g,' ').split(/\s+/).filter(Boolean).length; return Math.max(1,Math.round(cjk/400+w/200)); }
+  function norm(j){ return Array.isArray(j) ? j : ((j && j.articles) || []); }
+  function loadAll(){
+    var live=window.__artv && window.__artv.list;
+    if(live && live.length){ cache=live; return Promise.resolve(live); }
+    if(cache) return Promise.resolve(cache);
+    return fetch('/data/articles.json',{cache:'no-cache'}).then(function(r){ return r.json(); }).then(function(j){ cache=norm(j); return cache; });
+  }
+  function find(slug){ var arr=cache||(window.__artv&&window.__artv.list)||[]; for(var i=0;i<arr.length;i++){ if(String(arr[i].slug||'')===String(slug)) return arr[i]; } return null; }
+  function paint(a){
+    tEl.textContent=String(a.title||'无标题');
+    var parts=[]; if(a.category) parts.push(a.category); if(a.date) parts.push(String(a.date).slice(0,10)); var m=mins(a); if(m) parts.push('约 '+m+' 分钟');
+    metaEl.textContent=parts.join(' · ');
+    bodyEl.innerHTML=a.body ? md(a.body) : '<p class="adl-empty">这篇还没有正文。</p>';
+    var locked=!!(a.locked && a.hasLock!==false);
+    bodyEl.hidden=locked; lockEl.hidden=!locked;
+    if(locked){ errEl.hidden=true; errEl.textContent=''; pwEl.value=''; }
+  }
+  function openArt(slug, fromHistory){
+    loadAll().then(function(){
+      var a=find(slug);
+      if(!a) return;
+      cur=a; backY=window.scrollY||0;
+      var tab=document.getElementById('tabArticles');
+      if(tab && !tab.classList.contains('is-on')) tab.click();
+      paint(a);
+      if(!dlg.open) dlg.showModal();
+      bodyEl.scrollTop=0;
+      if(!fromHistory) history.pushState({art:slug}, '', '/?page=articles&post='+encodeURIComponent(slug));
+    });
+  }
+  function closeIt(){ if(!dlg.open) return; dlg.close(); window.scrollTo(0, backY||0); }
+  function mLoc(){ return /[?&]post=([^&]+)/.exec(location.search); }
+  document.addEventListener('click', function(e){
+    var t=e.target && e.target.closest ? e.target.closest('[data-artpost]') : null;
+    if(!t) return;
+    if(e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button===1) return;
+    e.preventDefault();
+    openArt(t.getAttribute('data-artpost')||'', false);
+  });
+  document.getElementById('artDlgX').onclick=function(){ if(history.state && history.state.art) history.back(); else closeIt(); };
+  dlg.addEventListener('cancel', function(e){ e.preventDefault(); if(history.state && history.state.art) history.back(); else closeIt(); });
+  document.addEventListener('keydown', function(e){ if(e.key!=='Escape' || !dlg.open) return; e.preventDefault(); e.stopPropagation(); if(history.state && history.state.art) history.back(); else closeIt(); }, true);
+  dlg.addEventListener('close', function(){ cur=null; });
+  window.addEventListener('popstate', function(){ var m=mLoc(); if(m) openArt(decodeURIComponent(m[1]), true); else if(dlg.open) closeIt(); });
+  goEl.onclick=function(){
+    if(!cur) return;
+    var pw=pwEl.value||'';
+    if(!pw){ errEl.hidden=false; errEl.textContent='先填密码'; return; }
+    goEl.disabled=true; errEl.hidden=true;
+    fetch('/api/article',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:cur.id,password:pw})})
+      .then(function(r){ return r.json().then(function(j){ return {s:r.status,j:j}; }); })
+      .then(function(x){
+        goEl.disabled=false;
+        if(x.j && x.j.ok){ cur.body=x.j.body||''; bodyEl.innerHTML=md(cur.body); bodyEl.hidden=false; lockEl.hidden=true; }
+        else { errEl.hidden=false; errEl.textContent=(x.j&&x.j.error)||('解锁失败（'+x.s+'）'); }
+      })
+      .catch(function(){ goEl.disabled=false; errEl.hidden=false; errEl.textContent='网络不通，稍后再试'; });
+  };
+  pwEl.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); goEl.click(); } });
+  var m0=mLoc();
+  if(m0) openArt(decodeURIComponent(m0[1]), true);
+})();
+</script>
 </body>
 </html>
 <!-- build v100 -->
