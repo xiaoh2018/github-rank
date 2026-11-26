@@ -19,6 +19,9 @@ push('首页尊重「减少动态效果」', home.includes('window.__sb') && hom
 push('导航图标声明 16×16', home.includes('width="16" height="16"'));
 
 const bundleJs = await (await fetch(base + '/js/bundle.js?v=' + t)).text();
+push('手机上有「分享」（系统分享面板，退回复制）', bundleJs.includes('async function shareRepo(') && bundleJs.includes('navigator.share('), '');
+push('「分享」只在窄屏出现（桌面隐藏）', home.includes('#list .item .mini.mshare{display:none') && home.includes('#list .item .mini.mshare{display:inline-flex'), '');
+push('「分享」有带项目名的可访问名 + 32px 触摸高度', bundleJs.includes("'分享「' + (r.name || '项目') + '」'") && home.includes('min-height:32px;padding:0 10px'), '');
 push('bundle 平滑滚动走 __sb 助手', bundleJs.includes('behavior: window.__sb()'));
 push('头像声明 22×22 并异步解码', bundleJs.includes('img.width = 22') && bundleJs.includes("img.decoding = 'async'"));
 push('对话框 aria-modal + 焦点圈', home.includes('aria-modal') && home.includes('__bindDlgA11y'));
@@ -336,9 +339,6 @@ push('榜单分类胶囊窄屏单行横滚 + 渐隐', home.includes('#cats{flex-
 
 push('数据没读到时给错误卡片（而不是空白）', bundleJs.includes('function errReason') && bundleJs.includes("'err-card'") && home.includes('.errbox{'), '');
 push('翻页位置记忆（离开一页记位置、回访恢复）', bundleJs.includes('function pgKey()') && bundleJs.includes('window.__pgY = pgY'), '');
-push('手机上有「分享」（系统分享面板，退回复制）', bundleJs.includes('async function shareRepo(') && bundleJs.includes('navigator.share('), '');
-push('「分享」只在窄屏出现（桌面隐藏）', homeHtml.includes('#list .item .mini.mshare{display:none}') && homeHtml.includes('#list .item .mini.mshare{display:inline-flex'), '');
-push('「分享」有带项目名的可访问名 + 32px 触摸高度', bundleJs.includes("'分享「' + (r.name || '项目') + '」'") && homeHtml.includes('min-height:32px;padding:0 10px'), '');
 push('上一页/下一页走 setPage（不再一律回列表顶）', bundleJs.includes("$('prev').onclick = () => setPage(state.page - 1)") && bundleJs.includes("$('next').onclick = () => setPage(state.page + 1)"), '');
 push('换排序 / 换每页条数后回到列表起点', bundleJs.includes("syncHash(); render(); goList(); };") && bundleJs.includes('state.pageSize = +e.target.value'), '');
 push('错误卡给「重试 / 稍后再看」并安抚本地数据', bundleJs.includes("el('button', 'btn', '重试')") && bundleJs.includes("el('button', 'btn ghost', '稍后再看')") && bundleJs.includes('收藏和主题设置存在你自己的浏览器里'), '');
