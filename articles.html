@@ -1510,6 +1510,54 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   window.addEventListener('resize', paint);
 })();
 </script>
+
+<script>
+(function(){
+  // 静态页的对话框无障碍：aria-modal / 进入即聚焦 / Tab 不跑出 / 关闭还焦点
+  var SEL='a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+  function trap(dlg){
+    if(!dlg||dlg.__a11yTrap) return;
+    dlg.__a11yTrap=true;
+    if(!dlg.hasAttribute('tabindex')) dlg.setAttribute('tabindex','-1');
+    var opener=null;
+    function items(){
+      return Array.prototype.filter.call(dlg.querySelectorAll(SEL),function(el){
+        if(el.closest('[hidden]')) return false;
+        if(el.getAttribute('aria-hidden')==='true') return false;
+        var r=el.getBoundingClientRect();
+        return r.width>0 && r.height>0;
+      });
+    }
+    function first(){
+      if(document.activeElement && document.activeElement!==dlg && dlg.contains(document.activeElement)) return;
+      var f=items();
+      try{ (f[0]||dlg).focus(); }catch(e){}
+    }
+    dlg.addEventListener('keydown',function(e){
+      if(e.key!=='Tab') return;
+      var f=items();
+      if(!f.length){ e.preventDefault(); return; }
+      var a=f[0], z=f[f.length-1], cur=document.activeElement;
+      if(e.shiftKey){ if(cur===a || !dlg.contains(cur)){ e.preventDefault(); z.focus(); } }
+      else { if(cur===z || !dlg.contains(cur)){ e.preventDefault(); a.focus(); } }
+    });
+    var nativeOpen=dlg.showModal.bind(dlg);
+    dlg.showModal=function(){
+      opener=document.activeElement;
+      dlg.setAttribute('aria-modal','true');
+      nativeOpen();
+      setTimeout(first,0);
+      setTimeout(first,60);
+    };
+    dlg.addEventListener('close',function(){
+      dlg.removeAttribute('aria-modal');
+      if(opener && opener!==document.body && opener.focus && document.contains(opener)){ try{ opener.focus(); }catch(e){} }
+      opener=null;
+    });
+  }
+  ['pwDlg','adModal'].forEach(function(id){ trap(document.getElementById(id)); });
+})();
+</script>
 </body>
 </html>
 <!-- build v100 -->

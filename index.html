@@ -896,7 +896,7 @@ window.__imeBind = function (el, fn) {
     <button class="btn" id="next">下一页</button>
   </nav>
   <div class="ad-slot" id="adList" role="region" aria-label="广告位" hidden></div>
-    <dialog id="aboutDialog" class="faq" aria-labelledby="faqTitle">
+    <dialog id="aboutDialog" class="faq" aria-labelledby="faqTitle" tabindex="-1">
             <div class="about-head">
               <h2 id="faqTitle">关于本排行榜</h2>
               <button class="btn ghost" id="aboutClose" type="button">关闭</button>
@@ -1622,21 +1622,55 @@ window.__imeBind = function (el, fn) {
     var aboutMore=document.getElementById('aboutMore');
     if(aboutMore&&aboutDlg) aboutMore.onclick=function(){ aboutDlg.showModal(); };
     function bindDialogA11y(dlg){
-      if(!dlg) return;
-      var sel='button,[href],input,textarea,select,[tabindex]:not([tabindex="-1"])';
-      var lastFocus=null;
-      dlg.addEventListener('close',function(){ if(lastFocus&&lastFocus.focus) lastFocus.focus(); });
+      if(!dlg || dlg.__a11y) return;
+      dlg.__a11y=true;
+      var SEL='a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+      var opener=null;
+      function items(){
+        return Array.prototype.filter.call(dlg.querySelectorAll(SEL),function(el){
+          if(el.closest('[hidden]')) return false;
+          if(el.getAttribute('aria-hidden')==='true') return false;
+          var r=el.getBoundingClientRect();
+          return r.width>0 && r.height>0;
+        });
+      }
+      function focusFirst(){
+        if(document.activeElement && document.activeElement!==dlg && dlg.contains(document.activeElement)) return;
+        var f=items();
+        try{ (f[0]||dlg).focus(); }catch(e){}
+      }
       dlg.addEventListener('keydown',function(e){
         if(e.key!=='Tab') return;
-        var f=Array.prototype.filter.call(dlg.querySelectorAll(sel),function(el){ return !el.disabled && el.offsetParent!==null; });
-        if(!f.length) return;
-        var first=f[0], last=f[f.length-1];
-        if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
-        else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+        var f=items();
+        if(!f.length){ e.preventDefault(); return; }
+        var first=f[0], last=f[f.length-1], cur=document.activeElement;
+        if(e.shiftKey){
+          if(cur===first || !dlg.contains(cur)){ e.preventDefault(); last.focus(); }
+        }else{
+          if(cur===last || !dlg.contains(cur)){ e.preventDefault(); first.focus(); }
+        }
       });
       var nativeOpen=dlg.showModal.bind(dlg);
-      dlg.showModal=function(){ lastFocus=document.activeElement; nativeOpen(); var f=dlg.querySelector(sel); if(f) setTimeout(function(){ f.focus(); },30); };
+      dlg.showModal=function(){
+        opener=document.activeElement;
+        dlg.setAttribute('aria-modal','true');
+        nativeOpen();
+        setTimeout(focusFirst,0);
+        setTimeout(focusFirst,60);
+      };
+      dlg.addEventListener('close',function(){
+        dlg.removeAttribute('aria-modal');
+        var back=null;
+        if(opener && opener!==document.body && opener.focus && document.contains(opener)) back=opener;
+        if(!back){ var tab=document.getElementById('tabArticles'); if(tab && tab.focus) back=tab; }
+        opener=null;
+        var restore=function(){ if(!back || !document.contains(back)) return; try{ back.focus(); }catch(e){} };
+        requestAnimationFrame(restore);
+        setTimeout(function(){ if(document.activeElement===document.body) restore(); },140);
+      });
     }
+    window.__bindDlgA11y=bindDialogA11y;
+    bindDialogA11y(document.getElementById('artDlg'));
     bindDialogA11y(document.getElementById('adModal'));
     bindDialogA11y(document.getElementById('aboutDialog'));
     if(btnAbout&&aboutDlg) btnAbout.addEventListener('click',function(){ aboutDlg.showModal(); });
@@ -1989,7 +2023,7 @@ getJSON('/data/site.json').then(function(site){
 })();
 </script>
 
-<dialog class="artdlg" id="artDlg" aria-labelledby="artDlgT">
+<dialog class="artdlg" id="artDlg" aria-labelledby="artDlgT" tabindex="-1">
   <div class="adl-head">
     <div class="adl-ttl">
       <h2 id="artDlgT"></h2>
@@ -2065,6 +2099,17 @@ getJSON('/data/site.json').then(function(site){
 (function(){
   var dlg=document.getElementById('artDlg');
   if(!dlg) return;
+  if(window.__bindDlgA11y) window.__bindDlgA11y(dlg);
+  // Esc：走与「×」相同的关闭路径（含地址栏复位），并保证关闭后键盘焦点有落点
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || !dlg.open) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var back = document.getElementById('tabArticles');
+    var x = document.getElementById('artDlgX');
+    if (x) { x.click(); } else { try { dlg.close(); } catch (err) {} }
+    setTimeout(function () { if (back && back.focus) { try { back.focus(); } catch (err) {} } }, 0);
+  }, true);
   var tEl=document.getElementById('artDlgT'), metaEl=document.getElementById('artDlgMeta');
   var bodyEl=document.getElementById('artDlgBody'), lockEl=document.getElementById('artDlgLock');
   var pwEl=document.getElementById('artDlgPw'), goEl=document.getElementById('artDlgGo'), errEl=document.getElementById('artDlgErr');
