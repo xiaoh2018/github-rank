@@ -33,7 +33,9 @@ const PAGES = {
   'home-double': { url: '/?range=week&view=repos', width: 1440, height: 1600, file: 'home-double.png' },
   'home-mobile': { url: '/?range=week', width: 500, height: 1500, file: 'home-mobile.png' },
   total: { url: '/?range=total', width: 1440, height: 1600, file: 'total-list.png' },
-  nav: { url: '/?page=nav', width: 1440, height: 1400, file: 'nav-page.png' }
+  nav: { url: '/?page=nav', width: 1440, height: 1400, file: 'nav-page.png' },
+  'articles-tab': { url: '/?page=articles', width: 1440, height: 1200, file: 'articles-tab.png' },
+  'articles-page': { url: '/articles', width: 1440, height: 1000, file: 'articles-page.png' }
   // 后台各页要登录，用 scripts/preview-admin.mjs 生成（它会把密码自动填好）
 };
 

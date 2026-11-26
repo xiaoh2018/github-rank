@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v159';
+const ASSET_V = 'v160';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3875,6 +3875,8 @@ tr:hover td{background:#fcfbf8}
   .toolbar input[type=text],.toolbar input[type=search]{flex:1 1 100%;max-width:none}
   .toolbar select,.toolbar .btn,.toolbar button{flex:1 1 auto;max-width:none;min-width:0}
   .toolbar .note,.toolbar .msg{flex:1 1 100%;margin-left:0}
+  /* 「已选 0 篇」这类提示为空时不要占掉一整行，否则窄屏工具栏会多出一行空带 */
+  #artSelNote:empty{display:none}
   /* 文章面板：先筛后排，批量删除垫底，避免首屏正对着「删除选中」 */
   #pane-articles .toolbar>#artSort{order:1}
   #pane-articles .toolbar>#artCatFilter{order:2}
@@ -4388,7 +4390,7 @@ tr:hover td{background:#fcfbf8}
           </select>
           <select id="artCatFilter" aria-label="按分类筛选文章" style="max-width:150px"><option value="">全部分类</option></select>
           <button type="button" class="ghost" id="artUndo" disabled>撤销上一步</button>
-          <span class="msg" id="artSelNote"></span>
+          <span class="msg" id="artSelNote" hidden></span>
         </div>
         <button type="button" id="artNew">写新文章</button>
       </div>
@@ -5561,7 +5563,11 @@ tr:hover td{background:#fcfbf8}
     function artSelNote() {
       var n = artPicked().length;
       var note = $('artSelNote');
-      if (note) note.textContent = n ? '已选 ' + n + ' 篇（可跨页）' : '';
+      if (note) {
+        note.textContent = n ? '已选 ' + n + ' 篇（可跨页）' : '';
+        // 空提示不要占行：:empty 对「空文本节点」不生效，直接切 hidden
+        note.hidden = !n;
+      }
       var all = $('artAllMatch');
       if (all) all.disabled = !(state.artFiltered || []).length;
     }

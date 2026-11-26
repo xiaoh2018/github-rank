@@ -90,8 +90,15 @@ try {
     var ids = ['artSort','artCatFilter','artAllMatch','artBulkCat','artBulkApply','artBulkDel','artUndo'];
     var out = {};
     ids.forEach(function(k){ out[k] = box(k); });
-    var tops = {}; ids.forEach(function(k){ if (out[k]) tops[out[k].top] = 1; });
-    return { out: out, rowCount: Object.keys(tops).length, boxH: Math.round(tb.getBoundingClientRect().height) };
+    // 同一行里元素高度不同时 top 会差 1px（align-items 基线差异），按 6px 容差归行，
+    // 否则「4 行」会被误判成 5 行
+    var tops = []; ids.forEach(function(k){ if (out[k]) tops.push(out[k].top); });
+    tops.sort(function(a,b){ return a-b; });
+    var rowCount = 0, last = -999;
+    tops.forEach(function(t){ if (t - last > 6) { rowCount++; last = t; } });
+    var note = document.getElementById('artSelNote');
+    var noteBox = note ? { hidden: !!note.hidden, w: Math.round(note.getBoundingClientRect().width) } : null;
+    return { out: out, rowCount: rowCount, note: noteBox, boxH: Math.round(tb.getBoundingClientRect().height) };
   })()`);
   const o = (t && t.out) || {};
   push('工具栏元素齐全', o.artSort && o.artCatFilter && o.artBulkDel, Object.keys(o).length);
@@ -99,6 +106,7 @@ try {
   push('分类筛选也在批量删除之前', o.artCatFilter && o.artBulkDel && o.artCatFilter.top <= o.artBulkDel.top, o.artCatFilter && o.artBulkDel ? o.artCatFilter.top + '<=' + o.artBulkDel.top : '');
   push('「删除选中」落在最后一行', o.artBulkDel && o.artUndo && o.artBulkDel.top >= o.artBulkApply.top, o.artBulkDel && o.artBulkApply ? o.artBulkDel.top + '>=' + o.artBulkApply.top : '');
   push('工具栏不超过 4 行', t && t.rowCount <= 4, t && t.rowCount);
+  push('「已选」空提示不占行（隐藏且宽 0）', !!(t && t.note && t.note.hidden === true && t.note.w === 0), t && t.note ? JSON.stringify(t.note) : '');
 
 if (seeded.length) {
   await fetch(BASE + '/api/articles', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'dev', action: 'bulk', ids: seeded, op: 'remove' }) });

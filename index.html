@@ -14,6 +14,14 @@ window.__wantNav = (function () {
   } catch (e) {}
   return false;
 })();
+// 文章视图的直达标记：/ ?page=articles、#artView
+window.__wantArt = (function () {
+  try {
+    if (location.hash === '#artView') return true;
+    if (new URLSearchParams(location.search).get('page') === 'articles') return true;
+  } catch (e) {}
+  return false;
+})();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#f0b429">
@@ -479,6 +487,19 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
   .artcard-foot{margin-top:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted)}
   .artcard-foot .read{color:var(--accent);font-weight:600}
   .artcard-foot .lock{color:var(--gold)}
+/* 榜单视图专属的工具栏 / 统计卡 / 首页广告位：切到导航或文章视图时一起收起来（它们不在 main#rank 里） */
+body[data-page="nav"] #rankBar,body[data-page="nav"] #stats,body[data-page="nav"] #adHomeTop,
+body[data-page="articles"] #rankBar,body[data-page="articles"] #stats,body[data-page="articles"] #adHomeTop{display:none}
+.artview{margin-top:var(--gap)}
+.artvhead h2{font-size:22px;margin:0 0 6px}
+.artvlead{margin:0;color:var(--muted);font-size:13.5px;line-height:1.7}
+.artvbar{display:flex;gap:8px;margin:16px 0 12px}
+.artvbar input{flex:1 1 auto;min-width:0}
+.artvbar select{flex:0 0 auto}
+.artview .chips{margin:0 0 14px}
+#artViewList .empty{padding:28px 18px;border:1px dashed var(--border);border-radius:12px;text-align:center;color:var(--muted);font-size:13.5px}
+@media (max-width:600px){.artvbar{flex-wrap:wrap}.artvbar input,.artvbar select{flex:1 1 100%}}
+
   @media (max-width:600px){.artgrid{grid-template-columns:1fr}}
 .article-body{font-size:13px}
 .article-body p,.article-body li{margin:6px 0;line-height:1.7;overflow-wrap:anywhere}
@@ -568,7 +589,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     <nav class="mainnav" id="mainNav" aria-label="主导航">
       <button class="mnav is-on" id="tabRank" data-view="rank" type="button" aria-selected="true">榜单</button>
       <button class="mnav" id="tabNav" data-view="nav" type="button" aria-selected="false">导航</button>
-      <a class="mnav" href="/articles">文章</a>
+      <button class="mnav" id="tabArticles" data-view="articles" type="button" aria-selected="false">文章</button>
       <a class="mnav" href="/faq">问答</a>
     </nav>
     <div class="head-actions">
@@ -705,7 +726,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       <div id="geoFaq" class="geo-faq" hidden></div>
       </dialog>
     <section class="articles" id="articles" aria-labelledby="articlesTitle" hidden>
-      <div class="arthead"><h2 id="articlesTitle">最新文章</h2><span class="artnote" id="artNote"></span><a class="artmore" href="/articles">全部文章 →</a></div>
+      <div class="arthead"><h2 id="articlesTitle">最新文章</h2><span class="artnote" id="artNote"></span><a class="artmore" href="/?page=articles" id="artMore">全部文章 →</a></div>
       <div class="ad-slot" id="adArticle" role="region" aria-label="广告位（文章区）" hidden></div>
       <div id="articleList"></div>
     </section>
@@ -738,6 +759,23 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         <div class="skcard"></div><div class="skcard"></div><div class="skcard"></div>
       </div>
     </div>
+  </section>
+
+  <section class="artview" id="artView" hidden aria-label="文章">
+    <div class="artvhead">
+      <h2>文章</h2>
+      <p class="artvlead">站长写的东西，按时间倒序。加密文章需要密码才能看正文。</p>
+    </div>
+    <div class="artvbar">
+      <input type="search" id="artSearch" placeholder="搜索标题、摘要、分类…" aria-label="搜索文章" autocomplete="off">
+      <select id="artSort" aria-label="排序">
+        <option value="new">最新在前</option>
+        <option value="old">最早在前</option>
+        <option value="title">标题排序</option>
+      </select>
+    </div>
+    <div class="chips" id="artChips" aria-label="按分类筛选"></div>
+    <div id="artViewList"><div class="empty">正在加载文章…</div></div>
   </section>
   </div>
 <button id="top" aria-label="回到顶部">↑</button>
@@ -1095,6 +1133,106 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       return '/articles/'+parts+'.html';
     }
 
+    // ---------- 文章视图（页内 tab，不整页跳转）----------
+    var artv={loaded:false,loading:null,list:[],q:'',cat:'all',sort:'new'};
+    function artvEsc(s){
+      return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+      });
+    }
+    function artCatOf(it){ return str(it.category)||'未分类'; }
+    function artCardEl(it){
+      var card=document.createElement('article');
+      card.className='artcard';
+      if(it.cover){
+        var cv=document.createElement('div');
+        cv.className='artcard-cover';
+        cv.style.backgroundImage='url("'+String(it.cover).replace(/["'()\\]/g,'')+'")';
+        card.appendChild(cv);
+      }
+      var top=document.createElement('div');
+      top.className='artcard-top';
+      var c=document.createElement('span');
+      c.className='artcard-cat';
+      c.textContent=artCatOf(it);
+      top.appendChild(c);
+      if(it.pinned){ var pin=document.createElement('span'); pin.className='pinchip'; pin.textContent='置顶'; top.appendChild(pin); }
+      var date=str(it.date);
+      if(date){ var tm=document.createElement('time'); tm.setAttribute('datetime',date); tm.textContent=date.slice(0,10); top.appendChild(tm); }
+      card.appendChild(top);
+      var h=document.createElement('h3');
+      var a=document.createElement('a');
+      a.href=artHref(it);
+      a.textContent=str(it.title);
+      h.appendChild(a);
+      card.appendChild(h);
+      var sum=str(it.summary);
+      if(sum){ var p=document.createElement('p'); p.className='artcard-sum'; p.textContent=sum; card.appendChild(p); }
+      var foot=document.createElement('div');
+      foot.className='artcard-foot';
+      var read=document.createElement('a');
+      read.className='read';
+      read.href=artHref(it);
+      read.textContent='阅读全文 →';
+      foot.appendChild(read);
+      if(it.locked && it.hasLock!==false){ var lk=document.createElement('span'); lk.className='lock'; lk.textContent='🔒 需要密码'; foot.appendChild(lk); }
+      card.appendChild(foot);
+      return card;
+    }
+    function artvChips(){
+      var box=document.getElementById('artChips');
+      if(!box) return;
+      var seen={}, cats=[];
+      artv.list.forEach(function(it){ var c=artCatOf(it); if(!seen[c]){ seen[c]=1; cats.push(c); } });
+      var html='<button type="button" class="chip'+(artv.cat==='all'?' is-on':'')+'" data-artcat="all">全部</button>';
+      cats.forEach(function(c){
+        html+='<button type="button" class="chip'+(artv.cat===c?' is-on':'')+'" data-artcat="'+artvEsc(c)+'">'+artvEsc(c)+'</button>';
+      });
+      box.innerHTML=html;
+    }
+    function artvMatch(it){
+      if(artv.cat!=='all' && artCatOf(it)!==artv.cat) return false;
+      var q=artv.q;
+      if(!q) return true;
+      var tags=Array.isArray(it.tags)?it.tags.join(' '):'';
+      var hay=(str(it.title)+' '+str(it.summary)+' '+artCatOf(it)+' '+tags).toLowerCase();
+      return hay.indexOf(q)>=0;
+    }
+    function renderArtView(){
+      var box=document.getElementById('artViewList');
+      if(!box) return;
+      var items=artv.list.filter(artvMatch);
+      if(artv.sort==='old') items.sort(function(a,b){ return String(a.date||'').localeCompare(String(b.date||'')); });
+      else if(artv.sort==='title') items.sort(function(a,b){ return String(a.title||'').localeCompare(String(b.title||''),'zh'); });
+      else items.sort(function(a,b){
+        if(!!a.pinned!==!!b.pinned) return a.pinned?-1:1;
+        return String(b.date||'').localeCompare(String(a.date||''));
+      });
+      if(!items.length){
+        box.innerHTML='<div class="empty">没有匹配的文章'+(artv.q?'，换个关键词试试':'')+'。</div>';
+        return;
+      }
+      var grid=document.createElement('div');
+      grid.className='artgrid';
+      items.forEach(function(it){ grid.appendChild(artCardEl(it)); });
+      box.replaceChildren(grid);
+    }
+    function loadArtView(){
+      if(artv.loaded){ renderArtView(); return; }
+      if(artv.loading) return;
+      var box=document.getElementById('artViewList');
+      artv.loading=getJSON('/data/articles.json').then(function(data){
+        var arr=Array.isArray(data)?data:(data&&Array.isArray(data.articles)?data.articles:[]);
+        artv.list=arr.filter(function(it){ return it && str(it.title); });
+        artv.loaded=true;
+        if(box && box.getAttribute('aria-busy')) box.removeAttribute('aria-busy');
+        artvChips();
+        renderArtView();
+      }).catch(function(){
+        if(box) box.innerHTML='<div class="empty">文章没读出来，稍后再试。</div>';
+      });
+    }
+
     function renderArticles(list){
       window.__ghrankArticles=list||[];
       var box=document.getElementById('articles');
@@ -1421,26 +1559,49 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       });
     }
     function setView(v){
-      var isNav = v==='nav';
-      var rank=document.getElementById('rank'), nv=document.getElementById('navView');
-      if(rank) rank.hidden=isNav;
-      if(nv) nv.hidden=!isNav;
-      document.body.setAttribute('data-page', isNav?'nav':'rank');
-      var tr=document.getElementById('tabRank'), tn=document.getElementById('tabNav');
-      if(tr){ tr.classList.toggle('is-on',!isNav); tr.setAttribute('aria-selected',String(!isNav)); }
-      if(tn){ tn.classList.toggle('is-on',isNav); tn.setAttribute('aria-selected',String(isNav)); }
-      try{ if(history.replaceState) history.replaceState(null,'', isNav?'/?page=nav':'/'); }catch(e){}
-      if(isNav) loadNav();
+      var v2 = (v==='nav'||v==='articles') ? v : 'rank';
+      var rank=document.getElementById('rank'), nv=document.getElementById('navView'), av=document.getElementById('artView');
+      if(rank) rank.hidden = v2!=='rank';
+      if(nv) nv.hidden = v2!=='nav';
+      if(av) av.hidden = v2!=='articles';
+      document.body.setAttribute('data-page', v2);
+      var tabs={rank:document.getElementById('tabRank'),nav:document.getElementById('tabNav'),articles:document.getElementById('tabArticles')};
+      Object.keys(tabs).forEach(function(k){
+        var el=tabs[k]; if(!el) return;
+        var on = (k===v2);
+        el.classList.toggle('is-on',on);
+        el.setAttribute('aria-selected',String(on));
+      });
+      try{ if(history.replaceState) history.replaceState(null,'', v2==='nav'?'/?page=nav':(v2==='articles'?'/?page=articles':'/')); }catch(e){}
+      if(v2==='nav') loadNav();
+      if(v2==='articles') loadArtView();
     }
-    var tRank=document.getElementById('tabRank'), tNav=document.getElementById('tabNav');
+    var tRank=document.getElementById('tabRank'), tNav=document.getElementById('tabNav'), tArt=document.getElementById('tabArticles');
     if(tRank) tRank.addEventListener('click',function(){ setView('rank'); });
     if(tNav) tNav.addEventListener('click',function(){ setView('nav'); });
+    if(tArt) tArt.addEventListener('click',function(){ setView('articles'); });
+    var artMore=document.getElementById('artMore');
+    if(artMore) artMore.addEventListener('click',function(e){ e.preventDefault(); setView('articles'); if(window.scrollTo) window.scrollTo({top:0,behavior:'smooth'}); });
+    var artSearchBox=document.getElementById('artSearch');
+    if(artSearchBox) artSearchBox.addEventListener('input',function(){ artv.q=str(this.value).toLowerCase(); renderArtView(); });
+    var artSortBox=document.getElementById('artSort');
+    if(artSortBox) artSortBox.addEventListener('change',function(){ artv.sort=this.value||'new'; renderArtView(); });
+    var artChipsBox=document.getElementById('artChips');
+    if(artChipsBox) artChipsBox.addEventListener('click',function(e){
+      var b=e.target&&e.target.closest?e.target.closest('[data-artcat]'):null;
+      if(!b) return;
+      artv.cat=b.getAttribute('data-artcat')||'all';
+      artvChips();
+      renderArtView();
+    });
     var navSearchBox=document.getElementById('navSearch');
     if(navSearchBox) navSearchBox.addEventListener('input',function(){ if(navLoaded) renderNav(); });
     // 直接打开导航页：/nav、/?page=nav、/#nav 都认（head 里已提前记下意图）
     // 只认 URL 里的意图（/nav、/?page=nav、/#nav）；不读历史记忆，否则从 /faq 点「榜单」会跳到导航页
     var wantNav = window.__wantNav === true;
-    if(wantNav) setView('nav');
+    var wantArt = window.__wantArt === true || /[?&]page=articles(?:&|$)/.test(location.search) || location.hash === '#artView';
+    if(wantArt) setView('articles');
+    else if(wantNav) setView('nav');
 })();
 </script>
 <dialog id="adModal" class="ad-modal" aria-label="广告详情">

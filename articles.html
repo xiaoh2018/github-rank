@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>文章 · GitHub 热门项目排行榜</title>
-<meta name="description" content="站点说明、数据口径与更新记录。GitHub 热门项目排行榜的博客栏目。">
+<meta name="description" content="站长写的文章，按时间倒序。GitHub 热门项目排行榜的博客栏目。">
 <link rel="canonical" href="https://github.661026.xyz/articles">
 <link rel="alternate" type="application/rss+xml" title="文章 RSS" href="https://github.661026.xyz/rss.xml">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -302,7 +302,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         <svg class="star-dot" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2l-6.1 3.4 1.4-6.8L2.2 9.1l6.9-.8z"/></svg>
         <h1><a href="/">GitHub 热门项目排行榜</a></h1>
       </div>
-      <p class="sub">站点说明、数据口径与更新记录</p>
+      <p class="sub">站长写的东西，按时间倒序</p>
     </div>
     <nav class="mainnav" aria-label="主导航">
       <a class="mnav" href="/">榜单</a>
@@ -318,12 +318,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
 
   <div class="bhero" id="hero">
     <h2>文章</h2>
-    <p>这里放站长写的东西：榜单背后的数据口径、Cloudflare Worker 的折腾记录，以及做这个站踩过的坑。加密文章需要输入密码才能看正文。</p>
-    <div class="bstats">
-      <div class="bstat"><b id="stCount">0</b><span>篇文章</span></div>
-      <div class="bstat"><b id="stCats">0</b><span>个分类</span></div>
-      <div class="bstat"><b id="stLast">—</b><span>最近更新</span></div>
-    </div>
+    <p>站长写的东西，按时间倒序。加密文章需要输入密码才能看正文。</p>
+
   </div>
 
   <div class="adslot" id="adAPTop" hidden><div class="ad-inner"></div></div>
@@ -359,11 +355,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     </section>
 
     <aside class="bside" id="side">
-      <div class="bcard">
-        <h2>关于本站</h2>
-        <p id="aboutText">GitHub 热门项目排行榜：按星标数看开源项目，数据每 3 小时抓取一次。</p>
-        <p style="margin-top:10px"><a href="/">去看看榜单 →</a></p>
-      </div>
+
       <div class="bcard">
         <h2>分类</h2>
         <ul class="blist" id="catList"><li><small>暂无分类</small></li></ul>
@@ -374,11 +366,11 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       </div>
       <div class="adslot" id="adAPSide" hidden><div class="ad-inner"></div></div>
       <div class="bcard">
-        <h2>导航</h2>
+        <h2>站内</h2>
         <ul class="blist">
-          <li><a href="/?page=nav">常用站点导航</a></li>
-          <li><a href="/">项目榜 / 开发者榜 / 组织榜</a></li>
-          <li><a href="/sitemap.xml">站点地图</a></li>
+          <li><a href="/">项目榜单</a></li>
+          <li><a href="/?page=nav">常用站点</a></li>
+          <li><a href="/faq">常见问题</a></li>
         </ul>
       </div>
     </aside>
@@ -706,9 +698,9 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   function renderChips() {
     var m = catCount();
     var names = Object.keys(m).sort(function (a, b) { return m[b] - m[a]; });
-    var html = '<button class="chip' + (state.cat === 'all' ? ' is-on' : '') + '" data-cat="all">全部<b>' + state.arts.length + '</b></button>';
+    var html = '<button class="chip' + (state.cat === 'all' ? ' is-on' : '') + '" data-cat="all">全部</button>';
     names.forEach(function (n) {
-      html += '<button class="chip' + (state.cat === n ? ' is-on' : '') + '" data-cat="' + esc(n) + '">' + esc(catDisplay(n)) + '<b>' + m[n] + '</b></button>';
+      html += '<button class="chip' + (state.cat === n ? ' is-on' : '') + '" data-cat="' + esc(n) + '">' + esc(catDisplay(n)) + '</button>';
     });
     $('chips').innerHTML = html;
     paintChips();
@@ -727,7 +719,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var m = catCount();
     var names = Object.keys(m).sort(function (a, b) { return m[b] - m[a]; });
     $('catList').innerHTML = names.length
-      ? names.map(function (n) { return '<li><a href="#" data-cat="' + esc(n) + '"><span>' + esc(catDisplay(n)) + '</span><small>' + m[n] + '</small></a></li>'; }).join('')
+      ? names.map(function (n) { return '<li><a href="#" data-cat="' + esc(n) + '"><span>' + esc(catDisplay(n)) + '</span></a></li>'; }).join('')
       : '<li><small>暂无分类</small></li>';
     var recent = state.arts.slice().sort(function (a, b) {
       if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
@@ -739,18 +731,10 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       ? recent.map(function (a) { return '<li><a href="' + esc(artPath(a)) + '" data-id="' + esc(a.id) + '"><span>' + esc(a.title || '(无标题)') + '</span><small>' + esc(String(a.date || '').slice(5, 10)) + '</small></a></li>'; }).join('')
       : '<li><small>暂无文章</small></li>';
     var s = state.site || {};
-    if (s.geo && s.geo.summary) $('aboutText').textContent = s.geo.summary;
-    else if (s.seo && s.seo.description) $('aboutText').textContent = s.seo.description;
     var side = (s.layout && s.layout.articleSide) || 'right';
     $('blog').setAttribute('data-side', side);
   }
 
-  function renderHero() {
-    $('stCount').textContent = state.arts.length;
-    $('stCats').textContent = Object.keys(catCount()).length;
-    var last = state.arts.map(function (a) { return String(a.date || ''); }).sort().pop();
-    $('stLast').textContent = last ? last.slice(0, 10) : '—';
-  }
 
   function findArt(id) {
     var raw = String(id == null ? '' : id);
@@ -1242,8 +1226,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         var h1 = document.querySelector('.brand h1 a');
         if (h1) h1.textContent = state.site.seo.siteName;
       }
-      renderHero();
-      renderChips();
+          renderChips();
       renderSide();
       renderCards();
       renderAds(state.site);

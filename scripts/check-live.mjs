@@ -255,6 +255,11 @@ push('后台文章工具栏小屏先筛后排', admHtml.includes('#pane-articles
 push('后台侧栏小屏隐藏分组小标题', admHtml.includes('.side .navgroup{display:none}'), '');
 push('后台侧栏小屏压成一行（max-height 58）', admHtml.includes('.side{max-height:58px'), '');
 push('问答页标签条小屏单行横滚', faqText.includes('.chips{flex-wrap:nowrap') && faqText.includes('function paintChips'), '');
+push('首页「文章」是页内 tab（button + artView）', home.includes('id="tabArticles"') && home.includes('data-view="articles"') && home.includes('id="artView"'), '');
+push('文章视图带搜索与分类胶囊', home.includes('id="artSearch"') && home.includes('id="artChips"') && home.includes('function renderArtView'), '');
+push('非榜单视图时收起榜单工具栏与统计卡', home.includes('body[data-page="articles"] #rankBar'), '');
+push('文章页去掉统计卡与「关于本站」', artText.includes('站长写的东西，按时间倒序') && !artText.includes('id="stCount"') && !artText.includes('id="aboutText"'), '');
+push('bundle 同步地址时保留 page=articles', bundleJs.includes("pageMark === 'nav' || pageMark === 'articles'"), '');
 
 let bad = 0;
 for (const r of rows) {
