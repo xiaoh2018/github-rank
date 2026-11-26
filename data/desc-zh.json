@@ -4596,5 +4596,10 @@
  "Rewrite your app in Rust, piece by piece, checked against the original at every step. Works with TypeScript, JavaScript, Python, Go, Ruby, Java, C, PHP, C#, Kotlin and PowerShell.": "使用 Rust 逐一重写您的应用程序，并在每个步骤中对照原版进行检查。适用于 TypeScript、JavaScript、Python、Go、Ruby、Java、C、PHP、C#、Kotlin 和 PowerShell。",
  "岛仔 Daozai 是一款用 Rust 构建的 Windows 桌面信息岛。抬眼就能看天气、系统性能、蓝牙电量、音乐歌词、邮件验证码、日程、待办和 AI 额度。": "岛仔 Daozai 是一款用 Rust 构建的 Windows 桌面信息岛。抬眼就能看天气、系统性能、蓝牙电量、音乐歌词、邮件验证码、日程、待办和 AI 额度。",
  "Games, 3D worlds and web pages built with Claude Fable 5.2 that you can actually open — 248 live works (every link checked) + 156 video demos, each with a GIF preview and creator credit. Updated daily.": "使用 Claude Fable 5.2 构建的游戏、3D 世界和网页，您可以真正打开它们——248 个实时作品（每个链接均已检查）+ 156 个视频演示，每个都带有 GIF 预览和创作者署名。每日更新。",
- "1.x适用于CFNext所有版本的节点优选器，2.x仅支持3.0以上的版本，支持一键部署/一键更新/面板管理/自动上报/手动上报/自动拉取CD EDT的IP源，复用部分CF Data WEB代码和逻辑实现": "1.x 适用于 CFNext 所有版本的节点优选器，2.x 仅支持 3.0 以上的版本，支持一键部署/一键更新/面板管理/自动上报/手动上报/自动拉取 CD EDT 的 IP 源，复用部分 CF Data WEB 代码和逻辑实现"
+ "1.x适用于CFNext所有版本的节点优选器，2.x仅支持3.0以上的版本，支持一键部署/一键更新/面板管理/自动上报/手动上报/自动拉取CD EDT的IP源，复用部分CF Data WEB代码和逻辑实现": "1.x 适用于 CFNext 所有版本的节点优选器，2.x 仅支持 3.0 以上的版本，支持一键部署/一键更新/面板管理/自动上报/手动上报/自动拉取 CD EDT 的 IP 源，复用部分 CF Data WEB 代码和逻辑实现",
+ "Un minuteur web minimal pour se concentrer, faire une pause et avancer une chose à la fois.": "一款简约的网页计时器，帮助您集中精力、稍作休息，并一次只做一件事。",
+ "给你正在跑的 coding agent 配一个本地 Web 工作台：看过程、插话纠正、管模型与工具。支持 PI / Codex / Claude Code / opencode/DSH，会话就是引擎的落盘文件，不引数据库。": "为正在运行的编码代理配备一个本地 Web 工作台：查看过程、插话纠正、管理模型与工具。支持 PI / Codex / Claude Code / opencode/DSH，会话就是引擎的落盘文件，不引用数据库。",
+ "敲敲猫 · A desktop cat that types along with you. Portable download for Windows.": "敲敲猫 · 一只与您一起打字的桌面猫。适用于 Windows 的便携式下载。",
+ "Abliterated Inkling-2-Mini on ingine, a custom CUDA engine for one RTX 5090: 256K context, DSpark speculation, OpenAI API, and a one-line installer/updater.": "Abliterated Inkling-2-Mini 引擎，一款专为 RTX 5090 定制的 CUDA 引擎：256K 上下文、DSpark 推测、OpenAI API 以及一行代码的安装程序/更新程序。",
+ "岛仔 Daozai 是一款用 Rust 构建的 Windows 桌面信息岛。抬眼就能看天气、系统性能、蓝牙电量、音乐歌词、邮件验证码、日程、待办和 AI 额度。内置插件集市，可按需扩展功能。": "岛仔 Daozai 是一款用 Rust 构建的 Windows 桌面信息岛。抬眼就能看天气、系统性能、蓝牙电量、音乐歌词、邮件验证码、日程、待办和 AI 额度。内置插件集市，可按需扩展功能。"
 }
