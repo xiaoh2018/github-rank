@@ -975,6 +975,38 @@ function refreshTokenHint() {
   updateSourceNote();
 }
 $('btnSettings').onclick = () => { $('settings').hidden = !$('settings').hidden; refreshTokenHint(); };
+
+// ---------- 手机上把「语言分布 / 作者 / 变化」收起来 ----------
+// 桌面是右侧栏，读者想看的榜单在左边；手机上一列排下来，这块要是展开就挡在榜单前面，
+// 而且排在列表最下面又等于没人看。折中：默认收起 + 一个按钮，点开就顶到摘要下面。
+function syncInsightFold(reset) {
+  const btn = $('insightBtn');
+  const box = $('insights');
+  if (!btn || !box) return;
+  const narrow = window.matchMedia('(max-width:760px)').matches;
+  if (!narrow) {
+    box.hidden = false;
+    btn.setAttribute('aria-expanded', 'false');
+    return;
+  }
+  if (reset || !btn.dataset.init) {
+    btn.dataset.init = '1';
+    box.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+  }
+}
+$('insightBtn').onclick = () => {
+  const box = $('insights');
+  box.hidden = !box.hidden;
+  $('insightBtn').setAttribute('aria-expanded', box.hidden ? 'false' : 'true');
+};
+let insightWide = window.matchMedia('(max-width:760px)').matches;
+window.addEventListener('resize', () => {
+  const narrow = window.matchMedia('(max-width:760px)').matches;
+  if (narrow !== insightWide) { insightWide = narrow; syncInsightFold(true); }
+});
+syncInsightFold();
+window.__syncInsightFold = syncInsightFold;
 $('btnSaveToken').onclick = () => {
   const v = $('token').value.trim();
   if (!v) return;

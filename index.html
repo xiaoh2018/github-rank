@@ -401,7 +401,14 @@ html[data-theme="ink"] .navcard .hitmark,html[data-theme="ink"] .navjump .hitmar
 .au-stars{font-family:Consolas,ui-monospace,monospace;font-size:13px;font-weight:600;color:var(--accent);text-align:right}
 .insights .author-row{grid-template-columns:22px 24px minmax(0,1fr) 54px}
 .insights .au-bar{display:none}
-@media (max-width:600px){
+  .insights-toggle{display:none;margin:12px 0 0}
+  @media (max-width:760px){
+    .insights-toggle{display:inline-flex;align-items:center;min-height:40px}
+    .layout{display:flex;flex-direction:column}
+    .insights{order:-1;margin-top:12px}
+    .insights[hidden]{display:none}
+  }
+  @media (max-width:600px){
   .author-row{grid-template-columns:22px 24px minmax(0,1fr) 48px;gap:8px}
   .layout{grid-template-columns:1fr}
     .readme-wrap{margin-top:4px}
@@ -780,6 +787,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
 
   <div class="ad-slot" id="adHomeTop" role="region" aria-label="广告位（顶部）" hidden></div>
   <div class="stats" id="stats" hidden></div>
+  <button class="btn ghost insights-toggle repo-only" id="insightBtn" type="button" aria-expanded="false" aria-controls="insights">分析：语言 · 作者 · 变化</button>
 
       <main class="layout" id="rank">
       <div class="main">
