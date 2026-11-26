@@ -1270,7 +1270,7 @@ function translatorStatus(env, rt) {
     contactEmail: !!env.TRANSLATE_EMAIL || !!env.TRANSLATE_EMAILS || !!(rt && rt.emails),
     emails: mmEmails(env, rt).length,
     aiCap: cap === Infinity ? 0 : cap,
-    aiCapSource: rt && typeof rt.aiCap === 'number' ? 'admin' : 'env',
+    aiCapSource: rt && typeof rt.aiCap === 'number' ? 'admin' : (env.AI_DAILY_CAP ? 'env' : 'default'),
   };
 }
 
@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v152';
+const ASSET_V = 'v153';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2072,6 +2072,34 @@ function engineHint(kind, status) {
   return '';
 }
 
+async function countsOf(env) {
+  const got = await Promise.all([
+    rawJson(env, 'data/articles.json').catch(function () { return null; }),
+    rawJson(env, 'data/nav.json').catch(function () { return null; }),
+    rawJson(env, 'data/qa.json').catch(function () { return null; }),
+    rawJson(env, 'data/links.json').catch(function () { return null; }),
+    rawJson(env, 'data/site.json').catch(function () { return null; }),
+  ]);
+  const a1 = got[0] || {};
+  const n1 = got[1] || {};
+  const q1 = got[2] || {};
+  const l1 = got[3] || {};
+  const s1 = got[4] || {};
+  let navSites = 0;
+  ((n1.groups || [])).forEach(function (g) { navSites += (g.items || []).length; });
+  const arrOf = function (x) { return Array.isArray(x) ? x : []; };
+  let categories = [];
+  try { categories = normalizeSite(s1).article.categories || []; } catch (e) { categories = []; }
+  return {
+    articles: (Array.isArray(a1) ? a1.length : arrOf(a1.articles).length),
+    categories: categories.length,
+    navSites: navSites,
+    navGroups: ((n1.groups || [])).length,
+    qa: arrOf(q1.items).length,
+    links: (Array.isArray(l1) ? l1.length : arrOf(l1.links).length),
+  };
+}
+
 async function handleHealth(env, origin) {
   const rt = await siteRuntime(env);
   const key = indexNowKey(env, rt);
@@ -2084,12 +2112,22 @@ async function handleHealth(env, origin) {
     keyFileOk = false;
   }
   let counts = null;
+  try { counts = await countsOf(env); } catch (e) { counts = null; }
+  let dataAge = null;
   try {
-    const raw = await rawJson(env, 'data/articles.json');
-    const list = Array.isArray(raw) ? raw : [];
-    counts = { articles: list.length };
-    if (list.length !== raw.length) counts.raw = raw.length;
-  } catch (e) {}
+    const metaRes = await fetch(
+      'https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/data/repos-meta.js',
+      { cf: { cacheTtl: RAW_TTL, cacheEverything: true } }
+    );
+    if (metaRes.ok) {
+      const metaText = await metaRes.text();
+      const g = /generatedAt:\s*"([^"]+)"/.exec(metaText);
+      if (g) {
+        const mins = Math.max(0, Math.round((Date.now() - new Date(g[1]).getTime()) / 60000));
+        dataAge = { generatedAt: g[1], minutes: mins };
+      }
+    }
+  } catch (e) { dataAge = null; }
   let st = null;
   try { st = await getStatusCached(env); } catch (e) {}
   return json({
@@ -2102,6 +2140,7 @@ async function handleHealth(env, origin) {
     ai: await aiUsage(env, rt),
     keyFileOk: keyFileOk,
     counts: counts,
+    dataAge: dataAge,
   });
 }
 
@@ -2150,31 +2189,7 @@ async function handleSubmit(request, env, origin) {
         baiduToken: !!baiduNow,
         baiduTokenSource: (rtSubmit && rtSubmit.baiduToken) ? 'admin' : (env.BAIDU_TOKEN ? 'env' : 'none'),
         aiUsage: await aiUsage(env, rtSubmit),
-        counts: await (async function () {
-          const got = await Promise.all([
-            rawJson(env, 'data/articles.json').catch(function () { return null; }),
-            rawJson(env, 'data/nav.json').catch(function () { return null; }),
-            rawJson(env, 'data/qa.json').catch(function () { return null; }),
-            rawJson(env, 'data/links.json').catch(function () { return null; }),
-            rawJson(env, 'data/site.json').catch(function () { return null; }),
-          ]);
-          const a1 = got[0] || {};
-          const n1 = got[1] || {};
-          const q1 = got[2] || {};
-          const l1 = got[3] || {};
-          const s1 = got[4] || {};
-          let navSites = 0;
-          ((n1.groups || [])).forEach(function (g) { navSites += (g.items || []).length; });
-          const arrOf = function (x) { return Array.isArray(x) ? x : []; };
-          return {
-            articles: (Array.isArray(a1) ? a1.length : arrOf(a1.articles).length),
-            categories: arrOf((function () { try { return normalizeSite(s1).article.categories; } catch (e) { return []; } })()).length,
-            navSites: navSites,
-            navGroups: ((n1.groups || [])).length,
-            qa: arrOf(q1.items).length,
-            links: (Array.isArray(l1) ? l1.length : arrOf(l1.links).length),
-          };
-        })(),
+        counts: await countsOf(env),
         lastRun: await readLastSubmit(),
         cooldown: (function (last) {
           if (!last || !last.at) return { seconds: 0 };
@@ -3433,6 +3448,8 @@ td>.empty-card{margin:0}
 /* ---- 状态清单 / 键值 ---- */
 .status-list{display:grid;gap:8px;margin-top:8px}
 .status-item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
+.status-item>b{flex:0 0 auto;white-space:nowrap}
+.status-item>span:not(.dot){min-width:0;flex:1 1 auto}
 .status-item .dot{margin:0}
 .status-item small{color:var(--muted);margin-left:auto;font-size:12px;text-align:right}
 .steps{margin:0;padding-left:20px;color:var(--muted);font-size:13px;line-height:1.9}
@@ -3740,6 +3757,8 @@ tr:hover td{background:#fcfbf8}
   #app .qa-q,#app .qa-tag,#app .nav-table input{font-size:16px;min-height:36px}
   /* #qaList .qa-a 的 (1,1,0) 比 #app textarea 高，要单独压 */
   #app #qaList .qa-a{font-size:16px;min-height:120px}
+  .status-item{flex-wrap:wrap;row-gap:2px}
+  .status-item>span:not(.dot){flex:1 1 100%;color:var(--muted);font-size:13px;padding-left:18px}
   .main .btn,.main button,.main a.btn,.ghost.small{min-height:38px;display:inline-flex;align-items:center;justify-content:center}
   .app{grid-template-columns:1fr}
   .side{position:sticky;top:0;height:auto;display:flex;overflow-x:auto;padding:0;border-right:0;border-bottom:1px solid #16233a;background:linear-gradient(180deg,#0b1220 0%,#0d1a2f 100%)}
@@ -4662,6 +4681,10 @@ tr:hover td{background:#fcfbf8}
       rows.push(healthRow('站点地址', true, base));
       if (h) {
         rows.push(healthRow('Worker 版本', !!h.version, (h.version || '未知') + ' · 文章 ' + ((h.counts && h.counts.articles) || 0) + ' 篇 · key 文件 ' + (h.keyFileOk ? '可读' : '读不到')));
+      }
+      if (h && h.dataAge && typeof h.dataAge.minutes === 'number') {
+        var minsAgo = h.dataAge.minutes;
+        rows.push(healthRow('数据新鲜度', minsAgo <= 360, minsAgo < 60 ? (minsAgo + ' 分钟前抓取') : (Math.round(minsAgo / 60) + ' 小时前抓取 · 每 3 小时自动一次')));
       }
       rows.push(healthRow('key 文件', !!(sub && sub.keyFileOk), (sub && sub.keyFileOk) ? '能打开，内容' + (sub.keyFileMatch ? '与后台一致' : '与后台不一致（会被 422 拒绝）') : ((sub && sub.keyFileNote) || '打不开')));
       rows.push(healthRow('百度密钥', !!(sub && sub.baiduToken), sub && sub.baiduToken ? '已配置（来源 ' + (sub.baiduTokenSource || 'env') + '）' : '没配，百度推送会跳过'));

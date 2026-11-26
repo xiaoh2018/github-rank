@@ -122,6 +122,9 @@ const health = await fetch(base + '/api/health?v=' + t);
 const healthJson = await health.json().catch(() => null);
 const hv = healthJson && (healthJson.assetV || healthJson.version || (healthJson.status && healthJson.status.assetV));
 push('/api/health', health.ok && !!hv, health.status + ' ' + (hv || ''));
+push('/api/health 带数据新鲜度 dataAge', !!(healthJson && healthJson.dataAge && typeof healthJson.dataAge.minutes === 'number'), JSON.stringify(healthJson && healthJson.dataAge));
+push('/api/health 内容量与后台一致（六字段）', !!(healthJson && healthJson.counts && typeof healthJson.counts.qa === 'number' && typeof healthJson.counts.navGroups === 'number' && typeof healthJson.counts.links === 'number'), JSON.stringify(healthJson && healthJson.counts));
+push('后台体检卡有「数据新鲜度」一行', adm.includes('数据新鲜度'), '');
 
 push('后台 SEO 结果预览', adm.includes('serpTitle') && adm.includes('serpDesc'));
 push('后台广告预览按钮', adm.includes('data-adprev') && adm.includes('adPrevDlg'));
