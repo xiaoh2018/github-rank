@@ -346,6 +346,9 @@ push('静态文章页的 md.js 用绝对路径（嵌套 URL 不 404）', (await 
 push('后台对话框统一 aria-modal（showModal 包裹）', admHtml.includes('HTMLDialogElement.prototype.showModal') && admHtml.includes('setAttribute("aria-modal", "true")'), '');
 push('后台对话框 Tab 首尾环（栈式，只对最上层生效）', admHtml.includes('DLG_STACK') && admHtml.includes('var first = list[0], last = list[list.length - 1]'), '');
 push('后台 Esc 只点取消/关闭，不误触删除', admHtml.includes('function dlgCancelText') && admHtml.includes('pick.click()'), '');
+push('导航每行有「打开」链接（新标签 + noopener）', admHtml.includes('class="small nav-open"') && admHtml.includes('target="_blank" rel="noopener"'), '');
+push('「打开」有带站点名的可访问名', admHtml.includes('aria-label="打开 " + navEsc(it.name'), '');
+push('没填网址时「打开」不可点（span 而非 href=#）', admHtml.includes('nav-open off') && admHtml.includes('还没填网址'), '');
 push('保存按钮文字会变「保存中…」并恢复', admHtml.includes("saveLabel(btn, '保存中…')") && admHtml.includes('btn.textContent = text || btn.dataset.label'), '');
 push('保存失败给人话原因 + 重试', admHtml.includes("msg.textContent = '保存失败：' + saveReason(r)") && admHtml.includes("again.textContent = '重试'"), '');
 push('删除结果有常驻状态行助手', admHtml.includes('function paintDelMsg') && admHtml.includes('function delMsgBox'));

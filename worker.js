@@ -1688,7 +1688,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v220';
+const ASSET_V = 'v221';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3450,6 +3450,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .save-msg.ok{color:#15803d}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 .save-msg.err{color:var(--bad)}
+.row-actions a.small{display:inline-flex;align-items:center;min-height:30px;padding:0 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--fg);text-decoration:none;font-size:12.5px}
+.row-actions a.small:hover{border-color:var(--accent);color:var(--accent)}
+.row-actions a.small:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.nav-open.off{opacity:.45;cursor:not-allowed;border-style:dashed}
 .save-msg .linkbtn{margin:0;padding:0 2px;min-height:0;border:0;background:none;color:inherit;font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer;box-shadow:none}
 .save-msg .linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 .toggle{display:flex;align-items:center;gap:10px;margin:4px 0 2px;font-weight:600;color:var(--text)}
@@ -6288,6 +6292,9 @@ tr:hover td{background:#fcfbf8}
       '<td><input type="text" data-f="desc" value="' + navEsc(it.desc || '') + '" placeholder="一句话描述"></td>' +
       '<td><input type="url" data-f="icon" value="' + icon + '" placeholder="图标 URL（可不填）"></td>' +
       '<td class="cell-act"><div class="row-actions">' +
+      (it.url
+        ? '<a class="small nav-open" href="' + navEsc(it.url) + '" target="_blank" rel="noopener" title="在新标签页打开这个站点" aria-label="打开 ' + navEsc(it.name || '站点') + '">打开</a>'
+        : '<span class="nav-open off" title="还没填网址">打开</span>') +
       '<button type="button" class="ghost small" data-sup="1" title="上移"' + (ii === 0 ? ' disabled' : '') + '>↑</button>' +
       '<button type="button" class="ghost small" data-sdn="1" title="下移"' + (ii === (((navState.groups[gi] || {}).items || []).length - 1) ? ' disabled' : '') + '>↓</button>' +
       '<button type="button" class="ghost small" data-ifetch="1">自动获取</button>' +
@@ -6332,7 +6339,7 @@ tr:hover td{background:#fcfbf8}
         '<button type="button" class="ghost small" data-gadd="' + gi + '">＋ 站点</button>' +
         '<button type="button" class="ghost small danger" data-gdel="' + gi + '">删分类</button></div></div>' +
         (shown.length
-          ? '<table class="nav-table"><thead><tr><th style="width:215px">名称</th><th style="width:255px">网址</th><th>描述</th><th style="width:200px">图标</th><th style="width:212px">操作</th></tr></thead><tbody>' + rows + '</tbody></table>'
+          ? '<table class="nav-table"><thead><tr><th style="width:215px">名称</th><th style="width:255px">网址</th><th>描述</th><th style="width:200px">图标</th><th style="width:262px">操作</th></tr></thead><tbody>' + rows + '</tbody></table>'
           : (q
             ? '<div class="empty-card" role="status"><b>这个分类里没有匹配的站点</b><p>换个关键词，或清空筛选看这个分类的全部 ' + items.length + ' 个站点。</p><button type="button" class="btn ghost" data-navfreset="1">清空筛选</button></div>'
             : '<div class="empty-card" role="status"><b>这个分类还没有站点</b><p>加站点时填「名称 | 网址 | 描述 | 图标」，图标可留空，前台会自动取站名首字母。</p><button type="button" class="btn" data-gadd="' + gi + '">＋ 站点</button></div>')) +
