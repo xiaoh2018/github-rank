@@ -273,6 +273,9 @@ push('榜单卡取自然高度（不再强行等高留白）', home.includes('ga
 push('分类胶囊有统一视觉（实心选中 + 圆角 + hover）', home.includes('.chip.is-on{background:var(--accent)') && home.includes('.chip:hover{border-color:var(--accent)') && home.includes('function paintChipBox'), '');
 push('文章页胶囊与首页同一套样式', artText.includes('.chip.is-on{background:var(--accent)') && artText.includes('.chip:hover{border-color:var(--accent)'), '');
 push('问答页胶囊选中改为实心（与首页一致）', faqText.includes('.chip.is-on{background:var(--accent)') && faqText.includes('.chip:hover{border-color:var(--accent)'), '');
+push('窄屏有「筛选」抽屉与角标', home.includes('id="moreFilters"') && home.includes('class="mf-sum"') && home.includes('id="mfN"'), '');
+push('桌面用 display:contents 保持三个下拉行内', home.includes('#rankBar details.morefilters{display:contents}'), '');
+push('榜单分类胶囊窄屏单行横滚 + 渐隐', home.includes('#cats{flex-wrap:nowrap;overflow-x:auto') && home.includes('#cats.x-end{-webkit-mask-image:none'), '');
 
 let bad = 0;
 for (const r of rows) {

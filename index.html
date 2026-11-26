@@ -618,6 +618,36 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   #q,#search,#navSearch{font-size:16px;min-height:44px}
   #pgJump{min-width:64px}
 }
+
+  /* 桌面：抽屉不显形，里面三个下拉仍是 .controls 的行内项 */
+  #rankBar details.morefilters{display:contents}
+  #rankBar details.morefilters>.mf-sum{display:none}
+  #rankBar details.morefilters>.mf-body{display:contents}
+
+  /* 分类胶囊：窄屏单行横滚 + 右缘渐隐 */
+  @media (max-width:760px){
+    #rankBar details.morefilters{display:block;flex:0 0 auto}
+    #rankBar #q{flex:1 1 120px;min-width:0;max-width:100%}
+    #rankBar details.morefilters>.mf-sum{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 14px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--muted);font-size:13px;line-height:1;cursor:pointer;list-style:none}
+    #rankBar details.morefilters>.mf-sum::-webkit-details-marker{display:none}
+    #rankBar details.morefilters>.mf-sum{list-style:none}
+    #rankBar details.morefilters>.mf-sum::after{content:"▾";font-size:11px;opacity:.7}
+    #rankBar details[open].morefilters{flex:1 1 100%}
+    #rankBar details[open].morefilters>.mf-sum{color:var(--accent);border-color:var(--accent)}
+    #rankBar details[open].morefilters>.mf-sum::after{content:"▴"}
+    #rankBar details.morefilters>.mf-body{display:none}
+    #rankBar details[open].morefilters>.mf-body{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    #rankBar details.morefilters>.mf-body>select{flex:1 1 120px;min-width:0;max-width:100%;box-sizing:border-box}
+    .mf-n{color:var(--accent);font-weight:600}
+
+    #cats{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding-bottom:2px;scrollbar-width:none;
+      -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%);
+      mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%)}
+    #cats::-webkit-scrollbar{display:none}
+    #cats.x-end{-webkit-mask-image:none;mask-image:none}
+    #cats .cat{flex:0 0 auto;min-height:38px;display:inline-flex;align-items:center}
+  }
+
 </style>
 </head>
 <body>
@@ -711,19 +741,24 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         <button class="btn" data-range="year">近 1 年</button>
         <button class="btn" data-range="total" title="GitHub 全站星标前 500（不分时间）">总榜</button>
       </div>
-      <select id="lang" class="repo-only" aria-label="语言"></select>
-      <select id="sort" class="repo-only" aria-label="排序">
-        <option value="stars">按星标</option>
-        <option value="trend">按今日增量</option>
-        <option value="activity">按活跃度</option>
-        <option value="forks">按 Fork</option>
-        <option value="updated">按最近更新</option>
-      </select>
-      <select id="pageSize" class="repo-only" aria-label="每页条数">
-        <option value="20">每页 20 条</option>
-        <option value="50">每页 50 条</option>
-        <option value="100">每页 100 条</option>
-      </select>
+      <details class="morefilters repo-only" id="moreFilters">
+        <summary class="mf-sum">筛选<span class="mf-n" id="mfN"></span></summary>
+        <div class="mf-body">
+          <select id="lang" aria-label="语言"></select>
+          <select id="sort" aria-label="排序">
+            <option value="stars">按星标</option>
+            <option value="trend">按今日增量</option>
+            <option value="activity">按活跃度</option>
+            <option value="forks">按 Fork</option>
+            <option value="updated">按最近更新</option>
+          </select>
+          <select id="pageSize" aria-label="每页条数">
+            <option value="20">每页 20 条</option>
+            <option value="50">每页 50 条</option>
+            <option value="100">每页 100 条</option>
+          </select>
+        </div>
+      </details>
         <input type="text" id="q" class="grow repo-only" placeholder="搜索：如 rust 命令行、AI 绘图、前端 框架（按 / 快速定位）" aria-label="搜索">
 
     </div>
@@ -1761,6 +1796,43 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   <div class="am-body"></div>
   <div class="am-foot"><a class="btn am-go" href="#" target="_blank" rel="noopener noreferrer" hidden>前往了解 ↗</a><button type="button" class="btn" id="adModalClose">关闭</button></div>
 </dialog>
+<script>
+(function(){
+  var mf = document.getElementById('moreFilters');
+  var badgeEl = document.getElementById('mfN');
+  function badge(){
+    var c = 0;
+    var lang = document.getElementById('lang');
+    var sort = document.getElementById('sort');
+    var ps = document.getElementById('pageSize');
+    if (lang && lang.value) c++;
+    if (sort && sort.value && sort.value !== 'stars') c++;
+    if (ps && ps.value && ps.value !== '20') c++;
+    if (badgeEl) badgeEl.textContent = c ? '· ' + c : '';
+  }
+  ['lang', 'sort', 'pageSize'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', badge);
+  });
+  badge();
+
+  var cats = document.getElementById('cats');
+  function paintCats(){
+    if (!cats) return;
+    var max = cats.scrollWidth - cats.clientWidth;
+    if (max <= 4 || cats.scrollLeft >= max - 4) cats.classList.add('x-end');
+    else cats.classList.remove('x-end');
+  }
+  window.__paintCats = paintCats;
+  if (cats) {
+    cats.addEventListener('scroll', paintCats, { passive: true });
+    if (window.MutationObserver) new MutationObserver(paintCats).observe(cats, { childList: true });
+  }
+  window.addEventListener('resize', paintCats);
+  setTimeout(paintCats, 120);
+})();
+</script>
+
 </body>
 </html>
 <!-- build v100 -->
