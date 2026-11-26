@@ -7,10 +7,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/Marvisak/VIctory",
       desc: "An attempt at running GTA VI on PC",
       lang: "Rust",
-      stars: 12679,
-      forks: 2078,
-      issues: 1824,
-      updated: "2026-11-26T03:32:56Z",
+      stars: 12711,
+      forks: 2080,
+      issues: 1841,
+      updated: "2026-11-26T04:48:31Z",
       pushed: "2026-11-25T23:27:48Z",
       created: "2026-11-23T21:47:25Z",
       license: "GPL-3.0",
@@ -22,10 +22,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/xcl-dev/xcl",
       desc: "Xbox Series compatibility layer for Windows - runs console game code natively, reimplements the console system libraries and recompiles RDNA2 shaders to DXIL",
       lang: "Rust",
-      stars: 8342,
-      forks: 1146,
-      issues: 1650,
-      updated: "2026-11-26T03:32:15Z",
+      stars: 8351,
+      forks: 1150,
+      issues: 1657,
+      updated: "2026-11-26T04:48:14Z",
       pushed: "2026-11-26T03:28:29Z",
       created: "2026-11-20T20:03:21Z",
       license: "GPL-2.0",
@@ -42,11 +42,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/4lwayz/portwatch-vi",
       desc: "Does GTA VI run on PC yet? A live tracker of community recompilation and emulation efforts, updated daily.",
       lang: "JavaScript",
-      stars: 4321,
-      forks: 129,
-      issues: 140,
-      updated: "2026-11-26T03:33:59Z",
-      pushed: "2026-11-26T01:33:23Z",
+      stars: 4394,
+      forks: 133,
+      issues: 147,
+      updated: "2026-11-26T04:48:26Z",
+      pushed: "2026-11-26T04:35:08Z",
       created: "2026-11-21T23:16:41Z",
       license: "",
       topics: [],
@@ -57,10 +57,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/EL4CTEO/fast-anything",
       desc: "Don't rewrite it in Rust. Rewrite the 5% that's slow: profile Python, Node or Ruby apps, port the hot functions with your coding agent, prove they behave the same.",
       lang: "Rust",
-      stars: 4019,
+      stars: 4036,
       forks: 289,
-      issues: 4,
-      updated: "2026-11-26T03:32:32Z",
+      issues: 5,
+      updated: "2026-11-26T04:45:58Z",
       pushed: "2026-11-25T16:23:36Z",
       created: "2026-11-21T14:40:27Z",
       license: "MIT",
@@ -78,11 +78,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/AFK-surf/xnulinux",
       desc: "XNU as a loadable kernel module inside Linux (macOS personality for arm64 Linux)",
       lang: "C",
-      stars: 3986,
-      forks: 189,
-      issues: 10,
-      updated: "2026-11-26T03:32:20Z",
-      pushed: "2026-11-26T03:34:11Z",
+      stars: 4000,
+      forks: 192,
+      issues: 6,
+      updated: "2026-11-26T04:48:18Z",
+      pushed: "2026-11-26T04:36:49Z",
       created: "2026-11-20T10:18:31Z",
       license: "NOASSERTION",
       topics: [],
@@ -93,11 +93,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/fxceless/victory-fork",
       desc: "Work-in-progress fork of VIctory: getting an Xbox Series title to render and run on a Windows PC. No game files.",
       lang: "Rust",
-      stars: 3101,
-      forks: 905,
-      issues: 1136,
-      updated: "2026-11-26T03:33:05Z",
-      pushed: "2026-11-26T03:20:34Z",
+      stars: 3121,
+      forks: 915,
+      issues: 1137,
+      updated: "2026-11-26T04:43:38Z",
+      pushed: "2026-11-26T03:52:10Z",
       created: "2026-11-24T18:02:37Z",
       license: "GPL-3.0",
       topics: [],
@@ -108,11 +108,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/ubiquitarianism/leonida",
       desc: "A continuation of Leonida, the Xbox > PC port interface for GTA VI",
       lang: "Python",
-      stars: 2357,
-      forks: 535,
-      issues: 1402,
-      updated: "2026-11-26T03:32:14Z",
-      pushed: "2026-11-26T03:18:12Z",
+      stars: 2362,
+      forks: 537,
+      issues: 1407,
+      updated: "2026-11-26T04:43:43Z",
+      pushed: "2026-11-26T03:35:47Z",
       created: "2026-11-23T23:54:39Z",
       license: "GPL-3.0",
       topics: [],
@@ -123,11 +123,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/R0Y00/Xbox2Windows",
       desc: "Static recompilation research for Xbox Series X|S software on x64 Windows, with source-built CPU and GPU tests. Full-game startup is unverified.",
       lang: "Python",
-      stars: 1959,
+      stars: 1958,
       forks: 230,
-      issues: 180,
-      updated: "2026-11-26T03:29:55Z",
-      pushed: "2026-11-26T03:33:59Z",
+      issues: 177,
+      updated: "2026-11-26T04:33:25Z",
+      pushed: "2026-11-26T04:48:34Z",
       created: "2026-11-20T17:43:52Z",
       license: "MIT",
       topics: [
@@ -144,10 +144,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/os6/nospeaker",
       desc: "make your macbook's trackpad talk using its haptic motor",
       lang: "Swift",
-      stars: 1899,
+      stars: 1900,
       forks: 99,
       issues: 19,
-      updated: "2026-11-26T03:09:05Z",
+      updated: "2026-11-26T03:37:44Z",
       pushed: "2026-11-24T02:43:05Z",
       created: "2026-11-22T12:05:54Z",
       license: "MIT",
@@ -179,15 +179,45 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/Belobug/VIctory-Belobug-AMD",
       desc: "",
       lang: "Rust",
-      stars: 1664,
-      forks: 295,
-      issues: 187,
-      updated: "2026-11-26T03:15:20Z",
+      stars: 1677,
+      forks: 301,
+      issues: 190,
+      updated: "2026-11-26T04:38:14Z",
       pushed: "2026-11-26T00:57:17Z",
       created: "2026-11-25T09:41:37Z",
       license: "GPL-3.0",
       topics: [],
       desc_zh: ""
+    },
+    {
+      name: "crhywun/g1-acq",
+      url: "https://github.com/crhywun/g1-acq",
+      desc: "",
+      lang: "JavaScript",
+      stars: 1300,
+      forks: 315,
+      issues: 6,
+      updated: "2026-11-26T04:46:11Z",
+      pushed: "2026-11-25T23:37:44Z",
+      created: "2026-11-22T10:53:17Z",
+      license: "",
+      topics: [],
+      desc_zh: ""
+    },
+    {
+      name: "leanprover-community/riemann-hypothesis",
+      url: "https://github.com/leanprover-community/riemann-hypothesis",
+      desc: "Lean formalization of the Riemann Hypothesis (Alpöge, 2026-11-20) being cleaned up by members of the Lean community.",
+      lang: "Lean",
+      stars: 1300,
+      forks: 498,
+      issues: 1027,
+      updated: "2026-11-26T04:44:31Z",
+      pushed: "2026-11-26T04:47:56Z",
+      created: "2026-11-20T14:47:49Z",
+      license: "Apache-2.0",
+      topics: [],
+      desc_zh: "黎曼猜想的 Lean 形式化（Alpöge，2026-11-20）正在由 Lean 社区的成员进行清理。"
     },
     {
       name: "Indigo-0167/universal-game-mod-manager",
@@ -209,36 +239,6 @@ window.__GHRANK_RANGES__["week"] = {
         "game-engine"
       ],
       desc_zh: "免费的 Windows 游戏模组管理器，用于发现、安装、更新和管理通用的 Unity 和虚幻引擎模组。"
-    },
-    {
-      name: "leanprover-community/riemann-hypothesis",
-      url: "https://github.com/leanprover-community/riemann-hypothesis",
-      desc: "Lean formalization of the Riemann Hypothesis (Alpöge, 2026-11-20) being cleaned up by members of the Lean community.",
-      lang: "Lean",
-      stars: 1282,
-      forks: 492,
-      issues: 926,
-      updated: "2026-11-26T03:29:19Z",
-      pushed: "2026-11-26T03:30:38Z",
-      created: "2026-11-20T14:47:49Z",
-      license: "Apache-2.0",
-      topics: [],
-      desc_zh: "黎曼猜想的 Lean 形式化（Alpöge，2026-11-20）正在由 Lean 社区的成员进行清理。"
-    },
-    {
-      name: "crhywun/g1-acq",
-      url: "https://github.com/crhywun/g1-acq",
-      desc: "",
-      lang: "JavaScript",
-      stars: 1280,
-      forks: 309,
-      issues: 6,
-      updated: "2026-11-26T03:34:10Z",
-      pushed: "2026-11-25T23:37:44Z",
-      created: "2026-11-22T10:53:17Z",
-      license: "",
-      topics: [],
-      desc_zh: ""
     },
     {
       name: "Umbra9179/clipboard-history-manager-windows",
@@ -266,10 +266,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/Avaneesh-Inamdar/Stream-Tube-Desktop",
       desc: "Native YouTube client for Windows in Rust, with SponsorBlock, DeArrow and Return YouTube Dislike built in",
       lang: "Rust",
-      stars: 1247,
-      forks: 98,
+      stars: 1259,
+      forks: 100,
       issues: 44,
-      updated: "2026-11-26T03:31:30Z",
+      updated: "2026-11-26T04:37:40Z",
       pushed: "2026-11-25T16:53:58Z",
       created: "2026-11-22T18:50:17Z",
       license: "MIT",
@@ -283,14 +283,29 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "使用 Rust 编写的适用于 Windows 的原生 YouTube 客户端，内置 SponsorBlock、DeArrow 和 Return YouTube Dislike"
     },
     {
+      name: "avatarmanz/VIctory-7900XTX",
+      url: "https://github.com/avatarmanz/VIctory-7900XTX",
+      desc: "VIctory (Xbox Series compatibility layer) tuned for AMD RX 7900 XTX: faster preparing, texture read-back, findings. No game files.",
+      lang: "Rust",
+      stars: 1090,
+      forks: 291,
+      issues: 111,
+      updated: "2026-11-26T04:48:35Z",
+      pushed: "2026-11-26T04:13:54Z",
+      created: "2026-11-25T22:18:14Z",
+      license: "GPL-3.0",
+      topics: [],
+      desc_zh: "针对 AMD RX 7900 XTX 优化的 VIctory（Xbox Series 兼容层）：更快的准备、纹理回读、发现。不含游戏文件。"
+    },
+    {
       name: "deterministic-machines/deslop-please",
       url: "https://github.com/deterministic-machines/deslop-please",
       desc: "Bring (back) sanity to your code",
       lang: "Rust",
-      stars: 1067,
+      stars: 1070,
       forks: 49,
       issues: 0,
-      updated: "2026-11-26T03:25:10Z",
+      updated: "2026-11-26T04:20:39Z",
       pushed: "2026-11-25T23:08:48Z",
       created: "2026-11-22T05:36:03Z",
       license: "MIT",
@@ -298,14 +313,35 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "让您的代码（恢复）正常"
     },
     {
+      name: "qianyiai/kurocat",
+      url: "https://github.com/qianyiai/kurocat",
+      desc: "KuroCat — Free open-source 3D/2D desktop typing cat & AI coding companion (Bongo Cat alternative · Tauri v2 + Rust + MCP · Claude/Codex/DeepSeek/OBS · Win/Mac/Linux/Android)｜开源3D桌面打字小黑猫与AI伴侣",
+      lang: "TypeScript",
+      stars: 1068,
+      forks: 167,
+      issues: 44,
+      updated: "2026-11-26T04:45:49Z",
+      pushed: "2026-11-26T03:44:44Z",
+      created: "2026-11-21T15:49:31Z",
+      license: "MIT",
+      topics: [
+        "3d",
+        "ai-companion",
+        "android",
+        "bongo-cat",
+        "bongocat"
+      ],
+      desc_zh: "KuroCat — 免费开源的 3D/2D 桌面打字小黑猫与 AI 编程伴侣（Bongo Cat 替代品 · Tauri v2 + Rust + MCP · Claude/Codex/DeepSeek/OBS · Win/Mac/Linux/Android）｜开源 3D 桌面打字小黑猫与 AI 伴侣"
+    },
+    {
       name: "zero5122/offline-file-converter-windows",
       url: "https://github.com/zero5122/offline-file-converter-windows",
       desc: "Free offline file converter for Windows – convert PDF, documents, images, audio and video privately.",
       lang: "Python",
-      stars: 1061,
+      stars: 1062,
       forks: 2,
       issues: 0,
-      updated: "2026-11-26T03:32:41Z",
+      updated: "2026-11-26T04:22:18Z",
       pushed: "2026-11-23T21:39:16Z",
       created: "2026-11-23T21:38:47Z",
       license: "MIT",
@@ -340,27 +376,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 的免费开源 Steam 成就管理器，用于管理游戏成就和编辑 Steam 游戏统计数据。"
     },
     {
-      name: "qianyiai/kurocat",
-      url: "https://github.com/qianyiai/kurocat",
-      desc: "KuroCat — Free open-source 3D/2D desktop typing cat & AI coding companion (Bongo Cat alternative · Tauri v2 + Rust + MCP · Claude/Codex/DeepSeek/OBS · Win/Mac/Linux/Android)｜开源3D桌面打字小黑猫与AI伴侣",
-      lang: "TypeScript",
-      stars: 1047,
-      forks: 162,
-      issues: 42,
-      updated: "2026-11-26T03:34:03Z",
-      pushed: "2026-11-26T03:00:44Z",
-      created: "2026-11-21T15:49:31Z",
-      license: "MIT",
-      topics: [
-        "3d",
-        "ai-companion",
-        "android",
-        "bongo-cat",
-        "bongocat"
-      ],
-      desc_zh: "KuroCat — 免费开源的 3D/2D 桌面打字小黑猫与 AI 编程伴侣（Bongo Cat 替代品 · Tauri v2 + Rust + MCP · Claude/Codex/DeepSeek/OBS · Win/Mac/Linux/Android）｜开源 3D 桌面打字小黑猫与 AI 伴侣"
-    },
-    {
       name: "kai415-debug/ffmpeg-video-audio-converter",
       url: "https://github.com/kai415-debug/ffmpeg-video-audio-converter",
       desc: "Free Windows FFmpeg GUI for video and audio conversion, batch transcoding, and multimedia format encoding.",
@@ -382,29 +397,14 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "免费的 Windows FFmpeg 图形用户界面，用于视频和音频转换、批量转码以及多媒体格式编码。"
     },
     {
-      name: "avatarmanz/VIctory-7900XTX",
-      url: "https://github.com/avatarmanz/VIctory-7900XTX",
-      desc: "VIctory (Xbox Series compatibility layer) tuned for AMD RX 7900 XTX: faster preparing, texture read-back, findings. No game files.",
-      lang: "Rust",
-      stars: 1012,
-      forks: 263,
-      issues: 98,
-      updated: "2026-11-26T03:34:11Z",
-      pushed: "2026-11-26T01:47:20Z",
-      created: "2026-11-25T22:18:14Z",
-      license: "GPL-3.0",
-      topics: [],
-      desc_zh: "针对 AMD RX 7900 XTX 优化的 VIctory（Xbox Series 兼容层）：更快的准备、纹理回读、发现。不含游戏文件。"
-    },
-    {
       name: "danielwh2/sprite-stacking",
       url: "https://github.com/danielwh2/sprite-stacking",
       desc: "Agent skill: turn four pixel art views into fake-3D sprites you can spin. Works with Claude Code, Codex, Cursor, OpenCode, Gemini CLI, Pi.",
       lang: "HTML",
-      stars: 935,
+      stars: 940,
       forks: 76,
       issues: 1,
-      updated: "2026-11-26T03:22:40Z",
+      updated: "2026-11-26T04:35:15Z",
       pushed: "2026-11-24T13:12:08Z",
       created: "2026-11-20T14:32:43Z",
       license: "MIT",
@@ -422,11 +422,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/sous-labs/songe",
       desc: "A training engine for your local model, using your idle compute",
       lang: "Python",
-      stars: 870,
+      stars: 874,
       forks: 71,
       issues: 31,
-      updated: "2026-11-26T03:28:11Z",
-      pushed: "2026-11-26T03:33:50Z",
+      updated: "2026-11-26T04:47:10Z",
+      pushed: "2026-11-26T04:32:34Z",
       created: "2026-11-20T11:01:20Z",
       license: "Apache-2.0",
       topics: [
@@ -443,10 +443,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/sybil-solutions/skill-distill",
       desc: "Distill a good Claude Code / Codex session into a skill an open-weight model can follow to reproduce the task",
       lang: "Python",
-      stars: 816,
+      stars: 818,
       forks: 66,
       issues: 1,
-      updated: "2026-11-26T03:29:42Z",
+      updated: "2026-11-26T04:46:11Z",
       pushed: "2026-11-21T03:48:01Z",
       created: "2026-11-21T01:43:00Z",
       license: "MIT",
@@ -458,10 +458,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/Ahmet-Dedeler/awesome-gta6-reverse-engineering",
       desc: "Curated list of open-source GTA VI (GTA 6) reverse engineering tools, RAGE 9 / RPF9 archive explorers, TTPF texture & ADAT/AWC audio decoders, format docs, and Xbox Series / PS5 translation layers.",
       lang: "HTML",
-      stars: 748,
+      stars: 750,
       forks: 43,
       issues: 0,
-      updated: "2026-11-26T03:28:36Z",
+      updated: "2026-11-26T04:22:01Z",
       pushed: "2026-11-26T00:58:17Z",
       created: "2026-11-21T17:08:48Z",
       license: "NOASSERTION",
@@ -490,6 +490,42 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Hookshot 是 Switch 2《塞尔达传说：时之笛》重制版的原生 PC 版重编译"
     },
     {
+      name: "erkamyaman/safe-anything",
+      url: "https://github.com/erkamyaman/safe-anything",
+      desc: "Find the holes before someone else does. A fast, 100% Rust vulnerability scanner: XSS, SQL injection, leaked secrets, dependency CVEs and AI agent setups.",
+      lang: "Rust",
+      stars: 726,
+      forks: 73,
+      issues: 19,
+      updated: "2026-11-26T04:21:38Z",
+      pushed: "2026-11-25T15:52:09Z",
+      created: "2026-11-22T16:44:10Z",
+      license: "MIT",
+      topics: [
+        "ai-agents",
+        "claude-code",
+        "claude-code-plugin",
+        "cli",
+        "codex"
+      ],
+      desc_zh: "抢在别人之前发现漏洞。一款快速、100% 基于 Rust 的漏洞扫描器：XSS、SQL 注入、泄露的密钥、依赖项 CVE 和 AI 代理设置。"
+    },
+    {
+      name: "xikhar/papercraft",
+      url: "https://github.com/xikhar/papercraft",
+      desc: "Agent skill to build games, interactive scenes, web pages and animations in a handcrafted pop-up papercraft style",
+      lang: "JavaScript",
+      stars: 723,
+      forks: 77,
+      issues: 2,
+      updated: "2026-11-26T04:36:09Z",
+      pushed: "2026-11-21T17:37:19Z",
+      created: "2026-11-21T00:29:56Z",
+      license: "MIT",
+      topics: [],
+      desc_zh: "以手工制作的立体纸艺风格打造游戏、互动场景、网页和动画的代理技能"
+    },
+    {
       name: "olive527/steam-library-manager-windows",
       url: "https://github.com/olive527/steam-library-manager-windows",
       desc: "Free Windows game library manager and backup tool for Steam, Origin and Ubisoft Connect with multi-library support.",
@@ -511,50 +547,14 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "免费的 Windows 游戏库管理器和备份工具，适用于 Steam、Origin 和 Ubisoft Connect，支持多个游戏库。"
     },
     {
-      name: "erkamyaman/safe-anything",
-      url: "https://github.com/erkamyaman/safe-anything",
-      desc: "Find the holes before someone else does. A fast, 100% Rust vulnerability scanner: XSS, SQL injection, leaked secrets, dependency CVEs and AI agent setups.",
-      lang: "Rust",
-      stars: 719,
-      forks: 72,
-      issues: 19,
-      updated: "2026-11-26T03:30:59Z",
-      pushed: "2026-11-25T15:52:09Z",
-      created: "2026-11-22T16:44:10Z",
-      license: "MIT",
-      topics: [
-        "ai-agents",
-        "claude-code",
-        "claude-code-plugin",
-        "cli",
-        "codex"
-      ],
-      desc_zh: "抢在别人之前发现漏洞。一款快速、100% 基于 Rust 的漏洞扫描器：XSS、SQL 注入、泄露的密钥、依赖项 CVE 和 AI 代理设置。"
-    },
-    {
-      name: "xikhar/papercraft",
-      url: "https://github.com/xikhar/papercraft",
-      desc: "Agent skill to build games, interactive scenes, web pages and animations in a handcrafted pop-up papercraft style",
-      lang: "JavaScript",
-      stars: 717,
-      forks: 77,
-      issues: 2,
-      updated: "2026-11-26T03:21:13Z",
-      pushed: "2026-11-21T17:37:19Z",
-      created: "2026-11-21T00:29:56Z",
-      license: "MIT",
-      topics: [],
-      desc_zh: "以手工制作的立体纸艺风格打造游戏、互动场景、网页和动画的代理技能"
-    },
-    {
       name: "ThreatDefence/agentic-attack-detections",
       url: "https://github.com/ThreatDefence/agentic-attack-detections",
       desc: "Detection rules and IOCs for AI agent attack frameworks: ARTEX, Cairn, PentAGI, HexStrike, CyberStrikeAI, Strix, Hermes Agent, Agent Zero, RedAmon, Xalgorix, Pentest Swarm AI. KQL hunts for Microsoft Sentinel and Defender XDR, Sigma, Suricata, Zeek, YARA, Splunk, Elastic, STIX 2.1.",
       lang: "Python",
-      stars: 710,
+      stars: 711,
       forks: 144,
       issues: 4,
-      updated: "2026-11-26T03:19:19Z",
+      updated: "2026-11-26T04:47:06Z",
       pushed: "2026-11-26T03:25:02Z",
       created: "2026-11-20T00:06:24Z",
       license: "MIT",
@@ -614,10 +614,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/w01fb0ss/PiBot",
       desc: "Open-source, local-first AI agent team for your desktop: multi-agent group chats, computer use, browser, MCP, routines and approvals. macOS, Windows, Linux + Android. Built on pi.",
       lang: "TypeScript",
-      stars: 603,
+      stars: 609,
       forks: 88,
       issues: 7,
-      updated: "2026-11-26T03:08:50Z",
+      updated: "2026-11-26T04:42:02Z",
       pushed: "2026-11-26T01:05:50Z",
       created: "2026-11-21T06:54:24Z",
       license: "Apache-2.0",
@@ -635,10 +635,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/Developing-Gamer/agent-sim",
       desc: "iOS simulators for AI agents, on Linux. The agent layer for x86Sim.",
       lang: "Rust",
-      stars: 598,
+      stars: 600,
       forks: 62,
       issues: 11,
-      updated: "2026-11-26T01:22:39Z",
+      updated: "2026-11-26T04:00:54Z",
       pushed: "2026-11-25T20:55:04Z",
       created: "2026-11-21T20:26:12Z",
       license: "Apache-2.0",
@@ -656,10 +656,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/CocoSgt/riemann-hypothesis-lean",
       desc: "Mirror of Levent Alpöge's Lean proof of the Riemann Hypothesis (with Claude). All credit to Levent Alpöge. Source: alpo.ge",
       lang: "Lean",
-      stars: 573,
+      stars: 576,
       forks: 92,
       issues: 4,
-      updated: "2026-11-26T01:27:26Z",
+      updated: "2026-11-26T04:15:47Z",
       pushed: "2026-11-20T15:13:36Z",
       created: "2026-11-20T14:59:14Z",
       license: "",
@@ -671,11 +671,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/chanke17/KuroCat",
       desc: "KuroCat — Free open-source native desktop cat pet & OBS overlay (Bongo Cat alternative, Swift/C++, 802 KB)｜开源免费原生桌面萌猫（全平台 macOS·Win·Linux·UOS / 2.5D转头捕猎 / 数位板 / OBS透明绿幕 / 在线皮肤工坊 / 零按键上传）",
       lang: "C++",
-      stars: 569,
-      forks: 54,
+      stars: 576,
+      forks: 56,
       issues: 16,
-      updated: "2026-11-26T03:31:59Z",
-      pushed: "2026-11-26T03:30:55Z",
+      updated: "2026-11-26T04:32:22Z",
+      pushed: "2026-11-26T04:35:04Z",
       created: "2026-11-23T01:06:18Z",
       license: "MIT",
       topics: [
@@ -713,10 +713,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/GGBondLab/OpenHC",
       desc: "兼容 HICAR 安卓车机接收端",
       lang: "Kotlin",
-      stars: 514,
+      stars: 518,
       forks: 103,
-      issues: 22,
-      updated: "2026-11-26T03:26:31Z",
+      issues: 25,
+      updated: "2026-11-26T03:55:54Z",
       pushed: "2026-11-25T13:43:22Z",
       created: "2026-11-20T13:21:21Z",
       license: "GPL-3.0",
@@ -745,14 +745,35 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于Windows的免费开源《星露谷物语》模组管理器，支持SMAPI、模组更新和自定义配置文件。"
     },
     {
+      name: "alesha-pro/llm.asm",
+      url: "https://github.com/alesha-pro/llm.asm",
+      desc: "Qwen3-0.6B inference (12 KB), bare-metal bootable OS (22 KB), and from-scratch Mini-GPT trainer with live Braille TUI (32 KB) in 100% pure x86-64 NASM assembly. Zero C, zero libc, zero dependencies.",
+      lang: "Assembly",
+      stars: 467,
+      forks: 69,
+      issues: 0,
+      updated: "2026-11-26T04:48:18Z",
+      pushed: "2026-11-25T15:42:44Z",
+      created: "2026-11-25T07:28:51Z",
+      license: "MIT",
+      topics: [
+        "assembly",
+        "avx2",
+        "bare-metal",
+        "llm",
+        "machine-learning"
+      ],
+      desc_zh: "Qwen3-0.6B 推理（12 KB）、裸机可引导操作系统（22 KB）以及从零开始的 Mini-GPT 训练器，带实时盲文 TUI（32 KB），100% 纯 x86-64 NASM 汇编。零 C、零 libc、零依赖。"
+    },
+    {
       name: "tweak-for-me/impulse",
       url: "https://github.com/tweak-for-me/impulse",
       desc: "Lightweight alternative Windows client for game trainers: hotkeys, overlay and phone control.",
       lang: "Rust",
-      stars: 459,
-      forks: 204,
+      stars: 462,
+      forks: 206,
       issues: 8,
-      updated: "2026-11-26T03:29:47Z",
+      updated: "2026-11-26T04:39:13Z",
       pushed: "2026-11-25T22:05:57Z",
       created: "2026-11-20T15:17:55Z",
       license: "GPL-3.0",
@@ -770,10 +791,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/ProjectLeonidaL/leonida",
       desc: "Continuation of Project Leonida, aiming to bring GTA VI from Xbox to PC through static recompilation.",
       lang: "Rust",
-      stars: 455,
+      stars: 458,
       forks: 60,
       issues: 12,
-      updated: "2026-11-26T03:20:22Z",
+      updated: "2026-11-26T04:38:47Z",
       pushed: "2026-11-26T00:15:45Z",
       created: "2026-11-24T02:20:14Z",
       license: "GPL-3.0",
@@ -791,15 +812,30 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/tristanbuckmaster/navier-stokes",
       desc: "",
       lang: "Lean",
-      stars: 441,
+      stars: 442,
       forks: 31,
       issues: 5,
-      updated: "2026-11-26T01:17:28Z",
+      updated: "2026-11-26T03:35:05Z",
       pushed: "2026-11-20T13:33:18Z",
       created: "2026-11-20T10:40:33Z",
       license: "",
       topics: [],
       desc_zh: ""
+    },
+    {
+      name: "lsernau/grh-lean",
+      url: "https://github.com/lsernau/grh-lean",
+      desc: "A short Lean 4 proof of the Generalized Riemann Hypothesis",
+      lang: "Lean",
+      stars: 441,
+      forks: 32,
+      issues: 0,
+      updated: "2026-11-26T04:47:28Z",
+      pushed: "2026-11-25T20:45:04Z",
+      created: "2026-11-25T20:42:55Z",
+      license: "Apache-2.0",
+      topics: [],
+      desc_zh: "广义黎曼猜想的简短 Lean 4 证明"
     },
     {
       name: "sshkeda/minecraft-server-on-orange-cloud",
@@ -827,10 +863,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/bikini/minecraft2shell",
       desc: "Minecraft to native RCE",
       lang: "Python",
-      stars: 435,
+      stars: 437,
       forks: 38,
       issues: 4,
-      updated: "2026-11-26T03:12:08Z",
+      updated: "2026-11-26T04:30:19Z",
       pushed: "2026-11-22T08:07:32Z",
       created: "2026-11-22T08:02:45Z",
       license: "",
@@ -842,10 +878,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/SulphurS16/Regaliant",
       desc: "Unofficial Windows PC port of Demon's Souls (2020), Bluepoint's PS5 remake. Runs your own copy of the PS5 game (PPSA01341, version 1.07). No game files included.",
       lang: "Rust",
-      stars: 427,
-      forks: 8,
-      issues: 19,
-      updated: "2026-11-26T03:10:14Z",
+      stars: 429,
+      forks: 9,
+      issues: 20,
+      updated: "2026-11-26T04:42:45Z",
       pushed: "2026-11-25T19:14:15Z",
       created: "2026-11-23T12:11:38Z",
       license: "GPL-3.0",
@@ -859,27 +895,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "《恶魔之魂》（2020）的非官方Windows PC移植版，由Bluepoint负责PS5重制。运行您自己的 PS5 游戏（PPSA01341，版本 1.07）。不包含游戏文件。"
     },
     {
-      name: "alesha-pro/llm.asm",
-      url: "https://github.com/alesha-pro/llm.asm",
-      desc: "Qwen3-0.6B inference (12 KB), bare-metal bootable OS (22 KB), and from-scratch Mini-GPT trainer with live Braille TUI (32 KB) in 100% pure x86-64 NASM assembly. Zero C, zero libc, zero dependencies.",
-      lang: "Assembly",
-      stars: 392,
-      forks: 58,
-      issues: 0,
-      updated: "2026-11-26T03:34:16Z",
-      pushed: "2026-11-25T15:42:44Z",
-      created: "2026-11-25T07:28:51Z",
-      license: "MIT",
-      topics: [
-        "assembly",
-        "avx2",
-        "bare-metal",
-        "llm",
-        "machine-learning"
-      ],
-      desc_zh: "Qwen3-0.6B 推理（12 KB）、裸机可引导操作系统（22 KB）以及从零开始的 Mini-GPT 训练器，带实时盲文 TUI（32 KB），100% 纯 x86-64 NASM 汇编。零 C、零 libc、零依赖。"
-    },
-    {
       name: "sohzm/winedroid",
       url: "https://github.com/sohzm/winedroid",
       desc: "run android apps on web, linux, macOS and windows",
@@ -887,7 +902,7 @@ window.__GHRANK_RANGES__["week"] = {
       stars: 386,
       forks: 19,
       issues: 9,
-      updated: "2026-11-26T03:11:45Z",
+      updated: "2026-11-26T04:21:39Z",
       pushed: "2026-11-20T19:16:27Z",
       created: "2026-11-20T19:14:05Z",
       license: "NOASSERTION",
@@ -899,10 +914,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/boykopovar/AnyBox",
       desc: "Compatibility layer for Xbox Series apps on Windows",
       lang: "C++",
-      stars: 376,
-      forks: 14,
+      stars: 379,
+      forks: 15,
       issues: 17,
-      updated: "2026-11-26T03:13:09Z",
+      updated: "2026-11-26T04:41:20Z",
       pushed: "2026-11-25T16:30:47Z",
       created: "2026-11-23T18:14:00Z",
       license: "GPL-2.0",
@@ -920,10 +935,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/LooperSalty/AnyXboxX",
       desc: "AnyXboxX — prototype d'émulateur Xbox Series X (HLE du GDK sur Unicorn)",
       lang: "Python",
-      stars: 375,
+      stars: 378,
       forks: 61,
-      issues: 71,
-      updated: "2026-11-26T03:32:53Z",
+      issues: 77,
+      updated: "2026-11-26T04:12:42Z",
       pushed: "2026-11-26T02:07:12Z",
       created: "2026-11-21T00:18:13Z",
       license: "GPL-3.0",
@@ -941,30 +956,15 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/brcly/TuxBox",
       desc: "TuxBox is a new, native-first compatibility layer for running unpacked, decrypted Xbox Series X|S games on x86-64 Linux and Windows.",
       lang: "Rust",
-      stars: 372,
-      forks: 40,
-      issues: 8,
-      updated: "2026-11-26T02:06:41Z",
+      stars: 373,
+      forks: 41,
+      issues: 10,
+      updated: "2026-11-26T04:38:20Z",
       pushed: "2026-11-26T03:13:13Z",
       created: "2026-11-21T12:07:28Z",
       license: "Apache-2.0",
       topics: [],
       desc_zh: "TuxBox 是一款全新的原生优先兼容层，用于在 x86-64 Linux 和 Windows 上运行未打包、已解密的 Xbox Series X|S 游戏。"
-    },
-    {
-      name: "lsernau/grh-lean",
-      url: "https://github.com/lsernau/grh-lean",
-      desc: "A short Lean 4 proof of the Generalized Riemann Hypothesis",
-      lang: "Lean",
-      stars: 365,
-      forks: 29,
-      issues: 0,
-      updated: "2026-11-26T03:33:44Z",
-      pushed: "2026-11-25T20:45:04Z",
-      created: "2026-11-25T20:42:55Z",
-      license: "Apache-2.0",
-      topics: [],
-      desc_zh: "广义黎曼猜想的简短 Lean 4 证明"
     },
     {
       name: "ZigZagBoi1/ScarlettPort",
@@ -975,7 +975,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 21,
       issues: 0,
       updated: "2026-11-26T03:29:56Z",
-      pushed: "2026-11-26T03:10:08Z",
+      pushed: "2026-11-26T03:51:53Z",
       created: "2026-11-24T09:36:26Z",
       license: "NOASSERTION",
       topics: [
@@ -1080,7 +1080,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:55Z",
-      pushed: "2026-11-25T22:52:47Z",
+      pushed: "2026-11-26T04:36:15Z",
       created: "2026-11-21T13:14:54Z",
       license: "MIT",
       topics: [
@@ -1164,7 +1164,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:46:05Z",
-      pushed: "2026-11-25T21:15:22Z",
+      pushed: "2026-11-26T03:59:12Z",
       created: "2026-11-21T17:21:17Z",
       license: "MIT",
       topics: [
@@ -1227,7 +1227,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:27Z",
-      pushed: "2026-11-25T22:57:09Z",
+      pushed: "2026-11-26T04:45:55Z",
       created: "2026-11-21T13:00:47Z",
       license: "MIT",
       topics: [
@@ -1248,7 +1248,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:58Z",
-      pushed: "2026-11-25T22:54:05Z",
+      pushed: "2026-11-26T04:38:31Z",
       created: "2026-11-21T13:16:10Z",
       license: "MIT",
       topics: [
@@ -1269,7 +1269,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:30Z",
-      pushed: "2026-11-25T22:57:04Z",
+      pushed: "2026-11-26T04:45:08Z",
       created: "2026-11-21T13:04:14Z",
       license: "MIT",
       topics: [
@@ -1374,7 +1374,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:32Z",
-      pushed: "2026-11-25T22:57:07Z",
+      pushed: "2026-11-26T04:45:29Z",
       created: "2026-11-21T14:06:16Z",
       license: "MIT",
       topics: [
@@ -1385,27 +1385,6 @@ window.__GHRANK_RANGES__["week"] = {
         "iphone-file-transfer"
       ],
       desc_zh: "FoneTrans 桌面实用工具：完整的数据传输和设备管理套件"
-    },
-    {
-      name: "Gobjb/directory-opus-launch",
-      url: "https://github.com/Gobjb/directory-opus-launch",
-      desc: "Directory Opus Launch: Advanced Desktop File Management and Workflow Orchestration",
-      lang: "HTML",
-      stars: 337,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:11Z",
-      pushed: "2026-11-26T03:15:55Z",
-      created: "2026-11-21T13:29:26Z",
-      license: "",
-      topics: [
-        "automation",
-        "desktop",
-        "developer-tools",
-        "directory-opus",
-        "directory-opus-crack-2026"
-      ],
-      desc_zh: "Directory Opus发布：高级桌面文件管理和工作流编排"
     },
     {
       name: "drillryte/easy-worship",
@@ -1427,6 +1406,27 @@ window.__GHRANK_RANGES__["week"] = {
         "easyworship"
       ],
       desc_zh: "Easy Worship桌面版：简化的演示和崇拜活动规划软件"
+    },
+    {
+      name: "Gobjb/directory-opus-launch",
+      url: "https://github.com/Gobjb/directory-opus-launch",
+      desc: "Directory Opus Launch: Advanced Desktop File Management and Workflow Orchestration",
+      lang: "HTML",
+      stars: 337,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:11Z",
+      pushed: "2026-11-26T03:15:55Z",
+      created: "2026-11-21T13:29:26Z",
+      license: "",
+      topics: [
+        "automation",
+        "desktop",
+        "developer-tools",
+        "directory-opus",
+        "directory-opus-crack-2026"
+      ],
+      desc_zh: "Directory Opus发布：高级桌面文件管理和工作流编排"
     },
     {
       name: "Daax116/startall-back-utility",
@@ -1471,27 +1471,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 的专业多轨视频编辑套件，支持 4K/8K 导出"
     },
     {
-      name: "official00shivansh-eng/ultra-iso",
-      url: "https://github.com/official00shivansh-eng/ultra-iso",
-      desc: "Ultra ISO: Desktop Disc Image Authoring, Mounting, and Conversion Toolkit",
-      lang: "HTML",
-      stars: 336,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:46:00Z",
-      pushed: "2026-11-26T02:37:54Z",
-      created: "2026-11-21T17:16:55Z",
-      license: "",
-      topics: [
-        "automation",
-        "desktop",
-        "developer-tools",
-        "iso-editor",
-        "iso-image"
-      ],
-      desc_zh: "Ultra ISO：桌面光盘映像制作、挂载和转换工具包"
-    },
-    {
       name: "rockford007/xyplorer-file-manager",
       url: "https://github.com/rockford007/xyplorer-file-manager",
       desc: "XYplorer File Manager: Advanced Tabbed Browsing Dual-Pane Workflow for Desktop",
@@ -1511,6 +1490,27 @@ window.__GHRANK_RANGES__["week"] = {
         "python"
       ],
       desc_zh: "XYplorer文件管理器：适用于桌面的高级标签式浏览双窗格工作流"
+    },
+    {
+      name: "official00shivansh-eng/ultra-iso",
+      url: "https://github.com/official00shivansh-eng/ultra-iso",
+      desc: "Ultra ISO: Desktop Disc Image Authoring, Mounting, and Conversion Toolkit",
+      lang: "HTML",
+      stars: 336,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:46:00Z",
+      pushed: "2026-11-26T02:37:54Z",
+      created: "2026-11-21T17:16:55Z",
+      license: "",
+      topics: [
+        "automation",
+        "desktop",
+        "developer-tools",
+        "iso-editor",
+        "iso-image"
+      ],
+      desc_zh: "Ultra ISO：桌面光盘映像制作、挂载和转换工具包"
     },
     {
       name: "Buntee-tech/exitlag-utility",
@@ -1570,27 +1570,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Microsoft Visio：绘图和矢量图形桌面应用程序"
     },
     {
-      name: "SELAMUMESHESHA/dxo-photolab-10",
-      url: "https://github.com/SELAMUMESHESHA/dxo-photolab-10",
-      desc: "DxO PhotoLab 10 desktop build alternative access tool with streamlined setup and direct retrieval",
-      lang: "HTML",
-      stars: 336,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:21Z",
-      pushed: "2026-11-26T02:42:28Z",
-      created: "2026-11-21T13:40:44Z",
-      license: "MIT",
-      topics: [
-        "automation",
-        "desktop",
-        "developer-tools",
-        "digital-photography",
-        "dxo-photolab-coupon"
-      ],
-      desc_zh: "DxO PhotoLab 10 桌面版构建替代访问工具，具有简化的设置和直接检索功能"
-    },
-    {
       name: "ali7080/adobe-air-sdk",
       url: "https://github.com/ali7080/adobe-air-sdk",
       desc: "Adobe AIR SDK: Cross-Platform Desktop App Development with AJAX, HTML, and Flash",
@@ -1599,7 +1578,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:16Z",
-      pushed: "2026-11-25T22:56:04Z",
+      pushed: "2026-11-26T04:42:42Z",
       created: "2026-11-21T12:50:59Z",
       license: "",
       topics: [
@@ -1633,6 +1612,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Directory Opus 实用工具设置：有主见的桌面配置，无需猜测"
     },
     {
+      name: "SELAMUMESHESHA/dxo-photolab-10",
+      url: "https://github.com/SELAMUMESHESHA/dxo-photolab-10",
+      desc: "DxO PhotoLab 10 desktop build alternative access tool with streamlined setup and direct retrieval",
+      lang: "HTML",
+      stars: 336,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:21Z",
+      pushed: "2026-11-26T02:42:28Z",
+      created: "2026-11-21T13:40:44Z",
+      license: "MIT",
+      topics: [
+        "automation",
+        "desktop",
+        "developer-tools",
+        "digital-photography",
+        "dxo-photolab-coupon"
+      ],
+      desc_zh: "DxO PhotoLab 10 桌面版构建替代访问工具，具有简化的设置和直接检索功能"
+    },
+    {
       name: "rafiiiakmall-cpu/aida-64-extreme",
       url: "https://github.com/rafiiiakmall-cpu/aida-64-extreme",
       desc: "Aida 64 Extreme: Desktop Hardware Diagnostics and System Profiling Suite",
@@ -1654,27 +1654,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Aida 64 Extreme：台式机硬件诊断和系统分析套件"
     },
     {
-      name: "jomicat1989-dotcom/rust-external-trainer-tool",
-      url: "https://github.com/jomicat1989-dotcom/rust-external-trainer-tool",
-      desc: "Rust External Trainer Tool: Confident Game Enhancement",
-      lang: "HTML",
-      stars: 336,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:56Z",
-      pushed: "2026-11-26T02:36:48Z",
-      created: "2026-11-21T17:10:50Z",
-      license: "MIT",
-      topics: [
-        "automation",
-        "desktop",
-        "developer-tools",
-        "open-source",
-        "python"
-      ],
-      desc_zh: "《腐蚀》外部辅助工具：自信提升游戏体验"
-    },
-    {
       name: "VenkateshGorityala/voicemod-audio-modifier",
       url: "https://github.com/VenkateshGorityala/voicemod-audio-modifier",
       desc: "Voicemod Audio Modifier: Real-Time Voice Transformation and Sound Processing Desktop Application",
@@ -1694,6 +1673,27 @@ window.__GHRANK_RANGES__["week"] = {
         "gaming-utilities"
       ],
       desc_zh: "Voicemod 音频修改器：实时语音转换和声音处理桌面应用程序"
+    },
+    {
+      name: "jomicat1989-dotcom/rust-external-trainer-tool",
+      url: "https://github.com/jomicat1989-dotcom/rust-external-trainer-tool",
+      desc: "Rust External Trainer Tool: Confident Game Enhancement",
+      lang: "HTML",
+      stars: 336,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:56Z",
+      pushed: "2026-11-26T02:36:48Z",
+      created: "2026-11-21T17:10:50Z",
+      license: "MIT",
+      topics: [
+        "automation",
+        "desktop",
+        "developer-tools",
+        "open-source",
+        "python"
+      ],
+      desc_zh: "《腐蚀》外部辅助工具：自信提升游戏体验"
     },
     {
       name: "orakio1975/acrobat-pro-pdf-editor",
@@ -1767,7 +1767,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:41Z",
-      pushed: "2026-11-25T22:56:29Z",
+      pushed: "2026-11-26T04:43:23Z",
       created: "2026-11-21T14:49:58Z",
       license: "MIT",
       topics: [
@@ -1788,7 +1788,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 1,
       issues: 0,
       updated: "2026-11-25T15:45:12Z",
-      pushed: "2026-11-25T22:55:46Z",
+      pushed: "2026-11-26T04:42:37Z",
       created: "2026-11-21T13:35:19Z",
       license: "MIT",
       topics: [
@@ -1851,7 +1851,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:01Z",
-      pushed: "2026-11-25T22:53:53Z",
+      pushed: "2026-11-26T04:39:28Z",
       created: "2026-11-21T13:16:28Z",
       license: "MIT",
       topics: [
@@ -1872,7 +1872,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:17Z",
-      pushed: "2026-11-25T22:53:49Z",
+      pushed: "2026-11-26T04:38:56Z",
       created: "2026-11-21T12:51:58Z",
       license: "",
       topics: [
@@ -1893,7 +1893,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:08Z",
-      pushed: "2026-11-26T03:04:04Z",
+      pushed: "2026-11-26T04:04:00Z",
       created: "2026-11-21T13:22:28Z",
       license: "",
       topics: [
@@ -1969,27 +1969,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 的 Adobe Lightroom 完整桌面版：完整功能集，工作流程流畅"
     },
     {
-      name: "jshami391-bit/scrcpy-screen-mirroring",
-      url: "https://github.com/jshami391-bit/scrcpy-screen-mirroring",
-      desc: "Scrcpy Screen Mirroring: Low-Latency Android Display Replication and Input Control",
-      lang: "HTML",
-      stars: 336,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:56Z",
-      pushed: "2026-11-26T02:38:34Z",
-      created: "2026-11-21T17:11:31Z",
-      license: "MIT",
-      topics: [
-        "automation",
-        "desktop",
-        "developer-tools",
-        "open-source",
-        "python"
-      ],
-      desc_zh: "Scrcpy 屏幕镜像：低延迟的 Android 显示屏复制和输入控制"
-    },
-    {
       name: "rosario28enmanuel-cpu/anydesk-remote-desktop",
       url: "https://github.com/rosario28enmanuel-cpu/anydesk-remote-desktop",
       desc: "AnyDesk Remote Desktop: High-Performance Remote Access Software",
@@ -2009,6 +1988,27 @@ window.__GHRANK_RANGES__["week"] = {
         "anydesk-integration"
       ],
       desc_zh: "AnyDesk 远程桌面：高性能远程访问软件"
+    },
+    {
+      name: "jshami391-bit/scrcpy-screen-mirroring",
+      url: "https://github.com/jshami391-bit/scrcpy-screen-mirroring",
+      desc: "Scrcpy Screen Mirroring: Low-Latency Android Display Replication and Input Control",
+      lang: "HTML",
+      stars: 336,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:56Z",
+      pushed: "2026-11-26T02:38:34Z",
+      created: "2026-11-21T17:11:31Z",
+      license: "MIT",
+      topics: [
+        "automation",
+        "desktop",
+        "developer-tools",
+        "open-source",
+        "python"
+      ],
+      desc_zh: "Scrcpy 屏幕镜像：低延迟的 Android 显示屏复制和输入控制"
     },
     {
       name: "dagn3009-cyber/sylenth-1-configuration-utility",
@@ -2074,6 +2074,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Ph Downer：用于简化pH值降低和精确调节的桌面软件"
     },
     {
+      name: "samiirnor0-arch/clion-ide",
+      url: "https://github.com/samiirnor0-arch/clion-ide",
+      desc: "CLion IDE: Cross-Platform C and C++ Development Environment with Intelligent Code Assistance",
+      lang: "HTML",
+      stars: 335,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:02Z",
+      pushed: "2026-11-26T04:36:44Z",
+      created: "2026-11-21T13:19:21Z",
+      license: "MIT",
+      topics: [
+        "automation",
+        "clion-2026",
+        "clion-download-windows",
+        "cmake-ide",
+        "cpp-ide"
+      ],
+      desc_zh: "CLion IDE：具有智能代码辅助功能的跨平台 C 和 C++ 开发环境"
+    },
+    {
       name: "mohidur2005/abbyy-finereader-pdf",
       url: "https://github.com/mohidur2005/abbyy-finereader-pdf",
       desc: "ABBYY FineReader PDF Desktop: Document Conversion and OCR Toolkit",
@@ -2095,27 +2116,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "ABBYY FineReader PDF Desktop：文档转换和 OCR 工具包"
     },
     {
-      name: "samiirnor0-arch/clion-ide",
-      url: "https://github.com/samiirnor0-arch/clion-ide",
-      desc: "CLion IDE: Cross-Platform C and C++ Development Environment with Intelligent Code Assistance",
-      lang: "HTML",
-      stars: 335,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:02Z",
-      pushed: "2026-11-25T22:52:22Z",
-      created: "2026-11-21T13:19:21Z",
-      license: "MIT",
-      topics: [
-        "automation",
-        "clion-2026",
-        "clion-download-windows",
-        "cmake-ide",
-        "cpp-ide"
-      ],
-      desc_zh: "CLion IDE：具有智能代码辅助功能的跨平台 C 和 C++ 开发环境"
-    },
-    {
       name: "Bishmendark123/frp-launch-tool",
       url: "https://github.com/Bishmendark123/frp-launch-tool",
       desc: "FRP Launch Tool: Full-Feature Desktop Setup for Frp Tool",
@@ -2124,7 +2124,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 1,
       issues: 1,
       updated: "2026-11-25T15:45:33Z",
-      pushed: "2026-11-25T22:56:33Z",
+      pushed: "2026-11-26T04:44:12Z",
       created: "2026-11-21T14:10:26Z",
       license: "MIT",
       topics: [
@@ -2158,6 +2158,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Autodesk 3ds Max：安全监控和完整性验证实用程序"
     },
     {
+      name: "adhamslim/phpstorm-desktop-edition",
+      url: "https://github.com/adhamslim/phpstorm-desktop-edition",
+      desc: "PhpStorm Desktop: Native PHP IDE with Debugging, Refactoring, and Version Control",
+      lang: "HTML",
+      stars: 335,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:52Z",
+      pushed: "2026-11-26T02:02:57Z",
+      created: "2026-11-21T15:58:15Z",
+      license: "MIT",
+      topics: [
+        "automation",
+        "desktop",
+        "developer-tools",
+        "jetbrains-phpstorm",
+        "jetbrains-phpstorm-install-setup-2026"
+      ],
+      desc_zh: "PhpStorm 桌面版：原生 PHP IDE，具备调试、重构和版本控制功能"
+    },
+    {
       name: "90Shafkat/ifunbox",
       url: "https://github.com/90Shafkat/ifunbox",
       desc: "Ifunbox: Cross-Platform Device Management Suite with File Transfer, App Inspection, and Data Backup",
@@ -2166,7 +2187,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:35Z",
-      pushed: "2026-11-25T22:53:52Z",
+      pushed: "2026-11-26T04:39:47Z",
       created: "2026-11-21T14:30:49Z",
       license: "MIT",
       topics: [
@@ -2187,7 +2208,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:13Z",
-      pushed: "2026-11-25T22:53:59Z",
+      pushed: "2026-11-26T04:39:56Z",
       created: "2026-11-21T12:32:46Z",
       license: "MIT",
       topics: [
@@ -2219,27 +2240,6 @@ window.__GHRANK_RANGES__["week"] = {
         "acronis-free-2026"
       ],
       desc_zh: "Acronis 实用工具：用于完整工作流执行的完整桌面解决方案"
-    },
-    {
-      name: "adhamslim/phpstorm-desktop-edition",
-      url: "https://github.com/adhamslim/phpstorm-desktop-edition",
-      desc: "PhpStorm Desktop: Native PHP IDE with Debugging, Refactoring, and Version Control",
-      lang: "HTML",
-      stars: 335,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:52Z",
-      pushed: "2026-11-26T02:02:57Z",
-      created: "2026-11-21T15:58:15Z",
-      license: "MIT",
-      topics: [
-        "automation",
-        "desktop",
-        "developer-tools",
-        "jetbrains-phpstorm",
-        "jetbrains-phpstorm-install-setup-2026"
-      ],
-      desc_zh: "PhpStorm 桌面版：原生 PHP IDE，具备调试、重构和版本控制功能"
     },
     {
       name: "clementapary/fabfilter-total",
@@ -2292,7 +2292,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:35Z",
-      pushed: "2026-11-25T22:53:45Z",
+      pushed: "2026-11-26T04:38:44Z",
       created: "2026-11-21T14:26:42Z",
       license: "MIT",
       topics: [
@@ -2313,7 +2313,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 1,
       updated: "2026-11-25T15:45:53Z",
-      pushed: "2026-11-25T21:13:15Z",
+      pushed: "2026-11-26T03:58:31Z",
       created: "2026-11-21T17:08:03Z",
       license: "",
       topics: [
@@ -2334,7 +2334,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:59Z",
-      pushed: "2026-11-26T02:06:57Z",
+      pushed: "2026-11-26T03:45:17Z",
       created: "2026-11-21T17:16:14Z",
       license: "MIT",
       topics: [
@@ -2376,7 +2376,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:12Z",
-      pushed: "2026-11-25T22:54:22Z",
+      pushed: "2026-11-26T04:40:23Z",
       created: "2026-11-21T13:36:14Z",
       license: "",
       topics: [
@@ -2397,7 +2397,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 1,
       updated: "2026-11-25T15:45:33Z",
-      pushed: "2026-11-25T22:53:13Z",
+      pushed: "2026-11-26T04:36:20Z",
       created: "2026-11-21T14:13:00Z",
       license: "MIT",
       topics: [
@@ -2418,7 +2418,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:24Z",
-      pushed: "2026-11-25T22:55:23Z",
+      pushed: "2026-11-26T04:41:47Z",
       created: "2026-11-21T12:58:01Z",
       license: "",
       topics: [
@@ -2473,27 +2473,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "《幻刃零》训练师：符号提示、更宽的招架窗口、全套武器已上线"
     },
     {
-      name: "JOSPHATRWADZISAI/chief-architect-premier",
-      url: "https://github.com/JOSPHATRWADZISAI/chief-architect-premier",
-      desc: "Chief Architect Premier Desktop Edition: Full-Feature Architectural Design Setup",
-      lang: "HTML",
-      stars: 335,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:44:56Z",
-      pushed: "2026-11-26T02:43:22Z",
-      created: "2026-11-21T13:15:38Z",
-      license: "",
-      topics: [
-        "automation",
-        "chief-architect",
-        "chief-architect-setup-failed-fix",
-        "chief-architect-x16",
-        "chief-architect-x16-not-installing-on-windows-11"
-      ],
-      desc_zh: "Chief Architect Premier桌面版：全功能建筑设计设置"
-    },
-    {
       name: "surendramahanty/multiaccountmanager",
       url: "https://github.com/surendramahanty/multiaccountmanager",
       desc: "Multiaccountmanager: Desktop Environment Configuration and Account Management Utility",
@@ -2536,6 +2515,48 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Unlocktool：具备高级完整性验证的安全桌面安装程序"
     },
     {
+      name: "JOSPHATRWADZISAI/chief-architect-premier",
+      url: "https://github.com/JOSPHATRWADZISAI/chief-architect-premier",
+      desc: "Chief Architect Premier Desktop Edition: Full-Feature Architectural Design Setup",
+      lang: "HTML",
+      stars: 335,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:44:56Z",
+      pushed: "2026-11-26T02:43:22Z",
+      created: "2026-11-21T13:15:38Z",
+      license: "",
+      topics: [
+        "automation",
+        "chief-architect",
+        "chief-architect-setup-failed-fix",
+        "chief-architect-x16",
+        "chief-architect-x16-not-installing-on-windows-11"
+      ],
+      desc_zh: "Chief Architect Premier桌面版：全功能建筑设计设置"
+    },
+    {
+      name: "SSP221/designcenter-nx",
+      url: "https://github.com/SSP221/designcenter-nx",
+      desc: "Designcenter NX: Desktop Platform for Integrated Design Workflow Management",
+      lang: "HTML",
+      stars: 335,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:10Z",
+      pushed: "2026-11-26T04:38:54Z",
+      created: "2026-11-21T13:28:07Z",
+      license: "",
+      topics: [
+        "automation",
+        "desktop",
+        "developer-tools",
+        "nx-cad",
+        "nxopen"
+      ],
+      desc_zh: "Designcenter NX：用于集成设计工作流程管理的桌面平台"
+    },
+    {
       name: "AR-Tokee/autodesk-revit",
       url: "https://github.com/AR-Tokee/autodesk-revit",
       desc: "Autodesk Revit: BIM Desktop Platform for Parametric Design Documentation",
@@ -2557,48 +2578,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Autodesk Revit：用于参数化设计文档的BIM桌面平台"
     },
     {
-      name: "SSP221/designcenter-nx",
-      url: "https://github.com/SSP221/designcenter-nx",
-      desc: "Designcenter NX: Desktop Platform for Integrated Design Workflow Management",
-      lang: "HTML",
-      stars: 335,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:10Z",
-      pushed: "2026-11-25T22:53:33Z",
-      created: "2026-11-21T13:28:07Z",
-      license: "",
-      topics: [
-        "automation",
-        "desktop",
-        "developer-tools",
-        "nx-cad",
-        "nxopen"
-      ],
-      desc_zh: "Designcenter NX：用于集成设计工作流程管理的桌面平台"
-    },
-    {
-      name: "jbondoc02/ios-unlocker-pro",
-      url: "https://github.com/jbondoc02/ios-unlocker-pro",
-      desc: "iOS Unlocker Pro: Desktop Setup for Device Access Management",
-      lang: "HTML",
-      stars: 335,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:37Z",
-      pushed: "2026-11-26T02:42:38Z",
-      created: "2026-11-21T14:39:49Z",
-      license: "",
-      topics: [
-        "automation",
-        "desktop",
-        "developer-tools",
-        "ios-hacking",
-        "ios26iphone"
-      ],
-      desc_zh: "iOS Unlocker Pro：用于设备访问管理的桌面版设置"
-    },
-    {
       name: "SujeetSutar/fishing-planet-enhancer",
       url: "https://github.com/SujeetSutar/fishing-planet-enhancer",
       desc: "Fishing Planet Enhancer: Full Desktop With Everything Available",
@@ -2607,7 +2586,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:28Z",
-      pushed: "2026-11-25T22:52:29Z",
+      pushed: "2026-11-26T04:37:12Z",
       created: "2026-11-21T13:52:06Z",
       license: "MIT",
       topics: [
@@ -2641,6 +2620,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "多显示器工具：多显示器管理和桌面软件"
     },
     {
+      name: "jbondoc02/ios-unlocker-pro",
+      url: "https://github.com/jbondoc02/ios-unlocker-pro",
+      desc: "iOS Unlocker Pro: Desktop Setup for Device Access Management",
+      lang: "HTML",
+      stars: 335,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:37Z",
+      pushed: "2026-11-26T02:42:38Z",
+      created: "2026-11-21T14:39:49Z",
+      license: "",
+      topics: [
+        "automation",
+        "desktop",
+        "developer-tools",
+        "ios-hacking",
+        "ios26iphone"
+      ],
+      desc_zh: "iOS Unlocker Pro：用于设备访问管理的桌面版设置"
+    },
+    {
       name: "tarunngade/coreldraw-graphics-suite",
       url: "https://github.com/tarunngade/coreldraw-graphics-suite",
       desc: "Graphics Suite: Vector Illustration and Layout Desktop Software Setup",
@@ -2649,7 +2649,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:05Z",
-      pushed: "2026-11-25T22:52:20Z",
+      pushed: "2026-11-26T04:36:47Z",
       created: "2026-11-21T13:21:17Z",
       license: "MIT",
       topics: [
@@ -2662,27 +2662,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "图形套件：矢量插图和版面桌面软件安装"
     },
     {
-      name: "BratzieTiffany/imobie-anytrans",
-      url: "https://github.com/BratzieTiffany/imobie-anytrans",
-      desc: "iMobie AnyTrans: Cross-Device Content Management and Data Transfer Suite",
-      lang: "HTML",
-      stars: 335,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:36Z",
-      pushed: "2026-11-26T03:15:54Z",
-      created: "2026-11-21T14:32:44Z",
-      license: "MIT",
-      topics: [
-        "anytrans-download-iphone-manager",
-        "anytrans-transfer-photos-music-pc",
-        "automation",
-        "desktop",
-        "developer-tools"
-      ],
-      desc_zh: "iMobie AnyTrans：跨设备内容管理和数据传输套件"
-    },
-    {
       name: "rcgaming265-afk/claude-prompt-studio",
       url: "https://github.com/rcgaming265-afk/claude-prompt-studio",
       desc: "Claude Prompt Studio: Desktop Environment for Structured AI Prompt Engineering",
@@ -2691,7 +2670,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:02Z",
-      pushed: "2026-11-25T22:56:42Z",
+      pushed: "2026-11-26T04:44:29Z",
       created: "2026-11-21T13:18:28Z",
       license: "",
       topics: [
@@ -2712,7 +2691,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:44Z",
-      pushed: "2026-11-25T22:56:31Z",
+      pushed: "2026-11-26T04:43:11Z",
       created: "2026-11-21T13:10:54Z",
       license: "",
       topics: [
@@ -2746,6 +2725,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Tenorshare 4uKey实用工具：设备访问凭据检索框架"
     },
     {
+      name: "BratzieTiffany/imobie-anytrans",
+      url: "https://github.com/BratzieTiffany/imobie-anytrans",
+      desc: "iMobie AnyTrans: Cross-Device Content Management and Data Transfer Suite",
+      lang: "HTML",
+      stars: 335,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:36Z",
+      pushed: "2026-11-26T03:15:54Z",
+      created: "2026-11-21T14:32:44Z",
+      license: "MIT",
+      topics: [
+        "anytrans-download-iphone-manager",
+        "anytrans-transfer-photos-music-pc",
+        "automation",
+        "desktop",
+        "developer-tools"
+      ],
+      desc_zh: "iMobie AnyTrans：跨设备内容管理和数据传输套件"
+    },
+    {
       name: "docker2024-hue/adobe-indesign-desktop",
       url: "https://github.com/docker2024-hue/adobe-indesign-desktop",
       desc: "Adobe InDesign Desktop: Professional Page Layout and Typesetting Engine",
@@ -2765,6 +2765,27 @@ window.__GHRANK_RANGES__["week"] = {
         "indesign-document"
       ],
       desc_zh: "Adobe InDesign 桌面版：专业版面设计和排版引擎"
+    },
+    {
+      name: "zikorahal/honkai-star-rail-enhancer",
+      url: "https://github.com/zikorahal/honkai-star-rail-enhancer",
+      desc: "Honkai Star Rail Enhancer: Complete Setup Ready to Run",
+      lang: "HTML",
+      stars: 335,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:35Z",
+      pushed: "2026-11-25T22:58:53Z",
+      created: "2026-11-21T14:22:58Z",
+      license: "",
+      topics: [
+        "automation",
+        "desktop",
+        "developer-tools",
+        "open-source",
+        "python"
+      ],
+      desc_zh: "《崩坏：星穹铁道》增强器：完成设置，即可运行"
     },
     {
       name: "Enayah785/payday-3-enhancer",
@@ -2809,27 +2830,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "功能齐全的 DVD Creator 桌面版，具备制作、刻录和光盘映像工具"
     },
     {
-      name: "zikorahal/honkai-star-rail-enhancer",
-      url: "https://github.com/zikorahal/honkai-star-rail-enhancer",
-      desc: "Honkai Star Rail Enhancer: Complete Setup Ready to Run",
-      lang: "HTML",
-      stars: 335,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:35Z",
-      pushed: "2026-11-25T22:58:53Z",
-      created: "2026-11-21T14:22:58Z",
-      license: "",
-      topics: [
-        "automation",
-        "desktop",
-        "developer-tools",
-        "open-source",
-        "python"
-      ],
-      desc_zh: "《崩坏：星穹铁道》增强器：完成设置，即可运行"
-    },
-    {
       name: "teo271/private-internet-gateway-vpn",
       url: "https://github.com/teo271/private-internet-gateway-vpn",
       desc: "Private Internet Gateway VPN: WireGuard and OpenVPN Client with Global Nodes and Privacy Controls fo",
@@ -2838,7 +2838,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:55Z",
-      pushed: "2026-11-25T22:13:10Z",
+      pushed: "2026-11-26T04:45:42Z",
       created: "2026-11-21T17:09:39Z",
       license: "MIT",
       topics: [
@@ -2851,27 +2851,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "私人互联网网关 VPN：WireGuard 和 OpenVPN 客户端，具备全球节点和隐私控制功能"
     },
     {
-      name: "manishpandeya/melodyne-5",
-      url: "https://github.com/manishpandeya/melodyne-5",
-      desc: "Melodyne 5 Desktop: Complete Standalone Setup with All Features Pre-Configured and Ready to Run",
-      lang: "HTML",
-      stars: 335,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:44Z",
-      pushed: "2026-11-26T03:15:49Z",
-      created: "2026-11-21T14:56:06Z",
-      license: "MIT",
-      topics: [
-        "automation",
-        "celemony",
-        "celemony-melodyne-install-setup-windows-2026",
-        "desktop",
-        "developer-tools"
-      ],
-      desc_zh: "Melodyne 5 Desktop：完整的独立安装，所有功能均已预先配置并可随时运行"
-    },
-    {
       name: "mesharimdawood-lgtm/discord-server-cloner",
       url: "https://github.com/mesharimdawood-lgtm/discord-server-cloner",
       desc: "Community-Driven Discord Server Cloner with Full Desktop Setup and Rich Features",
@@ -2880,7 +2859,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:11Z",
-      pushed: "2026-11-25T22:56:47Z",
+      pushed: "2026-11-26T04:44:28Z",
       created: "2026-11-21T13:31:26Z",
       license: "MIT",
       topics: [
@@ -2914,25 +2893,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Music Maker Unlimited：用于作曲和声音设计的专业桌面音频制作套件"
     },
     {
-      name: "dakshusonani7-ship-it/ultraedit-editor",
-      url: "https://github.com/dakshusonani7-ship-it/ultraedit-editor",
-      desc: "UltraEdit Editor: Advanced Text and Code Editing Suite for Desktop Workflows",
+      name: "manishpandeya/melodyne-5",
+      url: "https://github.com/manishpandeya/melodyne-5",
+      desc: "Melodyne 5 Desktop: Complete Standalone Setup with All Features Pre-Configured and Ready to Run",
       lang: "HTML",
       stars: 335,
       forks: 0,
       issues: 0,
-      updated: "2026-11-25T15:46:01Z",
-      pushed: "2026-11-26T02:36:47Z",
-      created: "2026-11-21T17:17:30Z",
+      updated: "2026-11-25T15:45:44Z",
+      pushed: "2026-11-26T03:15:49Z",
+      created: "2026-11-21T14:56:06Z",
       license: "MIT",
       topics: [
         "automation",
-        "developer-tools",
-        "open-source",
-        "python",
-        "scripts"
+        "celemony",
+        "celemony-melodyne-install-setup-windows-2026",
+        "desktop",
+        "developer-tools"
       ],
-      desc_zh: "UltraEdit 编辑器：适用于桌面工作流程的高级文本和代码编辑套件"
+      desc_zh: "Melodyne 5 Desktop：完整的独立安装，所有功能均已预先配置并可随时运行"
+    },
+    {
+      name: "livai-droid/adobe-indesign-release",
+      url: "https://github.com/livai-droid/adobe-indesign-release",
+      desc: "Adobe InDesign Release: Verified Assessment and Integrity Verification Framework",
+      lang: "HTML",
+      stars: 335,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:44:16Z",
+      pushed: "2026-11-26T04:39:16Z",
+      created: "2026-11-21T12:50:09Z",
+      license: "MIT",
+      topics: [
+        "adobe-indesign",
+        "automation",
+        "desktop",
+        "developer-tools",
+        "indesign-document"
+      ],
+      desc_zh: "Adobe InDesign 版本：经过验证的评估和完整性验证框架"
     },
     {
       name: "muruganmylord/soundpad-desktop",
@@ -2956,25 +2956,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "SoundPad 桌面版：模块化音频路由和实时音效板引擎"
     },
     {
-      name: "livai-droid/adobe-indesign-release",
-      url: "https://github.com/livai-droid/adobe-indesign-release",
-      desc: "Adobe InDesign Release: Verified Assessment and Integrity Verification Framework",
+      name: "dakshusonani7-ship-it/ultraedit-editor",
+      url: "https://github.com/dakshusonani7-ship-it/ultraedit-editor",
+      desc: "UltraEdit Editor: Advanced Text and Code Editing Suite for Desktop Workflows",
       lang: "HTML",
       stars: 335,
       forks: 0,
       issues: 0,
-      updated: "2026-11-25T15:44:16Z",
-      pushed: "2026-11-25T22:54:01Z",
-      created: "2026-11-21T12:50:09Z",
+      updated: "2026-11-25T15:46:01Z",
+      pushed: "2026-11-26T02:36:47Z",
+      created: "2026-11-21T17:17:30Z",
       license: "MIT",
       topics: [
-        "adobe-indesign",
+        "automation",
+        "developer-tools",
+        "open-source",
+        "python",
+        "scripts"
+      ],
+      desc_zh: "UltraEdit 编辑器：适用于桌面工作流程的高级文本和代码编辑套件"
+    },
+    {
+      name: "Samer2219/instagram-liker-bot",
+      url: "https://github.com/Samer2219/instagram-liker-bot",
+      desc: "Community-driven Instagram liking bot for Discord and Telegram with rich features",
+      lang: "HTML",
+      stars: 335,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:36Z",
+      pushed: "2026-11-26T04:44:46Z",
+      created: "2026-11-21T14:35:04Z",
+      license: "",
+      topics: [
+        "autolike",
         "automation",
         "desktop",
         "developer-tools",
-        "indesign-document"
+        "insta-bot"
       ],
-      desc_zh: "Adobe InDesign 版本：经过验证的评估和完整性验证框架"
+      desc_zh: "面向Discord和Telegram的社区驱动型Instagram点赞机器人，功能丰富"
     },
     {
       name: "noba12/dft-pro",
@@ -3017,27 +3038,6 @@ window.__GHRANK_RANGES__["week"] = {
         "burning-studio-crack"
       ],
       desc_zh: "Burning Studio：专业的桌面光盘制作和光盘介质制作套件"
-    },
-    {
-      name: "Samer2219/instagram-liker-bot",
-      url: "https://github.com/Samer2219/instagram-liker-bot",
-      desc: "Community-driven Instagram liking bot for Discord and Telegram with rich features",
-      lang: "HTML",
-      stars: 335,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:36Z",
-      pushed: "2026-11-25T22:56:58Z",
-      created: "2026-11-21T14:35:04Z",
-      license: "",
-      topics: [
-        "autolike",
-        "automation",
-        "desktop",
-        "developer-tools",
-        "insta-bot"
-      ],
-      desc_zh: "面向Discord和Telegram的社区驱动型Instagram点赞机器人，功能丰富"
     },
     {
       name: "lun3330-design/keyshot-pro",
@@ -3090,7 +3090,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:56Z",
-      pushed: "2026-11-26T02:50:50Z",
+      pushed: "2026-11-26T03:54:32Z",
       created: "2026-11-21T17:10:42Z",
       license: "MIT",
       topics: [
@@ -3145,27 +3145,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Movavi Effects：包含所有功能和工具的完整桌面套件"
     },
     {
-      name: "fakegmailincambodia-commits/microsoft-365-desktop-suite",
-      url: "https://github.com/fakegmailincambodia-commits/microsoft-365-desktop-suite",
-      desc: "Microsoft 365 Desktop Suite: Office Toolset in a Unified Desktop Environment",
-      lang: "HTML",
-      stars: 334,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:45Z",
-      pushed: "2026-11-26T02:41:21Z",
-      created: "2026-11-21T15:08:57Z",
-      license: "",
-      topics: [
-        "automation",
-        "developer-tools",
-        "excel-automation",
-        "libreoffice-extension",
-        "microsoft-excel-advanced"
-      ],
-      desc_zh: "Microsoft 365 桌面套件：统一桌面环境中的 Office 工具集"
-    },
-    {
       name: "Makarios695/autocad-desktop-edition",
       url: "https://github.com/Makarios695/autocad-desktop-edition",
       desc: "AutoCad Desktop Edition: Professional CAD Modeling and Drafting Software",
@@ -3187,6 +3166,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "AutoCAD桌面版：专业的CAD建模和绘图软件"
     },
     {
+      name: "fakegmailincambodia-commits/microsoft-365-desktop-suite",
+      url: "https://github.com/fakegmailincambodia-commits/microsoft-365-desktop-suite",
+      desc: "Microsoft 365 Desktop Suite: Office Toolset in a Unified Desktop Environment",
+      lang: "HTML",
+      stars: 334,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:45Z",
+      pushed: "2026-11-26T02:41:21Z",
+      created: "2026-11-21T15:08:57Z",
+      license: "",
+      topics: [
+        "automation",
+        "developer-tools",
+        "excel-automation",
+        "libreoffice-extension",
+        "microsoft-excel-advanced"
+      ],
+      desc_zh: "Microsoft 365 桌面套件：统一桌面环境中的 Office 工具集"
+    },
+    {
       name: "younggeelyfmichael-dev/claude-ai-prompt-utility",
       url: "https://github.com/younggeelyfmichael-dev/claude-ai-prompt-utility",
       desc: "Claude AI Prompt Utility: Technical Alternative Access Framework",
@@ -3195,7 +3195,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:05Z",
-      pushed: "2026-11-25T22:53:28Z",
+      pushed: "2026-11-26T04:39:14Z",
       created: "2026-11-21T13:19:58Z",
       license: "MIT",
       topics: [
@@ -3206,27 +3206,6 @@ window.__GHRANK_RANGES__["week"] = {
         "claude-jailbreak-sonnet"
       ],
       desc_zh: "Claude AI 提示实用工具：技术替代访问框架"
-    },
-    {
-      name: "roblox-scripter-hacker/mgshdfix-visual-mod",
-      url: "https://github.com/roblox-scripter-hacker/mgshdfix-visual-mod",
-      desc: "MGSHDFix Visual Mod: Restoring Lost Effects for the Modding Community",
-      lang: "HTML",
-      stars: 334,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:45Z",
-      pushed: "2026-11-26T02:53:10Z",
-      created: "2026-11-21T15:06:13Z",
-      license: "",
-      topics: [
-        "bugfix",
-        "bugfixes",
-        "game-restoration",
-        "metal-gear",
-        "metal-gear-2"
-      ],
-      desc_zh: "MGSHDFix 视觉模组：为模组社区恢复丢失的效果"
     },
     {
       name: "aslixussenabukar-debug/microsoft-office-suite",
@@ -3271,6 +3250,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "ProtonVPN Business 客户端：实用的 Windows 版本，具备完整模块，首次启动简单"
     },
     {
+      name: "roblox-scripter-hacker/mgshdfix-visual-mod",
+      url: "https://github.com/roblox-scripter-hacker/mgshdfix-visual-mod",
+      desc: "MGSHDFix Visual Mod: Restoring Lost Effects for the Modding Community",
+      lang: "HTML",
+      stars: 334,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:45Z",
+      pushed: "2026-11-26T03:57:37Z",
+      created: "2026-11-21T15:06:13Z",
+      license: "",
+      topics: [
+        "bugfix",
+        "bugfixes",
+        "game-restoration",
+        "metal-gear",
+        "metal-gear-2"
+      ],
+      desc_zh: "MGSHDFix 视觉模组：为模组社区恢复丢失的效果"
+    },
+    {
       name: "esamZumrawi/dr-fone-mobile-launch-suite",
       url: "https://github.com/esamZumrawi/dr-fone-mobile-launch-suite",
       desc: "Dr.Fone Mobile Launch Suite: Android and iPhone Screen, FRP, and Carrier SIM Lock Management for Win",
@@ -3279,7 +3279,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:12Z",
-      pushed: "2026-11-25T22:56:05Z",
+      pushed: "2026-11-26T04:41:54Z",
       created: "2026-11-21T13:37:59Z",
       license: "",
       topics: [
@@ -3355,6 +3355,26 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Aion 2 Trainer 工具：即用型 AI 提示工程设置"
     },
     {
+      name: "HoangMinh-sikula/rob-run-mod-trainer",
+      url: "https://github.com/HoangMinh-sikula/rob-run-mod-trainer",
+      desc: "Rob Run Mod Trainer: Shape Your Run, Bend the Rules, Build the Mod",
+      lang: "HTML",
+      stars: 334,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:37:23Z",
+      pushed: "2026-11-25T23:25:29Z",
+      created: "2026-11-25T14:47:37Z",
+      license: "MIT",
+      topics: [
+        "kefir",
+        "robrun-mod",
+        "robrun-radar",
+        "robrun-utility"
+      ],
+      desc_zh: "Rob Run Mod 训练器：塑造您的跑步，打破常规，打造 Mod"
+    },
+    {
       name: "tukfefkoutbdvorfb-wq/data-grip-modifier",
       url: "https://github.com/tukfefkoutbdvorfb-wq/data-grip-modifier",
       desc: "Data Grip Modifier: Full-Feature Desktop Data Management Suite",
@@ -3374,26 +3394,6 @@ window.__GHRANK_RANGES__["week"] = {
         "datagrip-2026"
       ],
       desc_zh: "Data Grip 修饰符：全功能桌面数据管理套件"
-    },
-    {
-      name: "HoangMinh-sikula/rob-run-mod-trainer",
-      url: "https://github.com/HoangMinh-sikula/rob-run-mod-trainer",
-      desc: "Rob Run Mod Trainer: Shape Your Run, Bend the Rules, Build the Mod",
-      lang: "HTML",
-      stars: 334,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:37:23Z",
-      pushed: "2026-11-25T23:25:29Z",
-      created: "2026-11-25T14:47:37Z",
-      license: "MIT",
-      topics: [
-        "kefir",
-        "robrun-mod",
-        "robrun-radar",
-        "robrun-utility"
-      ],
-      desc_zh: "Rob Run Mod 训练器：塑造您的跑步，打破常规，打造 Mod"
     },
     {
       name: "sohail-ahmed-26/uttorent-torrent-manager",
@@ -3446,7 +3446,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:12Z",
-      pushed: "2026-11-25T22:53:44Z",
+      pushed: "2026-11-26T04:39:09Z",
       created: "2026-11-21T12:30:57Z",
       license: "MIT",
       topics: [
@@ -3488,7 +3488,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:09Z",
-      pushed: "2026-11-25T22:52:36Z",
+      pushed: "2026-11-26T04:36:26Z",
       created: "2026-11-21T13:23:44Z",
       license: "",
       topics: [
@@ -3530,7 +3530,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:16Z",
-      pushed: "2026-11-25T22:52:46Z",
+      pushed: "2026-11-26T04:36:02Z",
       created: "2026-11-21T13:38:35Z",
       license: "MIT",
       topics: [
@@ -3585,27 +3585,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Reason 14 桌面版发布：功能丰富的工作流程套件"
     },
     {
-      name: "crobyskigh/izotope-ozone-11-mastering-suite",
-      url: "https://github.com/crobyskigh/izotope-ozone-11-mastering-suite",
-      desc: "AI-Assisted Mastering Workflow with Spectral Shaping and Codec Preview",
-      lang: "HTML",
-      stars: 334,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:37Z",
-      pushed: "2026-11-26T03:16:47Z",
-      created: "2026-11-21T14:42:17Z",
-      license: "MIT",
-      topics: [
-        "audio-mastering",
-        "audio-plugin",
-        "izotope",
-        "izotope-ozone",
-        "loudness"
-      ],
-      desc_zh: "借助频谱塑形和编解码器预览的 AI 辅助母带处理工作流程"
-    },
-    {
       name: "abinbijumon11-coder/soundpad-audio-tool",
       url: "https://github.com/abinbijumon11-coder/soundpad-audio-tool",
       desc: "Soundpad Audio Tool: Pro DAW Workflow and Advanced Audio Processing Setup",
@@ -3625,6 +3604,27 @@ window.__GHRANK_RANGES__["week"] = {
         "python"
       ],
       desc_zh: "Soundpad 音频工具：专业 DAW 工作流程和高级音频处理设置"
+    },
+    {
+      name: "crobyskigh/izotope-ozone-11-mastering-suite",
+      url: "https://github.com/crobyskigh/izotope-ozone-11-mastering-suite",
+      desc: "AI-Assisted Mastering Workflow with Spectral Shaping and Codec Preview",
+      lang: "HTML",
+      stars: 334,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:37Z",
+      pushed: "2026-11-26T03:16:47Z",
+      created: "2026-11-21T14:42:17Z",
+      license: "MIT",
+      topics: [
+        "audio-mastering",
+        "audio-plugin",
+        "izotope",
+        "izotope-ozone",
+        "loudness"
+      ],
+      desc_zh: "借助频谱塑形和编解码器预览的 AI 辅助母带处理工作流程"
     },
     {
       name: "concainit254333-rgb/catia-cad-desktop",
@@ -3648,27 +3648,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Catia CAD Desktop：适用于 Windows 的全功能专业设计套件"
     },
     {
-      name: "mortatha9329-AI/honkai-star-rail-trainer",
-      url: "https://github.com/mortatha9329-AI/honkai-star-rail-trainer",
-      desc: "Honkai Star Rail Trainer: Complete Standalone Setup, All Features Pre-Enabled",
-      lang: "HTML",
-      stars: 333,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:45:35Z",
-      pushed: "2026-11-26T02:43:16Z",
-      created: "2026-11-21T14:24:45Z",
-      license: "MIT",
-      topics: [
-        "automation",
-        "desktop",
-        "developer-tools",
-        "open-source",
-        "python"
-      ],
-      desc_zh: "《崩坏：星穹铁道》辅助工具：完整的独立安装程序，所有功能均已预先启用"
-    },
-    {
       name: "snpandeylicidgp-tech/voicemod-pro",
       url: "https://github.com/snpandeylicidgp-tech/voicemod-pro",
       desc: "Voicemod Pro: Real-Time Voice Transformation Desktop Suite",
@@ -3677,7 +3656,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:46:01Z",
-      pushed: "2026-11-25T21:19:00Z",
+      pushed: "2026-11-26T04:00:32Z",
       created: "2026-11-21T17:18:27Z",
       license: "MIT",
       topics: [
@@ -3709,6 +3688,27 @@ window.__GHRANK_RANGES__["week"] = {
         "python"
       ],
       desc_zh: "Adobe Substance 3D Studio：具备实时材质创作功能的创意桌面应用程序"
+    },
+    {
+      name: "mortatha9329-AI/honkai-star-rail-trainer",
+      url: "https://github.com/mortatha9329-AI/honkai-star-rail-trainer",
+      desc: "Honkai Star Rail Trainer: Complete Standalone Setup, All Features Pre-Enabled",
+      lang: "HTML",
+      stars: 333,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:45:35Z",
+      pushed: "2026-11-26T02:43:16Z",
+      created: "2026-11-21T14:24:45Z",
+      license: "MIT",
+      topics: [
+        "automation",
+        "desktop",
+        "developer-tools",
+        "open-source",
+        "python"
+      ],
+      desc_zh: "《崩坏：星穹铁道》辅助工具：完整的独立安装程序，所有功能均已预先启用"
     },
     {
       name: "Huy-alo/hitfilm-pro-release",
@@ -3782,7 +3782,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:38Z",
-      pushed: "2026-11-25T22:55:56Z",
+      pushed: "2026-11-26T04:42:28Z",
       created: "2026-11-21T14:47:31Z",
       license: "MIT",
       topics: [
@@ -3803,7 +3803,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:36Z",
-      pushed: "2026-11-25T22:54:07Z",
+      pushed: "2026-11-26T04:38:57Z",
       created: "2026-11-21T14:38:09Z",
       license: "MIT",
       topics: [
@@ -3866,7 +3866,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:30Z",
-      pushed: "2026-11-25T22:54:30Z",
+      pushed: "2026-11-26T04:38:59Z",
       created: "2026-11-21T13:04:35Z",
       license: "",
       topics: [
@@ -3908,7 +3908,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:28Z",
-      pushed: "2026-11-25T22:54:48Z",
+      pushed: "2026-11-26T04:40:35Z",
       created: "2026-11-21T13:01:09Z",
       license: "MIT",
       topics: [
@@ -3942,25 +3942,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Cellebrite UFED Desktop Companion：取证数据提取和分析实用程序"
     },
     {
-      name: "nothingnkrd/android-unlocker-utility",
-      url: "https://github.com/nothingnkrd/android-unlocker-utility",
-      desc: "Android Unlocker Utility: Desktop Device Management and Configuration Tool",
+      name: "sgbbag8-sys/aomei-backupper",
+      url: "https://github.com/sgbbag8-sys/aomei-backupper",
+      desc: "Aomei Backupper Desktop Setup: Disk Imaging, Backup, and Recovery Utility",
       lang: "HTML",
       stars: 333,
       forks: 0,
       issues: 0,
-      updated: "2026-11-25T15:44:23Z",
-      pushed: "2026-11-26T03:17:58Z",
-      created: "2026-11-21T12:55:04Z",
+      updated: "2026-11-25T15:44:25Z",
+      pushed: "2026-11-26T04:43:13Z",
+      created: "2026-11-21T12:58:16Z",
       license: "MIT",
       topics: [
+        "aomei",
+        "aomei-partition",
+        "aomei-setup",
         "automation",
-        "desktop",
-        "developer-tools",
-        "ios-hacking",
-        "ios26iphone"
+        "developer-tools"
       ],
-      desc_zh: "Android Unlocker实用工具：桌面设备管理和配置工具"
+      desc_zh: "AOMEI Backupper Desktop 安装程序：磁盘映像、备份和恢复实用工具"
     },
     {
       name: "ryngafsi07/adobe-audition-workbench",
@@ -3984,25 +3984,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Adobe Audition 工作台：专业的桌面音频编辑和母带处理环境"
     },
     {
-      name: "sgbbag8-sys/aomei-backupper",
-      url: "https://github.com/sgbbag8-sys/aomei-backupper",
-      desc: "Aomei Backupper Desktop Setup: Disk Imaging, Backup, and Recovery Utility",
+      name: "nothingnkrd/android-unlocker-utility",
+      url: "https://github.com/nothingnkrd/android-unlocker-utility",
+      desc: "Android Unlocker Utility: Desktop Device Management and Configuration Tool",
       lang: "HTML",
       stars: 333,
       forks: 0,
       issues: 0,
-      updated: "2026-11-25T15:44:25Z",
-      pushed: "2026-11-25T22:56:20Z",
-      created: "2026-11-21T12:58:16Z",
+      updated: "2026-11-25T15:44:23Z",
+      pushed: "2026-11-26T03:17:58Z",
+      created: "2026-11-21T12:55:04Z",
       license: "MIT",
       topics: [
-        "aomei",
-        "aomei-partition",
-        "aomei-setup",
         "automation",
-        "developer-tools"
+        "desktop",
+        "developer-tools",
+        "ios-hacking",
+        "ios26iphone"
       ],
-      desc_zh: "AOMEI Backupper Desktop 安装程序：磁盘映像、备份和恢复实用工具"
+      desc_zh: "Android Unlocker实用工具：桌面设备管理和配置工具"
+    },
+    {
+      name: "111000333/autodesk-inventor-utility",
+      url: "https://github.com/111000333/autodesk-inventor-utility",
+      desc: "Autodesk Inventor Utility: Desktop CAD Workflow and Model Management",
+      lang: "HTML",
+      stars: 333,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-25T15:44:30Z",
+      pushed: "2026-11-26T04:38:05Z",
+      created: "2026-11-21T13:04:32Z",
+      license: "MIT",
+      topics: [
+        "autodesk-inventor-pro",
+        "autodesk-inventor-pro-pc",
+        "automation",
+        "developer-tools",
+        "inventor"
+      ],
+      desc_zh: "Autodesk Inventor实用工具：桌面CAD工作流程和模型管理"
     },
     {
       name: "gouzzarineblance-spec/canva-pro",
@@ -4024,27 +4045,6 @@ window.__GHRANK_RANGES__["week"] = {
         "canva-editor-tools"
       ],
       desc_zh: "Canva Pro：桌面版设计套件模板、品牌控制和团队工作流程"
-    },
-    {
-      name: "111000333/autodesk-inventor-utility",
-      url: "https://github.com/111000333/autodesk-inventor-utility",
-      desc: "Autodesk Inventor Utility: Desktop CAD Workflow and Model Management",
-      lang: "HTML",
-      stars: 333,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-25T15:44:30Z",
-      pushed: "2026-11-25T22:53:30Z",
-      created: "2026-11-21T13:04:32Z",
-      license: "MIT",
-      topics: [
-        "autodesk-inventor-pro",
-        "autodesk-inventor-pro-pc",
-        "automation",
-        "developer-tools",
-        "inventor"
-      ],
-      desc_zh: "Autodesk Inventor实用工具：桌面CAD工作流程和模型管理"
     },
     {
       name: "Zujoku/fonetrans",
@@ -4244,7 +4244,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:45:52Z",
-      pushed: "2026-11-25T22:13:03Z",
+      pushed: "2026-11-26T04:45:27Z",
       created: "2026-11-21T16:02:12Z",
       license: "",
       topics: [
@@ -4265,7 +4265,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:28Z",
-      pushed: "2026-11-25T22:55:06Z",
+      pushed: "2026-11-26T04:39:47Z",
       created: "2026-11-21T13:01:36Z",
       license: "MIT",
       topics: [
@@ -4286,7 +4286,7 @@ window.__GHRANK_RANGES__["week"] = {
       forks: 0,
       issues: 0,
       updated: "2026-11-25T15:44:24Z",
-      pushed: "2026-11-25T22:53:26Z",
+      pushed: "2026-11-26T04:38:45Z",
       created: "2026-11-21T12:57:58Z",
       license: "MIT",
       topics: [
@@ -4318,10 +4318,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/R44VC0RP/dashsplat",
       desc: "Turn a car's dashcam footage into a 3D world you can drive through again: Gaussian splats, a 1 cm road atlas, tracked vehicles and a diffusion-repaired chase view.",
       lang: "Python",
-      stars: 317,
+      stars: 318,
       forks: 57,
       issues: 2,
-      updated: "2026-11-26T02:56:09Z",
+      updated: "2026-11-26T03:51:51Z",
       pushed: "2026-11-22T21:13:32Z",
       created: "2026-11-22T21:13:18Z",
       license: "Apache-2.0",
@@ -4348,10 +4348,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/EL4CTEO/shrink-anything",
       desc: "Less code, same tests passing: delete the dead code, files, dependencies and assets in any codebase, and keep each cut only if your own tests still pass.",
       lang: "Rust",
-      stars: 281,
+      stars: 285,
       forks: 17,
       issues: 0,
-      updated: "2026-11-26T01:44:19Z",
+      updated: "2026-11-26T04:39:04Z",
       pushed: "2026-11-25T16:00:02Z",
       created: "2026-11-23T15:55:48Z",
       license: "MIT",
@@ -4369,10 +4369,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/mattpocock/cookout",
       desc: "",
       lang: "TypeScript",
-      stars: 272,
+      stars: 281,
       forks: 24,
       issues: 75,
-      updated: "2026-11-26T03:22:17Z",
+      updated: "2026-11-26T04:44:19Z",
       pushed: "2026-11-25T20:48:06Z",
       created: "2026-11-22T12:20:23Z",
       license: "",
@@ -4384,11 +4384,11 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/httpdone/magpie-aws-quick",
       desc: "Use your own AWS Quick account in Magpie-在 magpie 里用你自己的 Amazon Quick（AWS Quick）账号 ",
       lang: "JavaScript",
-      stars: 270,
+      stars: 271,
       forks: 53,
       issues: 2,
-      updated: "2026-11-26T02:19:25Z",
-      pushed: "2026-11-26T03:29:38Z",
+      updated: "2026-11-26T03:37:51Z",
+      pushed: "2026-11-26T03:41:05Z",
       created: "2026-11-21T18:19:59Z",
       license: "MIT",
       topics: [
@@ -4403,7 +4403,7 @@ window.__GHRANK_RANGES__["week"] = {
       desc: "Experimental, clean-room Xbox Series X|S (Scarlett) HLE and compatibility layer for Windows x64.",
       lang: "C++",
       stars: 268,
-      forks: 25,
+      forks: 26,
       issues: 30,
       updated: "2026-11-26T02:06:44Z",
       pushed: "2026-11-22T10:38:07Z",
@@ -4458,6 +4458,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "一个兼容OpenAI的端点，适用于多个免费LLM层级。添加您自己的提供商密钥，路由器将为每个请求选择一个运行正常的模型，当某个模型受到速率限制时进行故障转移，并跟踪每个密钥的使用情况，以便您始终在每个配额的限制范围内。自托管，密钥在静态时加密。适用于个人实验。"
     },
     {
+      name: "Moh4696/inkworks-skill",
+      url: "https://github.com/Moh4696/inkworks-skill",
+      desc: "Inkworks: an agent skill for interactive 3D how-it-works pages drawn like an engineering sheet.",
+      lang: "JavaScript",
+      stars: 247,
+      forks: 27,
+      issues: 0,
+      updated: "2026-11-26T04:47:58Z",
+      pushed: "2026-11-25T13:53:35Z",
+      created: "2026-11-25T09:26:33Z",
+      license: "MIT",
+      topics: [
+        "3d",
+        "agent-skills",
+        "claude-code",
+        "education",
+        "explainer"
+      ],
+      desc_zh: "Inkworks：一种用于交互式 3D 工作原理页面的代理技能，绘制方式类似于工程图纸。"
+    },
+    {
       name: "AllenWalkerED/nier-reincarnation-pc",
       url: "https://github.com/AllenWalkerED/nier-reincarnation-pc",
       desc: "Unofficial PC port of NieR Re[in]carnation (Global 3.7.1): local server, Android runtime, launcher. Bring your own game files.",
@@ -4483,10 +4504,10 @@ window.__GHRANK_RANGES__["week"] = {
       url: "https://github.com/ElloboDK/KeyCat",
       desc: "菜单栏桌面宠物黑猫：跟着键盘动爪、跟着鼠标转头，烦躁时甩尾捶桌（macOS 13+，通用二进制）",
       lang: "JavaScript",
-      stars: 241,
+      stars: 242,
       forks: 41,
       issues: 14,
-      updated: "2026-11-26T03:29:11Z",
+      updated: "2026-11-26T04:37:12Z",
       pushed: "2026-11-26T03:30:01Z",
       created: "2026-11-23T02:46:10Z",
       license: "GPL-3.0",
@@ -4514,6 +4535,42 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "用于对齐的 Agent 技能：在界面上画出参考线，找到所有未对齐参考线的元素，然后调整内边距。"
     },
     {
+      name: "vuyp/gta6-pc-race",
+      url: "https://github.com/vuyp/gta6-pc-race",
+      desc: "Automatically maintained tracking site for PC ports of the GTA VI Xbox Build. This repository is managed autonomously by Claude Fable 5.2.",
+      lang: "HTML",
+      stars: 238,
+      forks: 1,
+      issues: 0,
+      updated: "2026-11-26T04:37:41Z",
+      pushed: "2026-11-26T04:32:10Z",
+      created: "2026-11-23T17:27:05Z",
+      license: "",
+      topics: [],
+      desc_zh: "自动维护的跟踪网站，用于跟踪《GTA VI》Xbox版本的PC移植版。此代码仓库由Claude Fable 5.2自主管理。"
+    },
+    {
+      name: "erkamyaman/rea-games",
+      url: "https://github.com/erkamyaman/rea-games",
+      desc: "Reverse-engineer any game, rebuild it in any engine (web, Rust, Godot) and prove the rebuild plays the same, frame by frame. Behavior specs in the open GAME.md format.",
+      lang: "JavaScript",
+      stars: 234,
+      forks: 41,
+      issues: 36,
+      updated: "2026-11-26T04:47:55Z",
+      pushed: "2026-11-25T17:01:12Z",
+      created: "2026-11-25T06:44:20Z",
+      license: "MIT",
+      topics: [
+        "2048",
+        "agent-skills",
+        "bevy",
+        "canvas",
+        "claude-code"
+      ],
+      desc_zh: "对任何游戏进行逆向工程，在任何引擎（Web、Rust、Godot）中重建该游戏，并证明重建后的游戏逐帧运行效果完全相同。以开放的 GAME.md 格式提供的行为规范。"
+    },
+    {
       name: "sammwyy/xvalkyrie",
       url: "https://github.com/sammwyy/xvalkyrie",
       desc: "Experimental Xbox One (Durango) & Series X|S (Scarlett) compatibility layer for Windows",
@@ -4521,8 +4578,8 @@ window.__GHRANK_RANGES__["week"] = {
       stars: 234,
       forks: 14,
       issues: 9,
-      updated: "2026-11-26T02:58:12Z",
-      pushed: "2026-11-26T02:25:08Z",
+      updated: "2026-11-26T04:42:51Z",
+      pushed: "2026-11-26T03:43:36Z",
       created: "2026-11-20T00:25:27Z",
       license: "GPL-3.0",
       topics: [
@@ -4533,21 +4590,6 @@ window.__GHRANK_RANGES__["week"] = {
         "wine"
       ],
       desc_zh: "适用于 Windows 的实验性 Xbox One (Durango) 和 Series X|S (Scarlett) 兼容层"
-    },
-    {
-      name: "vuyp/gta6-pc-race",
-      url: "https://github.com/vuyp/gta6-pc-race",
-      desc: "Automatically maintained tracking site for PC ports of the GTA VI Xbox Build. This repository is managed autonomously by Claude Fable 5.2.",
-      lang: "HTML",
-      stars: 234,
-      forks: 1,
-      issues: 0,
-      updated: "2026-11-26T03:32:56Z",
-      pushed: "2026-11-26T03:19:22Z",
-      created: "2026-11-23T17:27:05Z",
-      license: "",
-      topics: [],
-      desc_zh: "自动维护的跟踪网站，用于跟踪《GTA VI》Xbox版本的PC移植版。此代码仓库由Claude Fable 5.2自主管理。"
     },
     {
       name: "CryptoYuyyy02/stickman-video-director",
@@ -4565,40 +4607,55 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "火柴人视频导演 Muse 技能——火柴人故事视频制作技能（场景生成、旁白、背景音乐、剪辑）"
     },
     {
-      name: "Moh4696/inkworks-skill",
-      url: "https://github.com/Moh4696/inkworks-skill",
-      desc: "Inkworks: an agent skill for interactive 3D how-it-works pages drawn like an engineering sheet.",
-      lang: "JavaScript",
-      stars: 232,
-      forks: 26,
-      issues: 0,
-      updated: "2026-11-26T03:32:41Z",
-      pushed: "2026-11-25T13:53:35Z",
-      created: "2026-11-25T09:26:33Z",
-      license: "MIT",
-      topics: [
-        "3d",
-        "agent-skills",
-        "claude-code",
-        "education",
-        "explainer"
-      ],
-      desc_zh: "Inkworks：一种用于交互式 3D 工作原理页面的代理技能，绘制方式类似于工程图纸。"
-    },
-    {
       name: "Cinderella-Man/how-to-enable-p2p-on-nvidia-gpus",
       url: "https://github.com/Cinderella-Man/how-to-enable-p2p-on-nvidia-gpus",
       desc: "Notes on enabling GPU-to-GPU (p2p) data exchange",
       lang: "Cuda",
-      stars: 229,
+      stars: 230,
       forks: 32,
       issues: 1,
-      updated: "2026-11-25T21:27:10Z",
+      updated: "2026-11-26T04:34:39Z",
       pushed: "2026-11-25T18:43:54Z",
       created: "2026-11-23T08:25:48Z",
       license: "",
       topics: [],
       desc_zh: "关于启用 GPU 到 GPU (p2p) 数据交换的注意事项"
+    },
+    {
+      name: "sunbird-tools/sunbird",
+      url: "https://github.com/sunbird-tools/sunbird",
+      desc: "sunbird aka phoenix-unlocker. Unlock phoenix on android/ios/windows discord along with plugins",
+      lang: "Rust",
+      stars: 223,
+      forks: 26,
+      issues: 24,
+      updated: "2026-11-26T04:46:58Z",
+      pushed: "2026-11-25T23:37:43Z",
+      created: "2026-11-22T11:37:21Z",
+      license: "",
+      topics: [],
+      desc_zh: "sunbird，又名phoenix-unlocker。在 Android/iOS/Windows Discord 上解锁 Phoenix 以及插件"
+    },
+    {
+      name: "SilverFeit/StikSound",
+      url: "https://github.com/SilverFeit/StikSound",
+      desc: "StikSound — Ponle sonido de hasta 5 segundos a tus stickers PNG y GIFs animados para WhatsApp (Windows, macOS & Chrome Extension, 100% local sin instalar nada extra)",
+      lang: "TypeScript",
+      stars: 222,
+      forks: 27,
+      issues: 3,
+      updated: "2026-11-26T04:43:21Z",
+      pushed: "2026-11-25T23:26:14Z",
+      created: "2026-11-24T21:55:25Z",
+      license: "Apache-2.0",
+      topics: [
+        "audio-sticker",
+        "chrome-extension",
+        "desktop-app",
+        "gif-to-video",
+        "macos"
+      ],
+      desc_zh: "StikSound — 为您的 WhatsApp PNG 和动画 GIF 贴纸添加长达 5 秒的音效（Windows、macOS 和 Chrome 扩展程序，100% 本地，无需安装任何额外内容）"
     },
     {
       name: "rambailiffhaul/sims4-updater-unlocker-dlc",
@@ -4622,66 +4679,24 @@ window.__GHRANK_RANGES__["week"] = {
       lang: "C#",
       stars: 220,
       forks: 14,
-      issues: 13,
+      issues: 16,
       updated: "2026-11-25T23:18:33Z",
-      pushed: "2026-11-26T03:25:14Z",
+      pushed: "2026-11-26T04:23:06Z",
       created: "2026-11-23T09:57:42Z",
       license: "GPL-3.0",
       topics: [],
       desc_zh: "Xbox Series GTA VI 版本 PC 移植的预备工作：格式、着色器转换和离线主机运行时"
     },
     {
-      name: "erkamyaman/rea-games",
-      url: "https://github.com/erkamyaman/rea-games",
-      desc: "Reverse-engineer any game, rebuild it in any engine (web, Rust, Godot) and prove the rebuild plays the same, frame by frame. Behavior specs in the open GAME.md format.",
-      lang: "JavaScript",
-      stars: 220,
-      forks: 40,
-      issues: 36,
-      updated: "2026-11-26T03:22:34Z",
-      pushed: "2026-11-25T17:01:12Z",
-      created: "2026-11-25T06:44:20Z",
-      license: "MIT",
-      topics: [
-        "2048",
-        "agent-skills",
-        "bevy",
-        "canvas",
-        "claude-code"
-      ],
-      desc_zh: "对任何游戏进行逆向工程，在任何引擎（Web、Rust、Godot）中重建该游戏，并证明重建后的游戏逐帧运行效果完全相同。以开放的 GAME.md 格式提供的行为规范。"
-    },
-    {
-      name: "SilverFeit/StikSound",
-      url: "https://github.com/SilverFeit/StikSound",
-      desc: "StikSound — Ponle sonido de hasta 5 segundos a tus stickers PNG y GIFs animados para WhatsApp (Windows, macOS & Chrome Extension, 100% local sin instalar nada extra)",
-      lang: "TypeScript",
-      stars: 219,
-      forks: 27,
-      issues: 3,
-      updated: "2026-11-26T03:34:00Z",
-      pushed: "2026-11-25T23:26:14Z",
-      created: "2026-11-24T21:55:25Z",
-      license: "Apache-2.0",
-      topics: [
-        "audio-sticker",
-        "chrome-extension",
-        "desktop-app",
-        "gif-to-video",
-        "macos"
-      ],
-      desc_zh: "StikSound — 为您的 WhatsApp PNG 和动画 GIF 贴纸添加长达 5 秒的音效（Windows、macOS 和 Chrome 扩展程序，100% 本地，无需安装任何额外内容）"
-    },
-    {
       name: "open-goat/pequalnp-proofs",
       url: "https://github.com/open-goat/pequalnp-proofs",
       desc: "Lean 4 proofs from the public AI attempt at P vs NP (pequalnp.com). Open gaps welcome pull requests.",
       lang: "Lean",
-      stars: 217,
-      forks: 3428,
-      issues: 170,
-      updated: "2026-11-26T03:04:27Z",
-      pushed: "2026-11-26T03:34:29Z",
+      stars: 219,
+      forks: 3454,
+      issues: 201,
+      updated: "2026-11-26T04:33:32Z",
+      pushed: "2026-11-26T04:47:31Z",
       created: "2026-11-22T21:56:30Z",
       license: "Apache-2.0",
       topics: [],
@@ -4723,19 +4738,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: ""
     },
     {
-      name: "sunbird-tools/sunbird",
-      url: "https://github.com/sunbird-tools/sunbird",
-      desc: "sunbird aka phoenix-unlocker. Unlock phoenix on android/ios/windows discord along with plugins",
-      lang: "Rust",
-      stars: 209,
-      forks: 22,
-      issues: 21,
-      updated: "2026-11-26T03:31:17Z",
-      pushed: "2026-11-25T23:37:43Z",
-      created: "2026-11-22T11:37:21Z",
-      license: "",
-      topics: [],
-      desc_zh: "sunbird，又名phoenix-unlocker。在 Android/iOS/Windows Discord 上解锁 Phoenix 以及插件"
+      name: "najindal22/oeksound-bloom",
+      url: "https://github.com/najindal22/oeksound-bloom",
+      desc: "Oeksound Bloom for Windows 10/11. Reshapes and balances audio tracks with adaptive tone shaping, letting producers and mixers dial in warmth, clarity and presence on vocals, instruments and full mixes.",
+      lang: "",
+      stars: 206,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:41Z",
+      pushed: "2026-11-25T11:56:57Z",
+      created: "2026-11-24T11:48:37Z",
+      license: "NOASSERTION",
+      topics: [
+        "bloom",
+        "desktop-app",
+        "oeksound-bloom-download",
+        "oeksound-soothe-2-setup-download",
+        "oeksound-soothe-2-standalone"
+      ],
+      desc_zh: "Oeksound Bloom，适用于 Windows 10/11。通过自适应音色塑形来重塑和平衡音频轨道，让制作人和混音师能够为人声、乐器和完整混音赋予温暖感、清晰度和存在感。"
     },
     {
       name: "mergelooplab03/kdenlive",
@@ -4757,6 +4778,147 @@ window.__GHRANK_RANGES__["week"] = {
         "kdenlive-desktop"
       ],
       desc_zh: "适用于 Windows 10/11 的 Kdenlive。编辑多轨视频项目，提供时间线剪辑、转场、特效和音频混音功能，然后以常见格式导出成品片段，用于 YouTube、演示文稿或社交媒体。"
+    },
+    {
+      name: "uiliannn/VItoriaBr",
+      url: "https://github.com/uiliannn/VItoriaBr",
+      desc: "VItoriaBr - Native Windows Xbox Series X|S runtime & D3D12/DXIL shader translator (PT-BR / EN)",
+      lang: "Rust",
+      stars: 204,
+      forks: 45,
+      issues: 72,
+      updated: "2026-11-26T04:36:22Z",
+      pushed: "2026-11-26T04:09:11Z",
+      created: "2026-11-24T10:05:17Z",
+      license: "GPL-3.0",
+      topics: [],
+      desc_zh: "VItoriaBr - 原生 Windows Xbox Series X|S 运行时和 D3D12/DXIL 着色器转换器（葡萄牙语（巴西）/英语）"
+    },
+    {
+      name: "ManishPolat/xnconvert",
+      url: "https://github.com/ManishPolat/xnconvert",
+      desc: "Xnconvert for Windows 10/11. Batch converts, resizes, crops and applies filters to hundreds of images at once, renaming files and exporting them to folders or PDFs in a single pass.",
+      lang: "",
+      stars: 204,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:35Z",
+      pushed: "2026-11-25T11:45:20Z",
+      created: "2026-11-24T11:18:05Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "download-xnconvert",
+        "productivity",
+        "software",
+        "software-engineering"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Xnconvert。一次性批量转换、调整大小、裁剪数百张图像并应用滤镜，重命名文件并一次性将其导出到文件夹或 PDF 中。"
+    },
+    {
+      name: "alekseevlisa/red-giant-magic-bullet",
+      url: "https://github.com/alekseevlisa/red-giant-magic-bullet",
+      desc: "Red Giant Magic Bullet for Windows 10/11. Applies color grading, looks and film-style effects to video footage inside editing hosts, letting editors preview presets and render finished shots for film and broadcast projects.",
+      lang: "",
+      stars: 203,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:40:18Z",
+      pushed: "2026-11-25T11:46:19Z",
+      created: "2026-11-24T12:29:32Z",
+      license: "NOASSERTION",
+      topics: [
+        "blackmagic",
+        "blackmagicdesign",
+        "bullet-hell",
+        "bullet-physics",
+        "desktop-app"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Red Giant Magic Bullet。在编辑主机内对视频素材应用色彩分级、外观和电影风格效果，让编辑人员能够预览预设并渲染用于电影和广播项目的成品镜头。"
+    },
+    {
+      name: "hongramirez/mendeley",
+      url: "https://github.com/hongramirez/mendeley",
+      desc: "Mendeley for Windows 10/11. Organizes research papers into a searchable library, reads and annotates PDFs, and generates citations and bibliographies in Word, LaTeX or LibreOffice as you write.",
+      lang: "",
+      stars: 203,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:04Z",
+      pushed: "2026-11-25T11:53:02Z",
+      created: "2026-11-24T11:40:13Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "mendeley-download",
+        "mendeley-free",
+        "mendeley-free-download",
+        "mendeley-free-trial"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Mendeley。将研究论文整理成可搜索的图书馆，阅读和批注 PDF，并在您写作时在 Word、LaTeX 或 LibreOffice 中生成引用和书目。"
+    },
+    {
+      name: "avciomer1155/izotope-tonal-balance-control",
+      url: "https://github.com/avciomer1155/izotope-tonal-balance-control",
+      desc: "Izotope Tonal Balance Control for Windows 10/11. Analyzes your mix against genre target curves and adjusts tonal balance across tracks, helping you shape EQ so low end, mids and highs sit right in any listening environment.",
+      lang: "",
+      stars: 203,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:21Z",
+      pushed: "2026-11-25T11:47:08Z",
+      created: "2026-11-24T10:47:18Z",
+      license: "NOASSERTION",
+      topics: [
+        "balance",
+        "balancer",
+        "control",
+        "control-flow",
+        "control-hazards"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Izotope Tonal Balance Control。根据流派目标曲线分析您的混音，并调整各音轨的音色平衡，帮助您塑造均衡器，使低频、中频和高频在任何聆听环境中都恰到好处。"
+    },
+    {
+      name: "Elifrao01/you-com",
+      url: "https://github.com/Elifrao01/you-com",
+      desc: "You Com for Windows 10/11. Searches the web with an AI assistant that reads pages, summarizes results and answers follow-up questions, so you can research topics and draft responses without switching between tabs.",
+      lang: "",
+      stars: 203,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:40Z",
+      pushed: "2026-11-25T11:42:43Z",
+      created: "2026-11-24T12:03:13Z",
+      license: "NOASSERTION",
+      topics: [
+        "deployment",
+        "desktop-app",
+        "github",
+        "github-api",
+        "productivity"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 You Com。使用 AI 助手在网络上搜索，该助手可以阅读网页、总结结果并回答后续问题，让您无需在选项卡之间切换即可研究主题并撰写回复。"
+    },
+    {
+      name: "LudmilaApp/topaz-sharpen-ai",
+      url: "https://github.com/LudmilaApp/topaz-sharpen-ai",
+      desc: "Topaz Sharpen Ai for Windows 10/11. Sharpens blurry photos and fixes focus, motion blur and camera shake, then previews each correction before you export the restored image to your library.",
+      lang: "",
+      stars: 203,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:42Z",
+      pushed: "2026-11-25T11:45:09Z",
+      created: "2026-11-24T12:03:59Z",
+      license: "NOASSERTION",
+      topics: [
+        "sharpen",
+        "sharpening",
+        "topaz",
+        "topaz-ai",
+        "topaz-alternative"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Topaz Sharpen Ai。锐化模糊照片并修正对焦、运动模糊和相机抖动，然后在将恢复的图像导出到您的库之前预览每项修正。"
     },
     {
       name: "coolpixel1998/bandizip",
@@ -4801,25 +4963,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 HeidiSQL。连接到 MySQL、MariaDB 和 SQL Server 数据库，无需离开单一的轻量级界面即可浏览表、运行查询、编辑行和导出结果。"
     },
     {
-      name: "najindal22/oeksound-bloom",
-      url: "https://github.com/najindal22/oeksound-bloom",
-      desc: "Oeksound Bloom for Windows 10/11. Reshapes and balances audio tracks with adaptive tone shaping, letting producers and mixers dial in warmth, clarity and presence on vocals, instruments and full mixes.",
+      name: "DivyaPham/intel-arc-control",
+      url: "https://github.com/DivyaPham/intel-arc-control",
+      desc: "Intel Arc Control for Windows 10/11. Monitors GPU performance, installs driver updates and tunes graphics settings like sharpening and frame sync, then captures gameplay clips and live streams from one dashboard.",
       lang: "",
       stars: 203,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:33:00Z",
-      pushed: "2026-11-25T11:56:57Z",
-      created: "2026-11-24T11:48:37Z",
+      updated: "2026-11-26T03:40:52Z",
+      pushed: "2026-11-25T11:42:30Z",
+      created: "2026-11-24T11:26:08Z",
       license: "NOASSERTION",
       topics: [
-        "bloom",
-        "desktop-app",
-        "oeksound-bloom-download",
-        "oeksound-soothe-2-setup-download",
-        "oeksound-soothe-2-standalone"
+        "architecture-intelligence",
+        "control",
+        "control-engineering",
+        "control-flow",
+        "control-hazards"
       ],
-      desc_zh: "Oeksound Bloom，适用于 Windows 10/11。通过自适应音色塑形来重塑和平衡音频轨道，让制作人和混音师能够为人声、乐器和完整混音赋予温暖感、清晰度和存在感。"
+      desc_zh: "适用于 Windows 10/11 的英特尔锐炫控制中心。监控 GPU 性能，安装驱动程序更新，调整锐化和帧同步等图形设置，然后通过一个仪表板捕获游戏片段和直播。"
+    },
+    {
+      name: "ananyasystems/brackets",
+      url: "https://github.com/ananyasystems/brackets",
+      desc: "Brackets for Windows 10/11. Edits HTML, CSS and JavaScript in a live preview editor that pushes code changes to the browser instantly, so front-end developers can build and tweak web pages side by side.",
+      lang: "",
+      stars: 203,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:41Z",
+      pushed: "2026-11-25T11:46:32Z",
+      created: "2026-11-24T11:26:22Z",
+      license: "NOASSERTION",
+      topics: [
+        "brackets",
+        "brackets-desktop",
+        "brackets-free",
+        "brackets-installer",
+        "brackets-mac"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Brackets。在实时预览编辑器中编辑 HTML、CSS 和 JavaScript，该编辑器可将代码更改即时推送至浏览器，以便前端开发人员并排构建和调整网页。"
     },
     {
       name: "Lbhatia05/fooocus",
@@ -4864,82 +5047,130 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Bitdefender Premium Security。实时扫描文件、下载内容和网络流量，拦截钓鱼网页、勒索软件和不安全链接，并提供无限的 VPN 流量，以便在公共网络上安全浏览。"
     },
     {
-      name: "avciomer1155/izotope-tonal-balance-control",
-      url: "https://github.com/avciomer1155/izotope-tonal-balance-control",
-      desc: "Izotope Tonal Balance Control for Windows 10/11. Analyzes your mix against genre target curves and adjusts tonal balance across tracks, helping you shape EQ so low end, mids and highs sit right in any listening environment.",
+      name: "Ludmila-vega/gimp",
+      url: "https://github.com/Ludmila-vega/gimp",
+      desc: "Gimp for Windows 10/11. Edits photos and images, retouches blemishes, creates layered graphics and exports finished designs, giving you a free alternative for everything from quick crops to full digital paintings.",
+      lang: "",
+      stars: 203,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:56Z",
+      pushed: "2026-11-25T11:45:06Z",
+      created: "2026-11-24T11:25:36Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "gimp",
+        "gimp-2-10",
+        "gimp-3",
+        "gimp-free"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Gimp。编辑照片和图像、修饰瑕疵、创建分层图形并导出成品设计，为您提供从快速裁剪到完整数字绘画等各种功能的免费替代方案。"
+    },
+    {
+      name: "martin7931/corel-painter",
+      url: "https://github.com/martin7931/corel-painter",
+      desc: "Corel Painter for Windows 10/11. Paints and sketches with natural-media brushes like oils, watercolors and pastels, letting digital artists build layered illustrations and blend strokes on a canvas that mimics real paint.",
+      lang: "",
+      stars: 203,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:14Z",
+      pushed: "2026-11-25T11:56:21Z",
+      created: "2026-11-24T12:18:18Z",
+      license: "NOASSERTION",
+      topics: [
+        "corel-draw-graphics-download",
+        "corel-painter-installer",
+        "corel-painter-setup",
+        "corel-painter-windows",
+        "corel-videostudio-free-download"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Corel Painter。使用油画、水彩和蜡笔等天然介质画笔进行绘画和素描，让数字艺术家在模仿真实颜料的画布上构建分层插图并混合笔触。"
+    },
+    {
+      name: "idestudio12/trend-micro-maximum-security",
+      url: "https://github.com/idestudio12/trend-micro-maximum-security",
+      desc: "Trend Micro Maximum Security for Windows 10/11. Scans downloads, websites and running apps for malware, blocks ransomware and phishing pages, and protects passwords and webcam activity across your devices.",
       lang: "",
       stars: 202,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:25:02Z",
-      pushed: "2026-11-25T11:47:08Z",
-      created: "2026-11-24T10:47:18Z",
+      updated: "2026-11-26T03:39:08Z",
+      pushed: "2026-11-25T11:53:15Z",
+      created: "2026-11-24T12:18:40Z",
       license: "NOASSERTION",
       topics: [
-        "balance",
-        "balancer",
-        "control",
-        "control-flow",
-        "control-hazards"
+        "download-trend-micro-maximum-security-full-free-wi",
+        "micro",
+        "micro-cap",
+        "microbiome",
+        "microbit"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Izotope Tonal Balance Control。根据流派目标曲线分析您的混音，并调整各音轨的音色平衡，帮助您塑造均衡器，使低频、中频和高频在任何聆听环境中都恰到好处。"
+      desc_zh: "适用于 Windows 10/11 的趋势科技顶级安全。扫描下载内容、网站和正在运行的应用程序，以检测恶意软件，拦截勒索软件和钓鱼网页，并保护您所有设备的密码和网络摄像头活动。"
     },
     {
-      name: "alekseevlisa/red-giant-magic-bullet",
-      url: "https://github.com/alekseevlisa/red-giant-magic-bullet",
-      desc: "Red Giant Magic Bullet for Windows 10/11. Applies color grading, looks and film-style effects to video footage inside editing hosts, letting editors preview presets and render finished shots for film and broadcast projects.",
+      name: "Jimenezluis02/solidworks-composer",
+      url: "https://github.com/Jimenezluis02/solidworks-composer",
+      desc: "Solidworks Composer for Windows 10/11. Builds interactive 3D technical illustrations, animations and step-by-step assembly instructions from CAD models so teams can publish documentation and service manuals.",
       lang: "",
       stars: 202,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:28:17Z",
-      pushed: "2026-11-25T11:46:19Z",
-      created: "2026-11-24T12:29:32Z",
+      updated: "2026-11-26T03:40:05Z",
+      pushed: "2026-11-25T11:43:49Z",
+      created: "2026-11-24T11:57:02Z",
       license: "NOASSERTION",
       topics: [
-        "blackmagic",
-        "blackmagicdesign",
-        "bullet-hell",
-        "bullet-physics",
-        "desktop-app"
+        "composer",
+        "composer-packages",
+        "composer-studio",
+        "composer-v2",
+        "solidworks"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Red Giant Magic Bullet。在编辑主机内对视频素材应用色彩分级、外观和电影风格效果，让编辑人员能够预览预设并渲染用于电影和广播项目的成品镜头。"
+      desc_zh: "适用于 Windows 10/11 的 Solidworks Composer。根据 CAD 模型创建交互式 3D 技术插图、动画和分步组装说明，以便团队发布文档和服务手册。"
     },
     {
-      name: "uiliannn/VItoriaBr",
-      url: "https://github.com/uiliannn/VItoriaBr",
-      desc: "VItoriaBr - Native Windows Xbox Series X|S runtime & D3D12/DXIL shader translator (PT-BR / EN)",
-      lang: "Rust",
-      stars: 202,
-      forks: 44,
-      issues: 71,
-      updated: "2026-11-26T02:59:38Z",
-      pushed: "2026-11-26T02:36:41Z",
-      created: "2026-11-24T10:05:17Z",
-      license: "GPL-3.0",
-      topics: [],
-      desc_zh: "VItoriaBr - 原生 Windows Xbox Series X|S 运行时和 D3D12/DXIL 着色器转换器（葡萄牙语（巴西）/英语）"
-    },
-    {
-      name: "LudmilaApp/topaz-sharpen-ai",
-      url: "https://github.com/LudmilaApp/topaz-sharpen-ai",
-      desc: "Topaz Sharpen Ai for Windows 10/11. Sharpens blurry photos and fixes focus, motion blur and camera shake, then previews each correction before you export the restored image to your library.",
+      name: "frrichardson/marvelous-designer-12",
+      url: "https://github.com/frrichardson/marvelous-designer-12",
+      desc: "Marvelous Designer 12 for Windows 10/11. Drafts 3D garments from pattern pieces, simulates fabric draping in real time and exports finished clothing meshes to game engines and render pipelines.",
       lang: "",
       stars: 202,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:26:28Z",
-      pushed: "2026-11-25T11:45:09Z",
-      created: "2026-11-24T12:03:59Z",
+      updated: "2026-11-26T03:35:24Z",
+      pushed: "2026-11-25T11:51:44Z",
+      created: "2026-11-24T12:04:27Z",
       license: "NOASSERTION",
       topics: [
-        "sharpen",
-        "sharpening",
-        "topaz",
-        "topaz-ai",
-        "topaz-alternative"
+        "affinity-designer",
+        "altium-designer",
+        "designer",
+        "designer-news",
+        "designer-tool"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Topaz Sharpen Ai。锐化模糊照片并修正对焦、运动模糊和相机抖动，然后在将恢复的图像导出到您的库之前预览每项修正。"
+      desc_zh: "适用于 Windows 10/11 的 Marvelous Designer 12。从样板片绘制 3D 服装，实时模拟面料垂坠效果，并将成品服装网格导出到游戏引擎和渲染管线。"
+    },
+    {
+      name: "jagdishbhatia/leonardo-ai",
+      url: "https://github.com/jagdishbhatia/leonardo-ai",
+      desc: "Leonardo Ai for Windows 10/11. Generates images and artwork from text prompts using AI models, then refines results with inpainting, upscaling and canvas editing tools for concept art and design work.",
+      lang: "",
+      stars: 202,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:38:21Z",
+      pushed: "2026-11-25T11:53:36Z",
+      created: "2026-11-24T11:48:25Z",
+      license: "NOASSERTION",
+      topics: [
+        "leonardo-ai",
+        "leonardo-ai-2025",
+        "leonardo-ai-desktop",
+        "leonardo-ai-download",
+        "leonardo-ai-free"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Leonardo Ai。使用 AI 模型根据文本提示生成图像和艺术作品，然后使用修补、放大和画布编辑工具优化结果，用于概念艺术和设计工作。"
     },
     {
       name: "galinabennett1990/unetbootin",
@@ -4963,6 +5194,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 UNetbootin。写入可引导的 U 盘，并从 ISO 文件或下载的发行版创建 Live 盘，让您无需刻录 DVD 即可安装 Linux 或运行恢复工具。"
     },
     {
+      name: "fangharrison08/hotspot-shield",
+      url: "https://github.com/fangharrison08/hotspot-shield",
+      desc: "Hotspot Shield for Windows 10/11. Encrypts your connection through a virtual private network, hides your IP address and secures public Wi-Fi sessions, letting you browse privately and reach region-locked sites.",
+      lang: "",
+      stars: 202,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:37:03Z",
+      pushed: "2026-11-25T11:51:21Z",
+      created: "2026-11-24T10:55:04Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "hotspot",
+        "hotspot-shield",
+        "hotspot-shield-2026",
+        "hotspot-shield-desktop"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Hotspot Shield。通过虚拟专用网络加密您的连接，隐藏您的 IP 地址并保护公共 Wi-Fi 会话的安全，让您能够私密浏览并访问受区域限制的网站。"
+    },
+    {
       name: "ashwinbaker64/netlimiter",
       url: "https://github.com/ashwinbaker64/netlimiter",
       desc: "Netlimiter for Windows 10/11. Monitors live network traffic per application, sets download and upload speed limits, and blocks connections so you can control bandwidth use and prioritize important tasks.",
@@ -4984,46 +5236,130 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Netlimiter。监控每个应用程序的实时网络流量，设置下载和上传速度限制，并阻止连接，以便您可以控制带宽使用并优先处理重要任务。"
     },
     {
-      name: "ananyasystems/brackets",
-      url: "https://github.com/ananyasystems/brackets",
-      desc: "Brackets for Windows 10/11. Edits HTML, CSS and JavaScript in a live preview editor that pushes code changes to the browser instantly, so front-end developers can build and tweak web pages side by side.",
+      name: "deepakplus2003/quixel-mixer",
+      url: "https://github.com/deepakplus2003/quixel-mixer",
+      desc: "Quixel Mixer for Windows 10/11. Mixes scanned surface materials into layered 3D textures, blends PBR maps with masks and brushes, and exports finished assets for game engines or offline rendering.",
       lang: "",
       stars: 202,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:30:03Z",
-      pushed: "2026-11-25T11:46:32Z",
-      created: "2026-11-24T11:26:22Z",
+      updated: "2026-11-26T03:37:53Z",
+      pushed: "2026-11-25T11:50:16Z",
+      created: "2026-11-24T10:47:06Z",
       license: "NOASSERTION",
       topics: [
-        "brackets",
-        "brackets-desktop",
-        "brackets-free",
-        "brackets-installer",
-        "brackets-mac"
+        "desktop-app",
+        "guide-setup-quixel-mixer",
+        "how-to-install-quixel-mixer",
+        "mixer",
+        "productivity"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Brackets。在实时预览编辑器中编辑 HTML、CSS 和 JavaScript，该编辑器可将代码更改即时推送至浏览器，以便前端开发人员并排构建和调整网页。"
+      desc_zh: "适用于 Windows 10/11 的 Quixel Mixer。将扫描的表面材质混合成分层 3D 纹理，将 PBR 贴图与遮罩和画笔融合，并导出成品资源以用于游戏引擎或离线渲染。"
     },
     {
-      name: "martin7931/corel-painter",
-      url: "https://github.com/martin7931/corel-painter",
-      desc: "Corel Painter for Windows 10/11. Paints and sketches with natural-media brushes like oils, watercolors and pastels, letting digital artists build layered illustrations and blend strokes on a canvas that mimics real paint.",
+      name: "dunrao/boris-fx-sapphire",
+      url: "https://github.com/dunrao/boris-fx-sapphire",
+      desc: "Boris Fx Sapphire for Windows 10/11. Applies hundreds of GPU-accelerated visual effects, transitions and lighting presets to video footage, letting editors and motion artists add glows, lens flares and stylized looks inside their host timeline.",
       lang: "",
       stars: 202,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:33:52Z",
-      pushed: "2026-11-25T11:56:21Z",
-      created: "2026-11-24T12:18:18Z",
+      updated: "2026-11-26T03:35:35Z",
+      pushed: "2026-11-25T11:50:42Z",
+      created: "2026-11-24T12:11:18Z",
       license: "NOASSERTION",
       topics: [
-        "corel-draw-graphics-download",
-        "corel-painter-installer",
-        "corel-painter-setup",
-        "corel-painter-windows",
-        "corel-videostudio-free-download"
+        "boris-fx",
+        "boris-fx-continuum",
+        "boris-fx-continuum-download",
+        "boris-fx-continuum-free",
+        "boris-fx-mocha"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Corel Painter。使用油画、水彩和蜡笔等天然介质画笔进行绘画和素描，让数字艺术家在模仿真实颜料的画布上构建分层插图并混合笔触。"
+      desc_zh: "适用于 Windows 10/11 的 Boris Fx Sapphire。将数百种 GPU 加速的视觉效果、转场和光照预设应用于视频素材，让剪辑师和动态艺术家在其主时间轴中添加辉光、镜头光晕和风格化外观。"
+    },
+    {
+      name: "Lisakozlov/matlab-simulink",
+      url: "https://github.com/Lisakozlov/matlab-simulink",
+      desc: "Matlab Simulink for Windows 10/11. Builds block diagrams to model control systems, signal processing and embedded logic, then simulates behavior and generates code for hardware deployment.",
+      lang: "",
+      stars: 202,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:40:11Z",
+      pushed: "2026-11-25T11:44:53Z",
+      created: "2026-11-24T12:14:20Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "matlab",
+        "matlab-gui",
+        "matlab-mcp-server",
+        "matlab-r2026a"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Matlab Simulink。构建框图以建模控制系统、信号处理和嵌入式逻辑，然后模拟行为并生成用于硬件部署的代码。"
+    },
+    {
+      name: "kennfi6/houdini-indie",
+      url: "https://github.com/kennfi6/houdini-indie",
+      desc: "Houdini Indie for Windows 10/11. Builds procedural 3D models and simulations for games and film, using node-based workflows to generate terrain, destruction and VFX shots.",
+      lang: "",
+      stars: 202,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:36Z",
+      pushed: "2026-11-25T11:54:27Z",
+      created: "2026-11-24T12:13:44Z",
+      license: "NOASSERTION",
+      topics: [
+        "houdini",
+        "houdini-20",
+        "houdini-20-pro",
+        "houdini-20-windows",
+        "houdini-3d"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Houdini Indie。使用基于节点的工作流生成地形、破坏和视觉特效镜头，为游戏和电影构建程序化 3D 模型和模拟。"
+    },
+    {
+      name: "kimberlymedina66/softube-weiss-mm-1",
+      url: "https://github.com/kimberlymedina66/softube-weiss-mm-1",
+      desc: "Softube Weiss Mm 1 for Windows 10/11. Mixes and masters tracks with the Weiss MM-1 mastering compressor, shaping dynamics and loudness on individual stems or full mixes for release-ready audio.",
+      lang: "",
+      stars: 202,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:38:52Z",
+      pushed: "2026-11-25T11:54:42Z",
+      created: "2026-11-24T12:13:47Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "guide-setup-softube-weiss-mm-1",
+        "how-to-install-softube-weiss-mm-1",
+        "softube",
+        "softube-2026"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Softube Weiss Mm 1。使用 Weiss MM-1 母带压缩器混音和母带处理轨道，对单个音轨或完整混音的动态和响度进行塑形，打造可直接发布的音频。"
+    },
+    {
+      name: "nair39/dialpad",
+      url: "https://github.com/nair39/dialpad",
+      desc: "Dialpad for Windows 10/11. Calls, messages and meets with your team and customers from one app, with AI transcripts, call routing and voicemail so you can follow up without switching tools.",
+      lang: "",
+      stars: 202,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:37:53Z",
+      pushed: "2026-11-25T11:56:57Z",
+      created: "2026-11-24T12:10:55Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "dialpad",
+        "dialpad-2025",
+        "dialpad-2026",
+        "dialpad-contact-service"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Dialpad。通过一个应用程序即可与您的团队和客户进行通话、收发消息和开会，并提供 AI 转录、呼叫路由和语音信箱功能，让您无需切换工具即可跟进。"
     },
     {
       name: "kernelmoonowl/pluraleyes",
@@ -5047,25 +5383,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Pluraleyes。通过分析波形，同步由不同摄像机和麦克风录制的音频和视频片段，在您的编辑时间线上自动对齐镜头，无需手动匹配。"
     },
     {
-      name: "hongramirez/mendeley",
-      url: "https://github.com/hongramirez/mendeley",
-      desc: "Mendeley for Windows 10/11. Organizes research papers into a searchable library, reads and annotates PDFs, and generates citations and bibliographies in Word, LaTeX or LibreOffice as you write.",
+      name: "Lake-build-south/github-desktop",
+      url: "https://github.com/Lake-build-south/github-desktop",
+      desc: "Github Desktop for Windows 10/11. Clones repositories, stages and commits changes, creates branches and pushes code to GitHub, letting you manage version control visually without typing Git commands in a terminal.",
       lang: "",
       stars: 201,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:32:11Z",
-      pushed: "2026-11-25T11:53:02Z",
-      created: "2026-11-24T11:40:13Z",
+      updated: "2026-11-26T03:41:25Z",
+      pushed: "2026-11-25T11:44:32Z",
+      created: "2026-11-24T12:20:23Z",
       license: "NOASSERTION",
       topics: [
+        "desktop",
+        "desktop-ai",
         "desktop-app",
-        "mendeley-download",
-        "mendeley-free",
-        "mendeley-free-download",
-        "mendeley-free-trial"
+        "desktop-apps",
+        "desktop-files"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Mendeley。将研究论文整理成可搜索的图书馆，阅读和批注 PDF，并在您写作时在 Word、LaTeX 或 LibreOffice 中生成引用和书目。"
+      desc_zh: "适用于 Windows 10/11 的 GitHub Desktop。克隆仓库、暂存和提交更改、创建分支并将代码推送到 GitHub，让您无需在终端中输入 Git 命令即可以可视化方式管理版本控制。"
     },
     {
       name: "catherine-k4ya9657/aomei-backupper",
@@ -5089,25 +5425,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Aomei Backupper。将文件、磁盘和整个系统备份到本地驱动器或网络存储，然后恢复它们，或克隆磁盘以迁移到新的 SSD，无需重新安装。"
     },
     {
-      name: "idestudio12/trend-micro-maximum-security",
-      url: "https://github.com/idestudio12/trend-micro-maximum-security",
-      desc: "Trend Micro Maximum Security for Windows 10/11. Scans downloads, websites and running apps for malware, blocks ransomware and phishing pages, and protects passwords and webcam activity across your devices.",
+      name: "Hub-real-7712/valhalla-super-massive",
+      url: "https://github.com/Hub-real-7712/valhalla-super-massive",
+      desc: "Valhalla Super Massive for Windows 10/11. Plays and shapes audio through lush reverb, delay and modulation effects, letting producers and sound designers craft ambient textures, cinematic swells and spacious mixes in a standalone app or plugin host.",
       lang: "",
       stars: 201,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:28:21Z",
-      pushed: "2026-11-25T11:53:15Z",
-      created: "2026-11-24T12:18:40Z",
+      updated: "2026-11-26T03:38:28Z",
+      pushed: "2026-11-25T11:43:38Z",
+      created: "2026-11-24T11:48:34Z",
       license: "NOASSERTION",
       topics: [
-        "download-trend-micro-maximum-security-full-free-wi",
-        "micro",
-        "micro-cap",
-        "microbiome",
-        "microbit"
+        "massive",
+        "super",
+        "super-large",
+        "super-resolution",
+        "supercollider"
       ],
-      desc_zh: "适用于 Windows 10/11 的趋势科技顶级安全。扫描下载内容、网站和正在运行的应用程序，以检测恶意软件，拦截勒索软件和钓鱼网页，并保护您所有设备的密码和网络摄像头活动。"
+      desc_zh: "适用于 Windows 10/11 的 Valhalla Super Massive。通过丰富的混响、延迟和调制效果来播放和塑造音频，让制作人和声音设计师在独立应用程序或插件宿主中打造环境音效、电影级音量渐强和宽广的混音。"
     },
     {
       name: "deepmedia2003/poe-desktop",
@@ -5131,6 +5467,90 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Poe 桌面版。启动一个应用程序即可与多个 AI 机器人聊天，在不同模型之间切换，并将聊天历史记录集中归拢在一个地方。"
     },
     {
+      name: "cliva315/cpu-z",
+      url: "https://github.com/cliva315/cpu-z",
+      desc: "Cpu Z for Windows 10/11. Identifies your processor, motherboard, memory and graphics card, and reports live core clocks, voltages and temperatures so you can verify specs or diagnose stability issues.",
+      lang: "",
+      stars: 201,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:35:52Z",
+      pushed: "2026-11-25T11:49:07Z",
+      created: "2026-11-24T12:37:06Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "install-cpu-z",
+        "productivity",
+        "software",
+        "software-engineering"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 CPU-Z。识别您的处理器、主板、内存和显卡，并报告实时核心时钟、电压和温度，以便您验证规格或诊断稳定性问题。"
+    },
+    {
+      name: "ezhou49/bethesda-net",
+      url: "https://github.com/ezhou49/bethesda-net",
+      desc: "Bethesda Net for Windows 10/11. Launches, installs and updates Bethesda games like Skyrim and Fallout from one library, syncing mods, saves and account entitlements across your PC.",
+      lang: "",
+      stars: 201,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:06Z",
+      pushed: "2026-11-25T11:51:04Z",
+      created: "2026-11-24T11:17:55Z",
+      license: "NOASSERTION",
+      topics: [
+        "bethesda-net",
+        "bethesda-net-2025",
+        "bethesda-net-2026",
+        "bethesda-net-desktop",
+        "bethesda-net-download"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Bethesda Net。从一个库中启动、安装和更新《上古卷轴 5：天际》和《辐射》等 Bethesda 游戏，并在您的电脑上同步模组、存档和账户权限。"
+    },
+    {
+      name: "lucasmedina172/eset-smart-security",
+      url: "https://github.com/lucasmedina172/eset-smart-security",
+      desc: "Eset Smart Security for Windows 10/11. Scans downloads, emails and running apps for malware in real time, blocks phishing sites and ransomware, and adds a firewall plus parental controls to keep your PC and family safe online.",
+      lang: "",
+      stars: 201,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:45Z",
+      pushed: "2026-11-25T11:55:49Z",
+      created: "2026-11-24T10:47:22Z",
+      license: "NOASSERTION",
+      topics: [
+        "download-eset-smart-security",
+        "download-eset-smart-security-premium",
+        "eset",
+        "eset-key-gen",
+        "eset-key-giver"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Eset Smart Security。实时扫描下载内容、电子邮件和正在运行的应用程序，以检测恶意软件，拦截钓鱼网站和勒索软件，并添加防火墙和家长控制功能，以确保您的电脑和家人在线安全。"
+    },
+    {
+      name: "cesarding08/spyhunter-5",
+      url: "https://github.com/cesarding08/spyhunter-5",
+      desc: "Spyhunter 5 for Windows 10/11. Scans your PC for malware, potentially unwanted programs and rootkits, then removes detected threats and blocks suspicious files before they can run.",
+      lang: "",
+      stars: 201,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:33Z",
+      pushed: "2026-11-25T11:48:41Z",
+      created: "2026-11-24T10:47:48Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "download-spyhunter-5",
+        "productivity",
+        "software",
+        "software-engineering"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Spyhunter 5。扫描您的电脑，查找恶意软件、可能有害的程序和 rootkit，然后移除检测到的威胁，并在可疑文件运行之前将其拦截。"
+    },
+    {
       name: "elifbhatia2005/asana-desktop",
       url: "https://github.com/elifbhatia2005/asana-desktop",
       desc: "Asana Desktop for Windows 10/11. Organizes team tasks and projects on a shared board, tracks deadlines, assigns work and comments on updates, so teams coordinate projects from one desktop app.",
@@ -5152,25 +5572,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Asana 桌面版。在共享看板上组织团队任务和项目，跟踪截止日期，分配工作并对更新发表评论，以便团队通过一个桌面应用协调项目。"
     },
     {
-      name: "frrichardson/marvelous-designer-12",
-      url: "https://github.com/frrichardson/marvelous-designer-12",
-      desc: "Marvelous Designer 12 for Windows 10/11. Drafts 3D garments from pattern pieces, simulates fabric draping in real time and exports finished clothing meshes to game engines and render pipelines.",
+      name: "Kapoor-stephen7/avira-prime",
+      url: "https://github.com/Kapoor-stephen7/avira-prime",
+      desc: "Avira Prime for Windows 10/11. Scans your PC for malware, tunes system performance and manages passwords, subscriptions and privacy settings from one dashboard, keeping devices protected without juggling separate tools.",
       lang: "",
       stars: 201,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:32:02Z",
-      pushed: "2026-11-25T11:51:44Z",
-      created: "2026-11-24T12:04:27Z",
+      updated: "2026-11-26T03:39:50Z",
+      pushed: "2026-11-25T11:44:08Z",
+      created: "2026-11-24T12:25:18Z",
       license: "NOASSERTION",
       topics: [
-        "affinity-designer",
-        "altium-designer",
-        "designer",
-        "designer-news",
-        "designer-tool"
+        "avira",
+        "avira-prime",
+        "avira-prime-2026",
+        "avira-prime-download",
+        "avira-prime-windows"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Marvelous Designer 12。从样板片绘制 3D 服装，实时模拟面料垂坠效果，并将成品服装网格导出到游戏引擎和渲染管线。"
+      desc_zh: "适用于 Windows 10/11 的 Avira Prime。通过一个仪表板扫描您的电脑以查找恶意软件、优化系统性能并管理密码、订阅和隐私设置，无需使用多个工具即可保护设备安全。"
     },
     {
       name: "DivyaRomanov/krita",
@@ -5194,109 +5614,67 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Krita。使用可定制的画笔、图层和逐帧时间轴工具绘制和动画化数字作品，让插画师、概念艺术家和漫画创作者从草图到最终渲染完成完整的绘画作品。"
     },
     {
-      name: "ManishPolat/xnconvert",
-      url: "https://github.com/ManishPolat/xnconvert",
-      desc: "Xnconvert for Windows 10/11. Batch converts, resizes, crops and applies filters to hundreds of images at once, renaming files and exporting them to folders or PDFs in a single pass.",
+      name: "morozovgirish/k9s",
+      url: "https://github.com/morozovgirish/k9s",
+      desc: "K9S for Windows 10/11. Runs and manages Kubernetes clusters from a terminal-style interface, letting you browse pods, stream logs and edit resources without switching between separate CLI tools.",
       lang: "",
       stars: 201,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:24:03Z",
-      pushed: "2026-11-25T11:45:20Z",
-      created: "2026-11-24T11:18:05Z",
+      updated: "2026-11-26T03:37:23Z",
+      pushed: "2026-11-25T11:56:38Z",
+      created: "2026-11-24T10:55:20Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "download-xnconvert",
+        "install-k9s",
         "productivity",
         "software",
         "software-engineering"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Xnconvert。一次性批量转换、调整大小、裁剪数百张图像并应用滤镜，重命名文件并一次性将其导出到文件夹或 PDF 中。"
+      desc_zh: "适用于 Windows 10/11 的 K9S。通过终端式界面运行和管理 Kubernetes 集群，让您无需在不同的 CLI 工具之间切换，即可浏览 Pod、查看日志流和编辑资源。"
     },
     {
-      name: "fangharrison08/hotspot-shield",
-      url: "https://github.com/fangharrison08/hotspot-shield",
-      desc: "Hotspot Shield for Windows 10/11. Encrypts your connection through a virtual private network, hides your IP address and secures public Wi-Fi sessions, letting you browse privately and reach region-locked sites.",
+      name: "branchdarksand/invokeai",
+      url: "https://github.com/branchdarksand/invokeai",
+      desc: "Invokeai for Windows 10/11. Generates and edits images from text prompts using Stable Diffusion models, letting you refine results with inpainting, outpainting and layered canvas workflows on a local machine.",
       lang: "",
       stars: 201,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:28:33Z",
-      pushed: "2026-11-25T11:51:21Z",
-      created: "2026-11-24T10:55:04Z",
+      updated: "2026-11-26T03:43:03Z",
+      pushed: "2026-11-25T11:47:54Z",
+      created: "2026-11-24T12:11:44Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "hotspot",
-        "hotspot-shield",
-        "hotspot-shield-2026",
-        "hotspot-shield-desktop"
+        "install-invokeai",
+        "invokeai",
+        "invokeai-2026",
+        "invokeai-activated"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Hotspot Shield。通过虚拟专用网络加密您的连接，隐藏您的 IP 地址并保护公共 Wi-Fi 会话的安全，让您能够私密浏览并访问受区域限制的网站。"
+      desc_zh: "适用于 Windows 10/11 的 Invokeai。使用 Stable Diffusion 模型根据文本提示生成和编辑图像，让您在本地计算机上通过内补、外补和分层画布工作流程来优化结果。"
     },
     {
-      name: "DivyaPham/intel-arc-control",
-      url: "https://github.com/DivyaPham/intel-arc-control",
-      desc: "Intel Arc Control for Windows 10/11. Monitors GPU performance, installs driver updates and tunes graphics settings like sharpening and frame sync, then captures gameplay clips and live streams from one dashboard.",
+      name: "arthurpetrov03/hasleo-backup",
+      url: "https://github.com/arthurpetrov03/hasleo-backup",
+      desc: "Hasleo Backup for Windows 10/11. Backs up files, disks and entire systems to local drives or external storage, then restores them or migrates everything to new hardware after a crash.",
       lang: "",
       stars: 201,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:11:09Z",
-      pushed: "2026-11-25T11:42:30Z",
-      created: "2026-11-24T11:26:08Z",
+      updated: "2026-11-26T03:41:28Z",
+      pushed: "2026-11-25T11:47:01Z",
+      created: "2026-11-24T11:24:58Z",
       license: "NOASSERTION",
       topics: [
-        "architecture-intelligence",
-        "control",
-        "control-engineering",
-        "control-flow",
-        "control-hazards"
+        "backup",
+        "backup-cli",
+        "backup-manager",
+        "backup-recovery",
+        "backup-restore"
       ],
-      desc_zh: "适用于 Windows 10/11 的英特尔锐炫控制中心。监控 GPU 性能，安装驱动程序更新，调整锐化和帧同步等图形设置，然后通过一个仪表板捕获游戏片段和直播。"
-    },
-    {
-      name: "jagdishbhatia/leonardo-ai",
-      url: "https://github.com/jagdishbhatia/leonardo-ai",
-      desc: "Leonardo Ai for Windows 10/11. Generates images and artwork from text prompts using AI models, then refines results with inpainting, upscaling and canvas editing tools for concept art and design work.",
-      lang: "",
-      stars: 201,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:32:51Z",
-      pushed: "2026-11-25T11:53:36Z",
-      created: "2026-11-24T11:48:25Z",
-      license: "NOASSERTION",
-      topics: [
-        "leonardo-ai",
-        "leonardo-ai-2025",
-        "leonardo-ai-desktop",
-        "leonardo-ai-download",
-        "leonardo-ai-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Leonardo Ai。使用 AI 模型根据文本提示生成图像和艺术作品，然后使用修补、放大和画布编辑工具优化结果，用于概念艺术和设计工作。"
-    },
-    {
-      name: "dunrao/boris-fx-sapphire",
-      url: "https://github.com/dunrao/boris-fx-sapphire",
-      desc: "Boris Fx Sapphire for Windows 10/11. Applies hundreds of GPU-accelerated visual effects, transitions and lighting presets to video footage, letting editors and motion artists add glows, lens flares and stylized looks inside their host timeline.",
-      lang: "",
-      stars: 201,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:23:10Z",
-      pushed: "2026-11-25T11:50:42Z",
-      created: "2026-11-24T12:11:18Z",
-      license: "NOASSERTION",
-      topics: [
-        "boris-fx",
-        "boris-fx-continuum",
-        "boris-fx-continuum-download",
-        "boris-fx-continuum-free",
-        "boris-fx-mocha"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Boris Fx Sapphire。将数百种 GPU 加速的视觉效果、转场和光照预设应用于视频素材，让剪辑师和动态艺术家在其主时间轴中添加辉光、镜头光晕和风格化外观。"
+      desc_zh: "适用于 Windows 10/11 的 Hasleo Backup。将文件、磁盘和整个系统备份到本地驱动器或外部存储设备，然后在发生崩溃后进行还原或将所有内容迁移到新硬件。"
     },
     {
       name: "ClarkSophia2003/remnote",
@@ -5320,46 +5698,67 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Remnote。将笔记、高亮内容和 PDF 文件归入关联的知识库，然后将其转换为用于间隔重复的闪卡，以便学生和研究人员学习并记住所读内容。"
     },
     {
-      name: "kennfi6/houdini-indie",
-      url: "https://github.com/kennfi6/houdini-indie",
-      desc: "Houdini Indie for Windows 10/11. Builds procedural 3D models and simulations for games and film, using node-based workflows to generate terrain, destruction and VFX shots.",
+      name: "hilldev1997/webex-meetings",
+      url: "https://github.com/hilldev1997/webex-meetings",
+      desc: "Webex Meetings for Windows 10/11. Joins video meetings, shares screens and records calls, letting teams present slides, chat with participants and schedule sessions from the desktop app.",
       lang: "",
       stars: 201,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:33:51Z",
-      pushed: "2026-11-25T11:54:27Z",
-      created: "2026-11-24T12:13:44Z",
-      license: "NOASSERTION",
-      topics: [
-        "houdini",
-        "houdini-20",
-        "houdini-20-pro",
-        "houdini-20-windows",
-        "houdini-3d"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Houdini Indie。使用基于节点的工作流生成地形、破坏和视觉特效镜头，为游戏和电影构建程序化 3D 模型和模拟。"
-    },
-    {
-      name: "nair39/dialpad",
-      url: "https://github.com/nair39/dialpad",
-      desc: "Dialpad for Windows 10/11. Calls, messages and meets with your team and customers from one app, with AI transcripts, call routing and voicemail so you can follow up without switching tools.",
-      lang: "",
-      stars: 201,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:30:28Z",
-      pushed: "2026-11-25T11:56:57Z",
-      created: "2026-11-24T12:10:55Z",
+      updated: "2026-11-26T03:42:41Z",
+      pushed: "2026-11-25T11:52:56Z",
+      created: "2026-11-24T12:29:13Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "dialpad",
-        "dialpad-2025",
-        "dialpad-2026",
-        "dialpad-contact-service"
+        "guide-setup-webex-meetings",
+        "how-to-install-webex-meetings",
+        "meetings",
+        "productivity"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Dialpad。通过一个应用程序即可与您的团队和客户进行通话、收发消息和开会，并提供 AI 转录、呼叫路由和语音信箱功能，让您无需切换工具即可跟进。"
+      desc_zh: "适用于 Windows 10/11 的 Webex 会议。加入视频会议、共享屏幕和录制通话，让团队能够通过桌面应用程序展示幻灯片、与参会者聊天并安排会议。"
+    },
+    {
+      name: "na-castro85/gameloop",
+      url: "https://github.com/na-castro85/gameloop",
+      desc: "Gameloop for Windows 10/11. Runs Android mobile games on your PC with keyboard and mouse controls, letting you play titles like PUBG Mobile and Call of Duty Mobile on a larger screen.",
+      lang: "",
+      stars: 201,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:07Z",
+      pushed: "2026-11-25T11:56:49Z",
+      created: "2026-11-24T12:03:38Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "download-gameloop",
+        "gameloop",
+        "gameloop-2026",
+        "gameloop-desktop"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Gameloop。在电脑上运行安卓手游，使用键盘和鼠标进行控制，让您在大屏幕上畅玩《PUBG Mobile》和《使命召唤手游》等游戏。"
+    },
+    {
+      name: "marilyncardoso/suno-ai",
+      url: "https://github.com/marilyncardoso/suno-ai",
+      desc: "Suno Ai for Windows 10/11. Generates original songs from text prompts by writing lyrics and vocals, then exports finished tracks for videos, podcasts or personal listening.",
+      lang: "",
+      stars: 201,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:38:14Z",
+      pushed: "2026-11-25T11:56:23Z",
+      created: "2026-11-24T11:55:21Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "no-ai",
+        "productivity",
+        "software",
+        "software-engineering"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Suno Ai。根据文本提示创作歌词和人声，生成原创歌曲，然后导出成品曲目，用于视频、播客或个人聆听。"
     },
     {
       name: "east-sun-fox3/prowritingaid",
@@ -5383,46 +5782,151 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Prowritingaid。在浏览器或 Word 中编辑文章、报告和手稿，进行语法、文风和可读性检查，然后跟踪修改并为草稿评分，以便您在发布前润色文稿。"
     },
     {
-      name: "Elifrao01/you-com",
-      url: "https://github.com/Elifrao01/you-com",
-      desc: "You Com for Windows 10/11. Searches the web with an AI assistant that reads pages, summarizes results and answers follow-up questions, so you can research topics and draft responses without switching between tabs.",
+      name: "huang3761/bruno-api",
+      url: "https://github.com/huang3761/bruno-api",
+      desc: "Bruno Api for Windows 10/11. Builds, sends and organizes HTTP, GraphQL and REST requests into reusable collections, so you can test endpoints, inspect responses and share API workflows with your team.",
       lang: "",
       stars: 200,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:27:34Z",
-      pushed: "2026-11-25T11:42:43Z",
-      created: "2026-11-24T12:03:13Z",
+      updated: "2026-11-26T03:42:40Z",
+      pushed: "2026-11-25T11:52:58Z",
+      created: "2026-11-24T12:18:31Z",
       license: "NOASSERTION",
       topics: [
-        "deployment",
+        "bruno",
+        "bruno-api",
         "desktop-app",
-        "github",
-        "github-api",
+        "install-bruno-api",
         "productivity"
       ],
-      desc_zh: "适用于 Windows 10/11 的 You Com。使用 AI 助手在网络上搜索，该助手可以阅读网页、总结结果并回答后续问题，让您无需在选项卡之间切换即可研究主题并撰写回复。"
+      desc_zh: "适用于 Windows 10/11 的 Bruno API。将 HTTP、GraphQL 和 REST 请求构建、发送并整理为可重复使用的集合，以便您可以测试端点、检查响应并与团队共享 API 工作流。"
     },
     {
-      name: "Hub-real-7712/valhalla-super-massive",
-      url: "https://github.com/Hub-real-7712/valhalla-super-massive",
-      desc: "Valhalla Super Massive for Windows 10/11. Plays and shapes audio through lush reverb, delay and modulation effects, letting producers and sound designers craft ambient textures, cinematic swells and spacious mixes in a standalone app or plugin host.",
+      name: "nataliegroup11/jetbrains-goland",
+      url: "https://github.com/nataliegroup11/jetbrains-goland",
+      desc: "Jetbrains Goland for Windows 10/11. Writes, navigates and debugs Go code with refactoring tools, test runners and integrated version control, helping developers build and maintain backend services and APIs.",
       lang: "",
       stars: 200,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:31:10Z",
-      pushed: "2026-11-25T11:43:38Z",
-      created: "2026-11-24T11:48:34Z",
+      updated: "2026-11-26T03:40:21Z",
+      pushed: "2026-11-25T11:57:13Z",
+      created: "2026-11-24T11:41:03Z",
       license: "NOASSERTION",
       topics: [
-        "massive",
-        "super",
-        "super-large",
-        "super-resolution",
-        "supercollider"
+        "android-studio",
+        "goland",
+        "jetbrains",
+        "jetbrains-academy",
+        "jetbrains-clion"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Valhalla Super Massive。通过丰富的混响、延迟和调制效果来播放和塑造音频，让制作人和声音设计师在独立应用程序或插件宿主中打造环境音效、电影级音量渐强和宽广的混音。"
+      desc_zh: "适用于 Windows 10/11 的 Jetbrains Goland。使用重构工具、测试运行器和集成版本控制来编写、导航和调试 Go 代码，帮助开发者构建和维护后端服务和 API。"
+    },
+    {
+      name: "Lukcla3889/postman-agent",
+      url: "https://github.com/Lukcla3889/postman-agent",
+      desc: "Postman Agent for Windows 10/11. Runs API requests and collections on your local machine, letting you send calls to localhost, inspect responses and debug endpoints without leaving the desktop.",
+      lang: "",
+      stars: 200,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:38:47Z",
+      pushed: "2026-11-25T11:45:13Z",
+      created: "2026-11-24T12:11:30Z",
+      license: "NOASSERTION",
+      topics: [
+        "agent",
+        "agent-based",
+        "agent-ide",
+        "agent-memory",
+        "agent-ops"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Postman Agent。在您的本地计算机上运行 API 请求和集合，让您无需离开桌面即可向本地主机发送调用、检查响应并调试端点。"
+    },
+    {
+      name: "kennethkumar05/figma-figjam",
+      url: "https://github.com/kennethkumar05/figma-figjam",
+      desc: "Figma Figjam for Windows 10/11. Builds collaborative whiteboards with sticky notes, shapes, connectors and live cursors, letting teams sketch flows, run brainstorming sessions and map ideas together in real time.",
+      lang: "",
+      stars: 200,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:01Z",
+      pushed: "2026-11-25T11:54:27Z",
+      created: "2026-11-24T11:26:02Z",
+      license: "NOASSERTION",
+      topics: [
+        "figjam",
+        "figjam-plugin",
+        "figjam-widget",
+        "figma",
+        "figma-api"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Figma Figjam。使用便签、形状、连接线和实时光标构建协作白板，让团队能够实时绘制流程、开展头脑风暴和共同梳理创意。"
+    },
+    {
+      name: "leafworks35/whatsapp-business",
+      url: "https://github.com/leafworks35/whatsapp-business",
+      desc: "Whatsapp Business for Windows 10/11. Manages customer conversations, sends product catalogs and quick replies, and tracks order updates from a desktop, keeping small business chats organized alongside your personal messages.",
+      lang: "",
+      stars: 200,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:41Z",
+      pushed: "2026-11-25T11:55:21Z",
+      created: "2026-11-24T12:22:46Z",
+      license: "NOASSERTION",
+      topics: [
+        "business",
+        "business-analytics",
+        "business-automation",
+        "business-card",
+        "business-intelligence"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 WhatsApp Business。通过桌面端管理与客户的对话、发送产品目录和快速回复，并跟踪订单更新，将小企业的聊天与您的个人消息一起井井有条地管理。"
+    },
+    {
+      name: "l1angmedia/lumion-pro",
+      url: "https://github.com/l1angmedia/lumion-pro",
+      desc: "Lumion Pro for Windows 10/11. Renders architectural scenes into photorealistic images and animations, letting architects and designers add materials, lighting and landscape details then export walkthroughs for client presentations.",
+      lang: "",
+      stars: 200,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:55Z",
+      pushed: "2026-11-25T11:54:50Z",
+      created: "2026-11-24T11:02:05Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "lumion-2025",
+        "lumion-desktop",
+        "lumion-installer",
+        "lumion-pro-12"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Lumion Pro。将建筑场景渲染为逼真的图像和动画，让建筑师和设计师能够添加材质、光照和景观细节，然后导出漫游用于向客户演示。"
+    },
+    {
+      name: "Lake-sync/microsoft-access",
+      url: "https://github.com/Lake-sync/microsoft-access",
+      desc: "Microsoft Access for Windows 10/11. Builds relational databases with tables, queries, forms and reports, letting small teams track inventory, contacts and orders without writing code.",
+      lang: "",
+      stars: 200,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:27Z",
+      pushed: "2026-11-25T11:44:40Z",
+      created: "2026-11-24T11:57:41Z",
+      license: "NOASSERTION",
+      topics: [
+        "access",
+        "accessibility",
+        "accesslint",
+        "dbconvert-studio-microsoft-access",
+        "google-chat"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Microsoft Access。使用表、查询、表单和报表构建关系数据库，让小型团队无需编写代码即可跟踪库存、联系人和订单。"
     },
     {
       name: "haticescott326/comfyui",
@@ -5446,88 +5950,130 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Comfyui。在可视化图形编辑器中将扩散模型、LoRA 和控制模块连接在一起，构建基于节点图像生成工作流，然后在本地运行这些工作流，在您自己的 GPU 上生成和优化艺术作品。"
     },
     {
-      name: "cliva315/cpu-z",
-      url: "https://github.com/cliva315/cpu-z",
-      desc: "Cpu Z for Windows 10/11. Identifies your processor, motherboard, memory and graphics card, and reports live core clocks, voltages and temperatures so you can verify specs or diagnose stability issues.",
+      name: "gloriavolkov/gotomeeting",
+      url: "https://github.com/gloriavolkov/gotomeeting",
+      desc: "Gotomeeting for Windows 10/11. Hosts and joins online meetings with screen sharing, video calls and audio conferencing, letting teams present slides, collaborate on documents and record sessions for later review.",
       lang: "",
       stars: 200,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:33:07Z",
-      pushed: "2026-11-25T11:49:07Z",
-      created: "2026-11-24T12:37:06Z",
+      updated: "2026-11-26T03:42:00Z",
+      pushed: "2026-11-25T11:52:06Z",
+      created: "2026-11-24T12:27:24Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "install-cpu-z",
-        "productivity",
-        "software",
-        "software-engineering"
+        "gotomeeting",
+        "gotomeeting-free-download",
+        "gotomeeting-setup",
+        "install-gotomeeting"
       ],
-      desc_zh: "适用于 Windows 10/11 的 CPU-Z。识别您的处理器、主板、内存和显卡，并报告实时核心时钟、电压和温度，以便您验证规格或诊断稳定性问题。"
+      desc_zh: "适用于 Windows 10/11 的 GoToMeeting。主持和加入在线会议，提供屏幕共享、视频通话和音频会议功能，让团队能够展示幻灯片、协作处理文档并录制会议以供日后查看。"
     },
     {
-      name: "Jimenezluis02/solidworks-composer",
-      url: "https://github.com/Jimenezluis02/solidworks-composer",
-      desc: "Solidworks Composer for Windows 10/11. Builds interactive 3D technical illustrations, animations and step-by-step assembly instructions from CAD models so teams can publish documentation and service manuals.",
+      name: "gitcache385/fotor",
+      url: "https://github.com/gitcache385/fotor",
+      desc: "Fotor for Windows 10/11. Edits and retouches photos with one-tap enhancements, background removal and collage templates, then exports finished images for social posts, print or client previews.",
       lang: "",
       stars: 200,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:32:03Z",
-      pushed: "2026-11-25T11:43:49Z",
-      created: "2026-11-24T11:57:02Z",
-      license: "NOASSERTION",
-      topics: [
-        "composer",
-        "composer-packages",
-        "composer-studio",
-        "composer-v2",
-        "solidworks"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Solidworks Composer。根据 CAD 模型创建交互式 3D 技术插图、动画和分步组装说明，以便团队发布文档和服务手册。"
-    },
-    {
-      name: "lucasmedina172/eset-smart-security",
-      url: "https://github.com/lucasmedina172/eset-smart-security",
-      desc: "Eset Smart Security for Windows 10/11. Scans downloads, emails and running apps for malware in real time, blocks phishing sites and ransomware, and adds a firewall plus parental controls to keep your PC and family safe online.",
-      lang: "",
-      stars: 200,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:27:09Z",
-      pushed: "2026-11-25T11:55:49Z",
-      created: "2026-11-24T10:47:22Z",
-      license: "NOASSERTION",
-      topics: [
-        "download-eset-smart-security",
-        "download-eset-smart-security-premium",
-        "eset",
-        "eset-key-gen",
-        "eset-key-giver"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Eset Smart Security。实时扫描下载内容、电子邮件和正在运行的应用程序，以检测恶意软件，拦截钓鱼网站和勒索软件，并添加防火墙和家长控制功能，以确保您的电脑和家人在线安全。"
-    },
-    {
-      name: "deepakplus2003/quixel-mixer",
-      url: "https://github.com/deepakplus2003/quixel-mixer",
-      desc: "Quixel Mixer for Windows 10/11. Mixes scanned surface materials into layered 3D textures, blends PBR maps with masks and brushes, and exports finished assets for game engines or offline rendering.",
-      lang: "",
-      stars: 200,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:32:59Z",
-      pushed: "2026-11-25T11:50:16Z",
-      created: "2026-11-24T10:47:06Z",
+      updated: "2026-11-26T03:37:10Z",
+      pushed: "2026-11-25T11:52:02Z",
+      created: "2026-11-24T11:18:02Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "guide-setup-quixel-mixer",
-        "how-to-install-quixel-mixer",
-        "mixer",
-        "productivity"
+        "download-fotor",
+        "fotor",
+        "fotor-2026",
+        "fotor-desktop"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Quixel Mixer。将扫描的表面材质混合成分层 3D 纹理，将 PBR 贴图与遮罩和画笔融合，并导出成品资源以用于游戏引擎或离线渲染。"
+      desc_zh: "适用于 Windows 10/11 的 Fotor。通过一键美化、背景移除和拼贴模板编辑和润色照片，然后导出成品图像，用于社交媒体帖子、打印或客户预览。"
+    },
+    {
+      name: "Hkomarov2006/height-desktop",
+      url: "https://github.com/Hkomarov2006/height-desktop",
+      desc: "Height Desktop for Windows 10/11. Manages tasks, projects and team workflows in one workspace, letting you organize to-dos, assign owners and track progress across boards and lists.",
+      lang: "",
+      stars: 200,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:37:47Z",
+      pushed: "2026-11-25T15:14:07Z",
+      created: "2026-11-24T11:41:52Z",
+      license: "NOASSERTION",
+      topics: [
+        "3-heights-desktop-pdf-repair",
+        "3-heights-pdf-desktop-repair-tool",
+        "desktop",
+        "desktop-ai",
+        "desktop-analytics"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Height 桌面版。在一个工作空间中管理任务、项目和团队工作流程，让您能够组织待办事项、指派负责人，并在看板和列表中跟踪进度。"
+    },
+    {
+      name: "coreopen47/perplexity-ai",
+      url: "https://github.com/coreopen47/perplexity-ai",
+      desc: "Perplexity Ai for Windows 10/11. Searches the web with AI and answers follow-up questions in a chat interface, so you can research topics, compare sources and draft summaries without opening a browser tab.",
+      lang: "",
+      stars: 200,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:38:29Z",
+      pushed: "2026-11-25T11:49:36Z",
+      created: "2026-11-24T11:40:04Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "open-source-perplexity-ai",
+        "perplexity",
+        "perplexity-ai",
+        "perplexity-ai-api"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Perplexity Ai。使用人工智能搜索网络，并在聊天界面中回答后续问题，因此您无需打开浏览器标签页即可研究主题、比较来源和撰写摘要。"
+    },
+    {
+      name: "Labdev8726/arturia-pigments",
+      url: "https://github.com/Labdev8726/arturia-pigments",
+      desc: "Arturia Pigments for Windows 10/11. Designs layered synth patches by blending wavetable, virtual analog, sample and granular engines, then routes them through modular-style filters and effects for original sounds.",
+      lang: "",
+      stars: 200,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:35:06Z",
+      pushed: "2026-11-25T11:44:30Z",
+      created: "2026-11-24T12:19:00Z",
+      license: "NOASSERTION",
+      topics: [
+        "arturia",
+        "arturia-analog-lab",
+        "arturia-analog-lab-mac",
+        "arturia-analog-lab-pro",
+        "arturia-analog-lab-x64"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Arturia Pigments。通过融合波表、虚拟模拟、采样和颗粒合成引擎来设计分层合成器音色，然后将其通过模块化风格的滤波器和效果器进行处理，以获得原创声音。"
+    },
+    {
+      name: "Keith-web242/multicharts",
+      url: "https://github.com/Keith-web242/multicharts",
+      desc: "Multicharts for Windows 10/11. Builds and backtests trading strategies on historical price data, then runs them live or in simulation across futures, stocks and forex with charting and portfolio tracking.",
+      lang: "",
+      stars: 200,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:35:17Z",
+      pushed: "2026-11-25T11:44:22Z",
+      created: "2026-11-24T12:10:34Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "multicharts",
+        "multicharts-mac",
+        "multicharts-portable",
+        "multicharts-pro"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Multicharts。基于历史价格数据构建和回测交易策略，然后在期货、股票和外汇市场实时或模拟运行这些策略，并提供图表和投资组合跟踪功能。"
     },
     {
       name: "artemedwards/rhinoceros-grasshopper",
@@ -5551,46 +6097,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Rhinoceros Grasshopper。通过将组件连接到可视化逻辑图中来构建参数化 3D 模型，让设计师无需编写代码即可对形状和结构进行迭代。"
     },
     {
-      name: "Lisakozlov/matlab-simulink",
-      url: "https://github.com/Lisakozlov/matlab-simulink",
-      desc: "Matlab Simulink for Windows 10/11. Builds block diagrams to model control systems, signal processing and embedded logic, then simulates behavior and generates code for hardware deployment.",
+      name: "D3bug-patch91/davinci-resolve-speed-editor",
+      url: "https://github.com/D3bug-patch91/davinci-resolve-speed-editor",
+      desc: "Davinci Resolve Speed Editor for Windows 10/11. Edits timelines faster with a dedicated jog wheel, shutter dial and shortcut keys for trimming clips, navigating cuts and marking in and out points during Resolve editing sessions.",
       lang: "",
       stars: 200,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:34:36Z",
-      pushed: "2026-11-25T11:44:53Z",
-      created: "2026-11-24T12:14:20Z",
+      updated: "2026-11-26T03:41:33Z",
+      pushed: "2026-11-25T11:41:26Z",
+      created: "2026-11-24T12:18:37Z",
       license: "NOASSERTION",
       topics: [
-        "desktop-app",
-        "matlab",
-        "matlab-gui",
-        "matlab-mcp-server",
-        "matlab-r2026a"
+        "davinci-color-grading",
+        "davinci-fusion",
+        "davinci-fusion-2026",
+        "davinci-fusion-free",
+        "davinci-fusion-pro"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Matlab Simulink。构建框图以建模控制系统、信号处理和嵌入式逻辑，然后模拟行为并生成用于硬件部署的代码。"
-    },
-    {
-      name: "hilldev1997/webex-meetings",
-      url: "https://github.com/hilldev1997/webex-meetings",
-      desc: "Webex Meetings for Windows 10/11. Joins video meetings, shares screens and records calls, letting teams present slides, chat with participants and schedule sessions from the desktop app.",
-      lang: "",
-      stars: 200,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:32:06Z",
-      pushed: "2026-11-25T11:52:56Z",
-      created: "2026-11-24T12:29:13Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "guide-setup-webex-meetings",
-        "how-to-install-webex-meetings",
-        "meetings",
-        "productivity"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Webex 会议。加入视频会议、共享屏幕和录制通话，让团队能够通过桌面应用程序展示幻灯片、与参会者聊天并安排会议。"
+      desc_zh: "适用于 Windows 10/11 的 DaVinci Resolve Speed Editor。使用专用点动轮、快门拨盘和快捷键，在 Resolve 编辑会话期间更快地编辑时间线，以修剪剪辑、导航剪辑点以及标记入点和出点。"
     },
     {
       name: "FastLabs2005/emsisoft-anti-malware",
@@ -5614,27 +6139,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Emsisoft 反恶意软件。实时扫描文件、下载内容和正在运行的进程，以检测恶意软件，拦截恶意网站，并在威胁在您的电脑上执行之前将其隔离。"
     },
     {
-      name: "kimberlymedina66/softube-weiss-mm-1",
-      url: "https://github.com/kimberlymedina66/softube-weiss-mm-1",
-      desc: "Softube Weiss Mm 1 for Windows 10/11. Mixes and masters tracks with the Weiss MM-1 mastering compressor, shaping dynamics and loudness on individual stems or full mixes for release-ready audio.",
-      lang: "",
-      stars: 200,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:27:48Z",
-      pushed: "2026-11-25T11:54:42Z",
-      created: "2026-11-24T12:13:47Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "guide-setup-softube-weiss-mm-1",
-        "how-to-install-softube-weiss-mm-1",
-        "softube",
-        "softube-2026"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Softube Weiss Mm 1。使用 Weiss MM-1 母带压缩器混音和母带处理轨道，对单个音轨或完整混音的动态和响度进行塑形，打造可直接发布的音频。"
-    },
-    {
       name: "malhotra-lauren48/ynab",
       url: "https://github.com/malhotra-lauren48/ynab",
       desc: "Ynab for Windows 10/11. Builds monthly budgets, assigns every dollar a job and tracks spending against category targets, so you can plan ahead, break the paycheck-to-paycheck cycle and pay down debt with intent.",
@@ -5654,6 +6158,48 @@ window.__GHRANK_RANGES__["week"] = {
         "software-engineering"
       ],
       desc_zh: "适用于 Windows 10/11 的 Ynab。制定月度预算，为每一分钱分配用途，并对照类别目标跟踪支出，以便您提前规划，打破入不敷出的循环，有计划地偿还债务。"
+    },
+    {
+      name: "bestdev1543/izotope-neutron-5",
+      url: "https://github.com/bestdev1543/izotope-neutron-5",
+      desc: "Izotope Neutron 5 for Windows 10/11. Mixes and masters tracks with AI-assisted EQ, compression, and instrument-specific modules, letting you balance vocals and instruments quickly in a single plugin window.",
+      lang: "",
+      stars: 200,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:40:07Z",
+      pushed: "2026-11-25T11:47:32Z",
+      created: "2026-11-24T12:09:49Z",
+      license: "NOASSERTION",
+      topics: [
+        "install-izotope-neutron-5",
+        "izotope-2026",
+        "izotope-download",
+        "izotope-nectar",
+        "izotope-nectar-key"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Izotope Neutron 5。使用 AI 辅助的均衡器、压缩和乐器专用模块进行混音和母带处理，让您在一个插件窗口中快速平衡人声和乐器。"
+    },
+    {
+      name: "branluca65/hwinfo",
+      url: "https://github.com/branluca65/hwinfo",
+      desc: "Hwinfo for Windows 10/11. Monitors CPU, GPU, memory and storage sensors in real time, logs temperatures and voltages, and reports on hardware health to help you spot overheating or failing components.",
+      lang: "",
+      stars: 200,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:54Z",
+      pushed: "2026-11-25T11:48:00Z",
+      created: "2026-11-24T11:48:30Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "download-hwinfo",
+        "hwinfo",
+        "hwinfo-desktop",
+        "hwinfo-free"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Hwinfo。实时监测 CPU、GPU、内存和存储传感器，记录温度和电压，并报告硬件健康状况，帮助您发现过热或故障组件。"
     },
     {
       name: "is4bellateam/softmaker-office",
@@ -5677,58 +6223,37 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Softmaker Office。撰写和编辑文档、制作电子表格和创建演示文稿，然后以 Microsoft Office 格式保存，以便与同事和客户共享。"
     },
     {
-      name: "marilyncardoso/suno-ai",
-      url: "https://github.com/marilyncardoso/suno-ai",
-      desc: "Suno Ai for Windows 10/11. Generates original songs from text prompts by writing lyrics and vocals, then exports finished tracks for videos, podcasts or personal listening.",
+      name: "Kcao07/syncovery",
+      url: "https://github.com/Kcao07/syncovery",
+      desc: "Syncovery for Windows 10/11. Backs up and syncs files between local drives, network shares, cloud storage and remote servers with scheduled jobs, real-time monitoring, and encryption options for keeping copies in step.",
       lang: "",
       stars: 200,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:28:36Z",
-      pushed: "2026-11-25T11:56:23Z",
-      created: "2026-11-24T11:55:21Z",
+      updated: "2026-11-26T03:42:22Z",
+      pushed: "2026-11-25T11:44:18Z",
+      created: "2026-11-24T11:54:57Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "no-ai",
         "productivity",
         "software",
-        "software-engineering"
+        "software-engineering",
+        "syncovery"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Suno Ai。根据文本提示创作歌词和人声，生成原创歌曲，然后导出成品曲目，用于视频、播客或个人聆听。"
+      desc_zh: "适用于 Windows 10/11 的 Syncovery。在本地驱动器、网络共享、云存储和远程服务器之间备份和同步文件，提供计划任务、实时监控和加密选项，以使副本保持同步。"
     },
     {
-      name: "Ludmila-vega/gimp",
-      url: "https://github.com/Ludmila-vega/gimp",
-      desc: "Gimp for Windows 10/11. Edits photos and images, retouches blemishes, creates layered graphics and exports finished designs, giving you a free alternative for everything from quick crops to full digital paintings.",
-      lang: "",
-      stars: 200,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:32:57Z",
-      pushed: "2026-11-25T11:45:06Z",
-      created: "2026-11-24T11:25:36Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "gimp",
-        "gimp-2-10",
-        "gimp-3",
-        "gimp-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Gimp。编辑照片和图像、修饰瑕疵、创建分层图形并导出成品设计，为您提供从快速裁剪到完整数字绘画等各种功能的免费替代方案。"
-    },
-    {
-      name: "Lake-build-south/github-desktop",
-      url: "https://github.com/Lake-build-south/github-desktop",
-      desc: "Github Desktop for Windows 10/11. Clones repositories, stages and commits changes, creates branches and pushes code to GitHub, letting you manage version control visually without typing Git commands in a terminal.",
+      name: "karenk2000/google-keep-desktop",
+      url: "https://github.com/karenk2000/google-keep-desktop",
+      desc: "Google Keep Desktop for Windows 10/11. Captures notes, lists and reminders in a standalone window, letting you jot ideas, pin checklists and search your archive without opening a browser tab.",
       lang: "",
       stars: 199,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:15:09Z",
-      pushed: "2026-11-25T11:44:32Z",
-      created: "2026-11-24T12:20:23Z",
+      updated: "2026-11-26T03:42:08Z",
+      pushed: "2026-11-25T11:54:14Z",
+      created: "2026-11-24T11:41:45Z",
       license: "NOASSERTION",
       topics: [
         "desktop",
@@ -5737,49 +6262,49 @@ window.__GHRANK_RANGES__["week"] = {
         "desktop-apps",
         "desktop-files"
       ],
-      desc_zh: "适用于 Windows 10/11 的 GitHub Desktop。克隆仓库、暂存和提交更改、创建分支并将代码推送到 GitHub，让您无需在终端中输入 Git 命令即可以可视化方式管理版本控制。"
+      desc_zh: "适用于 Windows 10/11 的 Google Keep 桌面版。在独立窗口中记录笔记、清单和提醒，让您无需打开浏览器标签页即可记录灵感、置顶清单和搜索存档。"
     },
     {
-      name: "huang3761/bruno-api",
-      url: "https://github.com/huang3761/bruno-api",
-      desc: "Bruno Api for Windows 10/11. Builds, sends and organizes HTTP, GraphQL and REST requests into reusable collections, so you can test endpoints, inspect responses and share API workflows with your team.",
+      name: "deep-solution5904/xero",
+      url: "https://github.com/deep-solution5904/xero",
+      desc: "Xero for Windows 10/11. Tracks invoices, bills, bank feeds and payroll in one ledger, then reconciles transactions and files tax returns so small businesses can keep their books current.",
       lang: "",
       stars: 199,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:31:55Z",
-      pushed: "2026-11-25T11:52:58Z",
-      created: "2026-11-24T12:18:31Z",
+      updated: "2026-11-26T03:42:49Z",
+      pushed: "2026-11-25T11:50:20Z",
+      created: "2026-11-24T11:03:17Z",
       license: "NOASSERTION",
       topics: [
-        "bruno",
-        "bruno-api",
         "desktop-app",
-        "install-bruno-api",
-        "productivity"
+        "download-xero",
+        "productivity",
+        "software",
+        "software-engineering"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Bruno API。将 HTTP、GraphQL 和 REST 请求构建、发送并整理为可重复使用的集合，以便您可以测试端点、检查响应并与团队共享 API 工作流。"
+      desc_zh: "适用于 Windows 10/11 的 Xero。在一个账簿中跟踪发票、账单、银行交易和工资单，然后对账并提交纳税申报表，以便小企业能够及时更新账目。"
     },
     {
-      name: "kennethkumar05/figma-figjam",
-      url: "https://github.com/kennethkumar05/figma-figjam",
-      desc: "Figma Figjam for Windows 10/11. Builds collaborative whiteboards with sticky notes, shapes, connectors and live cursors, letting teams sketch flows, run brainstorming sessions and map ideas together in real time.",
+      name: "blackdev43/bluestacks",
+      url: "https://github.com/blackdev43/bluestacks",
+      desc: "Bluestacks for Windows 10/11. Runs Android apps and games on your PC in a resizable window, letting you install titles from the Play Store and control them with a keyboard, mouse or gamepad.",
       lang: "",
       stars: 199,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:34:02Z",
-      pushed: "2026-11-25T11:54:27Z",
-      created: "2026-11-24T11:26:02Z",
+      updated: "2026-11-26T03:40:01Z",
+      pushed: "2026-11-25T11:47:45Z",
+      created: "2026-11-24T12:20:44Z",
       license: "NOASSERTION",
       topics: [
-        "figjam",
-        "figjam-plugin",
-        "figjam-widget",
-        "figma",
-        "figma-api"
+        "bluestacks",
+        "bluestacks-2025",
+        "bluestacks-desktop",
+        "bluestacks-install",
+        "bluestacks-mac"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Figma Figjam。使用便签、形状、连接线和实时光标构建协作白板，让团队能够实时绘制流程、开展头脑风暴和共同梳理创意。"
+      desc_zh: "适用于 Windows 10/11 的 Bluestacks。在电脑上以可调整大小的窗口运行安卓应用和游戏，让您能够从 Play Store 安装游戏，并使用键盘、鼠标或游戏手柄进行控制。"
     },
     {
       name: "greenwolfgit971/dbeaver",
@@ -5803,25 +6328,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Dbeaver。连接到数据库，运行 SQL 查询，并在电子表格样式的网格中编辑表格，以便您可以探索架构、比较数据并将结果导出到文件。"
     },
     {
-      name: "l1angmedia/lumion-pro",
-      url: "https://github.com/l1angmedia/lumion-pro",
-      desc: "Lumion Pro for Windows 10/11. Renders architectural scenes into photorealistic images and animations, letting architects and designers add materials, lighting and landscape details then export walkthroughs for client presentations.",
+      name: "DeployBestDebug04/comodo-internet-security",
+      url: "https://github.com/DeployBestDebug04/comodo-internet-security",
+      desc: "Comodo Internet Security for Windows 10/11. Scans files and downloads for malware, blocks suspicious processes with a sandbox and auto-containment, and filters network traffic through a firewall with a virtual kiosk for safe browsing.",
       lang: "",
       stars: 199,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:26:56Z",
-      pushed: "2026-11-25T11:54:50Z",
-      created: "2026-11-24T11:02:05Z",
+      updated: "2026-11-26T03:36:26Z",
+      pushed: "2026-11-25T11:41:41Z",
+      created: "2026-11-24T11:41:41Z",
       license: "NOASSERTION",
       topics: [
-        "desktop-app",
-        "lumion-2025",
-        "lumion-desktop",
-        "lumion-installer",
-        "lumion-pro-12"
+        "comodo-dragon-internet-browser",
+        "comodo-internet",
+        "comodo-internet-2026",
+        "comodo-internet-security",
+        "comodo-internet-security-2026"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Lumion Pro。将建筑场景渲染为逼真的图像和动画，让建筑师和设计师能够添加材质、光照和景观细节，然后导出漫游用于向客户演示。"
+      desc_zh: "适用于 Windows 10/11 的 Comodo Internet Security。扫描文件和下载内容以检测恶意软件，使用沙盒和自动隔离功能阻止可疑进程，并通过带有虚拟终端的防火墙过滤网络流量，以实现安全浏览。"
     },
     {
       name: "free-byte-leaf68/komodo-edit",
@@ -5845,25 +6370,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Komodo Edit。使用语法高亮、自动补全和多文件搜索功能编辑各种语言的代码，然后直接在编辑器中运行和调试脚本，从而加快 Web 和应用程序的开发速度。"
     },
     {
-      name: "ezhou49/bethesda-net",
-      url: "https://github.com/ezhou49/bethesda-net",
-      desc: "Bethesda Net for Windows 10/11. Launches, installs and updates Bethesda games like Skyrim and Fallout from one library, syncing mods, saves and account entitlements across your PC.",
+      name: "birdkernelbig22/clonezilla",
+      url: "https://github.com/birdkernelbig22/clonezilla",
+      desc: "Clonezilla for Windows 10/11. Clones entire disks and partitions to image files, restores backups to new drives, and migrates a full system to replacement hardware without reinstalling the operating system or applications.",
       lang: "",
       stars: 199,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:25:25Z",
-      pushed: "2026-11-25T11:51:04Z",
-      created: "2026-11-24T11:17:55Z",
+      updated: "2026-11-26T03:41:51Z",
+      pushed: "2026-11-25T11:47:41Z",
+      created: "2026-11-24T12:20:34Z",
       license: "NOASSERTION",
       topics: [
-        "bethesda-net",
-        "bethesda-net-2025",
-        "bethesda-net-2026",
-        "bethesda-net-desktop",
-        "bethesda-net-download"
+        "clonezilla",
+        "clonezilla-2025",
+        "clonezilla-2026",
+        "clonezilla-desktop",
+        "clonezilla-download"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Bethesda Net。从一个库中启动、安装和更新《上古卷轴 5：天际》和《辐射》等 Bethesda 游戏，并在您的电脑上同步模组、存档和账户权限。"
+      desc_zh: "适用于 Windows 10/11 的 Clonezilla。将整个磁盘和分区克隆为映像文件，将备份还原到新驱动器，并将整个系统迁移到替换硬件，而无需重新安装操作系统或应用程序。"
     },
     {
       name: "greyeastblack52/fusion-360-manage",
@@ -5908,109 +6433,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Panda Dome Premium。实时扫描文件、下载和浏览流量，拦截勒索软件和钓鱼网站，并按计划运行全系统检查，以保护您的电脑。"
     },
     {
-      name: "cesarding08/spyhunter-5",
-      url: "https://github.com/cesarding08/spyhunter-5",
-      desc: "Spyhunter 5 for Windows 10/11. Scans your PC for malware, potentially unwanted programs and rootkits, then removes detected threats and blocks suspicious files before they can run.",
+      name: "greydeeplogic/unigine-heaven",
+      url: "https://github.com/greydeeplogic/unigine-heaven",
+      desc: "Unigine Heaven for Windows 10/11. Renders a looping 3D fantasy village benchmark scene and reports a detailed score, letting you stress-test a graphics card and compare performance after overclocks.",
       lang: "",
       stars: 199,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:31:33Z",
-      pushed: "2026-11-25T11:48:41Z",
-      created: "2026-11-24T10:47:48Z",
+      updated: "2026-11-26T03:38:17Z",
+      pushed: "2026-11-25T11:52:27Z",
+      created: "2026-11-24T10:11:42Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "download-spyhunter-5",
+        "guide-setup-unigine-heaven",
+        "how-to-install-unigine-heaven",
+        "productivity",
+        "software"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Unigine Heaven。渲染一个循环播放的 3D 奇幻村庄基准场景，并报告详细的分数，让您对显卡进行压力测试，并比较超频后的性能。"
+    },
+    {
+      name: "Dorothy5okolov/fnord-vr-suite",
+      url: "https://github.com/Dorothy5okolov/fnord-vr-suite",
+      desc: "Fnord Vr Suite for Windows 10/11. Launches and manages VR applications and desktop windows in a single headset view, letting you switch between games and tools without removing the headset.",
+      lang: "",
+      stars: 199,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:10Z",
+      pushed: "2026-11-25T11:42:37Z",
+      created: "2026-11-24T12:19:30Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "install-fnord-vr-suite",
         "productivity",
         "software",
         "software-engineering"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Spyhunter 5。扫描您的电脑，查找恶意软件、可能有害的程序和 rootkit，然后移除检测到的威胁，并在可疑文件运行之前将其拦截。"
-    },
-    {
-      name: "Hkomarov2006/height-desktop",
-      url: "https://github.com/Hkomarov2006/height-desktop",
-      desc: "Height Desktop for Windows 10/11. Manages tasks, projects and team workflows in one workspace, letting you organize to-dos, assign owners and track progress across boards and lists.",
-      lang: "",
-      stars: 199,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:31:24Z",
-      pushed: "2026-11-25T15:14:07Z",
-      created: "2026-11-24T11:41:52Z",
-      license: "NOASSERTION",
-      topics: [
-        "3-heights-desktop-pdf-repair",
-        "3-heights-pdf-desktop-repair-tool",
-        "desktop",
-        "desktop-ai",
-        "desktop-analytics"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Height 桌面版。在一个工作空间中管理任务、项目和团队工作流程，让您能够组织待办事项、指派负责人，并在看板和列表中跟踪进度。"
-    },
-    {
-      name: "morozovgirish/k9s",
-      url: "https://github.com/morozovgirish/k9s",
-      desc: "K9S for Windows 10/11. Runs and manages Kubernetes clusters from a terminal-style interface, letting you browse pods, stream logs and edit resources without switching between separate CLI tools.",
-      lang: "",
-      stars: 199,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T02:49:42Z",
-      pushed: "2026-11-25T11:56:38Z",
-      created: "2026-11-24T10:55:20Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "install-k9s",
-        "productivity",
-        "software",
-        "software-engineering"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 K9S。通过终端式界面运行和管理 Kubernetes 集群，让您无需在不同的 CLI 工具之间切换，即可浏览 Pod、查看日志流和编辑资源。"
-    },
-    {
-      name: "coreopen47/perplexity-ai",
-      url: "https://github.com/coreopen47/perplexity-ai",
-      desc: "Perplexity Ai for Windows 10/11. Searches the web with AI and answers follow-up questions in a chat interface, so you can research topics, compare sources and draft summaries without opening a browser tab.",
-      lang: "",
-      stars: 199,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:31:34Z",
-      pushed: "2026-11-25T11:49:36Z",
-      created: "2026-11-24T11:40:04Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "open-source-perplexity-ai",
-        "perplexity",
-        "perplexity-ai",
-        "perplexity-ai-api"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Perplexity Ai。使用人工智能搜索网络，并在聊天界面中回答后续问题，因此您无需打开浏览器标签页即可研究主题、比较来源和撰写摘要。"
-    },
-    {
-      name: "Labdev8726/arturia-pigments",
-      url: "https://github.com/Labdev8726/arturia-pigments",
-      desc: "Arturia Pigments for Windows 10/11. Designs layered synth patches by blending wavetable, virtual analog, sample and granular engines, then routes them through modular-style filters and effects for original sounds.",
-      lang: "",
-      stars: 199,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:33:25Z",
-      pushed: "2026-11-25T11:44:30Z",
-      created: "2026-11-24T12:19:00Z",
-      license: "NOASSERTION",
-      topics: [
-        "arturia",
-        "arturia-analog-lab",
-        "arturia-analog-lab-mac",
-        "arturia-analog-lab-pro",
-        "arturia-analog-lab-x64"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Arturia Pigments。通过融合波表、虚拟模拟、采样和颗粒合成引擎来设计分层合成器音色，然后将其通过模块化风格的滤波器和效果器进行处理，以获得原创声音。"
+      desc_zh: "适用于 Windows 10/11 的 Fnord VR 套件。在单个头显视图中启动和管理 VR 应用程序和桌面窗口，让您无需摘下头显即可在游戏和工具之间切换。"
     },
     {
       name: "Lake-shell6/modo",
@@ -6034,46 +6496,67 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Modo。在统一的建模环境中构建 3D 模型、纹理和渲染，让艺术家和产品设计师在导出到游戏引擎或 CAD 工具之前塑造资产并预览光照。"
     },
     {
-      name: "Keith-web242/multicharts",
-      url: "https://github.com/Keith-web242/multicharts",
-      desc: "Multicharts for Windows 10/11. Builds and backtests trading strategies on historical price data, then runs them live or in simulation across futures, stocks and forex with charting and portfolio tracking.",
+      name: "belldedi1990/zed-editor",
+      url: "https://github.com/belldedi1990/zed-editor",
+      desc: "Zed Editor for Windows 10/11. Writes and edits code in a fast native editor with AI assistance, multiplayer collaboration and instant project search for everyday development work.",
       lang: "",
       stars: 199,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:28:41Z",
-      pushed: "2026-11-25T11:44:22Z",
-      created: "2026-11-24T12:10:34Z",
+      updated: "2026-11-26T03:39:12Z",
+      pushed: "2026-11-25T11:47:21Z",
+      created: "2026-11-24T12:34:33Z",
+      license: "NOASSERTION",
+      topics: [
+        "code-editor",
+        "editor",
+        "editor-plugin",
+        "editor-theme",
+        "editorial"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Zed 编辑器。在快速的本地编辑器中编写和编辑代码，提供 AI 辅助、多人协作和即时项目搜索功能，适用于日常开发工作。"
+    },
+    {
+      name: "FatouDesai/epic-games-launcher",
+      url: "https://github.com/FatouDesai/epic-games-launcher",
+      desc: "Epic Games Launcher for Windows 10/11. Launches Unreal Engine projects and downloaded games from one library, handles updates and installs, and connects to the Epic ecosystem for cloud saves and cross-platform play.",
+      lang: "",
+      stars: 199,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:35:51Z",
+      pushed: "2026-11-25T11:42:54Z",
+      created: "2026-11-24T11:26:13Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "multicharts",
-        "multicharts-mac",
-        "multicharts-portable",
-        "multicharts-pro"
+        "epic-games-launcher-download",
+        "epic-games-launcher-free",
+        "epic-games-launcher-installer",
+        "epic-games-launcher-portable"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Multicharts。基于历史价格数据构建和回测交易策略，然后在期货、股票和外汇市场实时或模拟运行这些策略，并提供图表和投资组合跟踪功能。"
+      desc_zh: "适用于 Windows 10/11 的 Epic Games Launcher。从一个库中启动虚幻引擎项目和已下载的游戏，处理更新和安装，并连接到 Epic 生态系统以实现云存档和跨平台游玩。"
     },
     {
-      name: "arthurpetrov03/hasleo-backup",
-      url: "https://github.com/arthurpetrov03/hasleo-backup",
-      desc: "Hasleo Backup for Windows 10/11. Backs up files, disks and entire systems to local drives or external storage, then restores them or migrates everything to new hardware after a crash.",
+      name: "jacquelineliang3/eagle-cad",
+      url: "https://github.com/jacquelineliang3/eagle-cad",
+      desc: "Eagle Cad for Windows 10/11. Draws and routes printed circuit boards with schematic capture, component placement and design rule checks, then exports Gerber files for fabrication.",
       lang: "",
       stars: 199,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:31:14Z",
-      pushed: "2026-11-25T11:47:01Z",
-      created: "2026-11-24T11:24:58Z",
+      updated: "2026-11-26T03:37:01Z",
+      pushed: "2026-11-25T11:53:33Z",
+      created: "2026-11-24T12:33:58Z",
       license: "NOASSERTION",
       topics: [
-        "backup",
-        "backup-cli",
-        "backup-manager",
-        "backup-recovery",
-        "backup-restore"
+        "cadsoft-eagle",
+        "desktop-app",
+        "eagle",
+        "eagle-cad",
+        "eagle-cad-2025"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Hasleo Backup。将文件、磁盘和整个系统备份到本地驱动器或外部存储设备，然后在发生崩溃后进行还原或将所有内容迁移到新硬件。"
+      desc_zh: "适用于 Windows 10/11 的 Eagle Cad。通过原理图捕获、元件放置和设计规则检查来绘制和布线印刷电路板，然后导出用于制造的Gerber文件。"
     },
     {
       name: "GirishSystems1994/reverso-context",
@@ -6118,25 +6601,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Tower Git For Windows。通过可视化界面浏览仓库、暂存和提交更改、解决合并冲突以及推送分支，使复杂的 Git 工作流更易于遵循。"
     },
     {
-      name: "D3bug-patch91/davinci-resolve-speed-editor",
-      url: "https://github.com/D3bug-patch91/davinci-resolve-speed-editor",
-      desc: "Davinci Resolve Speed Editor for Windows 10/11. Edits timelines faster with a dedicated jog wheel, shutter dial and shortcut keys for trimming clips, navigating cuts and marking in and out points during Resolve editing sessions.",
+      name: "Linkbearleaf63/thinkorswim",
+      url: "https://github.com/Linkbearleaf63/thinkorswim",
+      desc: "Thinkorswim for Windows 10/11. Analyzes stock, options and futures charts in real time with customizable studies, paper trading and order execution, giving active traders a full workstation for planning and testing strategies before risking capital.",
       lang: "",
       stars: 199,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:34:19Z",
-      pushed: "2026-11-25T11:41:26Z",
-      created: "2026-11-24T12:18:37Z",
+      updated: "2026-11-26T03:42:44Z",
+      pushed: "2026-11-25T11:44:50Z",
+      created: "2026-11-24T12:43:05Z",
       license: "NOASSERTION",
       topics: [
-        "davinci-color-grading",
-        "davinci-fusion",
-        "davinci-fusion-2026",
-        "davinci-fusion-free",
-        "davinci-fusion-pro"
+        "desktop-app",
+        "install-thinkorswim",
+        "productivity",
+        "software",
+        "software-engineering"
       ],
-      desc_zh: "适用于 Windows 10/11 的 DaVinci Resolve Speed Editor。使用专用点动轮、快门拨盘和快捷键，在 Resolve 编辑会话期间更快地编辑时间线，以修剪剪辑、导航剪辑点以及标记入点和出点。"
+      desc_zh: "适用于 Windows 10/11 的 Thinkorswim。通过可定制的研究、模拟交易和订单执行功能，实时分析股票、期权和期货图表，为活跃交易者提供一个完整的工作站，让他们在冒着资金风险之前规划和测试策略。"
     },
     {
       name: "Geraldkilic70/eventide-h910",
@@ -6160,25 +6643,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Eventide H910。使用经典的和声器延迟和失真效果，对人声、乐器和完整混音进行音高转换，让制作人能够在曲目中添加失谐的双音和闪耀的音色。"
     },
     {
-      name: "nataliegroup11/jetbrains-goland",
-      url: "https://github.com/nataliegroup11/jetbrains-goland",
-      desc: "Jetbrains Goland for Windows 10/11. Writes, navigates and debugs Go code with refactoring tools, test runners and integrated version control, helping developers build and maintain backend services and APIs.",
+      name: "liangarslan80/macrium-reflect-free",
+      url: "https://github.com/liangarslan80/macrium-reflect-free",
+      desc: "Macrium Reflect Free for Windows 10/11. Clones entire disks and creates full system images you can restore after a crash, letting you swap in a new drive or recover a dead PC without reinstalling anything.",
       lang: "",
-      stars: 198,
+      stars: 199,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:31:12Z",
-      pushed: "2026-11-25T11:57:13Z",
-      created: "2026-11-24T11:41:03Z",
+      updated: "2026-11-26T03:36:03Z",
+      pushed: "2026-11-25T11:55:25Z",
+      created: "2026-11-24T12:28:18Z",
       license: "NOASSERTION",
       topics: [
-        "android-studio",
-        "goland",
-        "jetbrains",
-        "jetbrains-academy",
-        "jetbrains-clion"
+        "desktop-app",
+        "how-to-install-macrium-reflect",
+        "how-to-setup-macrium-reflect",
+        "macrium-2026",
+        "macrium-backup"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Jetbrains Goland。使用重构工具、测试运行器和集成版本控制来编写、导航和调试 Go 代码，帮助开发者构建和维护后端服务和 API。"
+      desc_zh: "适用于 Windows 10/11 的 Macrium Reflect 免费版。克隆整个磁盘并创建完整的系统映像，您可以在系统崩溃后进行还原，让您更换新硬盘或恢复死机电脑，而无需重新安装任何内容。"
+    },
+    {
+      name: "burakstudio183/interactive-brokers-tws",
+      url: "https://github.com/burakstudio183/interactive-brokers-tws",
+      desc: "Interactive Brokers Tws for Windows 10/11. Trades stocks, options, futures and forex from one screen, placing orders, tracking positions and monitoring live charts and account risk in real time.",
+      lang: "",
+      stars: 199,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:55Z",
+      pushed: "2026-11-25T11:48:18Z",
+      created: "2026-11-24T12:33:25Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "install-interactive-brokers-tws",
+        "interactive",
+        "interactive-brokers",
+        "interactive-fiction"
+      ],
+      desc_zh: "适用于 Windows 10/11 的盈透证券 Tws。在一个界面上交易股票、期权、期货和外汇，下单、跟踪头寸并实时监测实时图表和账户风险。"
     },
     {
       name: "kadircosta/memrise-desktop",
@@ -6223,67 +6727,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 RoboForm。存储登录信息、自动填写密码和网页表单，并生成高强度凭据，让您只需使用一个主密码即可登录网站和应用程序，无需逐个输入。"
     },
     {
-      name: "karenk2000/google-keep-desktop",
-      url: "https://github.com/karenk2000/google-keep-desktop",
-      desc: "Google Keep Desktop for Windows 10/11. Captures notes, lists and reminders in a standalone window, letting you jot ideas, pin checklists and search your archive without opening a browser tab.",
+      name: "mehta-irina/wave-accounting",
+      url: "https://github.com/mehta-irina/wave-accounting",
+      desc: "Wave Accounting for Windows 10/11. Tracks income and expenses, sends invoices, and reconciles bank transactions so small business owners can see cash flow and prepare reports without a separate bookkeeping tool.",
       lang: "",
       stars: 198,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:31:18Z",
-      pushed: "2026-11-25T11:54:14Z",
-      created: "2026-11-24T11:41:45Z",
+      updated: "2026-11-26T03:42:27Z",
+      pushed: "2026-11-25T11:56:27Z",
+      created: "2026-11-24T12:05:23Z",
       license: "NOASSERTION",
       topics: [
-        "desktop",
-        "desktop-ai",
+        "accounting-automation",
+        "accounting-software",
         "desktop-app",
-        "desktop-apps",
-        "desktop-files"
+        "productivity",
+        "software"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Google Keep 桌面版。在独立窗口中记录笔记、清单和提醒，让您无需打开浏览器标签页即可记录灵感、置顶清单和搜索存档。"
+      desc_zh: "适用于 Windows 10/11 的 Wave Accounting。跟踪收入和支出、发送发票并对账银行交易，以便小企业主无需使用单独的簿记工具即可查看现金流和编制报告。"
     },
     {
-      name: "Lukcla3889/postman-agent",
-      url: "https://github.com/Lukcla3889/postman-agent",
-      desc: "Postman Agent for Windows 10/11. Runs API requests and collections on your local machine, letting you send calls to localhost, inspect responses and debug endpoints without leaving the desktop.",
+      name: "codecachesouth/jmp-statistical",
+      url: "https://github.com/codecachesouth/jmp-statistical",
+      desc: "Jmp Statistical for Windows 10/11. Explores data with interactive graphs, runs statistical tests and builds predictive models, helping analysts find patterns and share results without writing code.",
       lang: "",
       stars: 198,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:34:09Z",
-      pushed: "2026-11-25T11:45:13Z",
-      created: "2026-11-24T12:11:30Z",
+      updated: "2026-11-26T03:37:47Z",
+      pushed: "2026-11-25T11:49:16Z",
+      created: "2026-11-24T12:30:38Z",
       license: "NOASSERTION",
       topics: [
-        "agent",
-        "agent-based",
-        "agent-ide",
-        "agent-memory",
-        "agent-ops"
+        "desktop-app",
+        "jmp-statistical-download",
+        "jmp-statistical-free",
+        "jmp-statistical-free-download",
+        "jmp-statistical-free-trial"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Postman Agent。在您的本地计算机上运行 API 请求和集合，让您无需离开桌面即可向本地主机发送调用、检查响应并调试端点。"
-    },
-    {
-      name: "DeployBestDebug04/comodo-internet-security",
-      url: "https://github.com/DeployBestDebug04/comodo-internet-security",
-      desc: "Comodo Internet Security for Windows 10/11. Scans files and downloads for malware, blocks suspicious processes with a sandbox and auto-containment, and filters network traffic through a firewall with a virtual kiosk for safe browsing.",
-      lang: "",
-      stars: 198,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:33:20Z",
-      pushed: "2026-11-25T11:41:41Z",
-      created: "2026-11-24T11:41:41Z",
-      license: "NOASSERTION",
-      topics: [
-        "comodo-dragon-internet-browser",
-        "comodo-internet",
-        "comodo-internet-2026",
-        "comodo-internet-security",
-        "comodo-internet-security-2026"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Comodo Internet Security。扫描文件和下载内容以检测恶意软件，使用沙盒和自动隔离功能阻止可疑进程，并通过带有虚拟终端的防火墙过滤网络流量，以实现安全浏览。"
+      desc_zh: "适用于 Windows 10/11 的 JMP 统计软件。使用交互式图表探索数据，运行统计检验并构建预测模型，帮助分析师在不编写代码的情况下发现模式并分享结果。"
     },
     {
       name: "merge-wood-patch/nimbus-note",
@@ -6328,27 +6811,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Treesize Free。扫描您的驱动器和文件夹，准确显示磁盘空间的占用情况，然后帮助您找到并删除最大的文件和文件夹，以释放空间。"
     },
     {
-      name: "birdkernelbig22/clonezilla",
-      url: "https://github.com/birdkernelbig22/clonezilla",
-      desc: "Clonezilla for Windows 10/11. Clones entire disks and partitions to image files, restores backups to new drives, and migrates a full system to replacement hardware without reinstalling the operating system or applications.",
-      lang: "",
-      stars: 198,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:33:48Z",
-      pushed: "2026-11-25T11:47:41Z",
-      created: "2026-11-24T12:20:34Z",
-      license: "NOASSERTION",
-      topics: [
-        "clonezilla",
-        "clonezilla-2025",
-        "clonezilla-2026",
-        "clonezilla-desktop",
-        "clonezilla-download"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Clonezilla。将整个磁盘和分区克隆为映像文件，将备份还原到新驱动器，并将整个系统迁移到替换硬件，而无需重新安装操作系统或应用程序。"
-    },
-    {
       name: "duwqijlk/browser-capture",
       url: "https://github.com/duwqijlk/browser-capture",
       desc: "Zero-dependency browser CDP + stealth Hook capture & reverse-engineering AI Skill / CLI for BitBrowser, AdsPower, and Chrome/VisibleV8",
@@ -6370,172 +6832,193 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "零依赖浏览器 CDP + 隐身 Hook 捕获与逆向工程 AI 技能/BitBrowser、AdsPower 和 Chrome/VisibleV8 的 CLI"
     },
     {
-      name: "gloriavolkov/gotomeeting",
-      url: "https://github.com/gloriavolkov/gotomeeting",
-      desc: "Gotomeeting for Windows 10/11. Hosts and joins online meetings with screen sharing, video calls and audio conferencing, letting teams present slides, collaborate on documents and record sessions for later review.",
+      name: "labs-systems/portraitpro",
+      url: "https://github.com/labs-systems/portraitpro",
+      desc: "Portraitpro for Windows 10/11. Retouches portraits by smoothing skin, reshaping faces and adjusting lighting, then exports polished photos for client galleries or social media profiles.",
       lang: "",
       stars: 198,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:29:44Z",
-      pushed: "2026-11-25T11:52:06Z",
-      created: "2026-11-24T12:27:24Z",
+      updated: "2026-11-26T03:39:46Z",
+      pushed: "2026-11-25T11:54:51Z",
+      created: "2026-11-24T09:39:24Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "gotomeeting",
-        "gotomeeting-free-download",
-        "gotomeeting-setup",
-        "install-gotomeeting"
+        "portraitpro",
+        "portraitpro-24",
+        "portraitpro-photo-editor-pro-install-windows",
+        "portraitpro-studio"
       ],
-      desc_zh: "适用于 Windows 10/11 的 GoToMeeting。主持和加入在线会议，提供屏幕共享、视频通话和音频会议功能，让团队能够展示幻灯片、协作处理文档并录制会议以供日后查看。"
+      desc_zh: "适用于 Windows 10/11 的 Portraitpro。通过平滑肌肤、重塑面部和调整光线来修饰肖像，然后导出经过润饰的照片，用于客户图库或社交媒体个人资料。"
     },
     {
-      name: "gitcache385/fotor",
-      url: "https://github.com/gitcache385/fotor",
-      desc: "Fotor for Windows 10/11. Edits and retouches photos with one-tap enhancements, background removal and collage templates, then exports finished images for social posts, print or client previews.",
+      name: "Hubblue/languagetool",
+      url: "https://github.com/Hubblue/languagetool",
+      desc: "Languagetool for Windows 10/11. Checks your writing for grammar, spelling and style errors in over 25 languages, then suggests corrections you can apply directly in the editor or paste into documents.",
       lang: "",
       stars: 198,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:20:34Z",
-      pushed: "2026-11-25T11:52:02Z",
-      created: "2026-11-24T11:18:02Z",
+      updated: "2026-11-26T03:42:59Z",
+      pushed: "2026-11-25T11:43:41Z",
+      created: "2026-11-24T12:25:31Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "download-fotor",
-        "fotor",
-        "fotor-2026",
-        "fotor-desktop"
+        "install-languagetool",
+        "languagetool",
+        "languagetool-2025",
+        "languagetool-lite"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Fotor。通过一键美化、背景移除和拼贴模板编辑和润色照片，然后导出成品图像，用于社交媒体帖子、打印或客户预览。"
+      desc_zh: "适用于 Windows 10/11 的 Languagetool。以超过 25 种语言检查您的写作是否有语法、拼写和文体错误，然后提供修改建议，您可以直接在编辑器中应用这些建议，或将其粘贴到文档中。"
     },
     {
-      name: "Kapoor-stephen7/avira-prime",
-      url: "https://github.com/Kapoor-stephen7/avira-prime",
-      desc: "Avira Prime for Windows 10/11. Scans your PC for malware, tunes system performance and manages passwords, subscriptions and privacy settings from one dashboard, keeping devices protected without juggling separate tools.",
+      name: "Busramendes/antidote",
+      url: "https://github.com/Busramendes/antidote",
+      desc: "Antidote for Windows 10/11. Edits and proofreads French and English text with grammar and spelling checks, plus dictionaries, conjugation and synonyms, so you can fix writing errors in documents and emails before sending.",
       lang: "",
       stars: 198,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:34:05Z",
-      pushed: "2026-11-25T11:44:08Z",
-      created: "2026-11-24T12:25:18Z",
+      updated: "2026-11-26T03:38:13Z",
+      pushed: "2026-11-25T11:40:53Z",
+      created: "2026-11-24T11:17:56Z",
       license: "NOASSERTION",
       topics: [
-        "avira",
-        "avira-prime",
-        "avira-prime-2026",
-        "avira-prime-download",
-        "avira-prime-windows"
+        "antidote",
+        "antidote-2025",
+        "antidote-2026",
+        "antidote-desktop",
+        "antidote-download"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Avira Prime。通过一个仪表板扫描您的电脑以查找恶意软件、优化系统性能并管理密码、订阅和隐私设置，无需使用多个工具即可保护设备安全。"
+      desc_zh: "适用于 Windows 10/11 的 Antidote。对法语和英语文本进行编辑和校对，提供语法和拼写检查，以及字典、动词变位和同义词功能，让您在发送文档和电子邮件之前纠正其中的写作错误。"
     },
     {
-      name: "branchdarksand/invokeai",
-      url: "https://github.com/branchdarksand/invokeai",
-      desc: "Invokeai for Windows 10/11. Generates and edits images from text prompts using Stable Diffusion models, letting you refine results with inpainting, outpainting and layered canvas workflows on a local machine.",
+      name: "dedidigital480/linguee-desktop",
+      url: "https://github.com/dedidigital480/linguee-desktop",
+      desc: "Linguee Desktop for Windows 10/11. Looks up words and phrases in bilingual dictionary entries with example sentences, and reads through real translated texts to see how terms are used in context.",
       lang: "",
       stars: 198,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:33:51Z",
-      pushed: "2026-11-25T11:47:54Z",
-      created: "2026-11-24T12:11:44Z",
+      updated: "2026-11-26T03:40:29Z",
+      pushed: "2026-11-25T11:50:11Z",
+      created: "2026-11-24T11:25:10Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop",
+        "desktop-ai",
+        "desktop-analytics",
+        "desktop-app",
+        "desktop-apps"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Linguee 桌面版。在双语词典条目中查找单词和短语，提供例句，并阅读真实的翻译文本，了解术语在语境中的用法。"
+    },
+    {
+      name: "Daniela-peng92/photopea-desktop",
+      url: "https://github.com/Daniela-peng92/photopea-desktop",
+      desc: "Photopea Desktop for Windows 10/11. Edits photos and designs layered graphics with PSD support, opening and saving files locally for retouching, compositing and quick mockups without a browser.",
+      lang: "",
+      stars: 198,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:09Z",
+      pushed: "2026-11-25T11:41:28Z",
+      created: "2026-11-24T11:43:31Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop",
+        "desktop-ai",
+        "desktop-analytics",
+        "desktop-app",
+        "desktop-apps"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Photopea 桌面版。编辑照片并设计支持 PSD 的分层图形，在本地打开和保存文件，以便进行润色、合成和快速制作模型，无需使用浏览器。"
+    },
+    {
+      name: "jyotikuznetsov1452/furmark",
+      url: "https://github.com/jyotikuznetsov1452/furmark",
+      desc: "Furmark for Windows 10/11. Runs graphics card stress tests and GPU benchmarks, pushing your hardware to its limits to check cooling, stability and performance under sustained load.",
+      lang: "",
+      stars: 198,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:37:26Z",
+      pushed: "2026-11-25T11:54:12Z",
+      created: "2026-11-24T10:54:18Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "install-invokeai",
-        "invokeai",
-        "invokeai-2026",
-        "invokeai-activated"
+        "download-furmark",
+        "furmark",
+        "furmark-2026",
+        "furmark-download"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Invokeai。使用 Stable Diffusion 模型根据文本提示生成和编辑图像，让您在本地计算机上通过内补、外补和分层画布工作流程来优化结果。"
+      desc_zh: "适用于 Windows 10/11 的 Furmark。运行显卡压力测试和 GPU 基准测试，将您的硬件推至极限，以检查其在持续负载下的散热、稳定性和性能。"
     },
     {
-      name: "Dorothy5okolov/fnord-vr-suite",
-      url: "https://github.com/Dorothy5okolov/fnord-vr-suite",
-      desc: "Fnord Vr Suite for Windows 10/11. Launches and manages VR applications and desktop windows in a single headset view, letting you switch between games and tools without removing the headset.",
+      name: "dennis5heikh/native-instruments-massive-x",
+      url: "https://github.com/dennis5heikh/native-instruments-massive-x",
+      desc: "Native Instruments Massive X for Windows 10/11. Designs and shapes synth patches with wavetable oscillators, drag-and-drop modulation and routing, then saves presets for use in your DAW productions.",
       lang: "",
       stars: 198,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:34:40Z",
-      pushed: "2026-11-25T11:42:37Z",
-      created: "2026-11-24T12:19:30Z",
+      updated: "2026-11-26T03:43:07Z",
+      pushed: "2026-11-25T11:50:26Z",
+      created: "2026-11-24T11:18:04Z",
       license: "NOASSERTION",
       topics: [
-        "desktop-app",
-        "install-fnord-vr-suite",
-        "productivity",
-        "software",
-        "software-engineering"
+        "instruments",
+        "massive",
+        "native",
+        "native-access",
+        "native-aot"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Fnord VR 套件。在单个头显视图中启动和管理 VR 应用程序和桌面窗口，让您无需摘下头显即可在游戏和工具之间切换。"
+      desc_zh: "适用于 Windows 10/11 的 Native Instruments Massive X。使用波表振荡器、拖放式调制和路由设计和塑造合成器音色，然后保存预设，供您在 DAW 制作中使用。"
     },
     {
-      name: "jacquelineliang3/eagle-cad",
-      url: "https://github.com/jacquelineliang3/eagle-cad",
-      desc: "Eagle Cad for Windows 10/11. Draws and routes printed circuit boards with schematic capture, component placement and design rule checks, then exports Gerber files for fabrication.",
+      name: "GuoKaya1996/imageranger",
+      url: "https://github.com/GuoKaya1996/imageranger",
+      desc: "Imageranger for Windows 10/11. Browses, tags and sorts large photo and video libraries by date, camera or folder, then finds and culls similar shots fast.",
       lang: "",
       stars: 198,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:31:04Z",
-      pushed: "2026-11-25T11:53:33Z",
-      created: "2026-11-24T12:33:58Z",
+      updated: "2026-11-26T03:34:46Z",
+      pushed: "2026-11-25T11:43:14Z",
+      created: "2026-11-24T12:33:55Z",
       license: "NOASSERTION",
       topics: [
-        "cadsoft-eagle",
         "desktop-app",
-        "eagle",
-        "eagle-cad",
-        "eagle-cad-2025"
+        "how-much-does-imageranger-cost",
+        "imageranger",
+        "imageranger-face-recognition",
+        "imageranger-installer"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Eagle Cad。通过原理图捕获、元件放置和设计规则检查来绘制和布线印刷电路板，然后导出用于制造的Gerber文件。"
+      desc_zh: "适用于 Windows 10/11 的 Imageranger。浏览、标记和按日期、相机或文件夹对大型照片和视频库进行排序，然后快速查找并剔除相似的镜头。"
     },
     {
-      name: "FatouDesai/epic-games-launcher",
-      url: "https://github.com/FatouDesai/epic-games-launcher",
-      desc: "Epic Games Launcher for Windows 10/11. Launches Unreal Engine projects and downloaded games from one library, handles updates and installs, and connects to the Epic ecosystem for cloud saves and cross-platform play.",
+      name: "j0ycesolutions/noxplayer",
+      url: "https://github.com/j0ycesolutions/noxplayer",
+      desc: "Noxplayer for Windows 10/11. Runs Android apps and mobile games on your desktop with keyboard and mouse controls, supports multiple instances for multitasking, and lets you install APKs or sync files between phone and PC.",
       lang: "",
       stars: 198,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:25:44Z",
-      pushed: "2026-11-25T11:42:54Z",
-      created: "2026-11-24T11:26:13Z",
+      updated: "2026-11-26T03:41:01Z",
+      pushed: "2026-11-25T11:53:28Z",
+      created: "2026-11-24T11:41:07Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "epic-games-launcher-download",
-        "epic-games-launcher-free",
-        "epic-games-launcher-installer",
-        "epic-games-launcher-portable"
+        "download-noxplayer",
+        "noxplayer",
+        "noxplayer-download",
+        "noxplayer-free"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Epic Games Launcher。从一个库中启动虚幻引擎项目和已下载的游戏，处理更新和安装，并连接到 Epic 生态系统以实现云存档和跨平台游玩。"
-    },
-    {
-      name: "liangarslan80/macrium-reflect-free",
-      url: "https://github.com/liangarslan80/macrium-reflect-free",
-      desc: "Macrium Reflect Free for Windows 10/11. Clones entire disks and creates full system images you can restore after a crash, letting you swap in a new drive or recover a dead PC without reinstalling anything.",
-      lang: "",
-      stars: 198,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:24:04Z",
-      pushed: "2026-11-25T11:55:25Z",
-      created: "2026-11-24T12:28:18Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "how-to-install-macrium-reflect",
-        "how-to-setup-macrium-reflect",
-        "macrium-2026",
-        "macrium-backup"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Macrium Reflect 免费版。克隆整个磁盘并创建完整的系统映像，您可以在系统崩溃后进行还原，让您更换新硬盘或恢复死机电脑，而无需重新安装任何内容。"
+      desc_zh: "适用于 Windows 10/11 的 Noxplayer。在您的桌面电脑上运行安卓应用和手游，使用键盘和鼠标进行控制，支持多开以实现多任务处理，并允许您安装 APK 或在手机和电脑之间同步文件。"
     },
     {
       name: "Loop-shelL-moon/logic-remote",
@@ -6559,88 +7042,88 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Logic Remote。通过 PC 控制运行 Logic Pro 或 GarageBand 的 Mac，在本地网络上混音、调整插件和触发乐器。"
     },
     {
-      name: "na-castro85/gameloop",
-      url: "https://github.com/na-castro85/gameloop",
-      desc: "Gameloop for Windows 10/11. Runs Android mobile games on your PC with keyboard and mouse controls, letting you play titles like PUBG Mobile and Call of Duty Mobile on a larger screen.",
+      name: "LightCacheBlack/mumble",
+      url: "https://github.com/LightCacheBlack/mumble",
+      desc: "Mumble for Windows 10/11. Talks with your team over low-latency voice chat while gaming or collaborating, with positional audio, push-to-talk and a lightweight overlay so you always know who is speaking.",
       lang: "",
       stars: 198,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:34:02Z",
-      pushed: "2026-11-25T11:56:49Z",
-      created: "2026-11-24T12:03:38Z",
+      updated: "2026-11-26T03:41:21Z",
+      pushed: "2026-11-25T11:44:57Z",
+      created: "2026-11-24T12:40:56Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "download-gameloop",
-        "gameloop",
-        "gameloop-2026",
-        "gameloop-desktop"
+        "mumble",
+        "mumble-download",
+        "mumble-free",
+        "mumble-free-download"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Gameloop。在电脑上运行安卓手游，使用键盘和鼠标进行控制，让您在大屏幕上畅玩《PUBG Mobile》和《使命召唤手游》等游戏。"
+      desc_zh: "适用于 Windows 10/11 的 Mumble。在游戏或协作时，通过低延迟语音聊天与您的团队交流，具备位置音频、一键通话和轻量级叠加功能，让您始终知道是谁在说话。"
     },
     {
-      name: "branluca65/hwinfo",
-      url: "https://github.com/branluca65/hwinfo",
-      desc: "Hwinfo for Windows 10/11. Monitors CPU, GPU, memory and storage sensors in real time, logs temperatures and voltages, and reports on hardware health to help you spot overheating or failing components.",
+      name: "Jun-ramos-1987/antares-harmony-engine",
+      url: "https://github.com/Jun-ramos-1987/antares-harmony-engine",
+      desc: "Antares Harmony Engine for Windows 10/11. Generates layered vocal harmonies from a single melody line, letting producers and songwriters build chord stacks, doubling and choral arrangements directly in their DAW.",
       lang: "",
       stars: 198,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:27:32Z",
-      pushed: "2026-11-25T11:48:00Z",
-      created: "2026-11-24T11:48:30Z",
+      updated: "2026-11-26T03:41:37Z",
+      pushed: "2026-11-25T11:44:05Z",
+      created: "2026-11-24T11:35:55Z",
+      license: "NOASSERTION",
+      topics: [
+        "antares",
+        "antares-auto",
+        "engine",
+        "engine-dj",
+        "engine-os"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Antares Harmony Engine。从单一声部旋律生成分层的和声人声，让制作人和歌曲作者直接在他们的 DAW 中构建和弦堆叠、叠音和合唱编排。"
+    },
+    {
+      name: "fatihfreitas86/photoshop-lightroom-cc",
+      url: "https://github.com/fatihfreitas86/photoshop-lightroom-cc",
+      desc: "Photoshop Lightroom Cc for Windows 10/11. Imports, edits and organizes raw photos with non-destructive develop tools, then exports polished images or syncs them to cloud albums for sharing.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:39Z",
+      pushed: "2026-11-25T11:51:20Z",
+      created: "2026-11-24T11:47:33Z",
+      license: "NOASSERTION",
+      topics: [
+        "adobe-photoshop-2026",
+        "adobe-photoshop-2026-ai",
+        "adobe-photoshop-elements-download",
+        "adobe-photoshop-fix",
+        "lightroom-alternative"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Photoshop Lightroom CC。使用无损冲印工具导入、编辑和整理原始照片，然后导出润色后的图像，或将其同步到云相册以进行分享。"
+    },
+    {
+      name: "lukmanr9286/vray-next",
+      url: "https://github.com/lukmanr9286/vray-next",
+      desc: "Vray Next for Windows 10/11. Renders photorealistic 3D scenes and animations with ray tracing, light simulation and material editing inside your modeling app, then outputs final images or frame sequences for product and architectural visuals.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:37:22Z",
+      pushed: "2026-11-25T11:55:57Z",
+      created: "2026-11-24T11:49:19Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "download-hwinfo",
-        "hwinfo",
-        "hwinfo-desktop",
-        "hwinfo-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Hwinfo。实时监测 CPU、GPU、内存和存储传感器，记录温度和电压，并报告硬件健康状况，帮助您发现过热或故障组件。"
-    },
-    {
-      name: "bestdev1543/izotope-neutron-5",
-      url: "https://github.com/bestdev1543/izotope-neutron-5",
-      desc: "Izotope Neutron 5 for Windows 10/11. Mixes and masters tracks with AI-assisted EQ, compression, and instrument-specific modules, letting you balance vocals and instruments quickly in a single plugin window.",
-      lang: "",
-      stars: 198,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:24:48Z",
-      pushed: "2026-11-25T11:47:32Z",
-      created: "2026-11-24T12:09:49Z",
-      license: "NOASSERTION",
-      topics: [
-        "install-izotope-neutron-5",
-        "izotope-2026",
-        "izotope-download",
-        "izotope-nectar",
-        "izotope-nectar-key"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Izotope Neutron 5。使用 AI 辅助的均衡器、压缩和乐器专用模块进行混音和母带处理，让您在一个插件窗口中快速平衡人声和乐器。"
-    },
-    {
-      name: "Kcao07/syncovery",
-      url: "https://github.com/Kcao07/syncovery",
-      desc: "Syncovery for Windows 10/11. Backs up and syncs files between local drives, network shares, cloud storage and remote servers with scheduled jobs, real-time monitoring, and encryption options for keeping copies in step.",
-      lang: "",
-      stars: 198,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:33:47Z",
-      pushed: "2026-11-25T11:44:18Z",
-      created: "2026-11-24T11:54:57Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
+        "download-vray-next",
         "productivity",
         "software",
-        "software-engineering",
-        "syncovery"
+        "software-engineering"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Syncovery。在本地驱动器、网络共享、云存储和远程服务器之间备份和同步文件，提供计划任务、实时监控和加密选项，以使副本保持同步。"
+      desc_zh: "Vray Next，适用于 Windows 10/11。在您的建模应用程序中，通过光线追踪、光照模拟和材质编辑来渲染逼真的 3D 场景和动画，然后输出最终图像或帧序列，用于产品和建筑可视化。"
     },
     {
       name: "Devpro9135/goodsync",
@@ -6664,67 +7147,172 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Goodsync。在文件夹、驱动器和远程服务器之间双向备份和同步文件，使镜像副本保持最新，让您始终拥有安全的副本。"
     },
     {
-      name: "deep-solution5904/xero",
-      url: "https://github.com/deep-solution5904/xero",
-      desc: "Xero for Windows 10/11. Tracks invoices, bills, bank feeds and payroll in one ledger, then reconciles transactions and files tax returns so small businesses can keep their books current.",
+      name: "BuildGreyTech/marmoset-hexels",
+      url: "https://github.com/BuildGreyTech/marmoset-hexels",
+      desc: "Marmoset Hexels for Windows 10/11. Draws isometric and hexagonal pixel art on grid canvases, letting you sketch shapes, layer colors and export tile-ready sprites for games and illustrations.",
       lang: "",
       stars: 197,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:34:28Z",
-      pushed: "2026-11-25T11:50:20Z",
-      created: "2026-11-24T11:03:17Z",
+      updated: "2026-11-26T03:41:39Z",
+      pushed: "2026-11-25T11:40:43Z",
+      created: "2026-11-24T11:47:27Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "download-xero",
+        "marmoset",
+        "marmoset-2024",
+        "marmoset-2025",
+        "marmoset-2027"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Marmoset Hexels。在网格画布上绘制等距和六边形像素画，让您勾勒形状、分层上色，并导出可用于游戏和插图的贴图精灵。"
+    },
+    {
+      name: "data-core-old72/jetbrains-rider",
+      url: "https://github.com/data-core-old72/jetbrains-rider",
+      desc: "Jetbrains Rider for Windows 10/11. Builds and debugs .NET, C#, ASP.NET and Unity projects with code analysis, refactoring tools and integrated unit testing across the whole solution.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:43:07Z",
+      pushed: "2026-11-25T11:49:58Z",
+      created: "2026-11-24T11:48:35Z",
+      license: "NOASSERTION",
+      topics: [
+        "ide-jetbrains-rider-install-pc",
+        "jetbrains",
+        "jetbrains-clion",
+        "jetbrains-clion-mac",
+        "jetbrains-datagrip"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Jetbrains Rider。使用代码分析、重构工具和整个解决方案的集成单元测试，构建和调试 .NET、C#、ASP.NET 和 Unity 项目。"
+    },
+    {
+      name: "Coreide28/shortlyai",
+      url: "https://github.com/Coreide28/shortlyai",
+      desc: "Shortlyai for Windows 10/11. Drafts and rewrites essays, emails and articles in a distraction-free editor, generating paragraphs on command and tightening your own text before you copy it out.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:28Z",
+      pushed: "2026-11-25T11:41:22Z",
+      created: "2026-11-24T10:12:11Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "productivity",
+        "software",
+        "software-engineering",
+        "utilities"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Shortlyai。在无干扰编辑器中起草和改写论文、电子邮件和文章，按指令生成段落，并在您复制文本之前对其进行精简。"
+    },
+    {
+      name: "m4hmoudking/hemingway-editor",
+      url: "https://github.com/m4hmoudking/hemingway-editor",
+      desc: "Hemingway Editor for Windows 10/11. Edits prose to flag long sentences, passive voice and weak adverbs, highlighting fixes in color so you can simplify drafts and publish clearer writing faster.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:36:44Z",
+      pushed: "2026-11-25T11:55:56Z",
+      created: "2026-11-24T12:42:17Z",
+      license: "NOASSERTION",
+      topics: [
+        "download-hemingway-editor",
+        "editor",
+        "editor-plugin",
+        "editor-theme",
+        "editorial"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Hemingway Editor。编辑散文，标记长句、被动语态和弱势副词，并以醒目的颜色突出显示修改之处，以便您简化草稿，更快地发布更清晰的文稿。"
+    },
+    {
+      name: "Ifeanyimorozov/substance-3d-stager",
+      url: "https://github.com/Ifeanyimorozov/substance-3d-stager",
+      desc: "Substance 3D Stager for Windows 10/11. Arranges 3D scenes, lights and cameras to compose product shots and renders photorealistic stills for marketing, packaging and e-commerce assets.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:12Z",
+      pushed: "2026-11-25T11:43:47Z",
+      created: "2026-11-24T12:21:52Z",
+      license: "NOASSERTION",
+      topics: [
+        "adobe-substance-3d-stager",
+        "stager",
+        "substance",
+        "substance-3d",
+        "substance-3d-painter"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Substance 3D Stager。布置 3D 场景、光源和摄像机，以构图产品镜头，并渲染逼真的静态图像，用于营销、包装和电子商务资产。"
+    },
+    {
+      name: "Aifeng1992/roam-research",
+      url: "https://github.com/Aifeng1992/roam-research",
+      desc: "Roam Research for Windows 10/11. Captures notes and ideas as linked blocks, letting you build a personal knowledge graph, write daily notes and connect thoughts across pages for research and writing.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:43:07Z",
+      pushed: "2026-11-25T11:39:58Z",
+      created: "2026-11-24T11:49:14Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "ev-roaming",
+        "org-roam",
+        "org-roam-ui",
+        "productivity"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Roam Research。将笔记和想法以关联区块的形式记录下来，让您能够构建个人知识图谱、撰写每日笔记，并在不同页面之间关联想法，以进行研究和写作。"
+    },
+    {
+      name: "B0chowdhury5640/8x8-work",
+      url: "https://github.com/B0chowdhury5640/8x8-work",
+      desc: "8X8 Work for Windows 10/11. Places and receives business calls, joins meetings and chats with colleagues from one app, so teams can talk to customers and each other without switching tools.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:35:35Z",
+      pushed: "2026-11-25T11:40:13Z",
+      created: "2026-11-24T12:26:16Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "install-8x8-work",
         "productivity",
         "software",
         "software-engineering"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Xero。在一个账簿中跟踪发票、账单、银行交易和工资单，然后对账并提交纳税申报表，以便小企业能够及时更新账目。"
+      desc_zh: "适用于 Windows 10/11 的 8X8 Work。通过一个应用程序即可拨打和接听商务电话、加入会议以及与同事聊天，因此团队无需切换工具即可与客户和彼此沟通。"
     },
     {
-      name: "blackdev43/bluestacks",
-      url: "https://github.com/blackdev43/bluestacks",
-      desc: "Bluestacks for Windows 10/11. Runs Android apps and games on your PC in a resizable window, letting you install titles from the Play Store and control them with a keyboard, mouse or gamepad.",
+      name: "hubru49/td-ameritrade",
+      url: "https://github.com/hubru49/td-ameritrade",
+      desc: "Td Ameritrade for Windows 10/11. Tracks stocks, options and funds in watchlists, places trades and monitors your portfolio with charts, alerts and real-time quotes for active traders.",
       lang: "",
       stars: 197,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:32:50Z",
-      pushed: "2026-11-25T11:47:45Z",
-      created: "2026-11-24T12:20:44Z",
+      updated: "2026-11-26T03:40:56Z",
+      pushed: "2026-11-25T11:53:03Z",
+      created: "2026-11-24T11:48:51Z",
       license: "NOASSERTION",
       topics: [
-        "bluestacks",
-        "bluestacks-2025",
-        "bluestacks-desktop",
-        "bluestacks-install",
-        "bluestacks-mac"
+        "desktop-app",
+        "productivity",
+        "software",
+        "software-engineering",
+        "td-ameritrade"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Bluestacks。在电脑上以可调整大小的窗口运行安卓应用和游戏，让您能够从 Play Store 安装游戏，并使用键盘、鼠标或游戏手柄进行控制。"
-    },
-    {
-      name: "leafworks35/whatsapp-business",
-      url: "https://github.com/leafworks35/whatsapp-business",
-      desc: "Whatsapp Business for Windows 10/11. Manages customer conversations, sends product catalogs and quick replies, and tracks order updates from a desktop, keeping small business chats organized alongside your personal messages.",
-      lang: "",
-      stars: 197,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:26:19Z",
-      pushed: "2026-11-25T11:55:21Z",
-      created: "2026-11-24T12:22:46Z",
-      license: "NOASSERTION",
-      topics: [
-        "business",
-        "business-analytics",
-        "business-automation",
-        "business-card",
-        "business-intelligence"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 WhatsApp Business。通过桌面端管理与客户的对话、发送产品目录和快速回复，并跟踪订单更新，将小企业的聊天与您的个人消息一起井井有条地管理。"
+      desc_zh: "适用于 Windows 10/11 的 Td Ameritrade。在自选股中跟踪股票、期权和基金，下单交易，并通过图表、提醒和实时行情为活跃交易者监控您的投资组合。"
     },
     {
       name: "andidogan04/jetbrains-datagrip",
@@ -6748,25 +7336,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Jetbrains Datagrip。针对数十个数据库编写和运行 SQL 查询，在可视化网格中编辑架构和行，并跟踪慢速查询，让您无需切换工具即可更快地交付。"
     },
     {
-      name: "codecachesouth/jmp-statistical",
-      url: "https://github.com/codecachesouth/jmp-statistical",
-      desc: "Jmp Statistical for Windows 10/11. Explores data with interactive graphs, runs statistical tests and builds predictive models, helping analysts find patterns and share results without writing code.",
+      name: "murphycarolyn75/riverside-fm-desktop",
+      url: "https://github.com/murphycarolyn75/riverside-fm-desktop",
+      desc: "Riverside Fm Desktop for Windows 10/11. Records studio-quality remote podcasts and video interviews, capturing separate local tracks for each guest so you can edit, mix and export clean episodes without losing audio.",
       lang: "",
       stars: 197,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:28:57Z",
-      pushed: "2026-11-25T11:49:16Z",
-      created: "2026-11-24T12:30:38Z",
+      updated: "2026-11-26T03:41:59Z",
+      pushed: "2026-11-25T15:15:15Z",
+      created: "2026-11-24T12:40:27Z",
       license: "NOASSERTION",
       topics: [
+        "desktop",
+        "desktop-ai",
+        "desktop-analytics",
         "desktop-app",
-        "jmp-statistical-download",
-        "jmp-statistical-free",
-        "jmp-statistical-free-download",
-        "jmp-statistical-free-trial"
+        "desktop-apps"
       ],
-      desc_zh: "适用于 Windows 10/11 的 JMP 统计软件。使用交互式图表探索数据，运行统计检验并构建预测模型，帮助分析师在不编写代码的情况下发现模式并分享结果。"
+      desc_zh: "适用于 Windows 10/11 的 Riverside Fm 桌面版。录制录音棚音质的远程播客和视频访谈，为每位嘉宾录制单独的本地音轨，以便您在不丢失音频的情况下编辑、混音和导出清晰的节目。"
     },
     {
       name: "LukmanWood863/character-ai",
@@ -6811,48 +7399,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Jetbrains Clion。使用 CMake 项目、智能补全和重构工具编写、编译和调试 C 和 C++ 代码，帮助嵌入式和桌面开发者更快地交付可用的版本。"
     },
     {
-      name: "logicopenquiet/sophos-home-premium",
-      url: "https://github.com/logicopenquiet/sophos-home-premium",
-      desc: "Sophos Home Premium for Windows 10/11. Scans downloads and running apps for malware, blocks phishing sites and ransomware, and lets you manage protection across all your household devices from one dashboard.",
-      lang: "",
-      stars: 197,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:30:55Z",
-      pushed: "2026-11-25T11:55:33Z",
-      created: "2026-11-24T12:12:29Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "productivity",
-        "software",
-        "software-engineering",
-        "sophos"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Sophos Home Premium。扫描下载内容和正在运行的应用程序，以检测恶意软件，拦截钓鱼网站和勒索软件，并让您通过一个仪表板管理所有家用设备的防护。"
-    },
-    {
-      name: "Lake-sync/microsoft-access",
-      url: "https://github.com/Lake-sync/microsoft-access",
-      desc: "Microsoft Access for Windows 10/11. Builds relational databases with tables, queries, forms and reports, letting small teams track inventory, contacts and orders without writing code.",
-      lang: "",
-      stars: 197,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:33:35Z",
-      pushed: "2026-11-25T11:44:40Z",
-      created: "2026-11-24T11:57:41Z",
-      license: "NOASSERTION",
-      topics: [
-        "access",
-        "accessibility",
-        "accesslint",
-        "dbconvert-studio-microsoft-access",
-        "google-chat"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Microsoft Access。使用表、查询、表单和报表构建关系数据库，让小型团队无需编写代码即可跟踪库存、联系人和订单。"
-    },
-    {
       name: "coolblacknorth/soundtoys-crystallizer",
       url: "https://github.com/coolblacknorth/soundtoys-crystallizer",
       desc: "Soundtoys Crystallizer for Windows 10/11. Pitches, reverses and stretches audio in real time to create shimmering crystal echo textures, turning vocals and instruments into evolving pads and ambient layers inside your DAW.",
@@ -6872,6 +7418,27 @@ window.__GHRANK_RANGES__["week"] = {
         "soundtoys-bundle-download"
       ],
       desc_zh: "适用于Windows 10/11的Soundtoys Crystallizer。实时改变音高、反向播放和拉伸音频，以创造出闪耀的水晶回声质感，将人声和乐器转化成您 DAW 中不断演变的垫音和氛围层。"
+    },
+    {
+      name: "logicopenquiet/sophos-home-premium",
+      url: "https://github.com/logicopenquiet/sophos-home-premium",
+      desc: "Sophos Home Premium for Windows 10/11. Scans downloads and running apps for malware, blocks phishing sites and ransomware, and lets you manage protection across all your household devices from one dashboard.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:30:55Z",
+      pushed: "2026-11-25T11:55:33Z",
+      created: "2026-11-24T12:12:29Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "productivity",
+        "software",
+        "software-engineering",
+        "sophos"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Sophos Home Premium。扫描下载内容和正在运行的应用程序，以检测恶意软件，拦截钓鱼网站和勒索软件，并让您通过一个仪表板管理所有家用设备的防护。"
     },
     {
       name: "good-digital2776/autodesk-navisworks",
@@ -6895,46 +7462,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Autodesk Navisworks。打开大型 3D 建筑模型和 BIM 模型，将多学科设计结合起来，在现场施工开始前进行碰撞检测并模拟 4D 进度计划。"
     },
     {
-      name: "labs-systems/portraitpro",
-      url: "https://github.com/labs-systems/portraitpro",
-      desc: "Portraitpro for Windows 10/11. Retouches portraits by smoothing skin, reshaping faces and adjusting lighting, then exports polished photos for client galleries or social media profiles.",
+      name: "carol-lewis/cyberghost",
+      url: "https://github.com/carol-lewis/cyberghost",
+      desc: "Cyberghost for Windows 10/11. Encrypts your internet connection through global VPN servers and hides your IP address, letting you browse privately on public Wi-Fi or access region-locked streaming content.",
       lang: "",
       stars: 197,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:30:13Z",
-      pushed: "2026-11-25T11:54:51Z",
-      created: "2026-11-24T09:39:24Z",
+      updated: "2026-11-26T03:35:17Z",
+      pushed: "2026-11-25T11:48:33Z",
+      created: "2026-11-24T12:13:03Z",
       license: "NOASSERTION",
       topics: [
-        "desktop-app",
-        "portraitpro",
-        "portraitpro-24",
-        "portraitpro-photo-editor-pro-install-windows",
-        "portraitpro-studio"
+        "cyberghost",
+        "cyberghost-2026",
+        "cyberghost-activated",
+        "cyberghost-desktop",
+        "cyberghost-free"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Portraitpro。通过平滑肌肤、重塑面部和调整光线来修饰肖像，然后导出经过润饰的照片，用于客户图库或社交媒体个人资料。"
+      desc_zh: "适用于 Windows 10/11 的 Cyberghost。通过全球 VPN 服务器加密您的互联网连接并隐藏您的 IP 地址，让您在公共 Wi-Fi 上私密浏览或访问受区域限制的流媒体内容。"
     },
     {
-      name: "Hubblue/languagetool",
-      url: "https://github.com/Hubblue/languagetool",
-      desc: "Languagetool for Windows 10/11. Checks your writing for grammar, spelling and style errors in over 25 languages, then suggests corrections you can apply directly in the editor or paste into documents.",
+      name: "commitproxydata/peazip",
+      url: "https://github.com/commitproxydata/peazip",
+      desc: "Peazip for Windows 10/11. Opens, extracts and creates archives in 7z, ZIP, RAR, TAR and dozens of other formats, plus encrypts files and splits large archives for easier backup and sharing.",
       lang: "",
       stars: 197,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:30:47Z",
-      pushed: "2026-11-25T11:43:41Z",
-      created: "2026-11-24T12:25:31Z",
+      updated: "2026-11-26T03:40:25Z",
+      pushed: "2026-11-25T11:49:24Z",
+      created: "2026-11-24T11:18:05Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "install-languagetool",
-        "languagetool",
-        "languagetool-2025",
-        "languagetool-lite"
+        "peazip",
+        "peazip-2026",
+        "peazip-desktop",
+        "peazip-free"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Languagetool。以超过 25 种语言检查您的写作是否有语法、拼写和文体错误，然后提供修改建议，您可以直接在编辑器中应用这些建议，或将其粘贴到文档中。"
+      desc_zh: "适用于 Windows 10/11 的 Peazip。打开、解压缩和创建 7z、ZIP、RAR、TAR 以及数十种其他格式的压缩包，还可以加密文件并拆分大型压缩包，以便于备份和共享。"
     },
     {
       name: "byoung3587/hwmonitor",
@@ -6958,6 +7525,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Hwmonitor。实时监测 CPU、GPU、硬盘和主板的温度、电压和风扇转速，以便您发现过热情况、在游戏过程中检查负载，并确认散热器升级是否有效。"
     },
     {
+      name: "gilang813/dirtyhertz-alpha",
+      url: "https://github.com/gilang813/dirtyhertz-alpha",
+      desc: "Dirtyhertz Alpha for Windows 10/11. Tunes and shapes audio tracks with precision frequency targeting, helping producers clean up muddy mixes and sculpt tonal balance before final mastering.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:54Z",
+      pushed: "2026-11-25T11:51:57Z",
+      created: "2026-11-24T11:49:57Z",
+      license: "NOASSERTION",
+      topics: [
+        "alpha",
+        "alpha-channel",
+        "alpha-theta",
+        "alphafold",
+        "alphafold-db"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Dirtyhertz Alpha。通过精确的频率定位来调整和塑造音频轨道，帮助制作人在最终母带处理之前清理混音中的杂音并塑造音色平衡。"
+    },
+    {
       name: "KavyaHarrison/editplus",
       url: "https://github.com/KavyaHarrison/editplus",
       desc: "Editplus for Windows 10/11. Edits text, code and HTML files with syntax highlighting, line numbers and search and replace, then uploads finished pages straight to a server over FTP for quick site updates.",
@@ -6979,16 +7567,16 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Editplus。使用语法高亮、行号以及搜索和替换功能编辑文本、代码和 HTML 文件，然后通过 FTP 将完成的页面直接上传到服务器，以快速更新网站。"
     },
     {
-      name: "Daniela-peng92/photopea-desktop",
-      url: "https://github.com/Daniela-peng92/photopea-desktop",
-      desc: "Photopea Desktop for Windows 10/11. Edits photos and designs layered graphics with PSD support, opening and saving files locally for retouching, compositing and quick mockups without a browser.",
+      name: "ECO5TA/rancher-desktop",
+      url: "https://github.com/ECO5TA/rancher-desktop",
+      desc: "Rancher Desktop for Windows 10/11. Runs Kubernetes clusters and container workloads on your machine, letting you manage nodes, build images and test deployments locally before shipping to production.",
       lang: "",
       stars: 197,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:17:45Z",
-      pushed: "2026-11-25T11:41:28Z",
-      created: "2026-11-24T11:43:31Z",
+      updated: "2026-11-26T03:41:29Z",
+      pushed: "2026-11-25T11:42:42Z",
+      created: "2026-11-24T11:33:08Z",
       license: "NOASSERTION",
       topics: [
         "desktop",
@@ -6997,7 +7585,7 @@ window.__GHRANK_RANGES__["week"] = {
         "desktop-app",
         "desktop-apps"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Photopea 桌面版。编辑照片并设计支持 PSD 的分层图形，在本地打开和保存文件，以便进行润色、合成和快速制作模型，无需使用浏览器。"
+      desc_zh: "适用于 Windows 10/11 的 Rancher Desktop。在您的计算机上运行Kubernetes集群和容器工作负载，让您在交付到生产环境之前，可以在本地管理节点、构建镜像和测试部署。"
     },
     {
       name: "borisnguyen58/tiller-money",
@@ -7021,25 +7609,151 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Tiller Money。将银行和信用卡交易导入电子表格，自动对支出进行分类，并刷新每日余额，让您无需手动输入即可跟踪预算和现金流。"
     },
     {
-      name: "jyotikuznetsov1452/furmark",
-      url: "https://github.com/jyotikuznetsov1452/furmark",
-      desc: "Furmark for Windows 10/11. Runs graphics card stress tests and GPU benchmarks, pushing your hardware to its limits to check cooling, stability and performance under sustained load.",
+      name: "deployplus2006/output-thermal",
+      url: "https://github.com/deployplus2006/output-thermal",
+      desc: "Output Thermal for Windows 10/11. Designs and edits distortion effects with draggable thermal curves, then saves presets and exports processed audio for music production and sound design.",
       lang: "",
       stars: 197,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:29:25Z",
-      pushed: "2026-11-25T11:54:12Z",
-      created: "2026-11-24T10:54:18Z",
+      updated: "2026-11-26T03:36:02Z",
+      pushed: "2026-11-25T11:50:26Z",
+      created: "2026-11-24T11:25:53Z",
+      license: "NOASSERTION",
+      topics: [
+        "guide-setup-output-thermal",
+        "output-2026",
+        "output-arcade",
+        "output-arcade-desktop",
+        "output-arcade-download"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Output Thermal。使用可拖动的热曲线设计和编辑失真效果，然后保存预设并导出处理后的音频，用于音乐制作和声音设计。"
+    },
+    {
+      name: "ercanturner163/minitool-partition-wizard",
+      url: "https://github.com/ercanturner163/minitool-partition-wizard",
+      desc: "Minitool Partition Wizard for Windows 10/11. Resizes, moves, merges and converts disk partitions without losing data, and clones entire drives or migrates the OS to a new SSD for an easy upgrade.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:40:19Z",
+      pushed: "2026-11-25T11:51:03Z",
+      created: "2026-11-24T12:28:07Z",
+      license: "NOASSERTION",
+      topics: [
+        "minitool-partition-wizard",
+        "minitool-partition-wizard-desktop",
+        "minitool-partition-wizard-install",
+        "minitool-partition-wizard-installer",
+        "minitool-partition-wizard-latest"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Minitool Partition Wizard。在不丢失数据的情况下调整磁盘分区大小、移动、合并和转换磁盘分区，并克隆整个驱动器或将操作系统迁移到新的 SSD，以轻松升级。"
+    },
+    {
+      name: "CastilloPooja1/substance-3d-painter-2024",
+      url: "https://github.com/CastilloPooja1/substance-3d-painter-2024",
+      desc: "Substance 3D Painter 2024 for Windows 10/11. Paints textured 3D models with layers, smart materials and brushes, letting artists add realistic wear, dirt and detail directly onto game and film assets.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:36:55Z",
+      pushed: "2026-11-25T11:40:59Z",
+      created: "2026-11-24T10:31:48Z",
+      license: "NOASSERTION",
+      topics: [
+        "painter",
+        "substance",
+        "substance-3d",
+        "substance-3d-painter",
+        "substance-3d-sampler"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Substance 3D Painter 2024。使用图层、智能材质和画笔为带纹理的 3D 模型上色，让艺术家能够直接在游戏和影视资产上添加逼真的磨损、污渍和细节。"
+    },
+    {
+      name: "Ludmb3nn5/driver-booster",
+      url: "https://github.com/Ludmb3nn5/driver-booster",
+      desc: "Driver Booster for Windows 10/11. Scans your PC for outdated, missing or faulty drivers and installs the correct updates in a few clicks, keeping graphics, audio and network hardware running smoothly.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:35:19Z",
+      pushed: "2026-11-25T11:45:05Z",
+      created: "2026-11-24T11:18:03Z",
+      license: "NOASSERTION",
+      topics: [
+        "booster",
+        "booster-driver-free",
+        "driver",
+        "driver-app",
+        "driver-booster-desktop"
+      ],
+      desc_zh: "适用于 Windows 10/11 的驱动程序更新工具。扫描您的电脑，查找过时、缺失或有故障的驱动程序，只需点击几下即可安装正确的更新，确保显卡、音频和网络硬件平稳运行。"
+    },
+    {
+      name: "hudaflo8391/tradingview-desktop",
+      url: "https://github.com/hudaflo8391/tradingview-desktop",
+      desc: "Tradingview Desktop for Windows 10/11. Charts stocks, crypto and forex in real time, draws trendlines and indicators, and runs multi-monitor layouts to track watchlists and place trades from the desktop.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:36:18Z",
+      pushed: "2026-11-25T11:53:04Z",
+      created: "2026-11-24T11:33:42Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop",
+        "desktop-ai",
+        "desktop-analytics",
+        "desktop-app",
+        "desktop-apps"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Tradingview 桌面版。实时绘制股票、加密货币和外汇图表，绘制趋势线和指标，并运行多显示器布局，以便从桌面跟踪观察列表并下单交易。"
+    },
+    {
+      name: "fire-dev37/clip-studio-paint-pro",
+      url: "https://github.com/fire-dev37/clip-studio-paint-pro",
+      desc: "Clip Studio Paint Pro for Windows 10/11. Draws and paints digital illustrations, comics and manga with customizable brushes, layered canvases and frame-by-frame animation tools, then exports finished pages for print or web publishing.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:40:29Z",
+      pushed: "2026-11-25T11:51:29Z",
+      created: "2026-11-24T10:55:24Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "download-furmark",
-        "furmark",
-        "furmark-2026",
-        "furmark-download"
+        "inpainting",
+        "paint",
+        "paint-app",
+        "paint-application"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Furmark。运行显卡压力测试和 GPU 基准测试，将您的硬件推至极限，以检查其在持续负载下的散热、稳定性和性能。"
+      desc_zh: "适用于 Windows 10/11 的 Clip Studio Paint Pro。使用可定制的画笔、分层画布和逐帧动画工具绘制和涂绘数字插图、漫画和日式漫画，然后导出成品页面以供印刷或在网上发布。"
+    },
+    {
+      name: "appbranchlab/nova-editor",
+      url: "https://github.com/appbranchlab/nova-editor",
+      desc: "Nova Editor for Windows 10/11. Edits text, code and markup files with syntax highlighting, split panes and project-wide search, letting you open a folder and work across many files in one window.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:43Z",
+      pushed: "2026-11-25T11:46:47Z",
+      created: "2026-11-24T10:03:22Z",
+      license: "NOASSERTION",
+      topics: [
+        "amazon-nova",
+        "code-editor",
+        "editor",
+        "editor-plugin",
+        "editor-theme"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Nova 编辑器。使用语法高亮、拆分窗格和全项目搜索功能编辑文本、代码和标记文件，让您在一个窗口中打开一个文件夹并处理多个文件。"
     },
     {
       name: "Branjac3/jupyter-lab",
@@ -7063,27 +7777,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Jupyter Lab。编写并运行 Python Notebook，将实时代码、图表和注释整合到一个文档中，方便您进行数据清洗、分析并与团队共享结果。"
     },
     {
-      name: "belldedi1990/zed-editor",
-      url: "https://github.com/belldedi1990/zed-editor",
-      desc: "Zed Editor for Windows 10/11. Writes and edits code in a fast native editor with AI assistance, multiplayer collaboration and instant project search for everyday development work.",
-      lang: "",
-      stars: 197,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:34:21Z",
-      pushed: "2026-11-25T11:47:21Z",
-      created: "2026-11-24T12:34:33Z",
-      license: "NOASSERTION",
-      topics: [
-        "code-editor",
-        "editor",
-        "editor-plugin",
-        "editor-theme",
-        "editorial"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Zed 编辑器。在快速的本地编辑器中编写和编辑代码，提供 AI 辅助、多人协作和即时项目搜索功能，适用于日常开发工作。"
-    },
-    {
       name: "eastapp61/paint-tool-sai",
       url: "https://github.com/eastapp61/paint-tool-sai",
       desc: "Paint Tool Sai for Windows 10/11. Draws and paints digital illustrations with pressure-sensitive brushes, layers and line stabilizers, letting artists ink and color manga and anime artwork on a tablet or mouse.",
@@ -7103,48 +7796,6 @@ window.__GHRANK_RANGES__["week"] = {
         "paint-tool-sai"
       ],
       desc_zh: "适用于 Windows 10/11 的 Paint Tool Sai。使用压感画笔、图层和线条稳定器绘制和涂绘数字插图，让艺术家在平板电脑或鼠标上为漫画和动漫作品上墨和着色。"
-    },
-    {
-      name: "GuoKaya1996/imageranger",
-      url: "https://github.com/GuoKaya1996/imageranger",
-      desc: "Imageranger for Windows 10/11. Browses, tags and sorts large photo and video libraries by date, camera or folder, then finds and culls similar shots fast.",
-      lang: "",
-      stars: 197,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:32:50Z",
-      pushed: "2026-11-25T11:43:14Z",
-      created: "2026-11-24T12:33:55Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "how-much-does-imageranger-cost",
-        "imageranger",
-        "imageranger-face-recognition",
-        "imageranger-installer"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Imageranger。浏览、标记和按日期、相机或文件夹对大型照片和视频库进行排序，然后快速查找并剔除相似的镜头。"
-    },
-    {
-      name: "burakstudio183/interactive-brokers-tws",
-      url: "https://github.com/burakstudio183/interactive-brokers-tws",
-      desc: "Interactive Brokers Tws for Windows 10/11. Trades stocks, options, futures and forex from one screen, placing orders, tracking positions and monitoring live charts and account risk in real time.",
-      lang: "",
-      stars: 197,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:22:58Z",
-      pushed: "2026-11-25T11:48:18Z",
-      created: "2026-11-24T12:33:25Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "install-interactive-brokers-tws",
-        "interactive",
-        "interactive-brokers",
-        "interactive-fiction"
-      ],
-      desc_zh: "适用于 Windows 10/11 的盈透证券 Tws。在一个界面上交易股票、期权、期货和外汇，下单、跟踪头寸并实时监测实时图表和账户风险。"
     },
     {
       name: "mahmoud-rao/reallusion-crazytalk",
@@ -7168,6 +7819,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Reallusion Crazytalk。通过将录制的音频与嘴型同步、添加面部表情和手势来为 2D 角色赋予动画效果，然后将结果导出为视频，用于制作教程、演示文稿或社交媒体短片。"
     },
     {
+      name: "naidubruce2008/blender",
+      url: "https://github.com/naidubruce2008/blender",
+      desc: "Blender for Windows 10/11. Models and animates 3D scenes with sculpting, rigging and rendering tools, then outputs finished stills or video for games, film and product visualization.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:00Z",
+      pushed: "2026-11-25T11:56:57Z",
+      created: "2026-11-24T12:23:55Z",
+      license: "NOASSERTION",
+      topics: [
+        "blender",
+        "blender-2025",
+        "blender-3d",
+        "blender-addon",
+        "blender-agents"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Blender。使用雕刻、骨架绑定和渲染工具建模和动画化 3D 场景，然后输出用于游戏、电影和产品可视化的成品静态图像或视频。"
+    },
+    {
       name: "Glebbennett597/image-line-harmor",
       url: "https://github.com/Glebbennett597/image-line-harmor",
       desc: "Image Line Harmor for Windows 10/11. Resynthesizes samples and synthesizes new sounds with additive and subtractive engines, letting you morph timbres, draw filter curves and build layered patches for music production.",
@@ -7189,46 +7861,88 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Image Line Harmor。使用加法和减法引擎重新合成采样并合成新声音，让您能够改变音色、绘制滤波器曲线并构建分层音色，用于音乐制作。"
     },
     {
-      name: "lukmanr9286/vray-next",
-      url: "https://github.com/lukmanr9286/vray-next",
-      desc: "Vray Next for Windows 10/11. Renders photorealistic 3D scenes and animations with ray tracing, light simulation and material editing inside your modeling app, then outputs final images or frame sequences for product and architectural visuals.",
+      name: "claudiakuznetsov3765/whitesmoke",
+      url: "https://github.com/claudiakuznetsov3765/whitesmoke",
+      desc: "Whitesmoke for Windows 10/11. Checks and corrects grammar, spelling and punctuation across documents and emails, suggesting rewrites for clarity and tone before you send or publish any text.",
       lang: "",
-      stars: 196,
+      stars: 197,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:20:02Z",
-      pushed: "2026-11-25T11:55:57Z",
-      created: "2026-11-24T11:49:19Z",
+      updated: "2026-11-26T03:42:12Z",
+      pushed: "2026-11-25T11:48:57Z",
+      created: "2026-11-24T12:25:49Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "download-vray-next",
         "productivity",
         "software",
-        "software-engineering"
+        "software-engineering",
+        "utilities"
       ],
-      desc_zh: "Vray Next，适用于 Windows 10/11。在您的建模应用程序中，通过光线追踪、光照模拟和材质编辑来渲染逼真的 3D 场景和动画，然后输出最终图像或帧序列，用于产品和建筑可视化。"
+      desc_zh: "适用于 Windows 10/11 的 Whitesmoke。检查并纠正文档和电子邮件中的语法、拼写和标点符号错误，在您发送或发布任何文本之前，提供改写建议以提高清晰度和语气。"
     },
     {
-      name: "Nadezhdaj28/lastpass-desktop",
-      url: "https://github.com/Nadezhdaj28/lastpass-desktop",
-      desc: "Lastpass Desktop for Windows 10/11. Stores passwords and login credentials in an encrypted vault, autofills logins and forms in your browser, and syncs secure notes and payment cards across devices.",
+      name: "brenda-pro09/nvidia-geforce-experience",
+      url: "https://github.com/brenda-pro09/nvidia-geforce-experience",
+      desc: "Nvidia Geforce Experience for Windows 10/11. Captures gameplay clips and streams, applies optimized game settings automatically and updates GPU drivers, giving players one place to record, broadcast and tune performance.",
+      lang: "",
+      stars: 197,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:40:09Z",
+      pushed: "2026-11-25T11:48:03Z",
+      created: "2026-11-24T12:04:05Z",
+      license: "NOASSERTION",
+      topics: [
+        "experience",
+        "geforce",
+        "geforce-now",
+        "geforcenow",
+        "nvidia"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Nvidia Geforce Experience。该软件可录制游戏片段和直播，自动应用优化的游戏设置并更新 GPU 驱动程序，为玩家提供一个录制、直播和调整性能的平台。"
+    },
+    {
+      name: "jshukla93/xsplit-broadcaster",
+      url: "https://github.com/jshukla93/xsplit-broadcaster",
+      desc: "Xsplit Broadcaster for Windows 10/11. Mixes gameplay, webcams, screen captures and media sources into live scenes, then streams them to Twitch or YouTube with overlays, transitions and per-source audio control.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:21:50Z",
-      pushed: "2026-11-25T11:45:54Z",
-      created: "2026-11-24T11:33:31Z",
+      updated: "2026-11-26T03:41:14Z",
+      pushed: "2026-11-25T11:53:57Z",
+      created: "2026-11-24T12:02:37Z",
       license: "NOASSERTION",
       topics: [
-        "desktop",
-        "desktop-ai",
-        "desktop-analytics",
         "desktop-app",
-        "desktop-apps"
+        "download-xsplit-broadcaster",
+        "guide-setup-xsplit-broadcaster",
+        "how-to-install-xsplit-broadcaster",
+        "productivity"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Lastpass 桌面版。将密码和登录凭据存储在加密的保管库中，在浏览器中自动填写登录信息和表单，并在多台设备之间同步安全笔记和支付卡。"
+      desc_zh: "适用于 Windows 10/11 的 Xsplit Broadcaster。将游戏画面、网络摄像头、屏幕截图和媒体源混合到直播场景中，然后使用叠加、转场和每个源的音频控制功能将其直播到 Twitch 或 YouTube。"
+    },
+    {
+      name: "hcooper6/3dmark",
+      url: "https://github.com/hcooper6/3dmark",
+      desc: "3Dmark for Windows 10/11. Benchmarks your PC's GPU and CPU with stress tests and gaming simulations, then compares scores online to check performance after upgrades or overclocking.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:34Z",
+      pushed: "2026-11-25T15:15:00Z",
+      created: "2026-11-24T12:03:33Z",
+      license: "NOASSERTION",
+      topics: [
+        "3dmark",
+        "3dmark-2025",
+        "3dmark-2026",
+        "3dmark-activated",
+        "3dmark-desktop"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 3Dmark。通过压力测试和游戏模拟对您电脑的 GPU 和 CPU 进行基准测试，然后在网上比较分数，以检查升级或超频后的性能。"
     },
     {
       name: "Msen4/easeus-partition-master",
@@ -7252,88 +7966,109 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Easeus Partition Master，适用于 Windows 10/11。调整磁盘分区大小、合并、克隆和转换磁盘分区，以重组驱动器、将操作系统迁移到新的 SSD 或在不重新安装的情况下恢复丢失的空间。"
     },
     {
-      name: "m4hmoudking/hemingway-editor",
-      url: "https://github.com/m4hmoudking/hemingway-editor",
-      desc: "Hemingway Editor for Windows 10/11. Edits prose to flag long sentences, passive voice and weak adverbs, highlighting fixes in color so you can simplify drafts and publish clearer writing faster.",
+      name: "Nadezhdaj28/lastpass-desktop",
+      url: "https://github.com/Nadezhdaj28/lastpass-desktop",
+      desc: "Lastpass Desktop for Windows 10/11. Stores passwords and login credentials in an encrypted vault, autofills logins and forms in your browser, and syncs secure notes and payment cards across devices.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:27:14Z",
-      pushed: "2026-11-25T11:55:56Z",
-      created: "2026-11-24T12:42:17Z",
+      updated: "2026-11-26T03:21:50Z",
+      pushed: "2026-11-25T11:45:54Z",
+      created: "2026-11-24T11:33:31Z",
       license: "NOASSERTION",
       topics: [
-        "download-hemingway-editor",
-        "editor",
-        "editor-plugin",
-        "editor-theme",
-        "editorial"
+        "desktop",
+        "desktop-ai",
+        "desktop-analytics",
+        "desktop-app",
+        "desktop-apps"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Hemingway Editor。编辑散文，标记长句、被动语态和弱势副词，并以醒目的颜色突出显示修改之处，以便您简化草稿，更快地发布更清晰的文稿。"
+      desc_zh: "适用于 Windows 10/11 的 Lastpass 桌面版。将密码和登录凭据存储在加密的保管库中，在浏览器中自动填写登录信息和表单，并在多台设备之间同步安全笔记和支付卡。"
     },
     {
-      name: "B0chowdhury5640/8x8-work",
-      url: "https://github.com/B0chowdhury5640/8x8-work",
-      desc: "8X8 Work for Windows 10/11. Places and receives business calls, joins meetings and chats with colleagues from one app, so teams can talk to customers and each other without switching tools.",
+      name: "buildkernelhawk181/shotcut",
+      url: "https://github.com/buildkernelhawk181/shotcut",
+      desc: "Shotcut for Windows 10/11. Edits video and audio timelines with multi-track cutting, filters, transitions and keyframes, then exports finished clips to common formats for sharing online or on disc.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:32:06Z",
-      pushed: "2026-11-25T11:40:13Z",
-      created: "2026-11-24T12:26:16Z",
+      updated: "2026-11-26T03:38:14Z",
+      pushed: "2026-11-25T11:48:14Z",
+      created: "2026-11-24T11:06:23Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "install-8x8-work",
+        "download-shotcut",
         "productivity",
-        "software",
-        "software-engineering"
+        "setup-shotcut",
+        "shotcut"
       ],
-      desc_zh: "适用于 Windows 10/11 的 8X8 Work。通过一个应用程序即可拨打和接听商务电话、加入会议以及与同事聊天，因此团队无需切换工具即可与客户和彼此沟通。"
+      desc_zh: "适用于 Windows 10/11 的 Shotcut。使用多轨剪辑、滤镜、转场和关键帧编辑视频和音频时间线，然后将成品剪辑导出为常见格式，以便在线或在光盘上分享。"
     },
     {
-      name: "hubru49/td-ameritrade",
-      url: "https://github.com/hubru49/td-ameritrade",
-      desc: "Td Ameritrade for Windows 10/11. Tracks stocks, options and funds in watchlists, places trades and monitors your portfolio with charts, alerts and real-time quotes for active traders.",
+      name: "Builha567/viber-desktop",
+      url: "https://github.com/Builha567/viber-desktop",
+      desc: "Viber Desktop for Windows 10/11. Sends free messages and makes voice and video calls to contacts on any device, and shares photos, files and group chats from your desktop while your phone stays in your pocket.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:30:45Z",
-      pushed: "2026-11-25T11:53:03Z",
-      created: "2026-11-24T11:48:51Z",
+      updated: "2026-11-26T03:37:49Z",
+      pushed: "2026-11-25T11:40:48Z",
+      created: "2026-11-24T10:03:26Z",
       license: "NOASSERTION",
       topics: [
+        "desktop",
+        "desktop-ai",
+        "desktop-analytics",
         "desktop-app",
-        "productivity",
-        "software",
-        "software-engineering",
-        "td-ameritrade"
+        "desktop-apps"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Td Ameritrade。在自选股中跟踪股票、期权和基金，下单交易，并通过图表、提醒和实时行情为活跃交易者监控您的投资组合。"
+      desc_zh: "适用于 Windows 10/11 的 Viber 桌面版。使用任何设备向联系人发送免费消息，进行语音和视频通话，并通过桌面分享照片、文件和群聊，同时您的手机可以留在口袋里。"
     },
     {
-      name: "mehta-irina/wave-accounting",
-      url: "https://github.com/mehta-irina/wave-accounting",
-      desc: "Wave Accounting for Windows 10/11. Tracks income and expenses, sends invoices, and reconciles bank transactions so small business owners can see cash flow and prepare reports without a separate bookkeeping tool.",
+      name: "michellezielinski/powerdirector-ultimate",
+      url: "https://github.com/michellezielinski/powerdirector-ultimate",
+      desc: "Powerdirector Ultimate for Windows 10/11. Edits video clips with timeline tracks, transitions and effects, then exports finished projects to MP4 or uploads them straight to YouTube.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:30:12Z",
-      pushed: "2026-11-25T11:56:27Z",
-      created: "2026-11-24T12:05:23Z",
+      updated: "2026-11-26T03:38:44Z",
+      pushed: "2026-11-25T11:56:39Z",
+      created: "2026-11-24T12:31:59Z",
       license: "NOASSERTION",
       topics: [
-        "accounting-automation",
-        "accounting-software",
-        "desktop-app",
-        "productivity",
-        "software"
+        "cyberlink-powerdirector-12-ultimate",
+        "cyberlink-powerdirector-14-ultimate",
+        "cyberlink-powerdirector-16-ultimate",
+        "cyberlink-powerdirector-18-ultimate",
+        "cyberlink-powerdirector-19-ultimate"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Wave Accounting。跟踪收入和支出、发送发票并对账银行交易，以便小企业主无需使用单独的簿记工具即可查看现金流和编制报告。"
+      desc_zh: "适用于 Windows 10/11 的 Powerdirector Ultimate。使用时间轴轨道、转场和特效编辑视频片段，然后将完成的项目导出为 MP4 或直接上传到 YouTube。"
+    },
+    {
+      name: "firegit7625/keeper-password-manager",
+      url: "https://github.com/firegit7625/keeper-password-manager",
+      desc: "Keeper Password Manager for Windows 10/11. Stores logins, payment cards and private notes in an encrypted vault, autofills credentials in your browser and syncs everything across devices with a single master password.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:38Z",
+      pushed: "2026-11-25T11:51:28Z",
+      created: "2026-11-24T11:33:35Z",
+      license: "NOASSERTION",
+      topics: [
+        "1password-password-manager",
+        "dependency-manager",
+        "kaspersky-password-manager",
+        "keeper-password-manager",
+        "keeper-password-manager-2025"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Keeper 密码管理器。将登录信息、支付卡和私人笔记存储在加密的保管库中，在您的浏览器中自动填写凭据，并使用单个主密码在所有设备之间同步所有内容。"
     },
     {
       name: "hannah-simsek-21/process-hacker",
@@ -7357,6 +8092,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Process Hacker。实时监控正在运行的进程、服务和网络连接，让您能够检查线程、内存和句柄，以便对应用程序进行故障排除或在您的电脑上搜寻恶意软件。"
     },
     {
+      name: "alexisl4824/riot-client",
+      url: "https://github.com/alexisl4824/riot-client",
+      desc: "Riot Client for Windows 10/11. Launches and updates Riot Games titles like League of Legends and Valorant, manages your account sign-in, friends list and patch downloads from one desktop hub.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:40:33Z",
+      pushed: "2026-11-25T11:46:20Z",
+      created: "2026-11-24T12:02:58Z",
+      license: "NOASSERTION",
+      topics: [
+        "app-riot-client",
+        "client",
+        "client-library",
+        "client-only-backup",
+        "client-secret"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Riot 客户端。通过一个桌面中心启动和更新《英雄联盟》和《无畏契约》等Riot Games游戏，管理您的账户登录、好友列表和补丁下载。"
+    },
+    {
       name: "greenmartha/zoom-workplace",
       url: "https://github.com/greenmartha/zoom-workplace",
       desc: "Zoom Workplace for Windows 10/11. Joins video meetings, hosts webinars, shares screens and chats with teams, and schedules calls from a single desktop client.",
@@ -7376,6 +8132,27 @@ window.__GHRANK_RANGES__["week"] = {
         "software-engineering"
       ],
       desc_zh: "适用于 Windows 10/11 的 Zoom Workplace。通过单个桌面客户端加入视频会议、主持网络研讨会、共享屏幕、与团队聊天以及安排通话。"
+    },
+    {
+      name: "nil3shprice1986/maple",
+      url: "https://github.com/nil3shprice1986/maple",
+      desc: "Maple for Windows 10/11. Solves math, plots functions and analyzes data with a notebook interface, then exports results as reports, spreadsheets or code for engineering and coursework.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:21Z",
+      pushed: "2026-11-25T11:57:28Z",
+      created: "2026-11-24T11:40:22Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "maple",
+        "maple-2026",
+        "maple-download",
+        "maple-font"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Maple。使用笔记本界面求解数学问题、绘制函数和分析数据，然后将结果导出为报告、电子表格或代码，用于工程和课程作业。"
     },
     {
       name: "imartinez900/softube-chandler-limited",
@@ -7399,6 +8176,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Softube Chandler Limited。Shapes and Colors与Chandler EMI和Abbey Road压缩器和均衡器仿真相结合，为人声、鼓声和完整录音会话增添调音台的温暖感和个性。"
     },
     {
+      name: "Megandiaz05/private-internet-access",
+      url: "https://github.com/Megandiaz05/private-internet-access",
+      desc: "Private Internet Access for Windows 10/11. Routes your internet traffic through encrypted VPN servers, letting you hide your IP address, secure public Wi-Fi sessions and switch server locations to access region-restricted content.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:02Z",
+      pushed: "2026-11-25T11:45:31Z",
+      created: "2026-11-24T11:33:26Z",
+      license: "NOASSERTION",
+      topics: [
+        "access",
+        "accessibility",
+        "accesslint",
+        "internet",
+        "internet-connection"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Private Internet Access。通过加密的 VPN 服务器路由您的互联网流量，让您隐藏 IP 地址、保护公共 Wi-Fi 会话的安全，并切换服务器位置以访问受区域限制的内容。"
+    },
+    {
       name: "luis-wu-1998/rebelle-8",
       url: "https://github.com/luis-wu-1998/rebelle-8",
       desc: "Rebelle 8 for Windows 10/11. Paints watercolor, oil and acrylic artwork with realistic wet-on-wet blending, drips and canvas textures, then exports layered files for print or further editing.",
@@ -7420,46 +8218,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Rebelle 8。使用逼真的湿画湿晕染、滴落和画布纹理绘制水彩、油画和丙烯画作品，然后导出分层文件以供打印或进一步编辑。"
     },
     {
-      name: "carol-lewis/cyberghost",
-      url: "https://github.com/carol-lewis/cyberghost",
-      desc: "Cyberghost for Windows 10/11. Encrypts your internet connection through global VPN servers and hides your IP address, letting you browse privately on public Wi-Fi or access region-locked streaming content.",
+      name: "manojwilliams/lapce",
+      url: "https://github.com/manojwilliams/lapce",
+      desc: "Lapce for Windows 10/11. Edits code in a fast native editor with built-in LSP autocompletion, remote development over SSH and a command palette for quick file navigation and refactoring.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:17:09Z",
-      pushed: "2026-11-25T11:48:33Z",
-      created: "2026-11-24T12:13:03Z",
+      updated: "2026-11-26T03:42:24Z",
+      pushed: "2026-11-25T11:56:07Z",
+      created: "2026-11-24T11:17:57Z",
       license: "NOASSERTION",
       topics: [
-        "cyberghost",
-        "cyberghost-2026",
-        "cyberghost-activated",
-        "cyberghost-desktop",
-        "cyberghost-free"
+        "lapce",
+        "lapce-full-version",
+        "lapce-install",
+        "lapce-installer",
+        "lapce-latest"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Cyberghost。通过全球 VPN 服务器加密您的互联网连接并隐藏您的 IP 地址，让您在公共 Wi-Fi 上私密浏览或访问受区域限制的流媒体内容。"
+      desc_zh: "适用于 Windows 10/11 的 Lapce。在快速的本地编辑器中编辑代码，该编辑器具有内置的 LSP 自动补全功能、通过 SSH 进行的远程开发以及用于快速文件导航和重构的命令面板。"
     },
     {
-      name: "Busramendes/antidote",
-      url: "https://github.com/Busramendes/antidote",
-      desc: "Antidote for Windows 10/11. Edits and proofreads French and English text with grammar and spelling checks, plus dictionaries, conjugation and synonyms, so you can fix writing errors in documents and emails before sending.",
+      name: "Alokcao2000/oeksound-spiff",
+      url: "https://github.com/Alokcao2000/oeksound-spiff",
+      desc: "Oeksound Spiff for Windows 10/11. Shapes and reshapes transient detail in recorded audio, letting you tighten drum hits, soften pick noise or add punch to individual tracks inside your DAW.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:14:38Z",
-      pushed: "2026-11-25T11:40:53Z",
-      created: "2026-11-24T11:17:56Z",
+      updated: "2026-11-26T03:42:37Z",
+      pushed: "2026-11-25T11:40:04Z",
+      created: "2026-11-24T12:10:48Z",
       license: "NOASSERTION",
       topics: [
-        "antidote",
-        "antidote-2025",
-        "antidote-2026",
-        "antidote-desktop",
-        "antidote-download"
+        "desktop-app",
+        "oeksound-bloom-download",
+        "oeksound-soothe-2-setup-download",
+        "oeksound-soothe-2-standalone",
+        "oeksound-soothe-2-standard"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Antidote。对法语和英语文本进行编辑和校对，提供语法和拼写检查，以及字典、动词变位和同义词功能，让您在发送文档和电子邮件之前纠正其中的写作错误。"
+      desc_zh: "适用于Windows 10/11的Oeksound Spiff。塑造和重塑录制音频中的瞬态细节，让您在DAW中收紧鼓点、柔化拨弦噪音或为单个音轨增添力度。"
     },
     {
       name: "chetannet48/redshift",
@@ -7483,67 +8281,130 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Redshift。将 C++ 和 CUDA 着色器代码编译为 GPU 加速渲染，让艺术家在迭代 3D 场景的同时实时预览光照和材质。"
     },
     {
-      name: "greydeeplogic/unigine-heaven",
-      url: "https://github.com/greydeeplogic/unigine-heaven",
-      desc: "Unigine Heaven for Windows 10/11. Renders a looping 3D fantasy village benchmark scene and reports a detailed score, letting you stress-test a graphics card and compare performance after overclocks.",
+      name: "Mahesh-feng/toontrack-ezkeys-2",
+      url: "https://github.com/Mahesh-feng/toontrack-ezkeys-2",
+      desc: "Toontrack Ezkeys 2 for Windows 10/11. Plays and edits piano parts with a built-in instrument, drags MIDI chords into a song timeline, and reshapes melodies for quick arrangements in your DAW.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:32:40Z",
-      pushed: "2026-11-25T11:52:27Z",
-      created: "2026-11-24T10:11:42Z",
+      updated: "2026-11-26T03:40:39Z",
+      pushed: "2026-11-25T11:45:15Z",
+      created: "2026-11-24T11:40:50Z",
+      license: "NOASSERTION",
+      topics: [
+        "guide-setup-toontrack-ezkeys-2",
+        "toontrack",
+        "toontrack-download",
+        "toontrack-ezbass",
+        "toontrack-ezbass-download"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Toontrack Ezkeys 2。使用内置乐器演奏和编辑钢琴部分，将 MIDI 和弦拖入歌曲时间轴，并重塑旋律，以便在您的 DAW 中快速编曲。"
+    },
+    {
+      name: "clientblue51/astropad-studio",
+      url: "https://github.com/clientblue51/astropad-studio",
+      desc: "Astropad Studio for Windows 10/11. Mirrors your desktop screen to an iPad and turns the tablet into a pressure-sensitive drawing surface, so you can sketch, retouch photos and annotate documents with a stylus.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:38:20Z",
+      pushed: "2026-11-25T11:49:03Z",
+      created: "2026-11-24T11:02:21Z",
+      license: "NOASSERTION",
+      topics: [
+        "astropad",
+        "astropad-2025",
+        "astropad-2026",
+        "astropad-desktop",
+        "astropad-download"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Astropad Studio。将您的桌面屏幕镜像到 iPad 上，并将平板电脑变成一个压感绘图板，让您可以用手写笔进行素描、修图和在文档上添加注释。"
+    },
+    {
+      name: "bennetthung6048/kicad",
+      url: "https://github.com/bennetthung6048/kicad",
+      desc: "Kicad for Windows 10/11. Designs printed circuit boards by placing components, routing copper traces and inspecting 3D previews, then exports fabrication files for manufacturing.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:36:29Z",
+      pushed: "2026-11-25T11:47:27Z",
+      created: "2026-11-24T12:41:50Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "guide-setup-unigine-heaven",
-        "how-to-install-unigine-heaven",
-        "productivity",
-        "software"
+        "kicad",
+        "kicad-download",
+        "kicad-footprints",
+        "kicad-free"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Unigine Heaven。渲染一个循环播放的 3D 奇幻村庄基准场景，并报告详细的分数，让您对显卡进行压力测试，并比较超频后的性能。"
+      desc_zh: "适用于 Windows 10/11 的 Kicad。通过放置元件、布设铜箔走线和检查 3D 预览来设计印刷电路板，然后导出用于制造的制造文件。"
     },
     {
-      name: "gilang813/dirtyhertz-alpha",
-      url: "https://github.com/gilang813/dirtyhertz-alpha",
-      desc: "Dirtyhertz Alpha for Windows 10/11. Tunes and shapes audio tracks with precision frequency targeting, helping producers clean up muddy mixes and sculpt tonal balance before final mastering.",
+      name: "hugheskartik80/discord-nitro-classic",
+      url: "https://github.com/hugheskartik80/discord-nitro-classic",
+      desc: "Discord Nitro Classic for Windows 10/11. Unlocks custom emoji, larger file uploads and animated avatars across your servers, giving you more ways to personalize chats and share bigger files with friends.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:32:00Z",
-      pushed: "2026-11-25T11:51:57Z",
-      created: "2026-11-24T11:49:57Z",
+      updated: "2026-11-26T03:42:49Z",
+      pushed: "2026-11-25T11:53:10Z",
+      created: "2026-11-24T11:18:01Z",
       license: "NOASSERTION",
       topics: [
-        "alpha",
-        "alpha-channel",
-        "alpha-theta",
-        "alphafold",
-        "alphafold-db"
+        "classic",
+        "classic-paint",
+        "classical",
+        "discord",
+        "discord-api"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Dirtyhertz Alpha。通过精确的频率定位来调整和塑造音频轨道，帮助制作人在最终母带处理之前清理混音中的杂音并塑造音色平衡。"
+      desc_zh: "适用于 Windows 10/11 的 Discord Nitro Classic。解锁自定义表情符号、更大文件上传和动态头像功能，在您的所有服务器上均可使用，为您提供更多个性化聊天和与好友分享更大文件的方式。"
     },
     {
-      name: "dedidigital480/linguee-desktop",
-      url: "https://github.com/dedidigital480/linguee-desktop",
-      desc: "Linguee Desktop for Windows 10/11. Looks up words and phrases in bilingual dictionary entries with example sentences, and reads through real translated texts to see how terms are used in context.",
+      name: "Gerald-wallace25/gopro-fusion-studio",
+      url: "https://github.com/Gerald-wallace25/gopro-fusion-studio",
+      desc: "Gopro Fusion Studio for Windows 10/11. Stitches dual-lens 360 footage into flat or spherical videos, trims and reframes clips, and exports finished files for sharing or editing in other apps.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:30:31Z",
-      pushed: "2026-11-25T11:50:11Z",
-      created: "2026-11-24T11:25:10Z",
+      updated: "2026-11-26T03:39:53Z",
+      pushed: "2026-11-25T11:43:04Z",
+      created: "2026-11-24T11:02:52Z",
       license: "NOASSERTION",
       topics: [
-        "desktop",
-        "desktop-ai",
-        "desktop-analytics",
-        "desktop-app",
-        "desktop-apps"
+        "fusion",
+        "fusion-360",
+        "fusion-360-addin",
+        "fusion-360-cad",
+        "fusion-360-cam"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Linguee 桌面版。在双语词典条目中查找单词和短语，提供例句，并阅读真实的翻译文本，了解术语在语境中的用法。"
+      desc_zh: "适用于 Windows 10/11 的 GoPro Fusion Studio。将双镜头 360 度影像拼接成平面或球面视频，剪辑和重新取景片段，并导出成品文件以便在其他应用程序中分享或编辑。"
+    },
+    {
+      name: "amydavis185/acdsee-photo-studio",
+      url: "https://github.com/amydavis185/acdsee-photo-studio",
+      desc: "Acdsee Photo Studio for Windows 10/11. Organizes, edits and retouches photo libraries with batch processing, RAW development and layer-based adjustments for faster culling and delivery of large shoots.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:55Z",
+      pushed: "2026-11-25T11:46:32Z",
+      created: "2026-11-24T10:11:24Z",
+      license: "NOASSERTION",
+      topics: [
+        "acdsee-photo-studio",
+        "acdsee-photo-studio-2018-professional",
+        "acdsee-photo-studio-download",
+        "acdsee-photo-studio-professional-2018-download",
+        "acdsee-photo-studio-professional-2019-download"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 ACDSee Photo Studio。通过批量处理、RAW 冲印和基于图层的调整来整理、编辑和润色照片库，从而更快地筛选和交付大量拍摄的照片。"
     },
     {
       name: "justin-soto/presonus-notion",
@@ -7567,109 +8428,109 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Presonus Notion。作曲和编辑管弦乐谱，并提供完整播放功能，然后导出可打印的乐谱或音频茎，用于排练和录音。"
     },
     {
-      name: "ercanturner163/minitool-partition-wizard",
-      url: "https://github.com/ercanturner163/minitool-partition-wizard",
-      desc: "Minitool Partition Wizard for Windows 10/11. Resizes, moves, merges and converts disk partitions without losing data, and clones entire drives or migrates the OS to a new SSD for an easy upgrade.",
+      name: "Liangsystems/microsoft-teams-rooms",
+      url: "https://github.com/Liangsystems/microsoft-teams-rooms",
+      desc: "Microsoft Teams Rooms for Windows 10/11. Joins scheduled meetings, shares content and runs room audio and video on conference hardware, letting IT admins manage and update each room remotely.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:18:33Z",
-      pushed: "2026-11-25T11:51:03Z",
-      created: "2026-11-24T12:28:07Z",
+      updated: "2026-11-26T03:38:47Z",
+      pushed: "2026-11-25T11:44:46Z",
+      created: "2026-11-24T12:27:49Z",
       license: "NOASSERTION",
       topics: [
-        "minitool-partition-wizard",
-        "minitool-partition-wizard-desktop",
-        "minitool-partition-wizard-install",
-        "minitool-partition-wizard-installer",
-        "minitool-partition-wizard-latest"
+        "azure",
+        "azure-devops",
+        "google-chat",
+        "keras",
+        "microsoft"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Minitool Partition Wizard。在不丢失数据的情况下调整磁盘分区大小、移动、合并和转换磁盘分区，并克隆整个驱动器或将操作系统迁移到新的 SSD，以轻松升级。"
+      desc_zh: "适用于 Windows 10/11 的 Microsoft Teams Rooms。加入预定会议、共享内容并在会议硬件上运行会议室音频和视频，让 IT 管理员能够远程管理和更新每个会议室。"
     },
     {
-      name: "CastilloPooja1/substance-3d-painter-2024",
-      url: "https://github.com/CastilloPooja1/substance-3d-painter-2024",
-      desc: "Substance 3D Painter 2024 for Windows 10/11. Paints textured 3D models with layers, smart materials and brushes, letting artists add realistic wear, dirt and detail directly onto game and film assets.",
+      name: "greyclient1993/mash",
+      url: "https://github.com/greyclient1993/mash",
+      desc: "Mash for Windows 10/11. Turns your desktop into a personal mashup studio, letting you drag in audio clips, loop sections and layer tracks to build custom mixes and export them as finished files.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:23:24Z",
-      pushed: "2026-11-25T11:40:59Z",
-      created: "2026-11-24T10:31:48Z",
+      updated: "2026-11-26T03:36:00Z",
+      pushed: "2026-11-25T11:52:24Z",
+      created: "2026-11-24T12:12:15Z",
       license: "NOASSERTION",
       topics: [
-        "painter",
-        "substance",
-        "substance-3d",
-        "substance-3d-painter",
-        "substance-3d-sampler"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Substance 3D Painter 2024。使用图层、智能材质和画笔为带纹理的 3D 模型上色，让艺术家能够直接在游戏和影视资产上添加逼真的磨损、污渍和细节。"
-    },
-    {
-      name: "Ludmb3nn5/driver-booster",
-      url: "https://github.com/Ludmb3nn5/driver-booster",
-      desc: "Driver Booster for Windows 10/11. Scans your PC for outdated, missing or faulty drivers and installs the correct updates in a few clicks, keeping graphics, audio and network hardware running smoothly.",
-      lang: "",
-      stars: 196,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:25:23Z",
-      pushed: "2026-11-25T11:45:05Z",
-      created: "2026-11-24T11:18:03Z",
-      license: "NOASSERTION",
-      topics: [
-        "booster",
-        "booster-driver-free",
-        "driver",
-        "driver-app",
-        "driver-booster-desktop"
-      ],
-      desc_zh: "适用于 Windows 10/11 的驱动程序更新工具。扫描您的电脑，查找过时、缺失或有故障的驱动程序，只需点击几下即可安装正确的更新，确保显卡、音频和网络硬件平稳运行。"
-    },
-    {
-      name: "hudaflo8391/tradingview-desktop",
-      url: "https://github.com/hudaflo8391/tradingview-desktop",
-      desc: "Tradingview Desktop for Windows 10/11. Charts stocks, crypto and forex in real time, draws trendlines and indicators, and runs multi-monitor layouts to track watchlists and place trades from the desktop.",
-      lang: "",
-      stars: 196,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:20:27Z",
-      pushed: "2026-11-25T11:53:04Z",
-      created: "2026-11-24T11:33:42Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop",
-        "desktop-ai",
-        "desktop-analytics",
         "desktop-app",
-        "desktop-apps"
+        "mash-download",
+        "mash-free",
+        "mash-free-download",
+        "mash-free-trial"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Tradingview 桌面版。实时绘制股票、加密货币和外汇图表，绘制趋势线和指标，并运行多显示器布局，以便从桌面跟踪观察列表并下单交易。"
+      desc_zh: "适用于 Windows 10/11 的 Mash。将您的桌面变成个人混音工作室，让您拖入音频片段、循环片段和分层轨道，以制作自定义混音并将其导出为成品文件。"
     },
     {
-      name: "appbranchlab/nova-editor",
-      url: "https://github.com/appbranchlab/nova-editor",
-      desc: "Nova Editor for Windows 10/11. Edits text, code and markup files with syntax highlighting, split panes and project-wide search, letting you open a folder and work across many files in one window.",
+      name: "labsbigwood/d5-render",
+      url: "https://github.com/labsbigwood/d5-render",
+      desc: "D5 Render for Windows 10/11. Renders architectural and interior scenes in real time with ray tracing, lets designers build 3D models, apply materials and lighting, then export images and walkthrough animations for client presentations.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:29:09Z",
-      pushed: "2026-11-25T11:46:47Z",
-      created: "2026-11-24T10:03:22Z",
+      updated: "2026-11-26T03:42:35Z",
+      pushed: "2026-11-25T11:54:57Z",
+      created: "2026-11-24T12:18:23Z",
       license: "NOASSERTION",
       topics: [
-        "amazon-nova",
-        "code-editor",
-        "editor",
-        "editor-plugin",
-        "editor-theme"
+        "3d-rendering",
+        "render",
+        "render-elements",
+        "render-engine",
+        "render-farm"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Nova 编辑器。使用语法高亮、拆分窗格和全项目搜索功能编辑文本、代码和标记文件，让您在一个窗口中打开一个文件夹并处理多个文件。"
+      desc_zh: "D5 渲染器，适用于 Windows 10/11。使用光线追踪实时渲染建筑和室内场景，让设计师能够构建 3D 模型、应用材质和光照，然后导出图像和漫游动画，用于向客户演示。"
+    },
+    {
+      name: "Branchcorelab/waves-ssl-ev2",
+      url: "https://github.com/Branchcorelab/waves-ssl-ev2",
+      desc: "Waves Ssl Ev2 for Windows 10/11. Mixes tracks and masters with an SSL console-style channel strip, shaping EQ, dynamics and saturation on vocals, drums and full sessions.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:40:15Z",
+      pushed: "2026-11-25T11:40:38Z",
+      created: "2026-11-24T11:59:21Z",
+      license: "NOASSERTION",
+      topics: [
+        "waves",
+        "waves-complete",
+        "waves-mastering-plugins",
+        "waves-mercury-bundle",
+        "waves-mercury-bundle-2026"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Waves Ssl Ev2。使用 SSL 控制台式通道条混合轨道和母带，塑造人声、鼓和完整乐段的均衡、动态和饱和度。"
+    },
+    {
+      name: "newqueryold628/automatic1111",
+      url: "https://github.com/newqueryold628/automatic1111",
+      desc: "Automatic1111 for Windows 10/11. Generates images from text prompts and edits photos using Stable Diffusion models, running locally with support for custom checkpoints, LoRAs and upscaling.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:37:13Z",
+      pushed: "2026-11-25T11:57:28Z",
+      created: "2026-11-24T11:18:05Z",
+      license: "NOASSERTION",
+      topics: [
+        "automatic1111",
+        "automatic1111-2026",
+        "automatic1111-app",
+        "automatic1111-desktop",
+        "automatic1111-extension"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Automatic1111。使用 Stable Diffusion 模型，根据文本提示生成图像并编辑照片，在本地运行，支持自定义检查点、LoRA 和放大。"
     },
     {
       name: "branchwestmerge/marmoset-toolbag-4",
@@ -7693,25 +8554,67 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Marmoset Toolbag 4。将法线贴图、环境光遮挡贴图和曲率贴图从高面数雕刻烘焙到游戏就绪的网格上，然后使用实时 PBR 材质和光照渲染旋转展示和特写镜头。"
     },
     {
-      name: "dennis5heikh/native-instruments-massive-x",
-      url: "https://github.com/dennis5heikh/native-instruments-massive-x",
-      desc: "Native Instruments Massive X for Windows 10/11. Designs and shapes synth patches with wavetable oscillators, drag-and-drop modulation and routing, then saves presets for use in your DAW productions.",
+      name: "lakebuild/eventide-blackhole",
+      url: "https://github.com/lakebuild/eventide-blackhole",
+      desc: "Eventide Blackhole for Windows 10/11. Applies lush reverb and delay effects to audio tracks, letting musicians and sound designers shape ambient textures and spacious tails for music production and sound design.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:25:49Z",
-      pushed: "2026-11-25T11:50:26Z",
-      created: "2026-11-24T11:18:04Z",
+      updated: "2026-11-26T03:41:42Z",
+      pushed: "2026-11-25T11:55:04Z",
+      created: "2026-11-24T11:49:00Z",
       license: "NOASSERTION",
       topics: [
-        "instruments",
-        "massive",
-        "native",
-        "native-access",
-        "native-aot"
+        "desktop-app",
+        "eventide-blackhole",
+        "eventide-blackhole-setup",
+        "how-to-setup-eventide-blackhole",
+        "install-eventide-blackhole"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Native Instruments Massive X。使用波表振荡器、拖放式调制和路由设计和塑造合成器音色，然后保存预设，供您在 DAW 制作中使用。"
+      desc_zh: "适用于 Windows 10/11 的 Eventide Blackhole。为音频轨道应用丰富的混响和延迟效果，让音乐人和声音设计师能够为音乐制作和声音设计塑造氛围质感和宽广的尾音。"
+    },
+    {
+      name: "arthurk2004/sublime-merge",
+      url: "https://github.com/arthurk2004/sublime-merge",
+      desc: "Sublime Merge for Windows 10/11. Browses commit history, stages individual lines and resolves merge conflicts in a fast Git client, giving developers a visual way to review diffs and manage branches without leaving the keyboard.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:40:16Z",
+      pushed: "2026-11-25T11:46:55Z",
+      created: "2026-11-24T10:03:26Z",
+      license: "NOASSERTION",
+      topics: [
+        "guide-setup-sublime-merge",
+        "how-to-install-sublime-merge",
+        "merge",
+        "sublime-code-editor",
+        "sublime-debugger"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Sublime Merge。在一个快速的 Git 客户端中浏览提交历史记录、暂存单行代码并解决合并冲突，为开发者提供了一种可视化方式，让他们无需离开键盘即可查看差异并管理分支。"
+    },
+    {
+      name: "freecloudlogic/kaiber-ai",
+      url: "https://github.com/freecloudlogic/kaiber-ai",
+      desc: "Kaiber Ai for Windows 10/11. Generates animated videos from text prompts and still images, letting artists and creators render short clips and export them for social media or project work.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:38:16Z",
+      pushed: "2026-11-25T11:51:43Z",
+      created: "2026-11-24T09:47:06Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "install-kaiber-ai",
+        "kaiber-ai-free",
+        "productivity",
+        "software"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Kaiber Ai。根据文本提示和静态图像生成动画视频，让艺术家和创作者渲染短片并导出用于社交媒体或项目工作。"
     },
     {
       name: "eric-watson1398/katana",
@@ -7735,6 +8638,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Katana。在可搜索的大纲中整理笔记、代码片段和参考文件，让您能够将各项内容关联起来，并为项目和研究构建可重复使用的知识库。"
     },
     {
+      name: "Birdworks695/atom-pulsar",
+      url: "https://github.com/Birdworks695/atom-pulsar",
+      desc: "Atom Pulsar for Windows 10/11. Plays and organizes your local music library, letting you queue albums, build playlists and control playback with keyboard shortcuts while tracks stream from disk.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:11Z",
+      pushed: "2026-11-25T11:40:35Z",
+      created: "2026-11-24T11:40:34Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "install-atom-pulsar",
+        "productivity",
+        "pulsar-edit",
+        "software"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Atom Pulsar。播放和整理您的本地音乐库，让您在从磁盘流式传输曲目的同时，使用键盘快捷键将专辑排入队列、创建播放列表和控制播放。"
+    },
+    {
       name: "Arandreev/anthropics-smart-photo-editor",
       url: "https://github.com/Arandreev/anthropics-smart-photo-editor",
       desc: "Anthropics Smart Photo Editor for Windows 10/11. Edits photos with one-click style presets, brush-based local adjustments and layer masks, then exports finished images for print or web galleries.",
@@ -7756,151 +8680,88 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Anthropics Smart Photo Editor。使用一键式样式预设、基于画笔的局部调整和图层蒙版编辑照片，然后导出成品图像以用于打印或网络图库。"
     },
     {
-      name: "Linkbearleaf63/thinkorswim",
-      url: "https://github.com/Linkbearleaf63/thinkorswim",
-      desc: "Thinkorswim for Windows 10/11. Analyzes stock, options and futures charts in real time with customizable studies, paper trading and order execution, giving active traders a full workstation for planning and testing strategies before risking capital.",
+      name: "MukeshHoang61/dbvisualizer",
+      url: "https://github.com/MukeshHoang61/dbvisualizer",
+      desc: "Dbvisualizer for Windows 10/11. Connects to SQL databases, browses schemas and tables, and writes queries in a visual editor to inspect data and export results without touching the command line.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:34:27Z",
-      pushed: "2026-11-25T11:44:50Z",
-      created: "2026-11-24T12:43:05Z",
+      updated: "2026-11-26T03:37:48Z",
+      pushed: "2026-11-25T11:45:45Z",
+      created: "2026-11-24T11:17:57Z",
+      license: "NOASSERTION",
+      topics: [
+        "athena-dbvisualizer",
+        "dbvisualizer",
+        "dbvisualizer-2025",
+        "dbvisualizer-desktop",
+        "dbvisualizer-free"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Dbvisualizer。连接到 SQL 数据库，浏览架构和表，并在可视化编辑器中编写查询，以便检查数据和导出结果，而无需使用命令行。"
+    },
+    {
+      name: "ellisharish/metatrader-4",
+      url: "https://github.com/ellisharish/metatrader-4",
+      desc: "Metatrader 4 for Windows 10/11. Trades forex, CFDs and futures with live charts, technical indicators and automated expert advisors, then backtests strategies on historical price data before going live.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:38:13Z",
+      pushed: "2026-11-25T11:50:57Z",
+      created: "2026-11-24T11:42:12Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "install-thinkorswim",
-        "productivity",
-        "software",
-        "software-engineering"
+        "metatrader",
+        "metatrader-4",
+        "metatrader-4-download",
+        "metatrader-4-free"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Thinkorswim。通过可定制的研究、模拟交易和订单执行功能，实时分析股票、期权和期货图表，为活跃交易者提供一个完整的工作站，让他们在冒着资金风险之前规划和测试策略。"
+      desc_zh: "适用于 Windows 10/11 的 Metatrader 4。使用实时图表、技术指标和自动化智能交易系统交易外汇、差价合约和期货，然后在上线前对历史价格数据进行策略回测。"
     },
     {
-      name: "j0ycesolutions/noxplayer",
-      url: "https://github.com/j0ycesolutions/noxplayer",
-      desc: "Noxplayer for Windows 10/11. Runs Android apps and mobile games on your desktop with keyboard and mouse controls, supports multiple instances for multitasking, and lets you install APKs or sync files between phone and PC.",
+      name: "baker-selim/display-driver-uninstaller",
+      url: "https://github.com/baker-selim/display-driver-uninstaller",
+      desc: "Display Driver Uninstaller for Windows 10/11. Removes AMD, NVIDIA and Intel graphics drivers completely, clearing leftover files and registry keys so you can install a clean driver version or troubleshoot display problems.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:29:30Z",
-      pushed: "2026-11-25T11:53:28Z",
-      created: "2026-11-24T11:41:07Z",
+      updated: "2026-11-26T03:42:57Z",
+      pushed: "2026-11-25T11:47:15Z",
+      created: "2026-11-24T10:55:57Z",
       license: "NOASSERTION",
       topics: [
-        "desktop-app",
-        "download-noxplayer",
-        "noxplayer",
-        "noxplayer-download",
-        "noxplayer-free"
+        "display",
+        "display-driver",
+        "display-manager",
+        "displaylink",
+        "displays"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Noxplayer。在您的桌面电脑上运行安卓应用和手游，使用键盘和鼠标进行控制，支持多开以实现多任务处理，并允许您安装 APK 或在手机和电脑之间同步文件。"
+      desc_zh: "适用于 Windows 10/11 的显示驱动程序卸载工具。完全卸载 AMD、NVIDIA 和英特尔显卡驱动程序，清除残留文件和注册表项，以便您安装干净的驱动程序版本或排查显示问题。"
     },
     {
-      name: "Jun-ramos-1987/antares-harmony-engine",
-      url: "https://github.com/Jun-ramos-1987/antares-harmony-engine",
-      desc: "Antares Harmony Engine for Windows 10/11. Generates layered vocal harmonies from a single melody line, letting producers and songwriters build chord stacks, doubling and choral arrangements directly in their DAW.",
+      name: "juansokolov5/ringcentral",
+      url: "https://github.com/juansokolov5/ringcentral",
+      desc: "Ringcentral for Windows 10/11. Calls, messages and video meets in one place, letting teams join meetings, share screens and manage voicemail from a desktop app without switching tabs.",
       lang: "",
       stars: 196,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:20:19Z",
-      pushed: "2026-11-25T11:44:05Z",
-      created: "2026-11-24T11:35:55Z",
-      license: "NOASSERTION",
-      topics: [
-        "antares",
-        "antares-auto",
-        "engine",
-        "engine-dj",
-        "engine-os"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Antares Harmony Engine。从单一声部旋律生成分层的和声人声，让制作人和歌曲作者直接在他们的 DAW 中构建和弦堆叠、叠音和合唱编排。"
-    },
-    {
-      name: "LightCacheBlack/mumble",
-      url: "https://github.com/LightCacheBlack/mumble",
-      desc: "Mumble for Windows 10/11. Talks with your team over low-latency voice chat while gaming or collaborating, with positional audio, push-to-talk and a lightweight overlay so you always know who is speaking.",
-      lang: "",
-      stars: 196,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:30:20Z",
-      pushed: "2026-11-25T11:44:57Z",
-      created: "2026-11-24T12:40:56Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "mumble",
-        "mumble-download",
-        "mumble-free",
-        "mumble-free-download"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Mumble。在游戏或协作时，通过低延迟语音聊天与您的团队交流，具备位置音频、一键通话和轻量级叠加功能，让您始终知道是谁在说话。"
-    },
-    {
-      name: "naidubruce2008/blender",
-      url: "https://github.com/naidubruce2008/blender",
-      desc: "Blender for Windows 10/11. Models and animates 3D scenes with sculpting, rigging and rendering tools, then outputs finished stills or video for games, film and product visualization.",
-      lang: "",
-      stars: 196,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:27:47Z",
-      pushed: "2026-11-25T11:56:57Z",
-      created: "2026-11-24T12:23:55Z",
-      license: "NOASSERTION",
-      topics: [
-        "blender",
-        "blender-2025",
-        "blender-3d",
-        "blender-addon",
-        "blender-agents"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Blender。使用雕刻、骨架绑定和渲染工具建模和动画化 3D 场景，然后输出用于游戏、电影和产品可视化的成品静态图像或视频。"
-    },
-    {
-      name: "brenda-pro09/nvidia-geforce-experience",
-      url: "https://github.com/brenda-pro09/nvidia-geforce-experience",
-      desc: "Nvidia Geforce Experience for Windows 10/11. Captures gameplay clips and streams, applies optimized game settings automatically and updates GPU drivers, giving players one place to record, broadcast and tune performance.",
-      lang: "",
-      stars: 196,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:26:52Z",
-      pushed: "2026-11-25T11:48:03Z",
-      created: "2026-11-24T12:04:05Z",
-      license: "NOASSERTION",
-      topics: [
-        "experience",
-        "geforce",
-        "geforce-now",
-        "geforcenow",
-        "nvidia"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Nvidia Geforce Experience。该软件可录制游戏片段和直播，自动应用优化的游戏设置并更新 GPU 驱动程序，为玩家提供一个录制、直播和调整性能的平台。"
-    },
-    {
-      name: "claudiakuznetsov3765/whitesmoke",
-      url: "https://github.com/claudiakuznetsov3765/whitesmoke",
-      desc: "Whitesmoke for Windows 10/11. Checks and corrects grammar, spelling and punctuation across documents and emails, suggesting rewrites for clarity and tone before you send or publish any text.",
-      lang: "",
-      stars: 196,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:31:04Z",
-      pushed: "2026-11-25T11:48:57Z",
-      created: "2026-11-24T12:25:49Z",
+      updated: "2026-11-26T03:42:54Z",
+      pushed: "2026-11-25T11:54:00Z",
+      created: "2026-11-24T11:55:16Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
         "productivity",
-        "software",
-        "software-engineering",
-        "utilities"
+        "ringcentral",
+        "ringcentral-api-powershell",
+        "ringcentral-bot-template"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Whitesmoke。检查并纠正文档和电子邮件中的语法、拼写和标点符号错误，在您发送或发布任何文本之前，提供改写建议以提高清晰度和语气。"
+      desc_zh: "适用于 Windows 10/11 的 RingCentral。通话、消息和视频会议集中于一处，让团队成员能够通过桌面应用程序加入会议、共享屏幕和管理语音信箱，无需切换选项卡。"
     },
     {
       name: "netcache925/lightworks",
@@ -7924,6 +8785,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Lightworks。在时间线上编辑视频片段，剪辑和排列素材，添加转场和字幕，然后以高达 4K 的分辨率导出成品项目，用于 YouTube、广播或社交媒体。"
     },
     {
+      name: "Kaya-konstantin-6/slack-enterprise",
+      url: "https://github.com/Kaya-konstantin-6/slack-enterprise",
+      desc: "Slack Enterprise for Windows 10/11. Messages teammates in shared channels, starts huddles and calls, shares files and pins decisions so projects keep moving across departments and time zones.",
+      lang: "",
+      stars: 196,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:26Z",
+      pushed: "2026-11-25T11:44:19Z",
+      created: "2026-11-24T12:36:02Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "enterprise",
+        "guide-setup-slack-enterprise",
+        "productivity",
+        "slack"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Slack Enterprise。在共享频道中给团队成员发消息、发起 Huddle 和通话、共享文件并置顶决策，让项目跨部门和时区持续推进。"
+    },
+    {
       name: "crafpa/driver-reviver",
       url: "https://github.com/crafpa/driver-reviver",
       desc: "Driver Reviver for Windows 10/11. Scans your PC for outdated, missing or mismatched device drivers, then downloads and installs the correct updates to fix audio, graphics and network problems.",
@@ -7945,67 +8827,88 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Driver Reviver。扫描您的电脑，查找过时、缺失或不匹配的设备驱动程序，然后下载并安装正确的更新，以解决音频、显卡和网络问题。"
     },
     {
-      name: "hcooper6/3dmark",
-      url: "https://github.com/hcooper6/3dmark",
-      desc: "3Dmark for Windows 10/11. Benchmarks your PC's GPU and CPU with stress tests and gaming simulations, then compares scores online to check performance after upgrades or overclocking.",
+      name: "anrussell2593/tunnelbear",
+      url: "https://github.com/anrussell2593/tunnelbear",
+      desc: "Tunnelbear for Windows 10/11. Encrypts your internet connection through remote servers to mask your IP address and bypass regional restrictions, letting you browse privately on public Wi-Fi and access geo-blocked streaming content from other countries.",
       lang: "",
       stars: 195,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:24:49Z",
-      pushed: "2026-11-25T15:15:00Z",
-      created: "2026-11-24T12:03:33Z",
-      license: "NOASSERTION",
-      topics: [
-        "3dmark",
-        "3dmark-2025",
-        "3dmark-2026",
-        "3dmark-activated",
-        "3dmark-desktop"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 3Dmark。通过压力测试和游戏模拟对您电脑的 GPU 和 CPU 进行基准测试，然后在网上比较分数，以检查升级或超频后的性能。"
-    },
-    {
-      name: "fatihfreitas86/photoshop-lightroom-cc",
-      url: "https://github.com/fatihfreitas86/photoshop-lightroom-cc",
-      desc: "Photoshop Lightroom Cc for Windows 10/11. Imports, edits and organizes raw photos with non-destructive develop tools, then exports polished images or syncs them to cloud albums for sharing.",
-      lang: "",
-      stars: 195,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:34:40Z",
-      pushed: "2026-11-25T11:51:20Z",
-      created: "2026-11-24T11:47:33Z",
-      license: "NOASSERTION",
-      topics: [
-        "adobe-photoshop-2026",
-        "adobe-photoshop-2026-ai",
-        "adobe-photoshop-elements-download",
-        "adobe-photoshop-fix",
-        "lightroom-alternative"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Photoshop Lightroom CC。使用无损冲印工具导入、编辑和整理原始照片，然后导出润色后的图像，或将其同步到云相册以进行分享。"
-    },
-    {
-      name: "BuildGreyTech/marmoset-hexels",
-      url: "https://github.com/BuildGreyTech/marmoset-hexels",
-      desc: "Marmoset Hexels for Windows 10/11. Draws isometric and hexagonal pixel art on grid canvases, letting you sketch shapes, layer colors and export tile-ready sprites for games and illustrations.",
-      lang: "",
-      stars: 195,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:17:58Z",
-      pushed: "2026-11-25T11:40:43Z",
-      created: "2026-11-24T11:47:27Z",
+      updated: "2026-11-26T03:39:15Z",
+      pushed: "2026-11-25T11:46:38Z",
+      created: "2026-11-24T11:17:54Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "marmoset",
-        "marmoset-2024",
-        "marmoset-2025",
-        "marmoset-2027"
+        "download-tunnelbear",
+        "productivity",
+        "software",
+        "software-engineering"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Marmoset Hexels。在网格画布上绘制等距和六边形像素画，让您勾勒形状、分层上色，并导出可用于游戏和插图的贴图精灵。"
+      desc_zh: "适用于 Windows 10/11 的 Tunnelbear。通过远程服务器加密您的互联网连接，以隐藏您的 IP 地址并绕过区域限制，让您在公共 Wi-Fi 上私密浏览，并访问来自其他国家/地区的受地域限制的流媒体内容。"
+    },
+    {
+      name: "dungkumar71/autodesk-flame",
+      url: "https://github.com/dungkumar71/autodesk-flame",
+      desc: "Autodesk Flame for Windows 10/11. Composites VFX shots, grades footage and finishes edits in a node-based timeline, letting post artists deliver broadcast and film projects from a single workspace.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:40:33Z",
+      pushed: "2026-11-25T11:50:34Z",
+      created: "2026-11-24T10:39:47Z",
+      license: "NOASSERTION",
+      topics: [
+        "autodesk-3d",
+        "autodesk-3d-design",
+        "autodesk-3ds-max-app",
+        "autodesk-3ds-max-pro",
+        "autodesk-automation"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Autodesk Flame。在基于节点的时间线上合成 VFX 镜头、调色素材并完成编辑，让后期艺术家能够从单一工作空间交付广播和电影项目。"
+    },
+    {
+      name: "jorgestevens81/rocket-chat",
+      url: "https://github.com/jorgestevens81/rocket-chat",
+      desc: "Rocket Chat for Windows 10/11. Chats with teammates in channels and direct messages, shares files, starts voice and video calls, and connects to self-hosted or cloud workspaces from one desktop client.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:38:19Z",
+      pushed: "2026-11-25T11:53:53Z",
+      created: "2026-11-24T12:42:25Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "productivity",
+        "rocket",
+        "rocket-chat",
+        "rocket-league"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Rocket Chat。通过一个桌面客户端，在频道和直接消息中与团队成员聊天、共享文件、发起语音和视频通话，并连接到自托管或云端工作区。"
+    },
+    {
+      name: "linkdeployquiet91/listary",
+      url: "https://github.com/linkdeployquiet91/listary",
+      desc: "Listary for Windows 10/11. Launches apps, finds files and folders, and jumps to open documents from a single search bar, keeping your hands on the keyboard while you work.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:00Z",
+      pushed: "2026-11-25T11:55:29Z",
+      created: "2026-11-24T12:17:41Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "listary",
+        "listary-download",
+        "listary-free",
+        "listary-free-download"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Listary。通过一个搜索栏即可启动应用程序、查找文件和文件夹，并跳转到打开的文档，让您在工作时双手始终放在键盘上。"
     },
     {
       name: "janicenaidu67/money-dashboard",
@@ -8029,88 +8932,88 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Money Dashboard。在一处跟踪银行账户、银行卡和预算的支出情况，然后通过图表和类别明细查看现金流和储蓄目标。"
     },
     {
-      name: "Builha567/viber-desktop",
-      url: "https://github.com/Builha567/viber-desktop",
-      desc: "Viber Desktop for Windows 10/11. Sends free messages and makes voice and video calls to contacts on any device, and shares photos, files and group chats from your desktop while your phone stays in your pocket.",
+      name: "Big-soft-forge-18/autodesk-civil-3d",
+      url: "https://github.com/Big-soft-forge-18/autodesk-civil-3d",
+      desc: "Autodesk Civil 3D for Windows 10/11. Designs roads, corridors and pipe networks on survey data, then builds terrain surfaces and grading plans for land development and infrastructure projects.",
       lang: "",
       stars: 195,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:28:52Z",
-      pushed: "2026-11-25T11:40:48Z",
-      created: "2026-11-24T10:03:26Z",
+      updated: "2026-11-26T03:42:02Z",
+      pushed: "2026-11-25T11:40:28Z",
+      created: "2026-11-24T11:49:37Z",
       license: "NOASSERTION",
       topics: [
-        "desktop",
-        "desktop-ai",
-        "desktop-analytics",
+        "autodesk-3d",
+        "autodesk-3d-design",
+        "autodesk-automation",
+        "autodesk-civil-3d-installer",
+        "autodesk-civil-3d-setup"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Autodesk Civil 3D。根据测量数据设计道路、走廊和管网，然后为土地开发和基础设施项目构建地形表面和放坡图。"
+    },
+    {
+      name: "james-plus-96/octane-render",
+      url: "https://github.com/james-plus-96/octane-render",
+      desc: "Octane Render for Windows 10/11. Renders photorealistic 3D scenes with GPU path tracing, letting artists light and preview models in real time, then export final frames for animation, product visuals or architectural shots.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:24Z",
+      pushed: "2026-11-25T11:53:37Z",
+      created: "2026-11-24T11:54:52Z",
+      license: "NOASSERTION",
+      topics: [
+        "ember-octane",
+        "hi-octane",
+        "laravel-octane",
+        "octane",
+        "octane-decal"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Octane Render。使用 GPU 路径追踪渲染逼真的 3D 场景，让艺术家能够实时为模型打光并预览，然后导出最终帧用于动画、产品视觉效果或建筑镜头。"
+    },
+    {
+      name: "gaurav-feng/esignal",
+      url: "https://github.com/gaurav-feng/esignal",
+      desc: "Esignal for Windows 10/11. Tracks real-time stock, options and futures quotes on customizable charts, runs technical scans and builds watchlists to research trades and monitor market moves as they happen.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:39:08Z",
+      pushed: "2026-11-25T11:51:51Z",
+      created: "2026-11-24T12:35:54Z",
+      license: "NOASSERTION",
+      topics: [
         "desktop-app",
-        "desktop-apps"
+        "esignal",
+        "esignal-javascript",
+        "install-esignal",
+        "productivity"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Viber 桌面版。使用任何设备向联系人发送免费消息，进行语音和视频通话，并通过桌面分享照片、文件和群聊，同时您的手机可以留在口袋里。"
+      desc_zh: "适用于 Windows 10/11 的 Esignal。在可定制的图表上实时跟踪股票、期权和期货行情，运行技术扫描并建立观察列表，以研究交易并实时监测市场走势。"
     },
     {
-      name: "buildkernelhawk181/shotcut",
-      url: "https://github.com/buildkernelhawk181/shotcut",
-      desc: "Shotcut for Windows 10/11. Edits video and audio timelines with multi-track cutting, filters, transitions and keyframes, then exports finished clips to common formats for sharing online or on disc.",
+      name: "debuanja9186/notepad",
+      url: "https://github.com/debuanja9186/notepad",
+      desc: "Notepad for Windows 10/11. Edits plain text and code files with syntax highlighting, line numbers and macro recording, then compares two documents side by side to review every changed line before saving.",
       lang: "",
       stars: 195,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:34:06Z",
-      pushed: "2026-11-25T11:48:14Z",
-      created: "2026-11-24T11:06:23Z",
+      updated: "2026-11-26T03:35:03Z",
+      pushed: "2026-11-25T11:50:08Z",
+      created: "2026-11-24T11:40:56Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "download-shotcut",
-        "productivity",
-        "setup-shotcut",
-        "shotcut"
+        "notepad",
+        "notepad-free",
+        "notepad-installer",
+        "notepad-plus-plus"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Shotcut。使用多轨剪辑、滤镜、转场和关键帧编辑视频和音频时间线，然后将成品剪辑导出为常见格式，以便在线或在光盘上分享。"
-    },
-    {
-      name: "firegit7625/keeper-password-manager",
-      url: "https://github.com/firegit7625/keeper-password-manager",
-      desc: "Keeper Password Manager for Windows 10/11. Stores logins, payment cards and private notes in an encrypted vault, autofills credentials in your browser and syncs everything across devices with a single master password.",
-      lang: "",
-      stars: 195,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:32:08Z",
-      pushed: "2026-11-25T11:51:28Z",
-      created: "2026-11-24T11:33:35Z",
-      license: "NOASSERTION",
-      topics: [
-        "1password-password-manager",
-        "dependency-manager",
-        "kaspersky-password-manager",
-        "keeper-password-manager",
-        "keeper-password-manager-2025"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Keeper 密码管理器。将登录信息、支付卡和私人笔记存储在加密的保管库中，在您的浏览器中自动填写凭据，并使用单个主密码在所有设备之间同步所有内容。"
-    },
-    {
-      name: "alexisl4824/riot-client",
-      url: "https://github.com/alexisl4824/riot-client",
-      desc: "Riot Client for Windows 10/11. Launches and updates Riot Games titles like League of Legends and Valorant, manages your account sign-in, friends list and patch downloads from one desktop hub.",
-      lang: "",
-      stars: 195,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T02:48:38Z",
-      pushed: "2026-11-25T11:46:20Z",
-      created: "2026-11-24T12:02:58Z",
-      license: "NOASSERTION",
-      topics: [
-        "app-riot-client",
-        "client",
-        "client-library",
-        "client-only-backup",
-        "client-secret"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Riot 客户端。通过一个桌面中心启动和更新《英雄联盟》和《无畏契约》等Riot Games游戏，管理您的账户登录、好友列表和补丁下载。"
+      desc_zh: "适用于 Windows 10/11 的记事本。使用语法高亮、行号和宏录制功能编辑纯文本和代码文件，然后在保存前将两份文档并排比较，以审核每一行有改动的内容。"
     },
     {
       name: "buichinedu97/joplin",
@@ -8134,27 +9037,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Joplin。以 Markdown 格式记录笔记、待办事项列表和网页，跨设备同步，并将所有内容整理到带有标签、搜索和端到端加密功能的笔记本中。"
     },
     {
-      name: "murphycarolyn75/riverside-fm-desktop",
-      url: "https://github.com/murphycarolyn75/riverside-fm-desktop",
-      desc: "Riverside Fm Desktop for Windows 10/11. Records studio-quality remote podcasts and video interviews, capturing separate local tracks for each guest so you can edit, mix and export clean episodes without losing audio.",
-      lang: "",
-      stars: 195,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:33:37Z",
-      pushed: "2026-11-25T15:15:15Z",
-      created: "2026-11-24T12:40:27Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop",
-        "desktop-ai",
-        "desktop-analytics",
-        "desktop-app",
-        "desktop-apps"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Riverside Fm 桌面版。录制录音棚音质的远程播客和视频访谈，为每位嘉宾录制单独的本地音轨，以便您在不丢失音频的情况下编辑、混音和导出清晰的节目。"
-    },
-    {
       name: "comand8112/jpegmini",
       url: "https://github.com/comand8112/jpegmini",
       desc: "Jpegmini for Windows 10/11. Shrinks JPEG photos to a fraction of their original file size while keeping full resolution and visual quality, so you can free up disk space and upload images faster.",
@@ -8174,6 +9056,69 @@ window.__GHRANK_RANGES__["week"] = {
         "jpegmini-pro-desktop-integration"
       ],
       desc_zh: "适用于 Windows 10/11 的 Jpegmini。将 JPEG 照片压缩至原始文件大小的一小部分，同时保持全分辨率和视觉质量，让您可以释放磁盘空间并更快地上传图像。"
+    },
+    {
+      name: "fastideforge/runwayml-gen-3",
+      url: "https://github.com/fastideforge/runwayml-gen-3",
+      desc: "Runwayml Gen 3 for Windows 10/11. Generates short video clips from text prompts or reference images, then refines motion, camera and style settings before exporting finished shots for ads, films or social posts.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:35:05Z",
+      pushed: "2026-11-25T15:14:54Z",
+      created: "2026-11-24T11:55:26Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "productivity",
+        "runwayml",
+        "runwayml-api",
+        "software"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Runwayml Gen 3。根据文本提示或参考图像生成短视频片段，然后优化动作、镜头和风格设置，再导出成品镜头，用于广告、电影或社交媒体帖子。"
+    },
+    {
+      name: "Commithillsoft/output-signal",
+      url: "https://github.com/Commithillsoft/output-signal",
+      desc: "Output Signal for Windows 10/11. Generates and routes audio output signals across multiple devices and channels, letting you mix, monitor and switch between speakers, headphones and virtual sinks during live sessions.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:35Z",
+      pushed: "2026-11-25T11:41:15Z",
+      created: "2026-11-24T11:18:04Z",
+      license: "NOASSERTION",
+      topics: [
+        "output-2026",
+        "output-arcade",
+        "output-arcade-desktop",
+        "output-arcade-download",
+        "output-arcade-free"
+      ],
+      desc_zh: "适用于 Windows 10/11 的输出信号。在多台设备和多个声道之间生成和路由音频输出信号，让您在直播会话期间混音、监听并切换扬声器、耳机和虚拟音频接收器。"
+    },
+    {
+      name: "Galihsahin552/sierra-chart",
+      url: "https://github.com/Galihsahin552/sierra-chart",
+      desc: "Sierra Chart for Windows 10/11. Charts futures and equities in real time, places trades directly from the chart and runs automated trading systems against live market data feeds.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:03Z",
+      pushed: "2026-11-25T11:43:02Z",
+      created: "2026-11-24T11:33:44Z",
+      license: "NOASSERTION",
+      topics: [
+        "chart",
+        "high-sierra",
+        "macos",
+        "macos-high-sierra",
+        "sierra"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Sierra Chart。实时绘制期货和股票图表，直接从图表下单，并根据实时市场数据流运行自动化交易系统。"
     },
     {
       name: "appbranch5899/makehuman",
@@ -8197,25 +9142,67 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Makehuman。通过调整体形、面部、年龄和服装来生成逼真的 3D 人物角色，然后导出已绑定骨骼的模型，以便在 Blender、Unity 或 Unreal 中进行动画制作。"
     },
     {
-      name: "manojwilliams/lapce",
-      url: "https://github.com/manojwilliams/lapce",
-      desc: "Lapce for Windows 10/11. Edits code in a fast native editor with built-in LSP autocompletion, remote development over SSH and a command palette for quick file navigation and refactoring.",
+      name: "Martinsite06/nordvpn-teams",
+      url: "https://github.com/Martinsite06/nordvpn-teams",
+      desc: "Nordvpn Teams for Windows 10/11. Connects your team through a shared encrypted gateway, letting admins assign devices, monitor activity and route traffic securely from one dashboard.",
       lang: "",
       stars: 195,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:33:05Z",
-      pushed: "2026-11-25T11:56:07Z",
-      created: "2026-11-24T11:17:57Z",
+      updated: "2026-11-26T03:40:35Z",
+      pushed: "2026-11-25T11:45:26Z",
+      created: "2026-11-24T12:25:35Z",
       license: "NOASSERTION",
       topics: [
-        "lapce",
-        "lapce-full-version",
-        "lapce-install",
-        "lapce-installer",
-        "lapce-latest"
+        "desktop-app",
+        "nordvpn-log-in",
+        "productivity",
+        "software",
+        "software-engineering"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Lapce。在快速的本地编辑器中编辑代码，该编辑器具有内置的 LSP 自动补全功能、通过 SSH 进行的远程开发以及用于快速文件导航和重构的命令面板。"
+      desc_zh: "适用于 Windows 10/11 的 NordVPN Teams。通过共享加密网关将您的团队连接起来，让管理员能够从一个仪表板分配设备、监控活动并安全地路由流量。"
+    },
+    {
+      name: "Morozov-yusuf1987/dashlane",
+      url: "https://github.com/Morozov-yusuf1987/dashlane",
+      desc: "Dashlane for Windows 10/11. Stores passwords, payment cards and secure notes in an encrypted vault, autofills login forms in your browser and warns you when saved credentials appear in known breaches.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:43:03Z",
+      pushed: "2026-11-25T11:45:46Z",
+      created: "2026-11-24T12:20:01Z",
+      license: "NOASSERTION",
+      topics: [
+        "2026-dashlane",
+        "dashlane",
+        "dashlane-desktop",
+        "dashlane-download",
+        "dashlane-free"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Dashlane。将密码、支付卡和安全笔记存储在加密的保管库中，在您的浏览器中自动填写登录表单，并在已保存的凭据出现在已知数据泄露事件中时向您发出警告。"
+    },
+    {
+      name: "claudiafeng55/izotope-ozone-11",
+      url: "https://github.com/claudiafeng55/izotope-ozone-11",
+      desc: "Izotope Ozone 11 for Windows 10/11. Masters finished tracks with AI-assisted EQ, dynamics and loudness matching, then exports release-ready audio for streaming, CD or vinyl in a single pass.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:27Z",
+      pushed: "2026-11-25T11:48:56Z",
+      created: "2026-11-24T11:34:03Z",
+      license: "NOASSERTION",
+      topics: [
+        "install-izotope-ozone-11",
+        "izotope-2026",
+        "izotope-desktop",
+        "izotope-download",
+        "izotope-nectar"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Izotope Ozone 11。使用 AI 辅助的均衡器、动态和响度匹配来母带处理已完成的曲目，然后一次性导出可供流媒体、CD 或黑胶唱片发布的音频。"
     },
     {
       name: "datastudio718/r-studio",
@@ -8239,67 +9226,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 R Studio。在单个工作区中编写和运行 R 脚本、构建统计模型以及生成图表和报告，然后将结果导出为图表、PDF 或可共享文档。"
     },
     {
-      name: "commitproxydata/peazip",
-      url: "https://github.com/commitproxydata/peazip",
-      desc: "Peazip for Windows 10/11. Opens, extracts and creates archives in 7z, ZIP, RAR, TAR and dozens of other formats, plus encrypts files and splits large archives for easier backup and sharing.",
+      name: "leafrocksnow85/resemble-ai",
+      url: "https://github.com/leafrocksnow85/resemble-ai",
+      desc: "Resemble Ai for Windows 10/11. Generates realistic synthetic speech from text and clones voices using short audio samples, then exports the results as audio files for videos, games and narration projects.",
       lang: "",
       stars: 195,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:34:38Z",
-      pushed: "2026-11-25T11:49:24Z",
-      created: "2026-11-24T11:18:05Z",
+      updated: "2026-11-26T03:40:44Z",
+      pushed: "2026-11-25T11:55:11Z",
+      created: "2026-11-24T12:21:45Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "peazip",
-        "peazip-2026",
-        "peazip-desktop",
-        "peazip-free"
+        "productivity",
+        "resemble-ai",
+        "resemble-ai-2026",
+        "resemble-ai-free"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Peazip。打开、解压缩和创建 7z、ZIP、RAR、TAR 以及数十种其他格式的压缩包，还可以加密文件并拆分大型压缩包，以便于备份和共享。"
-    },
-    {
-      name: "bennetthung6048/kicad",
-      url: "https://github.com/bennetthung6048/kicad",
-      desc: "Kicad for Windows 10/11. Designs printed circuit boards by placing components, routing copper traces and inspecting 3D previews, then exports fabrication files for manufacturing.",
-      lang: "",
-      stars: 195,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:27:56Z",
-      pushed: "2026-11-25T11:47:27Z",
-      created: "2026-11-24T12:41:50Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "kicad",
-        "kicad-download",
-        "kicad-footprints",
-        "kicad-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Kicad。通过放置元件、布设铜箔走线和检查 3D 预览来设计印刷电路板，然后导出用于制造的制造文件。"
-    },
-    {
-      name: "antoniomedia2833/mathematica",
-      url: "https://github.com/antoniomedia2833/mathematica",
-      desc: "Mathematica for Windows 10/11. Solves symbolic and numeric equations, plots functions and analyzes data in notebook documents, letting you build interactive models and export results for research or teaching.",
-      lang: "",
-      stars: 195,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:30:13Z",
-      pushed: "2026-11-25T11:46:42Z",
-      created: "2026-11-24T11:49:11Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "mathematica",
-        "mathematica-download",
-        "mathematical-biology",
-        "mathematical-expressions"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Mathematica。求解符号和数值方程，绘制函数，并在笔记本文档中分析数据，让您能够构建交互式模型，并导出结果用于研究或教学。"
+      desc_zh: "适用于 Windows 10/11 的 Resemble Ai。根据文本生成逼真的合成语音，并使用短音频样本克隆声音，然后将结果导出为音频文件，用于视频、游戏和旁白项目。"
     },
     {
       name: "Gracec1995/malwarebytes-premium",
@@ -8323,46 +9268,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Malwarebytes Premium。扫描文件、下载内容和正在运行的程序，以检测恶意软件，实时拦截恶意网站和勒索软件，并在威胁造成损害之前将其隔离。"
     },
     {
-      name: "Liangsystems/microsoft-teams-rooms",
-      url: "https://github.com/Liangsystems/microsoft-teams-rooms",
-      desc: "Microsoft Teams Rooms for Windows 10/11. Joins scheduled meetings, shares content and runs room audio and video on conference hardware, letting IT admins manage and update each room remotely.",
+      name: "antoniomedia2833/mathematica",
+      url: "https://github.com/antoniomedia2833/mathematica",
+      desc: "Mathematica for Windows 10/11. Solves symbolic and numeric equations, plots functions and analyzes data in notebook documents, letting you build interactive models and export results for research or teaching.",
       lang: "",
       stars: 195,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:31:06Z",
-      pushed: "2026-11-25T11:44:46Z",
-      created: "2026-11-24T12:27:49Z",
+      updated: "2026-11-26T03:30:13Z",
+      pushed: "2026-11-25T11:46:42Z",
+      created: "2026-11-24T11:49:11Z",
       license: "NOASSERTION",
       topics: [
-        "azure",
-        "azure-devops",
-        "google-chat",
-        "keras",
-        "microsoft"
+        "desktop-app",
+        "mathematica",
+        "mathematica-download",
+        "mathematical-biology",
+        "mathematical-expressions"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Microsoft Teams Rooms。加入预定会议、共享内容并在会议硬件上运行会议室音频和视频，让 IT 管理员能够远程管理和更新每个会议室。"
+      desc_zh: "适用于 Windows 10/11 的 Mathematica。求解符号和数值方程，绘制函数，并在笔记本文档中分析数据，让您能够构建交互式模型，并导出结果用于研究或教学。"
     },
     {
-      name: "ECO5TA/rancher-desktop",
-      url: "https://github.com/ECO5TA/rancher-desktop",
-      desc: "Rancher Desktop for Windows 10/11. Runs Kubernetes clusters and container workloads on your machine, letting you manage nodes, build images and test deployments locally before shipping to production.",
+      name: "brittanyworks40/lightwave-3d",
+      url: "https://github.com/brittanyworks40/lightwave-3d",
+      desc: "Lightwave 3D for Windows 10/11. Builds 3D models, animates characters and renders scenes for film, broadcast and game art with polygon modeling, keyframe animation and lighting tools in a single pipeline.",
       lang: "",
       stars: 195,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:24:00Z",
-      pushed: "2026-11-25T11:42:42Z",
-      created: "2026-11-24T11:33:08Z",
+      updated: "2026-11-26T03:40:52Z",
+      pushed: "2026-11-25T11:48:08Z",
+      created: "2026-11-24T11:40:59Z",
       license: "NOASSERTION",
       topics: [
-        "desktop",
-        "desktop-ai",
-        "desktop-analytics",
-        "desktop-app",
-        "desktop-apps"
+        "free-lightwave-3d",
+        "how-to-install-lightwave-3d-on-pc",
+        "lightwave-3d-2024",
+        "lightwave-3d-2025",
+        "lightwave-3d-activated"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Rancher Desktop。在您的计算机上运行Kubernetes集群和容器工作负载，让您在交付到生产环境之前，可以在本地管理节点、构建镜像和测试部署。"
+      desc_zh: "适用于 Windows 10/11 的 Lightwave 3D。在一个管道中使用多边形建模、关键帧动画和光照工具，构建 3D 模型、为角色赋予动画效果并渲染电影、广播和游戏艺术场景。"
     },
     {
       name: "high-free-bear03/serif-affinity-publisher-2",
@@ -8386,27 +9331,6 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Serif Affinity Publisher 2。使用母版页面、文本样式和链接图像设计和排版杂志、宣传册、海报和书籍，然后导出可直接印刷的 PDF 文件，无需订阅。"
     },
     {
-      name: "deployplus2006/output-thermal",
-      url: "https://github.com/deployplus2006/output-thermal",
-      desc: "Output Thermal for Windows 10/11. Designs and edits distortion effects with draggable thermal curves, then saves presets and exports processed audio for music production and sound design.",
-      lang: "",
-      stars: 195,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:29:34Z",
-      pushed: "2026-11-25T11:50:26Z",
-      created: "2026-11-24T11:25:53Z",
-      license: "NOASSERTION",
-      topics: [
-        "guide-setup-output-thermal",
-        "output-2026",
-        "output-arcade",
-        "output-arcade-desktop",
-        "output-arcade-download"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Output Thermal。使用可拖动的热曲线设计和编辑失真效果，然后保存预设并导出处理后的音频，用于音乐制作和声音设计。"
-    },
-    {
       name: "Core-proxy-wood38/filezilla-pro",
       url: "https://github.com/Core-proxy-wood38/filezilla-pro",
       desc: "Filezilla Pro for Windows 10/11. Transfers files to and from remote servers over FTP, SFTP and cloud storage, and manages site connections and queued uploads so you can publish or back up whole folders from your desktop.",
@@ -8428,25 +9352,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Filezilla Pro。通过 FTP、SFTP 和云存储在远程服务器之间传输文件，并管理站点连接和排队上传，以便您从桌面发布或备份整个文件夹。"
     },
     {
-      name: "greyclient1993/mash",
-      url: "https://github.com/greyclient1993/mash",
-      desc: "Mash for Windows 10/11. Turns your desktop into a personal mashup studio, letting you drag in audio clips, loop sections and layer tracks to build custom mixes and export them as finished files.",
+      name: "ford8852/ventoy",
+      url: "https://github.com/ford8852/ventoy",
+      desc: "Ventoy for Windows 10/11. Creates bootable USB drives from ISO, WIM, IMG and VHD files by copying them onto the stick, then boots any of them from a menu without reformatting.",
       lang: "",
       stars: 195,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:33:50Z",
-      pushed: "2026-11-25T11:52:24Z",
-      created: "2026-11-24T12:12:15Z",
+      updated: "2026-11-26T03:38:51Z",
+      pushed: "2026-11-25T11:51:30Z",
+      created: "2026-11-24T11:40:04Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "mash-download",
-        "mash-free",
-        "mash-free-download",
-        "mash-free-trial"
+        "download-ventoy",
+        "productivity",
+        "setup-ventoy",
+        "software"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Mash。将您的桌面变成个人混音工作室，让您拖入音频片段、循环片段和分层轨道，以制作自定义混音并将其导出为成品文件。"
+      desc_zh: "适用于 Windows 10/11 的 Ventoy。通过将 ISO、WIM、IMG 和 VHD 文件复制到 U 盘上，创建可引导 U 盘，然后从菜单中引导其中任何一个文件，而无需重新格式化。"
+    },
+    {
+      name: "nabiledwards9/cyberduck",
+      url: "https://github.com/nabiledwards9/cyberduck",
+      desc: "Cyberduck for Windows 10/11. Connects to FTP, SFTP, WebDAV, S3 and cloud storage to browse remote folders, upload and download files, and edit documents directly on the server.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:35:42Z",
+      pushed: "2026-11-25T11:56:51Z",
+      created: "2026-11-24T11:56:14Z",
+      license: "NOASSERTION",
+      topics: [
+        "cyberduck",
+        "cyberduck--cloud-review",
+        "cyberduck-alternative",
+        "cyberduck-cloud-features",
+        "cyberduck-cloud-service"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Cyberduck。连接到 FTP、SFTP、WebDAV、S3 和云存储，以浏览远程文件夹、上传和下载文件，以及直接在服务器上编辑文档。"
     },
     {
       name: "fosterroman3866/restream",
@@ -8470,46 +9415,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Restream。将游戏直播和屏幕内容同时播送到多个平台，并将来自每个频道的聊天内容合并到一个信息流中，让您无需切换应用程序即可管理观众。"
     },
     {
-      name: "fire-dev37/clip-studio-paint-pro",
-      url: "https://github.com/fire-dev37/clip-studio-paint-pro",
-      desc: "Clip Studio Paint Pro for Windows 10/11. Draws and paints digital illustrations, comics and manga with customizable brushes, layered canvases and frame-by-frame animation tools, then exports finished pages for print or web publishing.",
+      name: "natalianair/autoruns",
+      url: "https://github.com/natalianair/autoruns",
+      desc: "Autoruns for Windows 10/11. Manages programs that launch automatically at startup or login, letting you review, disable or delete entries to speed up boot time and troubleshoot slow PCs.",
       lang: "",
       stars: 195,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:24:12Z",
-      pushed: "2026-11-25T11:51:29Z",
-      created: "2026-11-24T10:55:24Z",
+      updated: "2026-11-26T03:40:11Z",
+      pushed: "2026-11-25T11:57:17Z",
+      created: "2026-11-24T11:57:42Z",
       license: "NOASSERTION",
       topics: [
-        "desktop-app",
-        "inpainting",
-        "paint",
-        "paint-app",
-        "paint-application"
+        "autoruns",
+        "autoruns-2026",
+        "autoruns-desktop",
+        "autoruns-download",
+        "autoruns-free"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Clip Studio Paint Pro。使用可定制的画笔、分层画布和逐帧动画工具绘制和涂绘数字插图、漫画和日式漫画，然后导出成品页面以供印刷或在网上发布。"
-    },
-    {
-      name: "freecloudlogic/kaiber-ai",
-      url: "https://github.com/freecloudlogic/kaiber-ai",
-      desc: "Kaiber Ai for Windows 10/11. Generates animated videos from text prompts and still images, letting artists and creators render short clips and export them for social media or project work.",
-      lang: "",
-      stars: 195,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:01:56Z",
-      pushed: "2026-11-25T11:51:43Z",
-      created: "2026-11-24T09:47:06Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "install-kaiber-ai",
-        "kaiber-ai-free",
-        "productivity",
-        "software"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Kaiber Ai。根据文本提示和静态图像生成动画视频，让艺术家和创作者渲染短片并导出用于社交媒体或项目工作。"
+      desc_zh: "适用于 Windows 10/11 的 Autoruns。管理在开机或登录时自动启动的程序，让您可以查看、禁用或删除条目，以缩短开机时间并解决电脑运行缓慢的问题。"
     },
     {
       name: "cesar-jenkins/daz-studio",
@@ -8533,6 +9457,27 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Daz Studio。为 3D 角色摆造型和制作动画，为它们穿上服装、配上道具，并渲染静态图像或短片场景，用于漫画、概念艺术和粉丝项目。"
     },
     {
+      name: "birdblacklink4/sas-enterprise",
+      url: "https://github.com/birdblacklink4/sas-enterprise",
+      desc: "Sas Enterprise for Windows 10/11. Analyzes and models business data with statistical procedures, runs queries against large datasets, and builds reports and dashboards for forecasting, risk scoring, and operational reporting.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:36:15Z",
+      pushed: "2026-11-25T11:47:39Z",
+      created: "2026-11-24T11:47:48Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "enterprise",
+        "productivity",
+        "sas",
+        "sas-enterprise"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 SAS Enterprise。使用统计程序分析和建模业务数据，对大型数据集运行查询，并构建用于预测、风险评分和运营报告的报告和仪表板。"
+    },
+    {
       name: "Dogan-sergio50/loom-desktop",
       url: "https://github.com/Dogan-sergio50/loom-desktop",
       desc: "Loom Desktop for Windows 10/11. Records your screen, camera and microphone, then edits clips and shares them as links for quick walkthroughs, demos and team updates.",
@@ -8552,6 +9497,27 @@ window.__GHRANK_RANGES__["week"] = {
         "desktop-apps"
       ],
       desc_zh: "适用于 Windows 10/11 的 Loom 桌面版。录制您的屏幕、摄像头和麦克风，然后编辑剪辑并以链接形式分享，用于快速演示、示范和团队更新。"
+    },
+    {
+      name: "naleditiwari/skylum-aurora-hdr",
+      url: "https://github.com/naleditiwari/skylum-aurora-hdr",
+      desc: "Skylum Aurora Hdr for Windows 10/11. Merges bracketed exposure shots into a single high dynamic range photo, then edits tone, color and detail with layers and masks for realistic or dramatic landscape results.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:38:02Z",
+      pushed: "2026-11-25T11:57:04Z",
+      created: "2026-11-24T11:32:43Z",
+      license: "NOASSERTION",
+      topics: [
+        "aurora-postgresql",
+        "desktop-app",
+        "guide-setup-skylum-aurora-hdr",
+        "productivity",
+        "skylum"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Skylum Aurora HDR。将包围曝光的照片合并为一张高动态范围照片，然后使用图层和蒙版编辑色调、色彩和细节，以获得逼真或戏剧性的风景效果。"
     },
     {
       name: "ahmed-code17/mint-desktop",
@@ -8575,6 +9541,48 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Mint Desktop。通过关联银行账户、跟踪各个类别的支出以及制定每月预算，帮助您管理个人财务，您可以在一个地方查看和调整预算。"
     },
     {
+      name: "margaret-hoang4437/thunder-client",
+      url: "https://github.com/margaret-hoang4437/thunder-client",
+      desc: "Thunder Client for Windows 10/11. Sends HTTP requests, inspects responses and organizes API calls into collections, so you can test endpoints and debug REST, GraphQL and SOAP services without leaving the desktop.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:36:38Z",
+      pushed: "2026-11-25T11:56:12Z",
+      created: "2026-11-24T12:18:24Z",
+      license: "NOASSERTION",
+      topics: [
+        "client",
+        "client-library",
+        "client-only-backup",
+        "client-secret",
+        "em-client-pro-vs-thunderbird-comparison"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Thunder Client。发送 HTTP 请求、检查响应并将 API 调用整理为集合，以便您无需离开桌面即可测试端点并调试 REST、GraphQL 和 SOAP 服务。"
+    },
+    {
+      name: "gauravbose6472/riot-image-optimizer",
+      url: "https://github.com/gauravbose6472/riot-image-optimizer",
+      desc: "Riot Image Optimizer for Windows 10/11. Compresses, resizes and converts PNG, JPG and WebP images in bulk, cutting file sizes for faster websites and smaller game or app asset bundles.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:37:24Z",
+      pushed: "2026-11-25T11:51:58Z",
+      created: "2026-11-24T12:12:18Z",
+      license: "NOASSERTION",
+      topics: [
+        "image",
+        "image-api",
+        "image-cache",
+        "image-diff",
+        "image-line"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Riot Image Optimizer。批量压缩、调整大小和转换 PNG、JPG 和 WebP 图像，缩小文件大小，以实现更快的网站速度和更小的游戏或应用程序资源包。"
+    },
+    {
       name: "Halimakoc/obsidian",
       url: "https://github.com/Halimakoc/obsidian",
       desc: "Obsidian for Windows 10/11. Writes and links notes in plain Markdown files, builds a personal knowledge base with backlinks, tags and graph views, and works offline.",
@@ -8594,6 +9602,48 @@ window.__GHRANK_RANGES__["week"] = {
         "obsidian-desktop"
       ],
       desc_zh: "适用于 Windows 10/11 的 Obsidian。在纯文本 Markdown 文件中撰写和链接笔记，使用反向链接、标签和图视图构建个人知识库，并可离线工作。"
+    },
+    {
+      name: "MichaelDubey51/smartgit",
+      url: "https://github.com/MichaelDubey51/smartgit",
+      desc: "Smartgit for Windows 10/11. Navigates Git repositories with a visual commit graph, stages and merges branches, resolves conflicts and pushes changes to remote servers without typing commands.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:40:16Z",
+      pushed: "2026-11-25T11:45:39Z",
+      created: "2026-11-24T11:32:49Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop-app",
+        "productivity",
+        "smartgit",
+        "smartgit-2026",
+        "smartgit-download"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Smartgit。使用可视化提交图浏览 Git 仓库，暂存和合并分支，解决冲突并将更改推送到远程服务器，无需键入命令。"
+    },
+    {
+      name: "HighHawkTech1998/valhalla-delay",
+      url: "https://github.com/HighHawkTech1998/valhalla-delay",
+      desc: "Valhalla Delay for Windows 10/11. Shapes echoes, tape saturation and modulated repeats into vocals, guitars and synths, letting producers build custom delay textures and dial in rhythmic feedback for mixes.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:43:11Z",
+      pushed: "2026-11-25T11:43:30Z",
+      created: "2026-11-24T11:17:59Z",
+      license: "NOASSERTION",
+      topics: [
+        "delay",
+        "delay-coordinates",
+        "delay-plugin",
+        "guide-setup-valhalla-delay",
+        "how-to-install-valhalla-delay"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Valhalla Delay。将回声、磁带饱和度和调制重复音效融入人声、吉他和合成器，让制作人能够打造定制的延迟音色，并为混音添加有节奏的反馈。"
     },
     {
       name: "longnodequiet02/msi-afterburner",
@@ -8617,67 +9667,61 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 MSI Afterburner。实时监测 GPU 温度、使用率和时钟频率，然后调整核心和显存偏移量，对显卡进行超频，以获得更高的帧率。"
     },
     {
-      name: "juansokolov5/ringcentral",
-      url: "https://github.com/juansokolov5/ringcentral",
-      desc: "Ringcentral for Windows 10/11. Calls, messages and video meets in one place, letting teams join meetings, share screens and manage voicemail from a desktop app without switching tabs.",
+      name: "jason-gupta/openlens",
+      url: "https://github.com/jason-gupta/openlens",
+      desc: "Openlens for Windows 10/11. Manages Kubernetes clusters from a desktop dashboard, letting you browse pods, edit manifests and tail container logs across multiple contexts without switching to the terminal.",
       lang: "",
       stars: 195,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:20:35Z",
-      pushed: "2026-11-25T11:54:00Z",
-      created: "2026-11-24T11:55:16Z",
+      updated: "2026-11-26T03:40:00Z",
+      pushed: "2026-11-25T11:53:44Z",
+      created: "2026-11-24T12:40:39Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "productivity",
-        "ringcentral",
-        "ringcentral-api-powershell",
-        "ringcentral-bot-template"
+        "openlens-download",
+        "openlens-free",
+        "openlens-free-trial",
+        "openlens-free-version"
       ],
-      desc_zh: "适用于 Windows 10/11 的 RingCentral。通话、消息和视频会议集中于一处，让团队成员能够通过桌面应用程序加入会议、共享屏幕和管理语音信箱，无需切换选项卡。"
+      desc_zh: "适用于 Windows 10/11 的 Openlens。通过桌面仪表板管理 Kubernetes 集群，让您无需切换到终端即可跨多个上下文浏览 Pod、编辑清单和查看容器日志尾部。"
     },
     {
-      name: "jshukla93/xsplit-broadcaster",
-      url: "https://github.com/jshukla93/xsplit-broadcaster",
-      desc: "Xsplit Broadcaster for Windows 10/11. Mixes gameplay, webcams, screen captures and media sources into live scenes, then streams them to Twitch or YouTube with overlays, transitions and per-source audio control.",
+      name: "Locorreia1992/native-instruments-reaktor-6",
+      url: "https://github.com/Locorreia1992/native-instruments-reaktor-6",
+      desc: "Native Instruments Reaktor 6 for Windows 10/11. Builds custom synths, samplers and effects by patching modules in a visual modular environment, or plays and tweaks thousands of prebuilt instruments and ensembles.",
+      lang: "",
+      stars: 195,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:59Z",
+      pushed: "2026-11-25T11:44:56Z",
+      created: "2026-11-24T11:55:37Z",
+      license: "NOASSERTION",
+      topics: [
+        "claude-code",
+        "cloud-native",
+        "flutter",
+        "instruments",
+        "jetpack-compose"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Native Instruments Reaktor 6。通过在可视化模块化环境中连接模块来构建自定义合成器、采样器和效果器，或者演奏和调整数以千计的预制乐器和乐器组合。"
+    },
+    {
+      name: "labsbigwood/avid-media-composer-ultimate",
+      url: "https://github.com/labsbigwood/avid-media-composer-ultimate",
+      desc: "Avid Media Composer Ultimate for Windows 10/11. Edits multi-camera footage, cuts long-form film and TV projects, and refines sound with built-in color correction, script-based editing and shared bin workflows.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:32:27Z",
-      pushed: "2026-11-25T11:53:57Z",
-      created: "2026-11-24T12:02:37Z",
+      updated: "2026-11-26T03:40:00Z",
+      pushed: "2026-11-25T11:54:52Z",
+      created: "2026-11-24T11:11:32Z",
       license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "download-xsplit-broadcaster",
-        "guide-setup-xsplit-broadcaster",
-        "how-to-install-xsplit-broadcaster",
-        "productivity"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Xsplit Broadcaster。将游戏画面、网络摄像头、屏幕截图和媒体源混合到直播场景中，然后使用叠加、转场和每个源的音频控制功能将其直播到 Twitch 或 YouTube。"
-    },
-    {
-      name: "dungkumar71/autodesk-flame",
-      url: "https://github.com/dungkumar71/autodesk-flame",
-      desc: "Autodesk Flame for Windows 10/11. Composites VFX shots, grades footage and finishes edits in a node-based timeline, letting post artists deliver broadcast and film projects from a single workspace.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:20:05Z",
-      pushed: "2026-11-25T11:50:34Z",
-      created: "2026-11-24T10:39:47Z",
-      license: "NOASSERTION",
-      topics: [
-        "autodesk-3d",
-        "autodesk-3d-design",
-        "autodesk-3ds-max-app",
-        "autodesk-3ds-max-pro",
-        "autodesk-automation"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Autodesk Flame。在基于节点的时间线上合成 VFX 镜头、调色素材并完成编辑，让后期艺术家能够从单一工作空间交付广播和电影项目。"
+      topics: [],
+      desc_zh: "适用于 Windows 10/11 的 Avid Media Composer Ultimate。编辑多机位素材，剪辑长片和电视项目，并通过内置的色彩校正、基于脚本的编辑和共享素材箱工作流程来优化声音。"
     },
     {
       name: "elifyoung/unigine-superposition",
@@ -8722,25 +9766,25 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "Chaos Vantage，适用于 Windows 10/11。实时渲染 V-Ray 场景，让建筑师和设计师能够实时探索 3D 模型和光照，无需等待最终帧渲染。"
     },
     {
-      name: "Ifeanyimorozov/substance-3d-stager",
-      url: "https://github.com/Ifeanyimorozov/substance-3d-stager",
-      desc: "Substance 3D Stager for Windows 10/11. Arranges 3D scenes, lights and cameras to compose product shots and renders photorealistic stills for marketing, packaging and e-commerce assets.",
+      name: "FireLab2002/photoscape-x",
+      url: "https://github.com/FireLab2002/photoscape-x",
+      desc: "Photoscape X for Windows 10/11. Edits photos with filters, crop and collage tools, batch renames and converts image folders, and assembles animated GIFs and multi-panel layouts for quick sharing.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:12:15Z",
-      pushed: "2026-11-25T11:43:47Z",
-      created: "2026-11-24T12:21:52Z",
+      updated: "2026-11-26T03:38:10Z",
+      pushed: "2026-11-25T11:42:58Z",
+      created: "2026-11-24T11:56:08Z",
       license: "NOASSERTION",
       topics: [
-        "adobe-substance-3d-stager",
-        "stager",
-        "substance",
-        "substance-3d",
-        "substance-3d-painter"
+        "desktop-app",
+        "photoscape",
+        "photoscape-2026",
+        "photoscape-desktop",
+        "photoscape-free"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Substance 3D Stager。布置 3D 场景、光源和摄像机，以构图产品镜头，并渲染逼真的静态图像，用于营销、包装和电子商务资产。"
+      desc_zh: "适用于 Windows 10/11 的 Photoscape X。使用滤镜、裁剪和拼贴工具编辑照片，批量重命名和转换图像文件夹，并组装动画 GIF 和多面板布局，以便快速分享。"
     },
     {
       name: "lucia-zheng8/anaconda",
@@ -8764,151 +9808,46 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Anaconda。启动 Python 编程环境并安装 NumPy、Pandas 和 Jupyter 等数据科学包，让您无需手动设置依赖项即可构建和运行分析脚本。"
     },
     {
-      name: "Coreide28/shortlyai",
-      url: "https://github.com/Coreide28/shortlyai",
-      desc: "Shortlyai for Windows 10/11. Drafts and rewrites essays, emails and articles in a distraction-free editor, generating paragraphs on command and tightening your own text before you copy it out.",
+      name: "Karimcooper/sourcetree",
+      url: "https://github.com/Karimcooper/sourcetree",
+      desc: "Sourcetree for Windows 10/11. Browses Git and Mercurial repositories, stages and commits changes, resolves merge conflicts and pushes or pulls branches through a visual interface instead of typing commands.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:31:58Z",
-      pushed: "2026-11-25T11:41:22Z",
-      created: "2026-11-24T10:12:11Z",
+      updated: "2026-11-26T03:40:24Z",
+      pushed: "2026-11-25T11:44:12Z",
+      created: "2026-11-24T11:17:58Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
+        "download-sourcetree",
         "productivity",
         "software",
-        "software-engineering",
-        "utilities"
+        "software-engineering"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Shortlyai。在无干扰编辑器中起草和改写论文、电子邮件和文章，按指令生成段落，并在您复制文本之前对其进行精简。"
+      desc_zh: "适用于 Windows 10/11 的 Sourcetree。通过可视化界面（而非键入命令）浏览 Git 和 Mercurial 仓库、暂存和提交更改、解决合并冲突以及推送或拉取分支。"
     },
     {
-      name: "james-plus-96/octane-render",
-      url: "https://github.com/james-plus-96/octane-render",
-      desc: "Octane Render for Windows 10/11. Renders photorealistic 3D scenes with GPU path tracing, letting artists light and preview models in real time, then export final frames for animation, product visuals or architectural shots.",
+      name: "kevinnovikov/revo-uninstaller-free",
+      url: "https://github.com/kevinnovikov/revo-uninstaller-free",
+      desc: "Revo Uninstaller Free for Windows 10/11. Removes stubborn programs and leftover registry entries, scans for residual files after standard uninstalls and manages startup items to keep your PC clean and fast.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:30:40Z",
-      pushed: "2026-11-25T11:53:37Z",
-      created: "2026-11-24T11:54:52Z",
-      license: "NOASSERTION",
-      topics: [
-        "ember-octane",
-        "hi-octane",
-        "laravel-octane",
-        "octane",
-        "octane-decal"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Octane Render。使用 GPU 路径追踪渲染逼真的 3D 场景，让艺术家能够实时为模型打光并预览，然后导出最终帧用于动画、产品视觉效果或建筑镜头。"
-    },
-    {
-      name: "gaurav-feng/esignal",
-      url: "https://github.com/gaurav-feng/esignal",
-      desc: "Esignal for Windows 10/11. Tracks real-time stock, options and futures quotes on customizable charts, runs technical scans and builds watchlists to research trades and monitor market moves as they happen.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:01:38Z",
-      pushed: "2026-11-25T11:51:51Z",
-      created: "2026-11-24T12:35:54Z",
+      updated: "2026-11-26T03:37:30Z",
+      pushed: "2026-11-25T11:54:46Z",
+      created: "2026-11-24T12:33:47Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "esignal",
-        "esignal-javascript",
-        "install-esignal",
-        "productivity"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Esignal。在可定制的图表上实时跟踪股票、期权和期货行情，运行技术扫描并建立观察列表，以研究交易并实时监测市场走势。"
-    },
-    {
-      name: "michellezielinski/powerdirector-ultimate",
-      url: "https://github.com/michellezielinski/powerdirector-ultimate",
-      desc: "Powerdirector Ultimate for Windows 10/11. Edits video clips with timeline tracks, transitions and effects, then exports finished projects to MP4 or uploads them straight to YouTube.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:34:20Z",
-      pushed: "2026-11-25T11:56:39Z",
-      created: "2026-11-24T12:31:59Z",
-      license: "NOASSERTION",
-      topics: [
-        "cyberlink-powerdirector-12-ultimate",
-        "cyberlink-powerdirector-14-ultimate",
-        "cyberlink-powerdirector-16-ultimate",
-        "cyberlink-powerdirector-18-ultimate",
-        "cyberlink-powerdirector-19-ultimate"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Powerdirector Ultimate。使用时间轴轨道、转场和特效编辑视频片段，然后将完成的项目导出为 MP4 或直接上传到 YouTube。"
-    },
-    {
-      name: "debuanja9186/notepad",
-      url: "https://github.com/debuanja9186/notepad",
-      desc: "Notepad for Windows 10/11. Edits plain text and code files with syntax highlighting, line numbers and macro recording, then compares two documents side by side to review every changed line before saving.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:23:27Z",
-      pushed: "2026-11-25T11:50:08Z",
-      created: "2026-11-24T11:40:56Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "notepad",
-        "notepad-free",
-        "notepad-installer",
-        "notepad-plus-plus"
-      ],
-      desc_zh: "适用于 Windows 10/11 的记事本。使用语法高亮、行号和宏录制功能编辑纯文本和代码文件，然后在保存前将两份文档并排比较，以审核每一行有改动的内容。"
-    },
-    {
-      name: "Commithillsoft/output-signal",
-      url: "https://github.com/Commithillsoft/output-signal",
-      desc: "Output Signal for Windows 10/11. Generates and routes audio output signals across multiple devices and channels, letting you mix, monitor and switch between speakers, headphones and virtual sinks during live sessions.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:31:44Z",
-      pushed: "2026-11-25T11:41:15Z",
-      created: "2026-11-24T11:18:04Z",
-      license: "NOASSERTION",
-      topics: [
-        "output-2026",
-        "output-arcade",
-        "output-arcade-desktop",
-        "output-arcade-download",
-        "output-arcade-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的输出信号。在多台设备和多个声道之间生成和路由音频输出信号，让您在直播会话期间混音、监听并切换扬声器、耳机和虚拟音频接收器。"
-    },
-    {
-      name: "fastideforge/runwayml-gen-3",
-      url: "https://github.com/fastideforge/runwayml-gen-3",
-      desc: "Runwayml Gen 3 for Windows 10/11. Generates short video clips from text prompts or reference images, then refines motion, camera and style settings before exporting finished shots for ads, films or social posts.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:30:23Z",
-      pushed: "2026-11-25T15:14:54Z",
-      created: "2026-11-24T11:55:26Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
+        "free-revo-uninstaller-2024",
         "productivity",
-        "runwayml",
-        "runwayml-api",
-        "software"
+        "revo-pro-uninstaller",
+        "revo-uninstaller"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Runwayml Gen 3。根据文本提示或参考图像生成短视频片段，然后优化动作、镜头和风格设置，再导出成品镜头，用于广告、电影或社交媒体帖子。"
+      desc_zh: "适用于 Windows 10/11 的 Revo Uninstaller Free。删除顽固程序和残留的注册表项，在标准卸载后扫描残留文件，并管理启动项，以保持您的电脑干净、运行快速。"
     },
     {
       name: "RNA4219/anything-frontend-art-direction",
@@ -8926,109 +9865,88 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "配色・书体・余白・构图を题材から决める日本語のフロントエンドデザインスキル。247作品の調査データと単体HTMLの映画祭作例を収録。"
     },
     {
-      name: "Megandiaz05/private-internet-access",
-      url: "https://github.com/Megandiaz05/private-internet-access",
-      desc: "Private Internet Access for Windows 10/11. Routes your internet traffic through encrypted VPN servers, letting you hide your IP address, secure public Wi-Fi sessions and switch server locations to access region-restricted content.",
+      name: "kofimehta06/capture-one-23",
+      url: "https://github.com/kofimehta06/capture-one-23",
+      desc: "Capture One 23 for Windows 10/11. Edits RAW photos with precise color, exposure and layer adjustments, tethers your camera for instant review and exports finished images for client delivery or print.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:27:32Z",
-      pushed: "2026-11-25T11:45:31Z",
-      created: "2026-11-24T11:33:26Z",
+      updated: "2026-11-26T03:42:03Z",
+      pushed: "2026-11-25T11:54:45Z",
+      created: "2026-11-24T11:32:14Z",
       license: "NOASSERTION",
       topics: [
-        "access",
-        "accessibility",
-        "accesslint",
-        "internet",
-        "internet-connection"
+        "agent-skills",
+        "capture",
+        "capture-frames",
+        "capture-one-2026",
+        "capture-one-23-enterprise-vs-pro"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Private Internet Access。通过加密的 VPN 服务器路由您的互联网流量，让您隐藏 IP 地址、保护公共 Wi-Fi 会话的安全，并切换服务器位置以访问受区域限制的内容。"
+      desc_zh: "适用于 Windows 10/11 的 Capture One 23。对 RAW 照片进行精确的色彩、曝光和图层调整，将您的相机连接起来以即时查看，并导出成品图像以交付给客户或打印。"
     },
     {
-      name: "Alokcao2000/oeksound-spiff",
-      url: "https://github.com/Alokcao2000/oeksound-spiff",
-      desc: "Oeksound Spiff for Windows 10/11. Shapes and reshapes transient detail in recorded audio, letting you tighten drum hits, soften pick noise or add punch to individual tracks inside your DAW.",
+      name: "graceio1990/ptc-creo",
+      url: "https://github.com/graceio1990/ptc-creo",
+      desc: "Ptc Creo for Windows 10/11. Builds and edits 3D CAD models, assemblies and drawings with parametric features, then exports manufacturing-ready geometry for prototyping and production workflows.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:32:42Z",
-      pushed: "2026-11-25T11:40:04Z",
-      created: "2026-11-24T12:10:48Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "oeksound-bloom-download",
-        "oeksound-soothe-2-setup-download",
-        "oeksound-soothe-2-standalone",
-        "oeksound-soothe-2-standard"
-      ],
-      desc_zh: "适用于Windows 10/11的Oeksound Spiff。塑造和重塑录制音频中的瞬态细节，让您在DAW中收紧鼓点、柔化拨弦噪音或为单个音轨增添力度。"
-    },
-    {
-      name: "Mahesh-feng/toontrack-ezkeys-2",
-      url: "https://github.com/Mahesh-feng/toontrack-ezkeys-2",
-      desc: "Toontrack Ezkeys 2 for Windows 10/11. Plays and edits piano parts with a built-in instrument, drags MIDI chords into a song timeline, and reshapes melodies for quick arrangements in your DAW.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:31:27Z",
-      pushed: "2026-11-25T11:45:15Z",
-      created: "2026-11-24T11:40:50Z",
-      license: "NOASSERTION",
-      topics: [
-        "guide-setup-toontrack-ezkeys-2",
-        "toontrack",
-        "toontrack-download",
-        "toontrack-ezbass",
-        "toontrack-ezbass-download"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Toontrack Ezkeys 2。使用内置乐器演奏和编辑钢琴部分，将 MIDI 和弦拖入歌曲时间轴，并重塑旋律，以便在您的 DAW 中快速编曲。"
-    },
-    {
-      name: "leafrocksnow85/resemble-ai",
-      url: "https://github.com/leafrocksnow85/resemble-ai",
-      desc: "Resemble Ai for Windows 10/11. Generates realistic synthetic speech from text and clones voices using short audio samples, then exports the results as audio files for videos, games and narration projects.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:25:36Z",
-      pushed: "2026-11-25T11:55:11Z",
-      created: "2026-11-24T12:21:45Z",
+      updated: "2026-11-26T03:37:29Z",
+      pushed: "2026-11-25T11:52:16Z",
+      created: "2026-11-24T11:48:07Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
         "productivity",
-        "resemble-ai",
-        "resemble-ai-2026",
-        "resemble-ai-free"
+        "ptc-creo-free",
+        "software",
+        "software-engineering"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Resemble Ai。根据文本生成逼真的合成语音，并使用短音频样本克隆声音，然后将结果导出为音频文件，用于视频、游戏和旁白项目。"
+      desc_zh: "适用于 Windows 10/11 的 Ptc Creo。构建和编辑具有参数化功能的 3D CAD 模型、装配和图纸，然后导出可用于制造的几何图形，以用于原型制作和生产工作流程。"
     },
     {
-      name: "clientblue51/astropad-studio",
-      url: "https://github.com/clientblue51/astropad-studio",
-      desc: "Astropad Studio for Windows 10/11. Mirrors your desktop screen to an iPad and turns the tablet into a pressure-sensitive drawing surface, so you can sketch, retouch photos and annotate documents with a stylus.",
+      name: "alicoleman/polaris-office",
+      url: "https://github.com/alicoleman/polaris-office",
+      desc: "Polaris Office for Windows 10/11. Edits documents, spreadsheets and presentations in one app, converts PDFs and exports files to Word, Excel and PowerPoint formats for sharing with colleagues.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:30:03Z",
-      pushed: "2026-11-25T11:49:03Z",
-      created: "2026-11-24T11:02:21Z",
+      updated: "2026-11-26T03:41:39Z",
+      pushed: "2026-11-25T11:46:24Z",
+      created: "2026-11-24T11:51:34Z",
       license: "NOASSERTION",
       topics: [
-        "astropad",
-        "astropad-2025",
-        "astropad-2026",
-        "astropad-desktop",
-        "astropad-download"
+        "desktop-app",
+        "polaris-office",
+        "polaris-office-collaboration-features",
+        "polaris-office-desktop-application",
+        "polaris-office-download"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Astropad Studio。将您的桌面屏幕镜像到 iPad 上，并将平板电脑变成一个压感绘图板，让您可以用手写笔进行素描、修图和在文档上添加注释。"
+      desc_zh: "适用于 Windows 10/11 的 Polaris Office。在一个应用程序中编辑文档、电子表格和演示文稿，转换 PDF 并将文件导出为 Word、Excel 和 PowerPoint 格式，以便与同事共享。"
+    },
+    {
+      name: "bytebuildsmall/claude-desktop",
+      url: "https://github.com/bytebuildsmall/claude-desktop",
+      desc: "Claude Desktop for Windows 10/11. Chats with Claude AI to draft documents, analyze files and code, and answer questions from a native desktop app with quick access to your projects and conversations.",
+      lang: "",
+      stars: 194,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:43:07Z",
+      pushed: "2026-11-25T11:48:21Z",
+      created: "2026-11-24T11:49:09Z",
+      license: "NOASSERTION",
+      topics: [
+        "claude",
+        "claude-agents",
+        "claude-ai",
+        "claude-api",
+        "claude-code"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Claude Desktop。与 Claude AI 对话，以起草文档、分析文件和代码，并通过原生桌面应用程序回答问题，快速访问您的项目和对话。"
     },
     {
       name: "Dianaclark/iclone-8",
@@ -9052,151 +9970,151 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Iclone 8。通过动作捕捉、面部操控和时间轴编辑为3D角色赋予动画效果，让创作者无需完整的影视制作流程即可构建场景并渲染短片。"
     },
     {
-      name: "Gerald-wallace25/gopro-fusion-studio",
-      url: "https://github.com/Gerald-wallace25/gopro-fusion-studio",
-      desc: "Gopro Fusion Studio for Windows 10/11. Stitches dual-lens 360 footage into flat or spherical videos, trims and reframes clips, and exports finished files for sharing or editing in other apps.",
+      name: "hadisite555/clarisse-ifx",
+      url: "https://github.com/hadisite555/clarisse-ifx",
+      desc: "Clarisse Ifx for Windows 10/11. Sets up look development and lighting for 3D scenes, assembles shading networks and renders final frames for film and VFX shots.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:18:33Z",
-      pushed: "2026-11-25T11:43:04Z",
-      created: "2026-11-24T11:02:52Z",
+      updated: "2026-11-26T03:39:30Z",
+      pushed: "2026-11-25T11:52:35Z",
+      created: "2026-11-24T12:05:15Z",
       license: "NOASSERTION",
       topics: [
-        "fusion",
-        "fusion-360",
-        "fusion-360-addin",
-        "fusion-360-cad",
-        "fusion-360-cam"
+        "clarisse",
+        "clarisse-2026",
+        "clarisse-ifx",
+        "clarisse-ifx-2025",
+        "clarisse-ifx-2026"
       ],
-      desc_zh: "适用于 Windows 10/11 的 GoPro Fusion Studio。将双镜头 360 度影像拼接成平面或球面视频，剪辑和重新取景片段，并导出成品文件以便在其他应用程序中分享或编辑。"
+      desc_zh: "适用于 Windows 10/11 的 Clarisse Ifx。为 3D 场景设置外观开发和光照，组建着色网络，并为电影和视觉特效镜头渲染最终帧。"
     },
     {
-      name: "brittanyworks40/lightwave-3d",
-      url: "https://github.com/brittanyworks40/lightwave-3d",
-      desc: "Lightwave 3D for Windows 10/11. Builds 3D models, animates characters and renders scenes for film, broadcast and game art with polygon modeling, keyframe animation and lighting tools in a single pipeline.",
+      name: "kernbh/microsoft-onenote",
+      url: "https://github.com/kernbh/microsoft-onenote",
+      desc: "Microsoft Onenote for Windows 10/11. Captures typed and handwritten notes, clippings and images into shared notebooks, then organizes pages into sections for research, meeting notes or classwork.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:27:11Z",
-      pushed: "2026-11-25T11:48:08Z",
-      created: "2026-11-24T11:40:59Z",
+      updated: "2026-11-26T03:42:01Z",
+      pushed: "2026-11-25T11:54:33Z",
+      created: "2026-11-24T11:17:50Z",
       license: "NOASSERTION",
       topics: [
-        "free-lightwave-3d",
-        "how-to-install-lightwave-3d-on-pc",
-        "lightwave-3d-2024",
-        "lightwave-3d-2025",
-        "lightwave-3d-activated"
+        "download-microsoft-onenote",
+        "microsoft",
+        "microsoft-api",
+        "microsoft-blazor",
+        "microsoft-copilot"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Lightwave 3D。在一个管道中使用多边形建模、关键帧动画和光照工具，构建 3D 模型、为角色赋予动画效果并渲染电影、广播和游戏艺术场景。"
+      desc_zh: "适用于 Windows 10/11 的 Microsoft Onenote。将键入和手写的笔记、剪贴内容和图像记录到共享笔记本中，然后将页面整理成用于研究、会议笔记或课堂作业的分区。"
     },
     {
-      name: "amydavis185/acdsee-photo-studio",
-      url: "https://github.com/amydavis185/acdsee-photo-studio",
-      desc: "Acdsee Photo Studio for Windows 10/11. Organizes, edits and retouches photo libraries with batch processing, RAW development and layer-based adjustments for faster culling and delivery of large shoots.",
+      name: "kayanicole2/catia-v6",
+      url: "https://github.com/kayanicole2/catia-v6",
+      desc: "Catia V6 for Windows 10/11. Designs and engineers complex 3D products, from sketching parts and assemblies to simulating and validating them before manufacturing.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:31:46Z",
-      pushed: "2026-11-25T11:46:32Z",
-      created: "2026-11-24T10:11:24Z",
+      updated: "2026-11-26T03:40:22Z",
+      pushed: "2026-11-25T11:54:31Z",
+      created: "2026-11-24T12:27:41Z",
       license: "NOASSERTION",
       topics: [
-        "acdsee-photo-studio",
-        "acdsee-photo-studio-2018-professional",
-        "acdsee-photo-studio-download",
-        "acdsee-photo-studio-professional-2018-download",
-        "acdsee-photo-studio-professional-2019-download"
+        "catia-v6",
+        "catia-v6-2025",
+        "catia-v6-2026",
+        "catia-v6-desktop",
+        "catia-v6-free"
       ],
-      desc_zh: "适用于 Windows 10/11 的 ACDSee Photo Studio。通过批量处理、RAW 冲印和基于图层的调整来整理、编辑和润色照片库，从而更快地筛选和交付大量拍摄的照片。"
+      desc_zh: "适用于 Windows 10/11 的 Catia V6。设计和工程复杂的 3D 产品，从绘制零件和总成图到在制造前进行模拟和验证。"
     },
     {
-      name: "ford8852/ventoy",
-      url: "https://github.com/ford8852/ventoy",
-      desc: "Ventoy for Windows 10/11. Creates bootable USB drives from ISO, WIM, IMG and VHD files by copying them onto the stick, then boots any of them from a menu without reformatting.",
+      name: "kernelqueryfox4/monday-com-desktop",
+      url: "https://github.com/kernelqueryfox4/monday-com-desktop",
+      desc: "Monday Com Desktop for Windows 10/11. Builds and tracks team projects on boards, assigns tasks, sets timelines and updates statuses so work stays visible across departments and deadlines.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:20:15Z",
-      pushed: "2026-11-25T11:51:30Z",
-      created: "2026-11-24T11:40:04Z",
+      updated: "2026-11-26T03:40:37Z",
+      pushed: "2026-11-25T11:54:38Z",
+      created: "2026-11-24T12:04:50Z",
+      license: "NOASSERTION",
+      topics: [
+        "desktop",
+        "desktop-ai",
+        "desktop-analytics",
+        "desktop-app",
+        "desktop-apps"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Monday Com 桌面版。在看板上创建和跟踪团队项目，分配任务，设置时间线并更新状态，以便跨部门和截止日期都能看到工作情况。"
+    },
+    {
+      name: "judy-plus1/steam-family",
+      url: "https://github.com/judy-plus1/steam-family",
+      desc: "Steam Family for Windows 10/11. Manages a shared Steam library across family members with separate save files and parental controls, letting everyone play each other's games on their own schedules.",
+      lang: "",
+      stars: 194,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:02Z",
+      pushed: "2026-11-25T11:54:06Z",
+      created: "2026-11-24T11:17:45Z",
+      license: "NOASSERTION",
+      topics: [
+        "steam",
+        "steam-api",
+        "steam-cards",
+        "steam-client",
+        "steam-deck"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Steam 家庭。管理家庭成员共享的 Steam 库，提供独立的存档文件和家长控制功能，让每个人都能按照自己的时间安排玩彼此的游戏。"
+    },
+    {
+      name: "gauravnugroho/pcmark",
+      url: "https://github.com/gauravnugroho/pcmark",
+      desc: "Pcmark for Windows 10/11. Benchmarks your PC with realistic home and office workloads, then scores performance and battery life so you can compare upgrades or tune settings for faster everyday tasks.",
+      lang: "",
+      stars: 194,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:42:18Z",
+      pushed: "2026-11-25T11:51:56Z",
+      created: "2026-11-24T11:55:34Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "download-ventoy",
-        "productivity",
-        "setup-ventoy",
-        "software"
+        "download-pcmark",
+        "pcmark",
+        "pcmark-download",
+        "pcmark-free"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Ventoy。通过将 ISO、WIM、IMG 和 VHD 文件复制到 U 盘上，创建可引导 U 盘，然后从菜单中引导其中任何一个文件，而无需重新格式化。"
+      desc_zh: "适用于 Windows 10/11 的 Pcmark。使用真实的家用和办公工作负载对您的电脑进行基准测试，然后对性能和电池续航时间进行评分，以便您比较升级或调整设置，从而更快地完成日常任务。"
     },
     {
-      name: "Branchcorelab/waves-ssl-ev2",
-      url: "https://github.com/Branchcorelab/waves-ssl-ev2",
-      desc: "Waves Ssl Ev2 for Windows 10/11. Mixes tracks and masters with an SSL console-style channel strip, shaping EQ, dynamics and saturation on vocals, drums and full sessions.",
+      name: "gsemenov61/befunky",
+      url: "https://github.com/gsemenov61/befunky",
+      desc: "Befunky for Windows 10/11. Edits photos with layers, filters, text overlays and collage layouts, then exports finished images for social posts, thumbnails and quick touch-ups without opening a heavier editor.",
       lang: "",
       stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:24:10Z",
-      pushed: "2026-11-25T11:40:38Z",
-      created: "2026-11-24T11:59:21Z",
+      updated: "2026-11-26T03:41:47Z",
+      pushed: "2026-11-25T11:52:32Z",
+      created: "2026-11-24T12:11:14Z",
       license: "NOASSERTION",
       topics: [
-        "waves",
-        "waves-complete",
-        "waves-mastering-plugins",
-        "waves-mercury-bundle",
-        "waves-mercury-bundle-2026"
+        "2026-befunky",
+        "app-befunky",
+        "befunky",
+        "befunky-2025",
+        "befunky-2026"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Waves Ssl Ev2。使用 SSL 控制台式通道条混合轨道和母带，塑造人声、鼓和完整乐段的均衡、动态和饱和度。"
-    },
-    {
-      name: "newqueryold628/automatic1111",
-      url: "https://github.com/newqueryold628/automatic1111",
-      desc: "Automatic1111 for Windows 10/11. Generates images from text prompts and edits photos using Stable Diffusion models, running locally with support for custom checkpoints, LoRAs and upscaling.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:27:05Z",
-      pushed: "2026-11-25T11:57:28Z",
-      created: "2026-11-24T11:18:05Z",
-      license: "NOASSERTION",
-      topics: [
-        "automatic1111",
-        "automatic1111-2026",
-        "automatic1111-app",
-        "automatic1111-desktop",
-        "automatic1111-extension"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Automatic1111。使用 Stable Diffusion 模型，根据文本提示生成图像并编辑照片，在本地运行，支持自定义检查点、LoRA 和放大。"
-    },
-    {
-      name: "nabiledwards9/cyberduck",
-      url: "https://github.com/nabiledwards9/cyberduck",
-      desc: "Cyberduck for Windows 10/11. Connects to FTP, SFTP, WebDAV, S3 and cloud storage to browse remote folders, upload and download files, and edit documents directly on the server.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:27:21Z",
-      pushed: "2026-11-25T11:56:51Z",
-      created: "2026-11-24T11:56:14Z",
-      license: "NOASSERTION",
-      topics: [
-        "cyberduck",
-        "cyberduck--cloud-review",
-        "cyberduck-alternative",
-        "cyberduck-cloud-features",
-        "cyberduck-cloud-service"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Cyberduck。连接到 FTP、SFTP、WebDAV、S3 和云存储，以浏览远程文件夹、上传和下载文件，以及直接在服务器上编辑文档。"
+      desc_zh: "适用于 Windows 10/11 的 Befunky。使用图层、滤镜、文字叠加和拼贴布局编辑照片，然后导出成品图像，用于社交媒体帖子、缩略图和快速润色，无需打开更庞大的编辑器。"
     },
     {
       name: "leipolat56/7-zip",
@@ -9241,758 +10159,14 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Openshot。在时间线上编辑视频片段，支持拖放式剪辑、转场、字幕和音轨，然后将完成的项目导出到 YouTube、Vimeo 或常见文件格式。"
     },
     {
-      name: "natalianair/autoruns",
-      url: "https://github.com/natalianair/autoruns",
-      desc: "Autoruns for Windows 10/11. Manages programs that launch automatically at startup or login, letting you review, disable or delete entries to speed up boot time and troubleshoot slow PCs.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:31:04Z",
-      pushed: "2026-11-25T11:57:17Z",
-      created: "2026-11-24T11:57:42Z",
-      license: "NOASSERTION",
-      topics: [
-        "autoruns",
-        "autoruns-2026",
-        "autoruns-desktop",
-        "autoruns-download",
-        "autoruns-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Autoruns。管理在开机或登录时自动启动的程序，让您可以查看、禁用或删除条目，以缩短开机时间并解决电脑运行缓慢的问题。"
-    },
-    {
-      name: "arthurk2004/sublime-merge",
-      url: "https://github.com/arthurk2004/sublime-merge",
-      desc: "Sublime Merge for Windows 10/11. Browses commit history, stages individual lines and resolves merge conflicts in a fast Git client, giving developers a visual way to review diffs and manage branches without leaving the keyboard.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:22:25Z",
-      pushed: "2026-11-25T11:46:55Z",
-      created: "2026-11-24T10:03:26Z",
-      license: "NOASSERTION",
-      topics: [
-        "guide-setup-sublime-merge",
-        "how-to-install-sublime-merge",
-        "merge",
-        "sublime-code-editor",
-        "sublime-debugger"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Sublime Merge。在一个快速的 Git 客户端中浏览提交历史记录、暂存单行代码并解决合并冲突，为开发者提供了一种可视化方式，让他们无需离开键盘即可查看差异并管理分支。"
-    },
-    {
-      name: "birdblacklink4/sas-enterprise",
-      url: "https://github.com/birdblacklink4/sas-enterprise",
-      desc: "Sas Enterprise for Windows 10/11. Analyzes and models business data with statistical procedures, runs queries against large datasets, and builds reports and dashboards for forecasting, risk scoring, and operational reporting.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:27:58Z",
-      pushed: "2026-11-25T11:47:39Z",
-      created: "2026-11-24T11:47:48Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "enterprise",
-        "productivity",
-        "sas",
-        "sas-enterprise"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 SAS Enterprise。使用统计程序分析和建模业务数据，对大型数据集运行查询，并构建用于预测、风险评分和运营报告的报告和仪表板。"
-    },
-    {
-      name: "MukeshHoang61/dbvisualizer",
-      url: "https://github.com/MukeshHoang61/dbvisualizer",
-      desc: "Dbvisualizer for Windows 10/11. Connects to SQL databases, browses schemas and tables, and writes queries in a visual editor to inspect data and export results without touching the command line.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:29:50Z",
-      pushed: "2026-11-25T11:45:45Z",
-      created: "2026-11-24T11:17:57Z",
-      license: "NOASSERTION",
-      topics: [
-        "athena-dbvisualizer",
-        "dbvisualizer",
-        "dbvisualizer-2025",
-        "dbvisualizer-desktop",
-        "dbvisualizer-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Dbvisualizer。连接到 SQL 数据库，浏览架构和表，并在可视化编辑器中编写查询，以便检查数据和导出结果，而无需使用命令行。"
-    },
-    {
-      name: "Kamin5kipaul08/movavi-video-suite",
-      url: "https://github.com/Kamin5kipaul08/movavi-video-suite",
-      desc: "Movavi Video Suite for Windows 10/11. Edits video clips, audio and photos on a timeline, converts files between formats and captures screen recordings for tutorials or social media uploads.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:31:38Z",
-      pushed: "2026-11-25T11:44:08Z",
-      created: "2026-11-24T10:40:26Z",
-      license: "NOASSERTION",
-      topics: [
-        "cnet-movavi-photo-editor",
-        "movavi-photo-editor-app",
-        "movavi-photo-editor-mac",
-        "movavi-photo-slideshow-maker",
-        "movavi-suite-audio-editing"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Movavi Video Suite。在时间线上编辑视频片段、音频和照片，在不同格式之间转换文件，并录制屏幕以制作教程或上传到社交媒体。"
-    },
-    {
-      name: "gauravbose6472/riot-image-optimizer",
-      url: "https://github.com/gauravbose6472/riot-image-optimizer",
-      desc: "Riot Image Optimizer for Windows 10/11. Compresses, resizes and converts PNG, JPG and WebP images in bulk, cutting file sizes for faster websites and smaller game or app asset bundles.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:31:22Z",
-      pushed: "2026-11-25T11:51:58Z",
-      created: "2026-11-24T12:12:18Z",
-      license: "NOASSERTION",
-      topics: [
-        "image",
-        "image-api",
-        "image-cache",
-        "image-diff",
-        "image-line"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Riot Image Optimizer。批量压缩、调整大小和转换 PNG、JPG 和 WebP 图像，缩小文件大小，以实现更快的网站速度和更小的游戏或应用程序资源包。"
-    },
-    {
-      name: "ahmetferreira/ginger-software",
-      url: "https://github.com/ahmetferreira/ginger-software",
-      desc: "Ginger Software for Windows 10/11. Corrects grammar, spelling and punctuation as you type in any application, rewriting sentences and reading text aloud to help you proofread documents and emails faster.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:09:36Z",
-      pushed: "2026-11-25T11:46:14Z",
-      created: "2026-11-24T12:03:28Z",
-      license: "NOASSERTION",
-      topics: [
-        "ginger-software-2025",
-        "ginger-software-2026",
-        "ginger-software-free",
-        "ginger-software-mac",
-        "ginger-software-pro"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Ginger 软件。在您使用任何应用程序输入时，纠正语法、拼写和标点符号，改写句子并朗读文本，帮助您更快地校对文档和电子邮件。"
-    },
-    {
-      name: "MichaelDubey51/smartgit",
-      url: "https://github.com/MichaelDubey51/smartgit",
-      desc: "Smartgit for Windows 10/11. Navigates Git repositories with a visual commit graph, stages and merges branches, resolves conflicts and pushes changes to remote servers without typing commands.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:29:03Z",
-      pushed: "2026-11-25T11:45:39Z",
-      created: "2026-11-24T11:32:49Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "productivity",
-        "smartgit",
-        "smartgit-2026",
-        "smartgit-download"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Smartgit。使用可视化提交图浏览 Git 仓库，暂存和合并分支，解决冲突并将更改推送到远程服务器，无需键入命令。"
-    },
-    {
-      name: "ellisharish/metatrader-4",
-      url: "https://github.com/ellisharish/metatrader-4",
-      desc: "Metatrader 4 for Windows 10/11. Trades forex, CFDs and futures with live charts, technical indicators and automated expert advisors, then backtests strategies on historical price data before going live.",
-      lang: "",
-      stars: 194,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:29:05Z",
-      pushed: "2026-11-25T11:50:57Z",
-      created: "2026-11-24T11:42:12Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "metatrader",
-        "metatrader-4",
-        "metatrader-4-download",
-        "metatrader-4-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Metatrader 4。使用实时图表、技术指标和自动化智能交易系统交易外汇、差价合约和期货，然后在上线前对历史价格数据进行策略回测。"
-    },
-    {
-      name: "labsbigwood/avid-media-composer-ultimate",
-      url: "https://github.com/labsbigwood/avid-media-composer-ultimate",
-      desc: "Avid Media Composer Ultimate for Windows 10/11. Edits multi-camera footage, cuts long-form film and TV projects, and refines sound with built-in color correction, script-based editing and shared bin workflows.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:27:02Z",
-      pushed: "2026-11-25T11:54:52Z",
-      created: "2026-11-24T11:11:32Z",
-      license: "NOASSERTION",
-      topics: [],
-      desc_zh: "适用于 Windows 10/11 的 Avid Media Composer Ultimate。编辑多机位素材，剪辑长片和电视项目，并通过内置的色彩校正、基于脚本的编辑和共享素材箱工作流程来优化声音。"
-    },
-    {
-      name: "anrussell2593/tunnelbear",
-      url: "https://github.com/anrussell2593/tunnelbear",
-      desc: "Tunnelbear for Windows 10/11. Encrypts your internet connection through remote servers to mask your IP address and bypass regional restrictions, letting you browse privately on public Wi-Fi and access geo-blocked streaming content from other countries.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:28:11Z",
-      pushed: "2026-11-25T11:46:38Z",
-      created: "2026-11-24T11:17:54Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "download-tunnelbear",
-        "productivity",
-        "software",
-        "software-engineering"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Tunnelbear。通过远程服务器加密您的互联网连接，以隐藏您的 IP 地址并绕过区域限制，让您在公共 Wi-Fi 上私密浏览，并访问来自其他国家/地区的受地域限制的流媒体内容。"
-    },
-    {
-      name: "jorgestevens81/rocket-chat",
-      url: "https://github.com/jorgestevens81/rocket-chat",
-      desc: "Rocket Chat for Windows 10/11. Chats with teammates in channels and direct messages, shares files, starts voice and video calls, and connects to self-hosted or cloud workspaces from one desktop client.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:20:02Z",
-      pushed: "2026-11-25T11:53:53Z",
-      created: "2026-11-24T12:42:25Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "productivity",
-        "rocket",
-        "rocket-chat",
-        "rocket-league"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Rocket Chat。通过一个桌面客户端，在频道和直接消息中与团队成员聊天、共享文件、发起语音和视频通话，并连接到自托管或云端工作区。"
-    },
-    {
-      name: "linkdeployquiet91/listary",
-      url: "https://github.com/linkdeployquiet91/listary",
-      desc: "Listary for Windows 10/11. Launches apps, finds files and folders, and jumps to open documents from a single search bar, keeping your hands on the keyboard while you work.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:25:50Z",
-      pushed: "2026-11-25T11:55:29Z",
-      created: "2026-11-24T12:17:41Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "listary",
-        "listary-download",
-        "listary-free",
-        "listary-free-download"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Listary。通过一个搜索栏即可启动应用程序、查找文件和文件夹，并跳转到打开的文档，让您在工作时双手始终放在键盘上。"
-    },
-    {
-      name: "FireLab2002/photoscape-x",
-      url: "https://github.com/FireLab2002/photoscape-x",
-      desc: "Photoscape X for Windows 10/11. Edits photos with filters, crop and collage tools, batch renames and converts image folders, and assembles animated GIFs and multi-panel layouts for quick sharing.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:28:05Z",
-      pushed: "2026-11-25T11:42:58Z",
-      created: "2026-11-24T11:56:08Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "photoscape",
-        "photoscape-2026",
-        "photoscape-desktop",
-        "photoscape-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Photoscape X。使用滤镜、裁剪和拼贴工具编辑照片，批量重命名和转换图像文件夹，并组装动画 GIF 和多面板布局，以便快速分享。"
-    },
-    {
-      name: "Aifeng1992/roam-research",
-      url: "https://github.com/Aifeng1992/roam-research",
-      desc: "Roam Research for Windows 10/11. Captures notes and ideas as linked blocks, letting you build a personal knowledge graph, write daily notes and connect thoughts across pages for research and writing.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:32:50Z",
-      pushed: "2026-11-25T11:39:58Z",
-      created: "2026-11-24T11:49:14Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "ev-roaming",
-        "org-roam",
-        "org-roam-ui",
-        "productivity"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Roam Research。将笔记和想法以关联区块的形式记录下来，让您能够构建个人知识图谱、撰写每日笔记，并在不同页面之间关联想法，以进行研究和写作。"
-    },
-    {
-      name: "bytequerydeploy7/silhouette-fx",
-      url: "https://github.com/bytequerydeploy7/silhouette-fx",
-      desc: "Silhouette Fx for Windows 10/11. Renders, composites and animates visual effects shots with masking, tracking and rotoscoping tools, letting editors and VFX artists clean up plates and build layered scenes for film and video projects.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:26:04Z",
-      pushed: "2026-11-25T11:48:27Z",
-      created: "2026-11-24T11:41:27Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "productivity",
-        "software",
-        "software-engineering",
-        "utilities"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Silhouette Fx。使用遮罩、跟踪和逐帧抠像工具渲染、合成和动画化视觉特效镜头，让剪辑师和视觉特效艺术家能够清理背景板并为电影和视频项目构建分层场景。"
-    },
-    {
-      name: "d3vflux/nuke",
-      url: "https://github.com/d3vflux/nuke",
-      desc: "Nuke for Windows 10/11. Composites multilayer footage, keying greenscreens and tracking live-action plates, then renders final shots for film and episodic VFX work.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:32:19Z",
-      pushed: "2026-11-25T11:49:51Z",
-      created: "2026-11-24T12:44:18Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "download-nuke",
-        "install-nuke",
-        "nuke-download",
-        "nuke-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Nuke。合成多层素材、抠像绿幕并跟踪真人拍摄素材，然后渲染用于电影和剧集 VFX 工作的最终镜头。"
-    },
-    {
-      name: "joyces49/wondershare-filmora-x",
-      url: "https://github.com/joyces49/wondershare-filmora-x",
-      desc: "Wondershare Filmora X for Windows 10/11. Edits video clips with timeline trimming, transitions, titles and audio tools, then exports finished projects for YouTube, social media or local playback.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:31:44Z",
-      pushed: "2026-11-25T11:53:56Z",
-      created: "2026-11-24T11:49:13Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "download-wondershare-filmora-x",
-        "filmora-2025",
-        "filmora-ai",
-        "filmora-mac"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Wondershare Filmora X。使用时间线剪辑、转场、标题和音频工具编辑视频片段，然后导出成品项目，用于 YouTube、社交媒体或本地播放。"
-    },
-    {
-      name: "txchen/govault",
-      url: "https://github.com/txchen/govault",
-      desc: "Fast, lightweight, zero-CGO native desktop client for Vaultwarden/Bitwarden in Go and NSGo",
-      lang: "Go",
-      stars: 193,
-      forks: 10,
-      issues: 0,
-      updated: "2026-11-25T02:36:32Z",
-      pushed: "2026-11-24T16:50:29Z",
-      created: "2026-11-20T17:59:55Z",
-      license: "MIT",
-      topics: [],
-      desc_zh: "使用 Go 和 NSGo 编写的 Vaultwarden/Bitwarden 原生桌面客户端，快速、轻量级、零 CGO"
-    },
-    {
-      name: "latabr157/twinmotion",
-      url: "https://github.com/latabr157/twinmotion",
-      desc: "Twinmotion for Windows 10/11. Imports CAD, BIM and SketchUp models, then builds real-time scenes with lighting, materials and weather, and exports images, panoramas and videos for client presentations.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:26:05Z",
-      pushed: "2026-11-25T11:55:12Z",
-      created: "2026-11-24T11:06:34Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "download-twinmotion",
-        "free-twinmotion",
-        "official-twinmotion",
-        "productivity"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Twinmotion。导入 CAD、BIM 和 SketchUp 模型，然后使用光照、材质和天气构建实时场景，并导出图像、全景图和视频，用于向客户演示。"
-    },
-    {
-      name: "Galihsahin552/sierra-chart",
-      url: "https://github.com/Galihsahin552/sierra-chart",
-      desc: "Sierra Chart for Windows 10/11. Charts futures and equities in real time, places trades directly from the chart and runs automated trading systems against live market data feeds.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:21:32Z",
-      pushed: "2026-11-25T11:43:02Z",
-      created: "2026-11-24T11:33:44Z",
-      license: "NOASSERTION",
-      topics: [
-        "chart",
-        "high-sierra",
-        "macos",
-        "macos-high-sierra",
-        "sierra"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Sierra Chart。实时绘制期货和股票图表，直接从图表下单，并根据实时市场数据流运行自动化交易系统。"
-    },
-    {
-      name: "kevinnovikov/revo-uninstaller-free",
-      url: "https://github.com/kevinnovikov/revo-uninstaller-free",
-      desc: "Revo Uninstaller Free for Windows 10/11. Removes stubborn programs and leftover registry entries, scans for residual files after standard uninstalls and manages startup items to keep your PC clean and fast.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:00:58Z",
-      pushed: "2026-11-25T11:54:46Z",
-      created: "2026-11-24T12:33:47Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "free-revo-uninstaller-2024",
-        "productivity",
-        "revo-pro-uninstaller",
-        "revo-uninstaller"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Revo Uninstaller Free。删除顽固程序和残留的注册表项，在标准卸载后扫描残留文件，并管理启动项，以保持您的电脑干净、运行快速。"
-    },
-    {
-      name: "Martinsite06/nordvpn-teams",
-      url: "https://github.com/Martinsite06/nordvpn-teams",
-      desc: "Nordvpn Teams for Windows 10/11. Connects your team through a shared encrypted gateway, letting admins assign devices, monitor activity and route traffic securely from one dashboard.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:32:43Z",
-      pushed: "2026-11-25T11:45:26Z",
-      created: "2026-11-24T12:25:35Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "nordvpn-log-in",
-        "productivity",
-        "software",
-        "software-engineering"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 NordVPN Teams。通过共享加密网关将您的团队连接起来，让管理员能够从一个仪表板分配设备、监控活动并安全地路由流量。"
-    },
-    {
-      name: "Morozov-yusuf1987/dashlane",
-      url: "https://github.com/Morozov-yusuf1987/dashlane",
-      desc: "Dashlane for Windows 10/11. Stores passwords, payment cards and secure notes in an encrypted vault, autofills login forms in your browser and warns you when saved credentials appear in known breaches.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:30:38Z",
-      pushed: "2026-11-25T11:45:46Z",
-      created: "2026-11-24T12:20:01Z",
-      license: "NOASSERTION",
-      topics: [
-        "2026-dashlane",
-        "dashlane",
-        "dashlane-desktop",
-        "dashlane-download",
-        "dashlane-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Dashlane。将密码、支付卡和安全笔记存储在加密的保管库中，在您的浏览器中自动填写登录表单，并在已保存的凭据出现在已知数据泄露事件中时向您发出警告。"
-    },
-    {
-      name: "claudiafeng55/izotope-ozone-11",
-      url: "https://github.com/claudiafeng55/izotope-ozone-11",
-      desc: "Izotope Ozone 11 for Windows 10/11. Masters finished tracks with AI-assisted EQ, dynamics and loudness matching, then exports release-ready audio for streaming, CD or vinyl in a single pass.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:30:23Z",
-      pushed: "2026-11-25T11:48:56Z",
-      created: "2026-11-24T11:34:03Z",
-      license: "NOASSERTION",
-      topics: [
-        "install-izotope-ozone-11",
-        "izotope-2026",
-        "izotope-desktop",
-        "izotope-download",
-        "izotope-nectar"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Izotope Ozone 11。使用 AI 辅助的均衡器、动态和响度匹配来母带处理已完成的曲目，然后一次性导出可供流媒体、CD 或黑胶唱片发布的音频。"
-    },
-    {
-      name: "graceio1990/ptc-creo",
-      url: "https://github.com/graceio1990/ptc-creo",
-      desc: "Ptc Creo for Windows 10/11. Builds and edits 3D CAD models, assemblies and drawings with parametric features, then exports manufacturing-ready geometry for prototyping and production workflows.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T02:52:49Z",
-      pushed: "2026-11-25T11:52:16Z",
-      created: "2026-11-24T11:48:07Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "productivity",
-        "ptc-creo-free",
-        "software",
-        "software-engineering"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Ptc Creo。构建和编辑具有参数化功能的 3D CAD 模型、装配和图纸，然后导出可用于制造的几何图形，以用于原型制作和生产工作流程。"
-    },
-    {
-      name: "alicoleman/polaris-office",
-      url: "https://github.com/alicoleman/polaris-office",
-      desc: "Polaris Office for Windows 10/11. Edits documents, spreadsheets and presentations in one app, converts PDFs and exports files to Word, Excel and PowerPoint formats for sharing with colleagues.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:04:30Z",
-      pushed: "2026-11-25T11:46:24Z",
-      created: "2026-11-24T11:51:34Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "polaris-office",
-        "polaris-office-collaboration-features",
-        "polaris-office-desktop-application",
-        "polaris-office-download"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Polaris Office。在一个应用程序中编辑文档、电子表格和演示文稿，转换 PDF 并将文件导出为 Word、Excel 和 PowerPoint 格式，以便与同事共享。"
-    },
-    {
-      name: "hadisite555/clarisse-ifx",
-      url: "https://github.com/hadisite555/clarisse-ifx",
-      desc: "Clarisse Ifx for Windows 10/11. Sets up look development and lighting for 3D scenes, assembles shading networks and renders final frames for film and VFX shots.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:34:32Z",
-      pushed: "2026-11-25T11:52:35Z",
-      created: "2026-11-24T12:05:15Z",
-      license: "NOASSERTION",
-      topics: [
-        "clarisse",
-        "clarisse-2026",
-        "clarisse-ifx",
-        "clarisse-ifx-2025",
-        "clarisse-ifx-2026"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Clarisse Ifx。为 3D 场景设置外观开发和光照，组建着色网络，并为电影和视觉特效镜头渲染最终帧。"
-    },
-    {
-      name: "kernbh/microsoft-onenote",
-      url: "https://github.com/kernbh/microsoft-onenote",
-      desc: "Microsoft Onenote for Windows 10/11. Captures typed and handwritten notes, clippings and images into shared notebooks, then organizes pages into sections for research, meeting notes or classwork.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:26:55Z",
-      pushed: "2026-11-25T11:54:33Z",
-      created: "2026-11-24T11:17:50Z",
-      license: "NOASSERTION",
-      topics: [
-        "download-microsoft-onenote",
-        "microsoft",
-        "microsoft-api",
-        "microsoft-blazor",
-        "microsoft-copilot"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Microsoft Onenote。将键入和手写的笔记、剪贴内容和图像记录到共享笔记本中，然后将页面整理成用于研究、会议笔记或课堂作业的分区。"
-    },
-    {
-      name: "kernelqueryfox4/monday-com-desktop",
-      url: "https://github.com/kernelqueryfox4/monday-com-desktop",
-      desc: "Monday Com Desktop for Windows 10/11. Builds and tracks team projects on boards, assigns tasks, sets timelines and updates statuses so work stays visible across departments and deadlines.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:32:37Z",
-      pushed: "2026-11-25T11:54:38Z",
-      created: "2026-11-24T12:04:50Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop",
-        "desktop-ai",
-        "desktop-analytics",
-        "desktop-app",
-        "desktop-apps"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Monday Com 桌面版。在看板上创建和跟踪团队项目，分配任务，设置时间线并更新状态，以便跨部门和截止日期都能看到工作情况。"
-    },
-    {
-      name: "hugheskartik80/discord-nitro-classic",
-      url: "https://github.com/hugheskartik80/discord-nitro-classic",
-      desc: "Discord Nitro Classic for Windows 10/11. Unlocks custom emoji, larger file uploads and animated avatars across your servers, giving you more ways to personalize chats and share bigger files with friends.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:34:05Z",
-      pushed: "2026-11-25T11:53:10Z",
-      created: "2026-11-24T11:18:01Z",
-      license: "NOASSERTION",
-      topics: [
-        "classic",
-        "classic-paint",
-        "classical",
-        "discord",
-        "discord-api"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Discord Nitro Classic。解锁自定义表情符号、更大文件上传和动态头像功能，在您的所有服务器上均可使用，为您提供更多个性化聊天和与好友分享更大文件的方式。"
-    },
-    {
-      name: "judy-plus1/steam-family",
-      url: "https://github.com/judy-plus1/steam-family",
-      desc: "Steam Family for Windows 10/11. Manages a shared Steam library across family members with separate save files and parental controls, letting everyone play each other's games on their own schedules.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:33:40Z",
-      pushed: "2026-11-25T11:54:06Z",
-      created: "2026-11-24T11:17:45Z",
-      license: "NOASSERTION",
-      topics: [
-        "steam",
-        "steam-api",
-        "steam-cards",
-        "steam-client",
-        "steam-deck"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Steam 家庭。管理家庭成员共享的 Steam 库，提供独立的存档文件和家长控制功能，让每个人都能按照自己的时间安排玩彼此的游戏。"
-    },
-    {
-      name: "labsbigwood/d5-render",
-      url: "https://github.com/labsbigwood/d5-render",
-      desc: "D5 Render for Windows 10/11. Renders architectural and interior scenes in real time with ray tracing, lets designers build 3D models, apply materials and lighting, then export images and walkthrough animations for client presentations.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:28:27Z",
-      pushed: "2026-11-25T11:54:57Z",
-      created: "2026-11-24T12:18:23Z",
-      license: "NOASSERTION",
-      topics: [
-        "3d-rendering",
-        "render",
-        "render-elements",
-        "render-engine",
-        "render-farm"
-      ],
-      desc_zh: "D5 渲染器，适用于 Windows 10/11。使用光线追踪实时渲染建筑和室内场景，让设计师能够构建 3D 模型、应用材质和光照，然后导出图像和漫游动画，用于向客户演示。"
-    },
-    {
-      name: "alangomes2/handbrake",
-      url: "https://github.com/alangomes2/handbrake",
-      desc: "Handbrake for Windows 10/11. Converts video files between formats, rips DVDs and re-encodes clips for phones, tablets and TVs with fine control over quality and output size.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:22:47Z",
-      pushed: "2026-11-25T11:46:17Z",
-      created: "2026-11-24T12:11:11Z",
-      license: "NOASSERTION",
-      topics: [
-        "download-handbrake",
-        "handbrake",
-        "handbrake-2025",
-        "handbrake-2026",
-        "handbrake-activated"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Handbrake。在不同格式之间转换视频文件，翻录 DVD，并为手机、平板电脑和电视重新编码视频片段，同时对质量和输出大小进行精细控制。"
-    },
-    {
-      name: "lakebuild/eventide-blackhole",
-      url: "https://github.com/lakebuild/eventide-blackhole",
-      desc: "Eventide Blackhole for Windows 10/11. Applies lush reverb and delay effects to audio tracks, letting musicians and sound designers shape ambient textures and spacious tails for music production and sound design.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:19:23Z",
-      pushed: "2026-11-25T11:55:04Z",
-      created: "2026-11-24T11:49:00Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "eventide-blackhole",
-        "eventide-blackhole-setup",
-        "how-to-setup-eventide-blackhole",
-        "install-eventide-blackhole"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Eventide Blackhole。为音频轨道应用丰富的混响和延迟效果，让音乐人和声音设计师能够为音乐制作和声音设计塑造氛围质感和宽广的尾音。"
-    },
-    {
-      name: "goodpixelwest9/processlasso",
-      url: "https://github.com/goodpixelwest9/processlasso",
-      desc: "Processlasso for Windows 10/11. Monitors running applications and background processes, applies priority and CPU affinity rules, and automatically restrains resource-hungry programs so your system stays responsive during heavy workloads.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:31:31Z",
-      pushed: "2026-11-25T11:52:08Z",
-      created: "2026-11-24T12:02:24Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "processlasso",
-        "productivity",
-        "software",
-        "software-engineering"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Processlasso。监控正在运行的应用程序和后台进程，应用优先级和 CPU 亲和性规则，并自动限制资源占用量大的程序，以便您的系统在重负载期间保持响应。"
-    },
-    {
       name: "galihsolutions01/sketchup-studio",
       url: "https://github.com/galihsolutions01/sketchup-studio",
       desc: "Sketchup Studio for Windows 10/11. Models 3D buildings and interiors, then renders scenes, creates construction drawings and shares walkthroughs with clients before anything is built.",
       lang: "",
-      stars: 193,
+      stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:28:14Z",
+      updated: "2026-11-26T03:40:40Z",
       pushed: "2026-11-25T11:51:49Z",
       created: "2026-11-24T12:42:32Z",
       license: "NOASSERTION",
@@ -10006,235 +10180,67 @@ window.__GHRANK_RANGES__["week"] = {
       desc_zh: "适用于 Windows 10/11 的 Sketchup Studio。建模 3D 建筑和室内空间，然后渲染场景、创建施工图纸，并在任何施工开始之前与客户分享漫游。"
     },
     {
-      name: "arunstepanov38/luminar-ai",
-      url: "https://github.com/arunstepanov38/luminar-ai",
-      desc: "Luminar Ai for Windows 10/11. Edits photos with AI-powered sky replacement, portrait retouching and object removal tools, then exports finished images for print or social media.",
+      name: "abdullahl63/paragon-hard-disk-manager",
+      url: "https://github.com/abdullahl63/paragon-hard-disk-manager",
+      desc: "Paragon Hard Disk Manager for Windows 10/11. Partitions drives, migrates the OS to a new disk, and backs up entire systems or individual files, so you can resize volumes and recover from hardware failures without reinstalling.",
       lang: "",
-      stars: 193,
+      stars: 194,
       forks: 0,
       issues: 0,
-      updated: "2026-11-26T03:28:58Z",
-      pushed: "2026-11-25T11:47:03Z",
-      created: "2026-11-24T11:33:14Z",
+      updated: "2026-11-26T03:36:11Z",
+      pushed: "2026-11-25T11:46:08Z",
+      created: "2026-11-24T11:25:10Z",
+      license: "NOASSERTION",
+      topics: [
+        "dependency-manager",
+        "desktop-app",
+        "manager",
+        "paragon-hard-disk-manager-download",
+        "paragon-hard-disk-manager-free"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Paragon Hard Disk Manager。对驱动器进行分区、将操作系统迁移到新磁盘，并备份整个系统或单个文件，以便您可以调整卷大小，并在发生硬件故障时无需重新安装即可进行恢复。"
+    },
+    {
+      name: "Leafbitloud12/corona-renderer",
+      url: "https://github.com/Leafbitloud12/corona-renderer",
+      desc: "Corona Renderer for Windows 10/11. Renders photorealistic architectural and product visuals with physically based lighting, materials and interactive previews, so 3ds Max and Cinema 4D artists can iterate on scenes quickly.",
+      lang: "",
+      stars: 194,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:37:43Z",
+      pushed: "2026-11-25T11:44:44Z",
+      created: "2026-11-24T11:49:02Z",
+      license: "NOASSERTION",
+      topics: [
+        "2026-corona-renderer",
+        "chaos-corona-renderer",
+        "corona",
+        "corona-renderer",
+        "corona-renderer-11"
+      ],
+      desc_zh: "适用于 Windows 10/11 的 Corona Renderer。使用基于物理的光照、材质和交互式预览渲染逼真的建筑和产品视觉效果，让 3ds Max 和 Cinema 4D 艺术家能够快速迭代场景。"
+    },
+    {
+      name: "amina-singh/freeoffice",
+      url: "https://github.com/amina-singh/freeoffice",
+      desc: "Freeoffice for Windows 10/11. Creates and edits documents, spreadsheets and presentations, opening and saving Microsoft Office file formats so you can share work with colleagues without paying for a subscription.",
+      lang: "",
+      stars: 194,
+      forks: 0,
+      issues: 0,
+      updated: "2026-11-26T03:41:08Z",
+      pushed: "2026-11-25T11:46:25Z",
+      created: "2026-11-24T11:32:28Z",
       license: "NOASSERTION",
       topics: [
         "desktop-app",
-        "luminar-2024",
-        "luminar-2025",
-        "luminar-ai",
-        "luminar-ai-2024"
+        "freeoffice",
+        "freeoffice-setup",
+        "install-freeoffice",
+        "productivity"
       ],
-      desc_zh: "适用于 Windows 10/11 的 Luminar Ai。使用由 AI 驱动的天空替换、人像润色和物体移除工具编辑照片，然后导出成品图像以供打印或发布到社交媒体。"
-    },
-    {
-      name: "Naledi-do/arnold-standalone",
-      url: "https://github.com/Naledi-do/arnold-standalone",
-      desc: "Arnold Standalone for Windows 10/11. Renders production-quality 3D scenes and animations using the Arnold ray-tracing engine, with batch rendering and a command-line interface for studio pipelines.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:33:21Z",
-      pushed: "2026-11-25T11:45:56Z",
-      created: "2026-11-24T11:56:52Z",
-      license: "NOASSERTION",
-      topics: [
-        "arnold",
-        "arnold-standalone",
-        "arnold-standalone-2025",
-        "arnold-standalone-2026",
-        "arnold-standalone-desktop"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Arnold Standalone。使用 Arnold 射线追踪引擎渲染制作级 3D 场景和动画，并提供批量渲染和适用于工作室管线的命令行界面。"
-    },
-    {
-      name: "naleditiwari/skylum-aurora-hdr",
-      url: "https://github.com/naleditiwari/skylum-aurora-hdr",
-      desc: "Skylum Aurora Hdr for Windows 10/11. Merges bracketed exposure shots into a single high dynamic range photo, then edits tone, color and detail with layers and masks for realistic or dramatic landscape results.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:32:54Z",
-      pushed: "2026-11-25T11:57:04Z",
-      created: "2026-11-24T11:32:43Z",
-      license: "NOASSERTION",
-      topics: [
-        "aurora-postgresql",
-        "desktop-app",
-        "guide-setup-skylum-aurora-hdr",
-        "productivity",
-        "skylum"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Skylum Aurora HDR。将包围曝光的照片合并为一张高动态范围照片，然后使用图层和蒙版编辑色调、色彩和细节，以获得逼真或戏剧性的风景效果。"
-    },
-    {
-      name: "Birdworks695/atom-pulsar",
-      url: "https://github.com/Birdworks695/atom-pulsar",
-      desc: "Atom Pulsar for Windows 10/11. Plays and organizes your local music library, letting you queue albums, build playlists and control playback with keyboard shortcuts while tracks stream from disk.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:23:31Z",
-      pushed: "2026-11-25T11:40:35Z",
-      created: "2026-11-24T11:40:34Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "install-atom-pulsar",
-        "productivity",
-        "pulsar-edit",
-        "software"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Atom Pulsar。播放和整理您的本地音乐库，让您在从磁盘流式传输曲目的同时，使用键盘快捷键将专辑排入队列、创建播放列表和控制播放。"
-    },
-    {
-      name: "deployrealblack/enpass",
-      url: "https://github.com/deployrealblack/enpass",
-      desc: "Enpass for Windows 10/11. Stores passwords, passkeys and credit cards in an encrypted local vault, autofills logins across browsers, and syncs the vault through your own cloud or Wi-Fi for cross-device access.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:02:00Z",
-      pushed: "2026-11-25T11:50:34Z",
-      created: "2026-11-24T12:32:50Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "download-enpass",
-        "enpass",
-        "enpass-desktop",
-        "enpass-free"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Enpass。将密码、通行密钥和信用卡信息存储在加密的本地保管库中，跨浏览器自动填充登录信息，并通过您的自有云或 Wi-Fi 同步保管库，以实现跨设备访问。"
-    },
-    {
-      name: "lake-group07/red-giant-trapcode-suite",
-      url: "https://github.com/lake-group07/red-giant-trapcode-suite",
-      desc: "Red Giant Trapcode Suite for Windows 10/11. Builds motion graphics and animated visual effects inside After Effects using particle systems, 3D geometry and form generators for titles, broadcast packages and music videos.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:18:11Z",
-      pushed: "2026-11-25T11:54:58Z",
-      created: "2026-11-24T12:26:30Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "guide-setup-red-giant-trapcode",
-        "guide-setup-red-giant-trapcode-suite",
-        "how-to-install-red-giant-trapcode",
-        "how-to-install-red-giant-trapcode-suite"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Red Giant Trapcode 套件。使用粒子系统、3D 几何体和形状生成器在 After Effects 中制作动态图形和动画视觉效果，用于片头、广播包装和音乐视频。"
-    },
-    {
-      name: "Jessica-smirnov/zoho-workdrive",
-      url: "https://github.com/Jessica-smirnov/zoho-workdrive",
-      desc: "Zoho Workdrive for Windows 10/11. Stores, syncs and shares team files from your desktop, letting you edit documents online, track changes and collaborate on folders without switching to a browser tab.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:27:39Z",
-      pushed: "2026-11-25T11:43:54Z",
-      created: "2026-11-24T12:04:39Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "download-zoho-workdrive",
-        "productivity",
-        "software",
-        "software-engineering"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Zoho Workdrive。从您的桌面存储、同步和共享团队文件，让您在线编辑文档、跟踪更改以及在文件夹中协作，而无需切换到浏览器标签页。"
-    },
-    {
-      name: "margaret-hoang4437/thunder-client",
-      url: "https://github.com/margaret-hoang4437/thunder-client",
-      desc: "Thunder Client for Windows 10/11. Sends HTTP requests, inspects responses and organizes API calls into collections, so you can test endpoints and debug REST, GraphQL and SOAP services without leaving the desktop.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:29:06Z",
-      pushed: "2026-11-25T11:56:12Z",
-      created: "2026-11-24T12:18:24Z",
-      license: "NOASSERTION",
-      topics: [
-        "client",
-        "client-library",
-        "client-only-backup",
-        "client-secret",
-        "em-client-pro-vs-thunderbird-comparison"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Thunder Client。发送 HTTP 请求、检查响应并将 API 调用整理为集合，以便您无需离开桌面即可测试端点并调试 REST、GraphQL 和 SOAP 服务。"
-    },
-    {
-      name: "igor-kulkarni/dorico-pro",
-      url: "https://github.com/igor-kulkarni/dorico-pro",
-      desc: "Dorico Pro for Windows 10/11. Writes, engraves and edits musical scores with real notation, then plays them back through virtual instruments or exports parts for printing and performance.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:28:28Z",
-      pushed: "2026-11-25T11:53:17Z",
-      created: "2026-11-24T11:40:46Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "dorico-pro-download",
-        "dorico-pro-free",
-        "dorico-pro-free-download",
-        "dorico-pro-free-trial"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Dorico Pro。使用真实乐谱撰写、刻印和编辑乐谱，然后通过虚拟乐器播放，或导出乐谱的各部分以供打印和演奏。"
-    },
-    {
-      name: "HighHawkTech1998/valhalla-delay",
-      url: "https://github.com/HighHawkTech1998/valhalla-delay",
-      desc: "Valhalla Delay for Windows 10/11. Shapes echoes, tape saturation and modulated repeats into vocals, guitars and synths, letting producers build custom delay textures and dial in rhythmic feedback for mixes.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:16:48Z",
-      pushed: "2026-11-25T11:43:30Z",
-      created: "2026-11-24T11:17:59Z",
-      license: "NOASSERTION",
-      topics: [
-        "delay",
-        "delay-coordinates",
-        "delay-plugin",
-        "guide-setup-valhalla-delay",
-        "how-to-install-valhalla-delay"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Valhalla Delay。将回声、磁带饱和度和调制重复音效融入人声、吉他和合成器，让制作人能够打造定制的延迟音色，并为混音添加有节奏的反馈。"
-    },
-    {
-      name: "billydeng32/stata",
-      url: "https://github.com/billydeng32/stata",
-      desc: "Stata for Windows 10/11. Analyzes datasets with regression, survey weights and panel models, then exports publication ready tables and graphs for research papers and reports.",
-      lang: "",
-      stars: 193,
-      forks: 0,
-      issues: 0,
-      updated: "2026-11-26T03:31:37Z",
-      pushed: "2026-11-25T11:47:35Z",
-      created: "2026-11-24T12:12:42Z",
-      license: "NOASSERTION",
-      topics: [
-        "desktop-app",
-        "download-stata",
-        "productivity",
-        "software",
-        "software-engineering"
-      ],
-      desc_zh: "适用于 Windows 10/11 的 Stata。使用回归、调查权重和面板模型分析数据集，然后导出可用于研究论文和报告的、可以直接发布的表格和图表。"
+      desc_zh: "适用于 Windows 10/11 的 Freeoffice。创建和编辑文档、电子表格和演示文稿，打开和保存 Microsoft Office 文件格式，让您无需支付订阅费用即可与同事共享工作成果。"
     }
   ]
 };
