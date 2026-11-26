@@ -96,6 +96,10 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .ameta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:12px;color:var(--muted)}
 .tag{background:var(--chip);color:var(--accent);border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600}
 .empty{padding:40px 20px;text-align:center;color:var(--muted);background:var(--card);border:1px dashed var(--border);border-radius:var(--radius)}
+  .empty-filter b{display:block;font-size:16px;color:var(--fg);margin-bottom:6px}
+  .ef-cond{margin:0 auto;max-width:44em;line-height:1.75;font-size:13.5px}
+  .ef-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+  .ef-acts .btn,.ef-acts .ghost{min-height:38px}
 /* 侧栏 */
 .bside{position:sticky;top:16px;display:flex;flex-direction:column;gap:14px}
 .bcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
@@ -687,7 +691,18 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       return;
     }
     if (!list.length) {
-      box.innerHTML = '<div class="empty">没有匹配的文章，换个关键词或分类试试。</div>';
+      var parts = [];
+      if (state.cat !== 'all') parts.push('分类「' + esc(catDisplay(state.cat)) + '」');
+      if (state.q.trim()) parts.push('关键词「' + esc(state.q.trim()) + '」');
+      var acts = '';
+      if (state.q.trim()) acts += '<button type="button" class="ghost" data-ef="q">只清关键词</button>';
+      if (state.cat !== 'all') acts += '<button type="button" class="ghost" data-ef="cat">只清分类</button>';
+      acts += '<button type="button" class="btn" data-ef="all">清空全部筛选</button>';
+      box.innerHTML = '<div class="empty empty-filter" role="status">' +
+        '<b>没有匹配的文章</b>' +
+        '<p class="ef-cond">' + (parts.length ? '当前筛选：' + parts.join(' + ') + ' —— ' : '') + '站内一共 ' + state.arts.length + ' 篇，逐篇看过了都对不上。</p>' +
+        '<div class="ef-acts">' + acts + '</div>' +
+        '</div>';
       return;
     }
     var total = Math.ceil(list.length / PER);
@@ -1235,6 +1250,23 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     box.select();
   });
   $('sort').addEventListener('change', function () { state.sort = this.value; state.page = 1; syncUrl(); renderCards(); });
+
+  // 空态里的「只清关键词 / 只清分类 / 清空全部筛选」
+  $('cards').addEventListener('click', function (ev) {
+    var b = ev.target && ev.target.closest ? ev.target.closest('[data-ef]') : null;
+    if (!b) return;
+    var k = b.getAttribute('data-ef');
+    if (k === 'q' || k === 'all') {
+      state.q = '';
+      var box = $('search');
+      if (box) box.value = '';
+    }
+    if (k === 'cat' || k === 'all') state.cat = 'all';
+    state.page = 1;
+    renderChips();
+    syncUrl();
+    renderCards();
+  });
   var apagerBox = $('apager');
   if (apagerBox) {
     apagerBox.addEventListener('click', function (e) {

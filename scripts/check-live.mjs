@@ -112,6 +112,10 @@ push('前台手机端表单 16px（文章页）', artText.includes(':is(input,se
   push('阅读器界面与历史分离（hideReader）', artText.includes('function hideReader'), '');
   push('打开文章时用 rAF 回到正文顶部', artText.includes('requestAnimationFrame(function () { window.scrollTo(0, 0); })'), '');
   push('关闭阅读器走 history.back()（后退语义正确）', artText.includes('history.back()') && artText.includes('readerPushed'), '');
+  // —— 筛选空态说清是哪一步筛掉的（v180）
+  push('筛选空态卡（empty-filter）', artText.includes('empty-filter') && artText.includes('ef-cond'), '');
+  push('筛选空态列出条件与底数', artText.includes('当前筛选：') && artText.includes('站内一共 '), '');
+  push('筛选空态三个出口按钮', artText.includes('data-ef="q"') && artText.includes('data-ef="cat"') && artText.includes('data-ef="all"'), '');
 push('前台手机端表单 16px（问答页）', faqText.includes('#q,#search,#navSearch{font-size:16px'), '');
 push('点 tab 后侧栏会把当前项滚进可视区', adm.includes('scrollIntoView({ block:'), '');
 push('阅读器标题窄屏 23px', artText.includes('.reader h1{font-size:23px'), '');
