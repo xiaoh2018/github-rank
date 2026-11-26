@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v180';
+const ASSET_V = 'v181';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3644,6 +3644,21 @@ dialog{border-radius:20px;box-shadow:0 30px 80px rgba(2,6,23,.35)}
 ::-webkit-scrollbar-thumb{background:#c9d6e8;border-radius:8px;border:2px solid transparent;background-clip:content-box}
 ::-webkit-scrollbar-track{background:transparent}
 #artTbody td:last-child{white-space:nowrap}
+  /* 手机端：文章表格变卡片（摘要不再被挤成 44px 竖条） */
+  @media (max-width:760px){
+    #pane-articles table thead{display:none}
+    #pane-articles .card:has(#artTbody){overflow-x:visible}
+    #artTbody tr{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 10px;padding:12px 13px;margin-bottom:10px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+    #artTbody td{display:block;border:0;padding:0;min-width:0;white-space:normal}
+    #artTbody td:nth-child(1){grid-column:1;grid-row:1;align-self:center}
+    #artTbody td:nth-child(2){grid-column:2;grid-row:1;font-size:11.5px;color:var(--muted);letter-spacing:.02em}
+    #artTbody td:nth-child(3){grid-column:1 / -1;grid-row:2;font-size:15px;font-weight:600;line-height:1.5}
+    #artTbody td:nth-child(4){grid-column:1 / -1;grid-row:3;font-size:12.5px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    #pane-articles table{min-width:0;width:100%;table-layout:auto}
+    #artTbody td:last-child{white-space:normal}
+    #artTbody td:nth-child(5){grid-column:1 / -1;grid-row:4;display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;text-align:left}
+    #artTbody td:nth-child(5) button{flex:1 1 0;min-height:40px;margin:0;padding:0 8px}
+  }
 .faq-row{grid-template-columns:minmax(0,1fr) minmax(0,1.7fr) 64px;align-items:start}
 .faq-row textarea{min-height:96px;line-height:1.65}
 .faq-row>button{align-self:center;min-height:36px;padding:6px 12px}
