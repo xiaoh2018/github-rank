@@ -98,6 +98,8 @@ push('问答加载骨架', faqText.includes('function renderSkeleton') && faqTex
 push('问答空态卡与重置', faqText.includes('没有匹配的问题') && faqText.includes('data-reset'), '');
 push('文章封面预留比例（不跳动）', artText.includes('aspect-ratio:16/9'), '');
 push('文章卡有键盘焦点环', artText.includes('.acard:focus-visible'), '');
+push('窄屏表格最小列宽（不再挤成竖排）', artText.includes('min-width:88px'), '');
+push('窄屏表格右缘滚动提示', artText.includes('box-shadow:inset -14px 0 12px -14px'), '');
 push('后台表格窄屏可横滚', adm.includes('#navAdmin{overflow-x:auto;'), '');
 push('问答搜索有高亮（highlightNode + hitmark）', faqText.includes('function highlightNode') && faqText.includes("className = 'hitmark'"));
 push('问答计数显示命中条数', faqText.includes('命中') && faqText.includes('当前显示'));

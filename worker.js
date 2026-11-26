@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v146';
+const ASSET_V = 'v147';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3755,7 +3755,7 @@ tr:hover td{background:#fcfbf8}
 }
   :focus-visible{outline:2px solid #2563eb;outline-offset:2px;border-radius:6px}
   .main table thead th{position:sticky;top:0;z-index:2;background:#f8fafc}
-.card:has(>table){overflow-x:auto}
+.card:has(>table){overflow-x:auto;box-shadow:inset -14px 0 12px -14px rgba(15,23,42,.28)}
   .cmdk{width:min(540px,calc(100% - 24px));padding:0;border:0;border-radius:16px;box-shadow:0 24px 60px rgba(15,23,42,.22)}
   .cmdk .ck-box{padding:12px 12px 10px}
   .cmdk input{width:100%;padding:11px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px}
@@ -3782,6 +3782,10 @@ tr:hover td{background:#fcfbf8}
 @media (max-width:760px){
   .card:has(>table){overflow-x:auto;-webkit-overflow-scrolling:touch}
   .card:has(>table) table{min-width:520px}
+  .toolbar{gap:8px}
+  .toolbar input[type=text],.toolbar input[type=search]{flex:1 1 100%;max-width:none}
+  .toolbar select,.toolbar .btn,.toolbar button{flex:1 1 auto;max-width:none;min-width:0}
+  .toolbar .note,.toolbar .msg{flex:1 1 100%;margin-left:0}
   #navAdmin table{min-width:560px}
   .main{padding:16px 14px 44px}
 }
