@@ -742,6 +742,18 @@ async function serveSite(env, entry, pathname) {
 // 命中时既不发子请求也不重组页面，TTFB 从 300~440ms 降到 20~50ms。
 const EDGE_CACHE = caches.default;
 const EDGE_KEY_BASE = 'https://edge.ghrank.internal';
+
+// HTML 页面的缓存键要带 ASSET_V：每次发版自动换键，旧条目立刻失效。
+// 不带版本号时，改完页面最长要等边缘 TTL 过期（历史上 /faq 掉进 js/css 档，白等过 24 小时）。
+function isHtmlPage(pathname) {
+  return pathname === '/' || pathname === '/nav' || pathname === '/articles' || pathname === '/faq' || /\.html$/.test(pathname);
+}
+
+function edgeKeyOf(pathname, ver) {
+  let v = ver || '';
+  if (!v && isHtmlPage(pathname)) v = 'a' + ASSET_V;
+  return new Request(EDGE_KEY_BASE + pathname + (v ? '?v=' + encodeURIComponent(v) : ''), { method: 'GET' });
+}
 // 回源 raw.githubusercontent 时 CF 给子请求的缓存时长。以前是 300s，等于后台保存后
 // 最多还要旧 5 分钟才换新；压到 60s，再用 warmEdge 主动换新，改完基本立刻生效。
 const RAW_TTL = 60;
@@ -786,7 +798,7 @@ function hash32(buf) {
 // 后台改了配置/文章后清掉对应成品缓存，否则要等 TTL 过期才看得到
 async function purgeEdge(paths) {
   try {
-    await Promise.all(paths.map((p) => EDGE_CACHE.delete(new Request(EDGE_KEY_BASE + p))));
+    await Promise.all(paths.map((p) => EDGE_CACHE.delete(edgeKeyOf(p))));
   } catch (e) {
     console.log('purge edge cache failed: ' + String(e));
   }
@@ -805,7 +817,7 @@ async function warmEdge(pathname, body, type) {
   headers.set('x-edge', 'WARM');
   headers.set('etag', '"h' + hash32(buf) + '"');
   try {
-    await EDGE_CACHE.put(new Request(EDGE_KEY_BASE + pathname, { method: 'GET' }), new Response(buf, { status: 200, headers: headers }));
+    await EDGE_CACHE.put(edgeKeyOf(pathname), new Response(buf, { status: 200, headers: headers }));
   } catch (e) {
     console.log('warm edge failed: ' + String(e));
   }
@@ -817,7 +829,7 @@ async function serveSiteEdge(env, pathname, entry, request) {
   const ver = new URL(request.url).searchParams.get('v') || '';
   // 带 ?v= 的数据/脚本内容永不改变（版本号换了就是另一个 URL），浏览器可以 immutable 存一年
   const immutable = !!ver && (pathname.indexOf('/data/') === 0 || pathname.indexOf('/js/') === 0);
-  const cacheKey = new Request(EDGE_KEY_BASE + pathname + (ver ? '?v=' + encodeURIComponent(ver) : ''), { method: 'GET' });
+  const cacheKey = edgeKeyOf(pathname, ver);
 
   let hit = null;
   if (pol.ttl > 0) {
@@ -1663,7 +1675,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v199';
+const ASSET_V = 'v200';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };

@@ -128,10 +128,6 @@ push('前台手机端表单 16px（文章页）', artText.includes(':is(input,se
   push('筛选空态三个出口按钮', artText.includes('data-ef="q"') && artText.includes('data-ef="cat"') && artText.includes('data-ef="all"'), '');
 push('前台手机端表单 16px（问答页）', faqText.includes('#q,#search,#navSearch{font-size:16px'), '');
 push('点 tab 后侧栏会把当前项滚进可视区', adm.includes('scrollIntoView({ block:'), '');
-push('三个前台页都有跳转链接（键盘直达正文）', home.includes('class="skip" href="#list"') && artHtml.includes('class="skip" href="#cards"') && faqHtml.includes('class="skip" href="#list"'), '');
-push('跳转链接默认藏起来、聚焦才出现', home.includes('.skip:focus{left:0'), '');
-push('/articles 不再把页面内锚点当文章 id', artHtml.includes('页面内锚点'), '');
-push('卡片迷你按钮有可访问名', bundleJs.includes("'复制仓库链接'") && bundleJs.includes("'生成分享卡片'"), '');
 push('翻页落点是列表顶（goList 自己算偏移）', bundleJs.includes('function goList()') && bundleJs.includes('const OFFSET = 76'), '');
 push('列表给了 scroll-margin-top（吸顶条让位）', home.includes('#list{list-style:none') && home.includes('scroll-margin-top:76px'), '');
 push('翻页校正不会和读者抢滚动条（listAnchorGen 代际标记）', bundleJs.includes('listAnchorGen++'), '');
@@ -386,6 +382,10 @@ push('首页预载周榜数据（与 script 地址一致）', bundleJs.indexOf('
 const navHtml = await (await fetch(base + '/nav?t=' + t)).text();
 const artHtml = await (await fetch(base + '/articles?t=' + t)).text();
 const faqHtml = await (await fetch(base + '/faq?t=' + t)).text();
+push('三个前台页都有跳转链接（键盘直达正文）', home.includes('class="skip" href="#list"') && artHtml.includes('class="skip" href="#cards"') && faqHtml.includes('class="skip" href="#list"'), '');
+push('跳转链接默认藏起来、聚焦才出现', home.includes('.skip:focus{left:0'), '');
+push('/articles 不再把页面内锚点当文章 id', artHtml.includes('页面内锚点'), '');
+push('卡片迷你按钮有可访问名', bundleJs.includes("'复制仓库链接'") && bundleJs.includes("'生成分享卡片'"), '');
 push('导航页有自己的标题与 canonical（不是首页副本）', navHtml.indexOf('站点导航 · ') >= 0 && navHtml.indexOf('rel="canonical" href="' + base + '/nav"') >= 0);
 push('文章页有完整分享卡', artHtml.indexOf('property="og:url" content="' + base + '/articles"') >= 0 && artHtml.indexOf('name="twitter:card"') >= 0);
 push('问答页有完整分享卡', faqHtml.indexOf('property="og:url" content="' + base + '/faq"') >= 0 && faqHtml.indexOf('name="twitter:card"') >= 0);
