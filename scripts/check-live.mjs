@@ -254,6 +254,7 @@ push('文章页分类胶囊小屏单行横滚', artText.includes('.chips{flex-wr
 push('后台文章工具栏小屏先筛后排', admHtml.includes('#pane-articles .toolbar>#artSort{order:1'), '');
 push('后台侧栏小屏隐藏分组小标题', admHtml.includes('.side .navgroup{display:none}'), '');
 push('后台侧栏小屏压成一行（max-height 58）', admHtml.includes('.side{max-height:58px'), '');
+push('问答页标签条小屏单行横滚', faqText.includes('.chips{flex-wrap:nowrap') && faqText.includes('function paintChips'), '');
 
 let bad = 0;
 for (const r of rows) {
