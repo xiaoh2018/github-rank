@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v153';
+const ASSET_V = 'v154';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2104,12 +2104,15 @@ async function handleHealth(env, origin) {
   const rt = await siteRuntime(env);
   const key = indexNowKey(env, rt);
   let keyFileOk = null;
+  let keyNote = '';
   try {
     const r = await fetch(origin + '/' + key + '.txt', { cf: { cacheTtl: 0 } });
     const body = r.ok ? (await r.text()).trim() : '';
     keyFileOk = r.ok && body === key;
+    keyNote = r.ok ? body.slice(0, 60) : ('HTTP ' + r.status);
   } catch (e) {
     keyFileOk = false;
+    keyNote = '抓取失败：' + ((e && e.message) || 'network');
   }
   let counts = null;
   try { counts = await countsOf(env); } catch (e) { counts = null; }
@@ -2130,6 +2133,13 @@ async function handleHealth(env, origin) {
   } catch (e) { dataAge = null; }
   let st = null;
   try { st = await getStatusCached(env); } catch (e) {}
+  const baiduNow = baiduTokenOf(env, rt);
+  const last = await readLastSubmit();
+  const cooldownSec = (function (x) {
+    if (!x || !x.at) return 0;
+    const gap = Date.now() - new Date(x.at).getTime();
+    return gap < 600000 ? Math.ceil((600000 - gap) / 1000) : 0;
+  })(last);
   return json({
     ok: true,
     version: ASSET_V,
@@ -2141,6 +2151,23 @@ async function handleHealth(env, origin) {
     keyFileOk: keyFileOk,
     counts: counts,
     dataAge: dataAge,
+    level: st ? st.level : '',
+    stateNote: st ? st.stateNote : '',
+    lastKeepalive: st ? st.lastKeepalive : '',
+    age: st ? st.age : null,
+    next: st ? st.next : '',
+    translator: translatorStatus(env, rt),
+    submit: {
+      keyFileOk: keyFileOk,
+      keyFileMatch: keyFileOk,
+      keyFileNote: keyNote,
+      indexNowKey: key,
+      indexKeySource: rt && rt.indexNowKey ? 'admin' : (env.INDEXNOW_KEY ? 'env' : 'auto'),
+      baiduToken: !!baiduNow,
+      baiduTokenSource: (rt && rt.baiduToken) ? 'admin' : (env.BAIDU_TOKEN ? 'env' : 'none'),
+      lastRun: last,
+      cooldown: { seconds: cooldownSec },
+    },
   });
 }
 
@@ -4668,12 +4695,22 @@ tr:hover td{background:#fcfbf8}
     var box = $('healthBox');
     if (!box) return;
     box.innerHTML = '<div class="empty">加载中…</div>';
-    Promise.all([
-      api('/api/submit').catch(function () { return null; }),
-      api('/api/health').catch(function () { return null; })
-    ]).then(function (res) {
-      var sub = res[0] && res[0].status;
-      var h = res[1] || null;
+    api('/api/health').catch(function () { return null; }).then(function (h) {
+      h = h || null;
+      // 体检只发一个请求：/api/health 现在带 submit 与状态细节
+      var sub = h && h.submit ? {
+        keyFileOk: h.submit.keyFileOk,
+        keyFileMatch: h.submit.keyFileMatch,
+        keyFileNote: h.submit.keyFileNote,
+        indexNowKey: h.submit.indexNowKey,
+        indexKeySource: h.submit.indexKeySource,
+        baiduToken: h.submit.baiduToken,
+        baiduTokenSource: h.submit.baiduTokenSource,
+        lastRun: h.submit.lastRun,
+        cooldown: h.submit.cooldown,
+        counts: h.counts,
+        sitemap: location.origin + '/sitemap.xml'
+      } : null;
       var ai = (h && h.ai) || null;
       var rows = [];
       var sm = (sub && sub.sitemap) || 'https://github.661026.xyz/sitemap.xml';
@@ -5991,26 +6028,17 @@ tr:hover td{background:#fcfbf8}
       out.push(todoRow(!!seo.ogImage, '分享图（微信/Twitter 卡片）', 'seo', '设置'));
       out.push(todoRow(anyAd, '广告位至少开一个', 'ad', '广告'));
     } catch (e) {}
+    var todoCounts = null;
     try {
-      var sub = await api('/api/submit');
-      out.push(todoRow(!!sub.keyFileOk, 'IndexNow key 文件可访问', 'submit', '提交'));
-      out.push(todoRow(!!sub.baiduToken, '百度推送 Token', 'keys', '密钥'));
+      var hh = await api('/api/health');
+      var hs = (hh && hh.submit) || {};
+      todoCounts = (hh && hh.counts) || null;
+      out.push(todoRow(!!hs.keyFileOk, 'IndexNow key 文件可访问', 'submit', '提交'));
+      out.push(todoRow(!!hs.baiduToken, '百度推送 Token', 'keys', '密钥'));
     } catch (e) {}
-    try {
-      var nv = await api('/api/nav');
-      var gs = (nv && nv.nav && nv.nav.groups) || [];
-      out.push(todoRow(gs.length >= 3, '导航页至少 3 个分组', 'nav', '导航'));
-    } catch (e) {}
-    try {
-      var qa = await api('/api/qa');
-      var items = (qa && qa.qa && qa.qa.items) || (qa && qa.items) || [];
-      out.push(todoRow(items.length >= 3, '问答至少 3 条', 'qa', '问答'));
-    } catch (e) {}
-    try {
-      var lk = await api('/api/links');
-      var links = (lk && lk.links) || [];
-      out.push(todoRow(links.length >= 1, '友链至少 1 条', 'links', '友链'));
-    } catch (e) {}
+    out.push(todoRow(!!(todoCounts && todoCounts.navGroups >= 3), '导航页至少 3 个分组', 'nav', '导航'));
+    out.push(todoRow(!!(todoCounts && todoCounts.qa >= 3), '问答至少 3 条', 'qa', '问答'));
+    out.push(todoRow(!!(todoCounts && todoCounts.links >= 1), '友链至少 1 条', 'links', '友链'));
     box.innerHTML = '';
     out.forEach(function (row) { box.appendChild(row); });
   }

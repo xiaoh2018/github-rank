@@ -240,6 +240,13 @@ push('导航页有「还没有站点」空态', home.includes('class="navempty"'
 push('导航页搜索有高亮（navHl + hitmark）', home.includes('function navHl') && home.includes('class="hitmark"'), '');
 push('导航分组名也参与搜索匹配', home.includes('var gHit=!!q'), '');
 
+const healthApi = await (function () {
+  return fetch(base + '/api/health?v=' + t, { headers: { 'cache-control': 'no-cache' } }).then(function (r) { return r.json(); });
+})().catch(function () { return null; });
+push('体检接口一次返回提交状态（health.submit）', !!(healthApi && healthApi.submit && typeof healthApi.submit.keyFileOk === 'boolean'), '');
+push('体检接口带 AI 与保活摘要', !!(healthApi && healthApi.translator && typeof healthApi.level === 'string' && healthApi.next !== undefined), '');
+push('后台体检只发一个请求（todoCounts）', admHtml.includes('todoCounts') && admHtml.indexOf("api('/api/health')") >= 0, '');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
