@@ -310,6 +310,10 @@ push('首页文章卡片有阅读时长', home.includes('function artMins(') && 
 push('首页文章卡片分类尊重「显示英文」开关', home.includes('function artCardCat(') && home.includes('siteCatEn'));
 push('静态文章页不再出现「旧数据未加密」', !artListHtml.includes('旧数据未加密'));
 push('静态文章页无分类时不拿 slug 冒充分类', artListHtml.includes('别拿 slug 前缀冒充分类'));
+push('阅读器有字号调节（A−/A＋）', artListHtml.includes('id="rfMinus"') && artListHtml.includes('id="rfPlus"') && artListHtml.includes('RF_STEPS'));
+push('字号记在本机 localStorage', artListHtml.includes('ghrank-reader-font'));
+push('阅读器不再出现「加密文章」措辞', !artListHtml.includes('加密文章'));
+push('不再给读者看「以前标记过加密（旧数据）」', !artListHtml.includes('以前标记过加密'));
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

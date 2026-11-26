@@ -154,7 +154,17 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
   .abody h1,.abody h2,.abody h3{break-after:avoid}
   .abody pre,.abody table,.abody blockquote{break-inside:avoid}
 }
-.rback{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-bottom:14px;cursor:pointer;background:none;border:0;padding:0;font-family:inherit}
+.rtools{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:0 0 12px}
+  .rtools[hidden]{display:none}
+  .rfont{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+  .rfbtn{min-width:38px;min-height:34px;border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:9px;font:600 15px/1 inherit;cursor:pointer}
+  .rfbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .rfbtn:disabled{opacity:.45;cursor:not-allowed}
+  .rfbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  #rfNow{min-width:34px;text-align:center;font-variant-numeric:tabular-nums;color:var(--fg)}
+  #reader .abody{font-size:var(--rfont,17px);line-height:1.85}
+  @media (max-width:600px){.rtools{justify-content:flex-start}}
+  .rback{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-bottom:14px;cursor:pointer;background:none;border:0;padding:0;font-family:inherit}
 .rback:hover{color:var(--accent)}
 .reader h1{font-size:27px;line-height:1.35;margin:0 0 10px;letter-spacing:-.5px}
 @media (max-width:600px){.reader h1{font-size:23px;line-height:1.45;letter-spacing:-.2px}.rmeta{gap:8px;font-size:12px;padding-bottom:12px;margin-bottom:16px}}
@@ -348,6 +358,13 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     <button class="rback" id="rback" type="button">← 返回文章列表</button>
     <h1 id="rTitle"></h1>
     <div class="rmeta" id="rMeta"></div>
+    <div class="rtools" id="rTools" hidden>
+      <span class="rfont">字号
+        <button class="rfbtn" id="rfMinus" type="button" aria-label="缩小字号">A−</button>
+        <output id="rfNow" aria-live="polite">17</output>
+        <button class="rfbtn" id="rfPlus" type="button" aria-label="放大字号">A＋</button>
+      </span>
+    </div>
     <details class="toc" id="rToc" hidden>
       <summary>本文目录</summary>
       <ol id="rTocList"></ol>
@@ -956,9 +973,39 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   window.addEventListener('scroll', paintProgress, { passive: true });
   window.addEventListener('resize', paintProgress);
 
+  // 字号：读者自己调，记在本机；只影响阅读器正文，不影响列表
+  var RF_KEY = 'ghrank-reader-font', RF_STEPS = [15, 16, 17, 18, 20, 22], rfIdx = 2;
+  function rfPaint() {
+    var px = RF_STEPS[rfIdx];
+    document.documentElement.style.setProperty('--rfont', px + 'px');
+    var now = $('rfNow'); if (now) now.textContent = String(px);
+    var minus = $('rfMinus'), plus = $('rfPlus');
+    if (minus) minus.disabled = rfIdx === 0;
+    if (plus) plus.disabled = rfIdx === RF_STEPS.length - 1;
+    try { localStorage.setItem(RF_KEY, String(px)); } catch (e) {}
+  }
+  function rfStep(d) {
+    var next = rfIdx + d;
+    if (next < 0 || next >= RF_STEPS.length) return;
+    rfIdx = next; rfPaint();
+  }
+  (function rfInit() {
+    var saved = 0;
+    try { saved = parseInt(localStorage.getItem(RF_KEY) || '0', 10); } catch (e) { saved = 0; }
+    if (saved) {
+      var best = 0, gap = 999;
+      for (var i = 0; i < RF_STEPS.length; i++) { var g = Math.abs(RF_STEPS[i] - saved); if (g < gap) { gap = g; best = i; } }
+      rfIdx = best;
+    }
+    rfPaint();
+    if ($('rfMinus')) $('rfMinus').addEventListener('click', function () { rfStep(-1); });
+    if ($('rfPlus')) $('rfPlus').addEventListener('click', function () { rfStep(1); });
+  })();
+
   function openReader(id) {
     var a = findArt(id);
     if (!a) { closeReader(); return; }
+    var tools = $('rTools'); if (tools) tools.hidden = false;
     state.open = a;
     $('listWrap').classList.add('is-reading');
     $('hero').hidden = true;
@@ -970,7 +1017,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       '<span>' + esc(String(a.date || '').slice(0, 10)) + '</span>' +
       (catLabel(a) ? '<span class="tag">' + esc(catLabel(a)) + '</span>' : '') +
       (a.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') +
-      (a.locked && a.hasLock !== false ? '<span>🔒 加密文章</span>' : '');
+      (a.locked && a.hasLock !== false ? '<span>🔒 需要密码</span>' : '');
     var copyBtn = document.createElement('button');
     copyBtn.type = 'button';
     copyBtn.className = 'ghost mini';
@@ -1007,7 +1054,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       $('lockOpen').addEventListener('click', function () { askPassword(a.id); });
       askPassword(a.id);
     } else {
-      var staleNote = a.locked ? '<p class="locknote-stale">这篇以前标记过加密，但服务端没有加密正文（旧数据）。在后台重新保存一次并设置密码就会正常加密。</p>' : '';
+      // 读者不需要知道「标记了加密但正文没加密」这种站务细节：这种情况就直接当普通文章展示
+    var staleNote = '';
       body.innerHTML = readerCover(a) + staleNote + md(a.body || '') + relatedHtml(a);
       enhanceBody(body);
       mountAd($('adAPAfter'), adSlot['article-after']);
