@@ -4627,5 +4627,10 @@
  "Reproducibility materials for delay-aware physics-guided wind farm power forecasting.": "用于考虑延迟的物理引导风电场功率预测的可重复性材料。",
  "VIctory tuned and fixed for an RTX 4090: runs the Xbox Series title from your own files. Built on Marvisak/VIctory and its forks; everyone is credited in the README and docs/credits.md.": "针对 RTX 4090 进行调优和修复的 VIctory：从您自己的文件中运行 Xbox Series 游戏。基于 Marvisak/VIctory 及其分支构建；所有贡献者均在 README 和 docs/credits.md 中列出。",
  "Agent Native, Rust based, high performance way to build apps on web, iOS, macOS, Android, Linux and other platforms. ": "Agent Native 是一种基于 Rust 的高性能方式，用于在 Web、iOS、macOS、Android、Linux 和其他平台上构建应用。",
- "A 3D printing workbench for Codex on Mac and Windows. Track designs, slices, materials and print results.": "适用于 Mac 和 Windows 的 Codex 3D 打印工作台。跟踪设计、切片、材料和打印结果。"
+ "A 3D printing workbench for Codex on Mac and Windows. Track designs, slices, materials and print results.": "适用于 Mac 和 Windows 的 Codex 3D 打印工作台。跟踪设计、切片、材料和打印结果。",
+ "Customize Windows 10 and 11 title bar effects with Aero, Acrylic, Mica and advanced DWM blur effects.": "使用 Aero、Acrylic、Mica 和高级 DWM 模糊效果自定义 Windows 10 和 11 的标题栏效果。",
+ "Claude Code plugin and optional Windows tray client: pick a skill set for each session at its first message, and the model sees only those skills. Subagents get their own set. In Chinese or English.": "Claude Code 插件和可选的 Windows 系统托盘客户端：在每个会话的第一条消息中选择一组技能，模型仅能看到这些技能。子代理有自己的技能集。提供中文或英文版本。",
+ "A small packet path visualizer for Linux.": "适用于 Linux 的小型数据包路径可视化工具。",
+ "Open-source, self-hosted Instagram DM automation: comment-to-DM and story automations, a visual flow builder, inbox and metrics. A Manychat alternative you run on your own Cloudflare account.": "开源、自托管的 Instagram 私信自动化：评论转私信和故事自动化、可视化流程构建器、收件箱和指标。一款可在您自己的 Cloudflare 账户上运行的 Manychat 替代产品。",
+ "A high-performance MySQL-compatible database for HTAP and AI agents  Mixed transactional and analytical workloads, with native AI retrieval.": "一款高性能的 MySQL 兼容数据库，适用于 HTAP 和 AI 代理。混合事务和分析工作负载，具备原生 AI 检索功能。"
 }
