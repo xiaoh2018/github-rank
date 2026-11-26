@@ -157,7 +157,7 @@ push('文章面板有保存按钮', adm.includes('data-save="article"') && adm.i
 
 push('后台控件都有可访问名称', adm.includes('aria-label="问题"') && adm.includes('aria-label="文章排序方式"') && adm.includes('aria-label="选中这篇文章"'));
 push('弹窗标题从 h2 起（无跳级）', /<h2 id="artTitle"/.test(adm) && !/<h3 id="artTitle"/.test(adm));
-push('文章页侧栏标题改 h2', art.includes('<h2>关于本站</h2>') && !art.includes('<h4>关于本站</h4>'));
+push('文章页侧栏标题都是 h2（且不再有「关于本站」）', art.includes('<h2>分类</h2>') && art.includes('<h2>站内</h2>') && !art.includes('<h4>分类</h4>') && !art.includes('关于本站'));
 push('文章页有打印样式', art.includes('@media print') && art.includes('.blistwrap.is-reading .cards'));
 push('首页有打印样式', home.includes('@media print') && home.includes('break-inside:avoid'));
 push('问答页打印前自动展开', faqText.includes("addEventListener('beforeprint'"));
