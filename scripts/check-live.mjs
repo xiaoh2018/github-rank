@@ -275,6 +275,9 @@ push('文章页胶囊与首页同一套样式', artText.includes('.chip.is-on{ba
 push('问答页胶囊选中改为实心（与首页一致）', faqText.includes('.chip.is-on{background:var(--accent)') && faqText.includes('.chip:hover{border-color:var(--accent)'), '');
 push('空的数据来源提示不占位', home.includes('#srcNote:empty{display:none}'), '');
 push('数据来源提示改成人话（静态数据不再解释一堆）', bundleJs.includes('本次数据：刚从 GitHub 实时拉取') && !bundleJs.includes('当前数据：定时抓取的静态文件'), '');
+push('设置面板三块独立卡片 + Token 卡存在', home.includes('id="tokenCard"') && home.includes('#settings>.card{'), '');
+push('Token 提示改成短句（两处占位符都换了）', bundleJs.includes('粘贴以 ghp_ 开头的 Token（可不填）'), '');
+push('教程默认收起（不再一屏六步）', home.includes('<summary>怎么获取 Token（约 1 分钟）</summary>') && !home.includes('<details class="guide" open>'), '');
 push('导出类按钮移进「设置 → 数据」', home.includes('<b>数据</b>') && home.includes('收藏只存在这个浏览器'), '');
 push('统计区压成一行摘要（不再是四张卡）', home.includes('.stats.slim{display:flex') && home.includes('.stat-lang{') , '');
 push('摘要里的「最热语言」可点击筛选', bundleJs.includes("'stat-lang'") && bundleJs.includes("new Option(topLang[0], topLang[0])"), '');

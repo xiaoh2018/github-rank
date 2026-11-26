@@ -612,6 +612,9 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     .card-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}
     .card-head b{font-size:14px}
     .card-head .msg{font-size:12px;color:var(--muted)}
+    #settings>.card{margin-top:10px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--bg)}
+    #settings>.card:first-of-type{margin-top:0}
+    #settings .guide{border-top:1px dashed var(--border);padding-top:6px}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
 }
@@ -698,12 +701,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   </script>
 
   <section class="panel" id="settings" hidden>
-    <div class="controls">
-      <input type="password" id="token" class="grow" placeholder="GitHub Personal Token（可选，仅保存在本浏览器）" autocomplete="off">
-      <button class="btn" id="btnSaveToken">保存</button>
-      <button class="btn" id="btnClearToken">清除</button>
-    </div>
-        <div class="card" id="themeRow">
+    <div class="card" id="themeRow">
       <div class="card-head"><b>配色主题</b><span class="msg">只影响这个浏览器，随时可换</span></div>
       <div class="theme-picks">
         <button class="btn theme-chip" type="button" data-theme-pick="paper">暖纸白</button>
@@ -712,21 +710,28 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         <button class="btn theme-chip" type="button" data-theme-pick="notion">Notion 柔灰</button>
       </div>
     </div>
-    <details class="guide" open>
- <summary>小白指南：怎么获取 Token（约 1 分钟，可选）</summary>
- <p class="note">Token 是 GitHub 发给你的一串密码，填进来后可以「立即刷新」。不填也能正常看榜单。</p>
- <ol>
- <li>点下面的按钮打开 GitHub 的 Token 创建页面。没登录的话，先登录你自己的 GitHub 账号。</li>
- <li>Note 随便填，比如 ghrank；Expiration 选 90 days。</li>
- <li><b>权限（Select scopes）一个都不要勾</b>。本页面只读取公开仓库，不需要任何权限。</li>
- <li>拉到页面最下面，点绿色的 Generate token。</li>
- <li>页面会显示一串以 ghp_ 开头的字符，立即复制（关掉页面后就看不到了）。</li>
- <li>回到本页面，粘贴到上面的输入框，点「保存」。</li>
- </ol>
- <a class="btn guide-link" href="https://github.com/settings/tokens/new?description=ghrank&scopes=" target="_blank" rel="noopener noreferrer">打开 GitHub 创建 Token 页面 ↗</a>
- <p class="guide-tip">Token 只保存在你自己的浏览器里，不会上传到别处。如果泄露了，到 GitHub 的 Token 设置页删除即可。</p>
- </details>
- <p class="note">Token 只在点击「立即刷新」时使用，可把搜索额度从每分钟 10 次提到 30 次；默认数据每 3 小时自动更新一次，不消耗额度。Token 只保存在本机 localStorage 中，不会上传到别处。</p>
+    <div class="card" id="tokenCard">
+      <div class="card-head"><b>GitHub Token</b><span class="msg">可选 · 只存在本机，不上传</span></div>
+      <div class="controls">
+        <input type="password" id="token" class="grow" placeholder="粘贴以 ghp_ 开头的 Token（可不填）" autocomplete="off">
+        <button class="btn" id="btnSaveToken">保存</button>
+        <button class="btn" id="btnClearToken">清除</button>
+      </div>
+      <p class="note">只在点「立即刷新」时用到，能把搜索额度从每分钟 10 次提到 30 次。不填也能正常看榜单 —— 默认数据每 3 小时自动更新一次。</p>
+      <details class="guide">
+        <summary>怎么获取 Token（约 1 分钟）</summary>
+        <ol>
+          <li>点下面的按钮打开 GitHub 的 Token 创建页面。没登录的话，先登录你自己的 GitHub 账号。</li>
+          <li>Note 随便填，比如 ghrank；Expiration 选 90 days。</li>
+          <li><b>权限（Select scopes）一个都不要勾</b>。本页面只读取公开仓库，不需要任何权限。</li>
+          <li>拉到页面最下面，点绿色的 Generate token。</li>
+          <li>页面会显示一串以 ghp_ 开头的字符，立即复制（关掉页面后就看不到了）。</li>
+          <li>回到本页面，粘贴到上面的输入框，点「保存」。</li>
+        </ol>
+        <a class="btn guide-link" href="https://github.com/settings/tokens/new?description=ghrank&scopes=" target="_blank" rel="noopener noreferrer">打开 GitHub 创建 Token 页面 ↗</a>
+        <p class="guide-tip">泄露了就回 GitHub 设置页把它删掉；本页点「清除」也会立刻失效。</p>
+      </details>
+    </div>
 
   <div class="card">
     <div class="card-head"><b>数据</b><span class="msg">收藏只存在这个浏览器，换设备要自己导出</span></div>

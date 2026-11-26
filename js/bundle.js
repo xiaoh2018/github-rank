@@ -970,8 +970,8 @@ function markCat() {
 // ---------- 设置：Token ----------
 function refreshTokenHint() {
   $('token').placeholder = getToken()
-    ? '已保存 Token（仅本机），输入新值可覆盖'
-    : 'GitHub Personal Token（可选，仅保存在本浏览器）';
+    ? '已保存（点「清除」可删），输入新值可覆盖'
+    : '粘贴以 ghp_ 开头的 Token（可不填）';
   updateSourceNote();
 }
 $('btnSettings').onclick = () => { $('settings').hidden = !$('settings').hidden; refreshTokenHint(); };
