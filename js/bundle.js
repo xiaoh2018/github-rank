@@ -272,6 +272,8 @@ const RANGE_FILES = {
   all: 'data/repos-total.js'   // 旧链接兼容，同一份数据
 };
 const rangePending = {};
+const rangeUsedFallback = {};   // 用了备用文件（repos-all.js）的 range：要提示读者可能不是最新
+const RANGE_TIMEOUT = 12000;    // 数据文件 12 秒没响应就当失败，别让骨架屏一直转
 
 // 兼容旧版单文件（window.__GHRANK_DATA__）：旧 Worker 或旧缓存页面还会加载它
 function staticMeta() {
@@ -303,21 +305,33 @@ function ensureRange(name) {
   if (!file) return Promise.resolve(null);
   if (rangePending[name]) return rangePending[name];
   rangePending[name] = new Promise((resolve, reject) => {
-    const meta = staticMeta();
+    // settle-once：主文件失败→备用文件这段里，只有第一次结算算数，
+    // 否则会出现「promise 永远 pending → 骨架屏一直转」的情况。
+    let settled = false;
+    const finish = (ok, val) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      delete rangePending[name];
+      if (ok) resolve(val);
+      else reject(val);
+    };
+    // 请求被中间层吞掉（既不 onload 也不 onerror）时也要有尽头
+    const timer = setTimeout(() => {
+      finish(false, Object.assign(new Error('数据文件加载超时'), { rangeFile: name }));
+    }, RANGE_TIMEOUT);
     const s = document.createElement('script');
     // 不带 ?v=：与 <link rel="preload"> 的 URL 保持一致，否则会重复下载；缓存由 600s/900s TTL 兜底
   s.src = file;
     s.async = true;
     s.onload = () => {
       const got = (window.__GHRANK_RANGES__ || {})[name];
-      delete rangePending[name];
-      if (got && Array.isArray(got.repos)) resolve(got);
-      else reject(new Error('数据文件格式不对'));
+      if (got && Array.isArray(got.repos)) finish(true, got);
+      else finish(false, new Error('数据文件格式不对'));
     };
     s.onerror = () => {
-      delete rangePending[name];
       // 总榜文件是后加的：Worker 还没重新部署、或边缘缓存里还是旧 SITE 映射时会 404。
-      // 这时退到仓库里仍然存在的旧 data/repos-all.js，页面不至于空掉。
+      // 这时退到仓库里仍然存在的旧 data/repos-all.js，页面不至于空掉；但要告诉读者「这是备用的」。
       if (file !== 'data/repos-all.js') {
         const alt = document.createElement('script');
         alt.src = 'data/repos-all.js';
@@ -325,14 +339,16 @@ function ensureRange(name) {
         alt.onload = () => {
           const map2 = window.__GHRANK_RANGES__ || {};
           const got = map2[name] || map2.all;
-          if (got && Array.isArray(got.repos)) resolve(got);
-          else reject(new Error('数据文件加载失败'));
+          if (got && Array.isArray(got.repos)) {
+            rangeUsedFallback[name] = true;
+            finish(true, got);
+          } else finish(false, new Error('数据文件加载失败'));
         };
-        alt.onerror = () => reject(new Error('数据文件加载失败'));
+        alt.onerror = () => finish(false, Object.assign(new Error('数据文件加载失败'), { rangeFile: name }));
         document.head.appendChild(alt);
         return;
       }
-      reject(new Error('数据文件加载失败'));
+      finish(false, Object.assign(new Error('数据文件加载失败'), { rangeFile: name }));
     };
     document.head.appendChild(s);
   });
@@ -1170,6 +1186,7 @@ function renderSkeleton() {
 
 // 把技术错误翻成人话：读者不需要看 "Failed to fetch"
 function errReason(e) {
+  if (e && e.rangeFile) return '这个榜单的数据文件没读出来（可能正在发布新数据，或网络把它拦了）。可以重试一次，或者先切回「近 7 天」。';
   const m = String((e && e.message) || '') + ' ' + String((e && e.name) || '');
   if (/Failed to fetch|NetworkError|Load failed|network|ERR_/i.test(m) || /网络|断网|连不上|请求失败/.test(m)) return '网络连不上。可能是断网，也可能是当前网络环境访问 GitHub 受限。';
   if (/429|rate limit|too many/i.test(m)) return 'GitHub 说请求太频繁了，等一分钟再点重试。';
@@ -1399,6 +1416,13 @@ async function load(bypassCache) {
       try { packed = await ensureRange(state.range); } catch (e) {
         packed = null;
         staticMissing = true;
+        if (id !== reqId) return;
+        // 没有 Token 就没法走实时兜底，直接给出可操作的错误卡，别让骨架屏一直转
+        if (!localStorage.getItem(TOKEN_KEY)) {
+          const err = Object.assign(new Error('榜单数据文件没读出来'), { rangeFile: state.range });
+          showError(err, () => { delete rangePending[state.range]; load(); });
+          return;
+        }
         // 静态数据文件没拿到（CDN 抖动 / 部署中 / 被拦）——立刻告诉读者正在换路子，别让人盯着骨架
         setStatus('静态数据没读到，正在从 GitHub 实时拉取…');
       }
@@ -1424,7 +1448,7 @@ async function load(bypassCache) {
       state.source = 'static';
       state.updatedAt = t && !isNaN(t) ? t.toLocaleString() : (meta.generatedAt || '未知');
       render();
-      setStatus('');
+      setStatus(rangeUsedFallback[state.range] ? '这个榜单用的是备用数据文件（repos-all.js），可能不是最新的。' : '');
       return;
     }
   }

@@ -402,6 +402,9 @@ push('问答页不再自带旧 palette（#fffdf8 / #7a6b56）', !faqHtml.include
 push('实时刷新有「已用时」与进度文案', bundleJs.includes('正在实时刷新 · 已用 ') && bundleJs.includes("已取到 ' + got + ' 个项目"), '');
 push('实时刷新能取消（真 abort，不是假文案）', bundleJs.includes('取消这次刷新') && bundleJs.includes('ctrl.abort()') && bundleJs.includes('已取消这次刷新，仍在看之前的数据'), '');
 push('loadRepos 支持外部 signal', bundleJs.includes('outerSignal') && bundleJs.includes('if (signal && signal.aborted)'), '');
+push('切榜单数据文件失败会出错误卡（不是一直转骨架）', bundleJs.includes('RANGE_TIMEOUT') && bundleJs.includes('rangeUsedFallback') && bundleJs.includes('数据文件加载超时'), '');
+push('错误卡说清是哪份数据、给退路', bundleJs.includes('这个榜单的数据文件没读出来') && bundleJs.includes('或者先切回「近 7 天」'), '');
+push('用备用数据文件时要说明可能不是最新', bundleJs.includes('这个榜单用的是备用数据文件（repos-all.js），可能不是最新的。'), '');
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

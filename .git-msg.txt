@@ -1,0 +1,7 @@
+fix(home): 切榜单范围时数据文件读不到要给交代（v210）
+
+- ensureRange 改 settle-once + 12 秒超时：主文件失败→备用文件也失败时不再永久 pending（原来骨架一直转）
+- 没 Token 时失败立刻出错误卡，不再空等实时兜底
+- 备用数据文件（repos-all.js）生效时状态行说明「可能不是最新的」
+- 新增 check-range-fail.mjs（14 项 × 390/1440），check-live +3
+- docs §175
