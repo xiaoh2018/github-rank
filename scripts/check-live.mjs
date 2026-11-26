@@ -351,9 +351,6 @@ push('「打开」有带站点名的可访问名', admHtml.includes('aria-label=
 push('后台站点地址按当前域名注入（__SITE__ 已替换）', admHtml.includes('value="https://github.661026.xyz/sitemap.xml"') && !admHtml.includes('__SITE__') && !admHtml.includes('__HOST__'), '');
 push('收录面板状态分三组（凭据/站点/记录）', admHtml.includes('class="sgroup"') && admHtml.includes('sgh">凭据') && admHtml.includes('sgh">记录'), '');
 push('提交结果有「接下来」出口（Bing / 百度 / 平台清单）', admHtml.includes('function subNext') && admHtml.includes('bing.com/webmasters/sitemaps') && admHtml.includes('#geoCard'), '');
-push('后台模态打开时锁背景（html/body overflow 置 hidden 并恢复）', admHtml.includes('document.documentElement.style.overflow = "hidden"') && admHtml.includes('__scH'), '');
-push('前台图片查看器是原生 dialog', artHtml.includes('<dialog class="lightbox"') && artHtml.includes('.lightbox:not([open])'), '');
-push('图片查看器用 showModal 打开并在关闭时解锁背景', artHtml.includes('if (!lb.open) lb.showModal()') && artHtml.includes('lb.__lbAuto'), '');
 push('没填网址时「打开」不可点（span 而非 href=#）', admHtml.includes('nav-open off') && admHtml.includes('还没填网址'), '');
 push('保存按钮文字会变「保存中…」并恢复', admHtml.includes("saveLabel(btn, '保存中…')") && admHtml.includes('btn.textContent = text || btn.dataset.label'), '');
 push('保存失败给人话原因 + 重试', admHtml.includes("msg.textContent = '保存失败：' + saveReason(r)") && admHtml.includes("again.textContent = '重试'"), '');
@@ -408,6 +405,9 @@ push('数据瘦身：时间戳是 epoch 秒', /(?:"updated"|updated)\s*:\s*1[6-9
 push('首页预载周榜数据（与 script 地址一致）', bundleJs.indexOf('s.src = file;') >= 0 && bundleJs.indexOf('function repoUrl(r)') >= 0);
 const navHtml = await (await fetch(base + '/nav?t=' + t)).text();
 const artHtml = await (await fetch(base + '/articles?t=' + t)).text();
+push('后台模态打开时锁背景（html/body overflow 置 hidden 并恢复）', admHtml.includes('document.documentElement.style.overflow = "hidden"') && admHtml.includes('__scH'), '');
+push('前台图片查看器是原生 dialog', artHtml.includes('<dialog class="lightbox"') && artHtml.includes('.lightbox:not([open])'), '');
+push('图片查看器用 showModal 打开并在关闭时解锁背景', artHtml.includes('if (!lb.open) lb.showModal()') && artHtml.includes('lb.__lbAuto'), '');
 const faqHtml = await (await fetch(base + '/faq?t=' + t)).text();
 push('静态页对话框焦点圈', artHtml.includes('__a11yTrap') && artHtml.includes("['pwDlg','adModal']"));
 push('文章放大图默认隐藏且惰性加载', artHtml.includes('id="lbImg"') && artHtml.includes('loading="lazy"') && artHtml.includes('hidden'));
