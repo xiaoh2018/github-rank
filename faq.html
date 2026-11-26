@@ -20,13 +20,43 @@
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <style>
 :root{
-  --bg:#faf7f0; --card:#fffdf8; --fg:#33291c; --muted:#7a6b56; --line:#e8e0cf;
-  --accent:#b07d10;--accent-ink:#8a6008;--accent-text:#8a6008; --accent-soft:#f6eddc; --chip:#f3ecdc; --shadow:0 1px 2px rgba(60,45,20,.06),0 8px 24px rgba(60,45,20,.05);
-  --gap:16px; --radius:14px;
+  --bg:#faf7f0;--card:#ffffff;--text:#1c2230;--muted:#6b7280;
+  --border:#e5e0d4;--accent:#b07d10;--accent-ink:#8a6008;--accent-text:#8a6008;--gold:#f0b429;--silver:#9aa4b2;--bronze:#b0764a;
+  --chip:#f1ecdf;--danger:#c2402f;--bar-track:#eee8da;
+  --shadow:0 1px 2px rgba(28,34,48,.06),0 8px 24px -16px rgba(28,34,48,.25);
+  --radius:12px;--radius-sm:8px;--pad:16px;--gap:12px;
 }
-@media (prefers-color-scheme: dark){
-  :root{ --bg:#15130f; --card:#1e1a14; --fg:#f0e9dc; --muted:#a99a82; --line:#332c22; --accent:#e0b457;--accent-ink:#e0b457;--accent-text:#e0b457;--accent-on:#2a1f00; --accent-soft:#2a2419; --chip:#241f17; --shadow:0 1px 2px rgba(0,0,0,.4); }
+html[data-theme="paper"]{
+  --bg:#faf7f0;--card:#ffffff;--text:#1c2230;--muted:#6b7280;
+  --border:#e5e0d4;--accent:#b07d10;--accent-ink:#8a6008;--accent-text:#8a6008;--gold:#f0b429;--silver:#9aa4b2;--bronze:#b0764a;
+  --chip:#f1ecdf;--danger:#c2402f;--bar-track:#eee8da;
+  --shadow:0 1px 2px rgba(28,34,48,.06),0 8px 24px -16px rgba(28,34,48,.25);
+  --radius:12px;--radius-sm:8px;--pad:16px;--gap:12px;
 }
+html[data-theme="dark"]{
+  --bg:#0a0e1a;--card:#111726;--text:#e8ecf4;--muted:#8b95a7;
+  --border:#232c42;--accent:#f5c64e;--accent-ink:#f5c64e;--accent-text:#f5c64e;--accent-on:#2a1f00;--gold:#f0b429;--silver:#7f8ba0;--bronze:#a8714a;
+  --chip:#1a2338;--danger:#f87171;--bar-track:#1a2338;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -20px rgba(0,0,0,.8);
+}
+html[data-theme="ink"]{
+  --bg:#08090b;--card:#101216;--text:#e8ecf4;--muted:#8b93a7;
+  --border:#1e222b;--accent:#6e79d6;--accent-ink:#4f59b8;--accent-text:#aab3f2;--gold:#6e79d6;--chip:#171a22;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 34px -22px rgba(0,0,0,.7);
+}
+html[data-theme="stripe"]{
+  --bg:#ffffff;--card:#ffffff;--text:#0a2540;--muted:#425466;
+  --border:#e3e8ee;--accent:#635bff;--accent-ink:#4f46e5;--accent-text:#4f46e5;--gold:#635bff;--chip:#f6f9fc;
+  --shadow:0 1px 2px rgba(10,37,64,.06),0 12px 28px -18px rgba(10,37,64,.28);
+}
+html[data-theme="notion"]{
+  --bg:#f7f6f3;--card:#ffffff;--text:#37352f;--muted:#6b6a67;
+  --border:#e9e7e2;--accent:#2f6feb;--accent-ink:#1f57c4;--accent-text:#1f57c4;--gold:#2f6feb;--chip:#efeee9;
+  --shadow:0 1px 2px rgba(55,53,47,.06),0 10px 26px -18px rgba(55,53,47,.22);
+}
+/* 兼容本页旧变量名：--fg/--line 指向统一 token */
+:root{--fg:var(--text);--line:var(--border);--gap:16px;--radius:14px}
+
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
 a{color:var(--accent);text-decoration:none}

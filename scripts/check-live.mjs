@@ -396,6 +396,9 @@ push('卡片迷你按钮有可访问名', bundleJs.includes("'复制仓库链接
 push('导航页有自己的标题与 canonical（不是首页副本）', navHtml.indexOf('站点导航 · ') >= 0 && navHtml.indexOf('rel="canonical" href="' + base + '/nav"') >= 0);
 push('文章页有完整分享卡', artHtml.indexOf('property="og:url" content="' + base + '/articles"') >= 0 && artHtml.indexOf('name="twitter:card"') >= 0);
 push('问答页有完整分享卡', faqHtml.indexOf('property="og:url" content="' + base + '/faq"') >= 0 && faqHtml.indexOf('name="twitter:card"') >= 0);
+push('问答页跟随站点主题（5 套 token 齐备）', ['dark', 'ink', 'stripe', 'notion'].every((t) => faqHtml.includes('html[data-theme="' + t + '"]')) && faqHtml.includes('--fg:var(--text)'), '');
+push('问答页主题 token 与首页同值', ['--bg:#faf7f0', '--card:#ffffff', '--text:#1c2230'].every((k) => faqHtml.replace(/\s+/g, '').includes(k)), '');
+push('问答页不再自带旧 palette（#fffdf8 / #7a6b56）', !faqHtml.includes('#fffdf8') && !faqHtml.includes('#7a6b56'), '');
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

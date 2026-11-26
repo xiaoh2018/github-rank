@@ -55,7 +55,8 @@ globalThis.fetch = async (input) => {
   const method = typeof input === 'string' ? 'GET' : String(input.method || 'GET').toUpperCase();
   if (url.startsWith('https://raw.githubusercontent.com/')) {
     rawCount++;
-    const rel = decodeURIComponent(url.split('/main/')[1] || '');
+    // worker 的 raw 子请求带 ?v=ASSET_V（发版即换缓存键），桩要先去查询串再映射本地文件
+    const rel = decodeURIComponent((url.split('/main/')[1] || '').split('?')[0]);
     const buf = readFileVirtual(rel);
     if (!buf) return new Response('not found', { status: 404 });
     return new Response(buf);
