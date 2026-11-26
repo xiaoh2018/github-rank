@@ -260,6 +260,12 @@ push('文章视图带搜索与分类胶囊', home.includes('id="artSearch"') && 
 push('非榜单视图时收起榜单工具栏与统计卡', home.includes('body[data-page="articles"] #rankBar'), '');
 push('文章页去掉统计卡与「关于本站」', artText.includes('站长写的东西，按时间倒序') && !artText.includes('id="stCount"') && !artText.includes('id="aboutText"'), '');
 push('bundle 同步地址时保留 page=articles', bundleJs.includes("pageMark === 'nav' || pageMark === 'articles'"), '');
+push('首页「问答」也是页内 tab（button + faqView）', home.includes('id="tabFaq"') && home.includes('data-view="faq"') && home.includes('id="faqView"'), '');
+push('问答视图带搜索与标签条', home.includes('id="faqSearch"') && home.includes('id="faqChips"') && home.includes('function renderFaq'), '');
+push('问答视图也收起榜单工具栏', home.includes('body[data-page="faq"] #rankBar'), '');
+push('bundle 同步地址时保留 page=faq', bundleJs.includes("pageMark === 'faq'"), '');
+push('文案不再宣传加密文章', !home.includes('加密文章需要密码') && !artText.includes('加密文章需要输入密码') && !faqText.includes('加密文章怎么解锁'), '');
+push('/faq 顶栏指向站内视图', faqText.includes('href="/?page=faq"') && faqText.includes('href="/?page=articles"'), '');
 
 let bad = 0;
 for (const r of rows) {

@@ -968,10 +968,10 @@ let legacyRange = false; // 从旧链接 #week/... 进来时，地址里明确�
   if (state.cat) sp.set('cat', state.cat);
   if (state.sort !== 'stars') sp.set('sort', state.sort);
   if (state.view !== 'repos') sp.set('view', state.view);
-  // page=nav / page=articles 是「哪个视图」的地址标记（不是榜单的 view 参数），同步地址时必须原样保留，
+  // page=nav / page=articles / page=faq 是「哪个视图」的地址标记（不是榜单的 view 参数），同步地址时必须原样保留，
   // 否则刷新/分享会掉回榜单
   const pageMark = new URLSearchParams(location.search).get('page');
-  if (pageMark === 'nav' || pageMark === 'articles') sp.set('page', pageMark);
+  if (pageMark === 'nav' || pageMark === 'articles' || pageMark === 'faq') sp.set('page', pageMark);
   const qs = sp.toString();
   history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
 }
