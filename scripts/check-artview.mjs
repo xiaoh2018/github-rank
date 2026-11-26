@@ -176,7 +176,7 @@ const expectCards = artList.filter((a) => a && a.title).length;
   const html = await (await fetch(BASE + '/articles', { cache: 'no-store' })).text();
   push('/articles 没有「篇文章」统计卡', !/id="stCount"/.test(html) && !/class="bstats"/.test(html), '');
   push('/articles 没有「关于本站」技术文案', !/id="aboutText"/.test(html) && !/Cloudflare Worker 的折腾记录/.test(html), '');
-  push('/articles hero 文案已改成读者口径', /站长写的东西，按时间倒序/.test(html), '');
+  push('/articles hero 文案已改成读者口径', /站长写的一些记录，按时间倒序/.test(html), '');
   push('/articles 侧栏「站内」三链接', /项目榜单/.test(html) && /常用站点/.test(html) && /常见问题/.test(html), '');
 }
 

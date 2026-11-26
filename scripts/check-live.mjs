@@ -405,6 +405,9 @@ push('loadRepos 支持外部 signal', bundleJs.includes('outerSignal') && bundle
 push('切榜单数据文件失败会出错误卡（不是一直转骨架）', bundleJs.includes('RANGE_TIMEOUT') && bundleJs.includes('rangeUsedFallback') && bundleJs.includes('数据文件加载超时'), '');
 push('错误卡说清是哪份数据、给退路', bundleJs.includes('这个榜单的数据文件没读出来') && bundleJs.includes('或者先切回「近 7 天」'), '');
 push('用备用数据文件时要说明可能不是最新', bundleJs.includes('这个榜单用的是备用数据文件（repos-all.js），可能不是最新的。'), '');
+push('文章弹窗有目录 / 字号 / 复制链接三件套', homeHtml.includes('id="adlTocBtn"') && homeHtml.includes('id="adlPlus"') && homeHtml.includes('id="adlCopy"'), '');
+push('两个阅读器共用字号存档与 --rfont', homeHtml.includes("RF_KEY='ghrank-reader-font'") && homeHtml.includes('var(--rfont'), '');
+push('文章弹窗有上一篇/下一篇', homeHtml.includes('id="adlNav"') && homeHtml.includes('上一篇：'), '');
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

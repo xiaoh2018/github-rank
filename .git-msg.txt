@@ -1,7 +1,8 @@
-fix(home): 切榜单范围时数据文件读不到要给交代（v210）
+feat(articles): 首页文章弹窗补齐目录/字号/复制链接/上下篇（v211）
 
-- ensureRange 改 settle-once + 12 秒超时：主文件失败→备用文件也失败时不再永久 pending（原来骨架一直转）
-- 没 Token 时失败立刻出错误卡，不再空等实时兜底
-- 备用数据文件（repos-all.js）生效时状态行说明「可能不是最新的」
-- 新增 check-range-fail.mjs（14 项 × 390/1440），check-live +3
-- docs §175
+- 弹窗与静态页共用字号存档（localStorage['ghrank-reader-font'] + --rfont），档位 15–22 就近吸附
+- 目录从正文 h2~h6 生成（md.js 把 ## 渲染成 h4，选择器必须含 h4），≥3 条才出按钮
+- 复制链接复制静态规范地址；上下篇按日期倒序 + ←/→ 翻篇
+- 弹窗布局改 flex 列 + 头部 grid，修 390px 标题被挤两行、目录被挤成 0 高度
+- 卡片 href 回到 /articles/<slug>.html（爬虫可抓、无 JS 可用），点击仍拦截成页内弹窗
+- 新增 check-reader-parity.mjs（17 项 × 390/1440），check-live +3，docs §176
