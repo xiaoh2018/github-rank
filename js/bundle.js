@@ -508,8 +508,11 @@ function renderItem(r, rank, maxStars, trend) {
   const actEl = el('span', 'act', '活跃度 ' + act);
   actEl.title = '按最近提交、星标、Fork、Issue 综合计算（0-100）';
   meta.append(actEl);
-  meta.append(el('span', null, 'Fork ' + fmt(r.forks)));
-  meta.append(el('span', null, timeAgo(r.updated) + '更新'));
+  // Fork 数只在「按 Fork 排序」时才显示：读者默认不需要它，但按它排序时必须能核对
+  if (state.sort === 'forks') meta.append(el('span', null, 'Fork ' + fmt(r.forks)));
+  const updEl = el('span', null, timeAgo(r.updated) + '更新');
+  updEl.title = '最近一次提交（push）距今多久';
+  meta.append(updEl);
 
   const copy = el('button', 'mini', '复制');
   copy.title = '复制项目名、描述和链接';

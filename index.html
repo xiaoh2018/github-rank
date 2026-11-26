@@ -301,6 +301,12 @@ html[data-theme="ink"] .navcard .hitmark,html[data-theme="ink"] .navjump .hitmar
 @media (hover:none){
   #list .item .mini{display:none}
 }
+@media (max-width:760px){
+  /* 窄屏一律隐藏：不依赖 (hover)/(pointer) 判断，手机、平板、触屏笔记本都干净 */
+  #list .item .mini{display:none}
+  /* 换行后的行距收窄：14px 的 gap 在手机上会让两行信息看起来像断开的两段 */
+  #list .item .meta{gap:2px 10px}
+}
 .mini:hover{color:var(--accent);border-color:var(--gold)}
 /* 回到顶部 */
 #top{position:fixed;right:18px;bottom:18px;width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);font-size:18px;cursor:pointer;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s}
