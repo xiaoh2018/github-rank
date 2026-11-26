@@ -4612,5 +4612,12 @@
  "VIctory (Xbox Series compatibility layer) made to draw everything on NVIDIA cards: no skipped draws on capped descriptor heaps, Series S interface plane, half-scale Series S at about 20-22 fps on an RTX 5070. Fork of VIctory-7900XTX. No game files.": "VIctory（Xbox Series兼容层）旨在在NVIDIA显卡上绘制所有内容：在受限的描述符堆上没有跳过绘制，Series S接口平面，在RTX 5070上以约20-22 fps的帧率运行半比例Series S。VIctory-7900XTX 的分支。不含游戏文件。",
  "Google search DMCA notice viewer for Firefox, Chrome and Edge with local ONNX captcha recognition": "适用于 Firefox、Chrome 和 Edge 的 Google 搜索 DMCA 通知查看器，具备本地 ONNX 验证码识别功能",
  "Zotero 中文社区(非官方):Zotero 插件广场、版本兼容查询、引用样式与中文教程,附开放的插件目录数据与「Zotero中文社区」插件市场": "Zotero 中文社区（非官方）：Zotero 插件广场、版本兼容查询、引用样式与中文教程，附开放的插件目录数据与「Zotero 中文社区」插件市场",
- "Declarative Omarchy-compatible NixOS & Home Manager workstation stack for Apple Silicon (Asahi)": "适用于Apple Silicon（Asahi）的声明式Omarchy兼容NixOS和Home Manager工作站堆栈"
+ "Declarative Omarchy-compatible NixOS & Home Manager workstation stack for Apple Silicon (Asahi)": "适用于Apple Silicon（Asahi）的声明式Omarchy兼容NixOS和Home Manager工作站堆栈",
+ "Rob Run Cheats 2026: Aimbot, ESP & Loot ESP Guide": "Rob Run 作弊器 2026：瞄准辅助、透视和战利品透视指南",
+ "RobRun Cheat & Hack Guide: Risks of Free Cheats, Money Hacks and Buy Cheats": "RobRun作弊与破解指南：免费作弊、金币破解和购买作弊的风险",
+ "A modern Windows launcher that automatically sets up, updates, builds, and launches Xbox Series X|S (GDK) compatibility layers on Windows — with live port progress tracking built in.": "一款现代化的 Windows 启动器，可在 Windows 上自动设置、更新、构建和启动 Xbox Series X|S (GDK) 兼容层，并内置实时移植进度跟踪功能。",
+ "MCP server connecting AI assistants to the Spanish National Statistics Institute (INE) public API. Enables access to official demographic, economic and social statistics, making it easy to search, retrieve and analyze reliable data using natural language.": "MCP 服务器将 AI 助手连接到西班牙国家统计局 (INE) 的公共 API。支持访问官方的人口、经济和社会统计数据，便于使用自然语言搜索、检索和分析可靠数据。",
+ "ROB RUN FPS Boost Guide: Increase FPS and Improve Performance": "ROB RUN帧率提升指南：提高帧率并改善性能",
+ "GPU rendered UI framework for Rust in the style of Liquid Glass, with an immediate mode API": "采用 Liquid Glass 风格的 Rust GPU 渲染 UI 框架，具有即时模式 API",
+ "Draw an outline. Pull it up. Open-source push/pull 3D modeler in Rust: desktop app, CLI and MCP server.": "绘制轮廓。拉伸。基于 Rust 的开源推/拉式 3D 建模器：桌面应用程序、CLI 和 MCP 服务器。"
 }
