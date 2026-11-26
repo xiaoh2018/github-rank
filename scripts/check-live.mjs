@@ -116,10 +116,6 @@ push('前台手机端表单 16px（文章页）', artText.includes(':is(input,se
   push('筛选空态卡（empty-filter）', artText.includes('empty-filter') && artText.includes('ef-cond'), '');
   push('筛选空态列出条件与底数', artText.includes('当前筛选：') && artText.includes('站内一共 '), '');
   push('筛选空态三个出口按钮', artText.includes('data-ef="q"') && artText.includes('data-ef="cat"') && artText.includes('data-ef="all"'), '');
-  // —— 后台文章列表手机端变卡片（v181）
-  push('文章表格手机端变卡片（tr grid）', admHtml.includes('#artTbody tr{display:grid'), '');
-  push('卡片摘要最多两行', admHtml.includes('-webkit-line-clamp:2;-webkit-box-orient:vertical'), '');
-  push('操作按钮等宽铺满一行', admHtml.includes('#artTbody td:nth-child(5) button{flex:1 1 0'), '');
 push('前台手机端表单 16px（问答页）', faqText.includes('#q,#search,#navSearch{font-size:16px'), '');
 push('点 tab 后侧栏会把当前项滚进可视区', adm.includes('scrollIntoView({ block:'), '');
 push('阅读器标题窄屏 23px', artText.includes('.reader h1{font-size:23px'), '');
@@ -230,6 +226,10 @@ const faqTotop = await (await fetch(base + '/faq?v=' + t)).text();
 push('/faq 有返回顶部按钮', faqTotop.includes('id="totop"') && faqTotop.includes('initTotop'), '');
 push('/faq 页脚有 RSS', faqTotop.includes('href="/rss.xml"'), '');
 const admHtml = await (await fetch(base + '/admin?v=' + t)).text();
+// —— 后台文章列表手机端变卡片（v181）
+push('文章表格手机端变卡片（tr grid）', admHtml.includes('#artTbody tr{display:grid'), '');
+push('卡片摘要最多两行', admHtml.includes('-webkit-line-clamp:2;-webkit-box-orient:vertical'), '');
+push('操作按钮等宽铺满一行', admHtml.includes('#artTbody td:nth-child(5) button{flex:1 1 0'), '');
 push('后台导航空态带清空筛选', admHtml.includes('data-navfreset'), '');
 push('后台导航分类空态按钮', admHtml.includes('data-empty-act="nav-cat-add"'), '');
 push('后台空态卡样式', admHtml.includes('.empty-card{padding:30px'), '');
