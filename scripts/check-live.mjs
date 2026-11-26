@@ -394,6 +394,8 @@ const artHtml = await (await fetch(base + '/articles?t=' + t)).text();
 const faqHtml = await (await fetch(base + '/faq?t=' + t)).text();
 push('静态页对话框焦点圈', artHtml.includes('__a11yTrap') && artHtml.includes("['pwDlg','adModal']"));
 push('文章放大图默认隐藏且惰性加载', artHtml.includes('id="lbImg"') && artHtml.includes('loading="lazy"') && artHtml.includes('hidden'));
+push('前端脚本引用带版本号（/articles 的 md.js）', /js\/md\.js\?v=/.test(artHtml));
+push('不再有写死的 ?v=9', !artHtml.includes('?v=9'));
 push('导航分组折叠按钮在窄屏 ≥40px', home.includes('.navgroup .gtog{min-height:40px'), '');
 push('站点胶囊在窄屏 ≥36px', home.includes('.nj{min-height:36px'), '');
 push('状态行能挂「下一步」按钮', bundleJs.includes('action.target') && bundleJs.includes("'去设置'"), '');

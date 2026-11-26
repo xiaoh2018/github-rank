@@ -696,6 +696,14 @@ async function injectVerifyMeta(env, html) {
 ));
 }
 
+// 给页面里的 js 引用统一加 ?v=ASSET_V：否则 /js/*.js 会按路径缓存 24 小时，
+// 改完前端脚本要等一天才生效（articles.html 里曾写死 ?v=9，等于永久不更新）
+function versionAssets(html) {
+  return html.replace(/(["'])(\/?js\/[\w.-]+\.js)(\?v=[^"']*)?(["'])/g, function (m, q1, p1, v, q2) {
+    return q1 + p1 + '?v=' + ASSET_V + q2;
+  });
+}
+
 async function serveSite(env, entry, pathname) {
   if (!repoOf(env).owner || !repoOf(env).name) {
     return text('还没配置 REPO_OWNER / REPO_NAME 变量，请按部署说明添加', 503);
@@ -709,7 +717,7 @@ async function serveSite(env, entry, pathname) {
       return text('读取站点文件失败：' + r.status + '（请确认仓库是公开的，且文件已经推送到 ' + branch(env) + ' 分支）', 502);
     }
     if (entry[0] === 'faq.html') {
-      let html = await r.text();
+      let html = versionAssets(await r.text());
       try {
         html = await injectFaqLd(env, html);
       } catch (e) {}
@@ -726,10 +734,13 @@ async function serveSite(env, entry, pathname) {
       try {
         html = await injectVerifyMeta(env, html);
       } catch (e) {}
-      html = html.replace(/(["'])(\/?js\/[\w.-]+\.js)(["'])/g, function (m, q1, p1, q2) {
-        return q1 + p1 + '?v=' + ASSET_V + q2;
-      });
+      html = versionAssets(html);
       return new Response(html, {
+        headers: { 'content-type': entry[1], 'cache-control': 'public, max-age=300' },
+      });
+    }
+    if (/\.html$/.test(entry[0]) || entry[1] === 'text/html') {
+      return new Response(versionAssets(await r.text()), {
         headers: { 'content-type': entry[1], 'cache-control': 'public, max-age=300' },
       });
     }
@@ -1677,7 +1688,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v215';
+const ASSET_V = 'v216';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };

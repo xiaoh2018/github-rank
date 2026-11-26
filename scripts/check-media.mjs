@@ -79,7 +79,7 @@ push('所有可见图片都声明了 loading', universe.every((x) => !!x.loading
 push('所有可见图片都声明了 decoding', universe.every((x) => !!x.decoding), universe.filter((x) => !x.decoding).map((x) => x.src));
 
 // ---------- Markdown 图片渲染（md 不挂全局，改查源码约定 + 真实渲染） ----------
-const mdSrc = await ev("fetch('/js/md.js').then(r=>r.text())") || '';
+const mdSrc = await ev("(function(){var el=document.querySelector('script[src*=\"md.js\"]');var u=el?el.src:'';return u?fetch(u).then(function(r){return r.text();}):'';})()") || '';
 push('Markdown 图缺 alt 时回落「配图」', mdSrc.indexOf("(alt || '配图')") >= 0);
 push('Markdown 图带 lazy + async', mdSrc.indexOf('loading="lazy" decoding="async"') >= 0);
 const rendered = await ev("(function(){var d=document.createElement('div');d.innerHTML='<img src=\"/og-image.png\" alt=\"配图\" width=\"64\" height=\"64\" loading=\"lazy\" decoding=\"async\">';var im=d.querySelector('img');document.body.appendChild(d);var r=im.getBoundingClientRect();d.remove();return {alt:im.getAttribute('alt'),w:im.getAttribute('width'),loaded:true};})()");
