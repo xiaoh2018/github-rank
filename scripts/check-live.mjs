@@ -128,11 +128,11 @@ push('前台手机端表单 16px（文章页）', artText.includes(':is(input,se
   push('筛选空态三个出口按钮', artText.includes('data-ef="q"') && artText.includes('data-ef="cat"') && artText.includes('data-ef="all"'), '');
 push('前台手机端表单 16px（问答页）', faqText.includes('#q,#search,#navSearch{font-size:16px'), '');
 push('点 tab 后侧栏会把当前项滚进可视区', adm.includes('scrollIntoView({ block:'), '');
-push('无障碍：首页给了 accent-ink / accent-text 两个颜色', homeText.includes('--accent-ink:#8a6008') && homeText.includes('--accent-text:#8a6008'), '');
-push('无障碍：选中态胶囊用 accent-ink 托白字', homeText.includes('.chip.is-on{background:var(--accent-ink,var(--accent))'), '');
+push('无障碍：首页给了 accent-ink / accent-text 两个颜色', home.includes('--accent-ink:#8a6008') && home.includes('--accent-text:#8a6008'), '');
+push('无障碍：选中态胶囊用 accent-ink 托白字', home.includes('.chip.is-on{background:var(--accent-ink,var(--accent))'), '');
 push('无障碍：文章页胶囊有 aria-pressed', artText.includes('aria-pressed="\' + (state.cat === \'all\')'), '');
 push('无障碍：问答页表格 th 带 scope', faqText.includes('<th scope="col">'), '');
-push('无障碍：三个搜索框都有 aria-label', homeText.includes('aria-label="搜索站点"') && artText.includes('aria-label="搜索文章"') && faqText.includes('aria-label="搜索问答"'), '');
+push('无障碍：三个搜索框都有 aria-label', home.includes('aria-label="搜索站点"') && artText.includes('aria-label="搜索文章"') && faqText.includes('aria-label="搜索问答"'), '');
 push('阅读器标题窄屏 23px', artText.includes('.reader h1,.reader h2{font-size:23px'), '');
 push('后台表格窄屏可横滚', adm.includes('#navAdmin{overflow-x:auto;'), '');
 push('问答搜索有高亮（highlightNode + hitmark）', faqText.includes('function highlightNode') && faqText.includes("className = 'hitmark'"));
@@ -297,9 +297,9 @@ push('榜单卡标签折叠有 +N 样式', home.includes('.tag.more{background:t
 push('榜单卡复制/卡片按钮 hover 才出现', home.includes('#list .item .mini{opacity:0') && home.includes('@media (hover:none)'), '');
 push('榜单卡文案：活跃度 + 短更新时间', bundleJs.includes("'活跃度 '") && bundleJs.includes("'更新'") , '');
 push('榜单卡取自然高度（不再强行等高留白）', home.includes('gap:var(--gap);align-items:start}') , '');
-push('分类胶囊有统一视觉（实心选中 + 圆角 + hover）', home.includes('.chip.is-on{background:var(--accent)') && home.includes('.chip:hover{border-color:var(--accent)') && home.includes('function paintChipBox'), '');
-push('文章页胶囊与首页同一套样式', artText.includes('.chip.is-on{background:var(--accent)') && artText.includes('.chip:hover{border-color:var(--accent)'), '');
-push('问答页胶囊选中改为实心（与首页一致）', faqText.includes('.chip.is-on{background:var(--accent)') && faqText.includes('.chip:hover{border-color:var(--accent)'), '');
+push('分类胶囊有统一视觉（实心选中 + 圆角 + hover）', home.includes('.chip.is-on{background:var(--accent-ink') && home.includes('.chip:hover{border-color:var(--accent)') && home.includes('function paintChipBox'), '');
+push('文章页胶囊与首页同一套样式', artText.includes('.chip.is-on{background:var(--accent-ink') && artText.includes('.chip:hover{border-color:var(--accent)'), '');
+push('问答页胶囊选中改为实心（与首页一致）', faqText.includes('.chip.is-on{background:var(--accent-ink') && faqText.includes('.chip:hover{border-color:var(--accent)'), '');
 push('空的数据来源提示不占位', home.includes('#srcNote:empty{display:none}'), '');
 push('数据来源提示改成人话（静态数据不再解释一堆）', bundleJs.includes('本次数据：刚从 GitHub 实时拉取') && !bundleJs.includes('当前数据：定时抓取的静态文件'), '');
 push('窄屏有「分析」按钮收起侧栏', home.includes('id="insightBtn"') && home.includes('.insights-toggle{display:none'), '');
@@ -374,7 +374,7 @@ push('导航面板工具栏可换行', admHtml.indexOf('.nav-toolbar{flex-wrap:w
 push('提交页平台表取消 min-width', admHtml.indexOf('.card:has(.geo-plat) table{min-width:0}') >= 0);
 const weekJs = await (await fetch(base + '/data/repos-week.js?t=' + t)).text();
 push('数据瘦身：不再落盘 url 字段', weekJs.indexOf('"url":"https://github.com/') < 0 && weekJs.length > 10000);
-push('数据瘦身：时间戳是 epoch 秒', /"updated":1[6-9][0-9]{8}/.test(weekJs));
+push('数据瘦身：时间戳是 epoch 秒', /(?:"updated"|updated)\s*:\s*1[6-9][0-9]{8}/.test(weekJs));
 push('首页预载周榜数据（与 script 地址一致）', bundleJs.indexOf('s.src = file;') >= 0 && bundleJs.indexOf('function repoUrl(r)') >= 0);
 const navHtml = await (await fetch(base + '/nav?t=' + t)).text();
 const artHtml = await (await fetch(base + '/articles?t=' + t)).text();

@@ -182,15 +182,12 @@ async function fetchUsers(type) {
 }
 
 // 序列化为 JS 对象字面量（键不加引号，值用 JSON 字符串形式，合法 JS）
-function toJs(v, indent) {
-  if (Array.isArray(v)) {
-    if (!v.length) return '[]';
-    return '[\n' + v.map(x => indent + '  ' + toJs(x, indent + '  ')).join(',\n') + '\n' + indent + ']';
-  }
+function toJs(v) {
+  // 紧凑输出：键不加引号、值用 JSON 形式、不加缩进换行。
+  // 数据文件是给机器读的，缩进每条约占 110 字节（500 条 ≈ 55KB），换行还会让 gzip 变差。
+  if (Array.isArray(v)) return '[' + v.map(toJs).join(',') + ']';
   if (v && typeof v === 'object') {
-    const keys = Object.keys(v);
-    if (!keys.length) return '{}';
-    return '{\n' + keys.map(k => `${indent}  ${k}: ${toJs(v[k], indent + '  ')}`).join(',\n') + '\n' + indent + '}';
+    return '{' + Object.keys(v).map(k => k + ':' + toJs(v[k])).join(',') + '}';
   }
   return JSON.stringify(v);
 }
