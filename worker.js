@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v174';
+const ASSET_V = 'v175';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4923,12 +4923,12 @@ tr:hover td{background:#fcfbf8}
     if (d == null) return;
     var i = Number(d);
     var name = state.links[i] ? state.links[i].name : '';
-    askConfirm('删除友链', '确定删除「' + name + '」吗？删除后刷新首页立刻生效。', function () {
+    askConfirm('删除友链', '会从首页友链里去掉「' + name + '」。删除不可撤销（要恢复就重新添加一次），保存即生效、刷新首页就能看到。', function () {
       return api('/api/links', { method: 'POST', body: { password: pw, action: 'remove', index: i } }).then(function (r) {
         if (r.ok) {
           state.links = r.links;
           renderLinks();
-          toast('已删除', true);
+          paintDelMsg('#pane-links .bar', '已删除「' + name + '」· 已生效', false);
         }
         return r;
       });
@@ -5199,6 +5199,37 @@ tr:hover td{background:#fcfbf8}
     }
     return el;
   }
+  function delMsgBox(target) {
+    if (!target) return null;
+    if (target.getAttribute && target.getAttribute('data-save')) return saveMsgFor(target);
+    var box = target.querySelector('.save-msg');
+    if (box) return box;
+    box = document.createElement('span');
+    box.className = 'save-msg';
+    box.setAttribute('role', 'status');
+    box.setAttribute('aria-live', 'polite');
+    target.appendChild(box);
+    return box;
+  }
+  function paintDelMsg(target, text, withUndo) {
+    var box = delMsgBox(typeof target === 'string' ? document.querySelector(target) : target);
+    if (!box) return;
+    box.className = 'save-msg ok';
+    box.textContent = text;
+    if (withUndo) {
+      var u = document.createElement('button');
+      u.type = 'button';
+      u.className = 'linkbtn';
+      u.textContent = '撤销';
+      u.addEventListener('click', function () {
+        var b = $('artUndo');
+        if (b) b.click();
+      });
+      box.appendChild(document.createTextNode(' '));
+      box.appendChild(u);
+    }
+  }
+  function delAnchor(sel) { return document.querySelector(sel); }
   function saveLabel(btn, text) {
     if (!btn.dataset.label) btn.dataset.label = btn.textContent;
     btn.textContent = text || btn.dataset.label;
@@ -5580,12 +5611,15 @@ tr:hover td{background:#fcfbf8}
       if (av) { openArt(av); var grid = document.querySelector('#artDlg .art-grid'); if (grid.classList.contains('preview-off')) grid.classList.remove('preview-off'); }
     } else if (dl != null) {
       var art = state.articles.filter(function (x) { return String(x.id) === dl; })[0];
-      askConfirm('删除文章', '确定删除《' + (art ? art.title : '') + '》吗？', function () {
+      var artTitle = art ? art.title : '';
+      askConfirm('删除文章', '会删掉《' + artTitle + '》和它的正文，删完可以点「撤销」恢复（只保留最近一次）。', function () {
+        var snap = state.articles.slice();
         return api('/api/articles', { method: 'POST', body: { password: pw, action: 'remove', id: dl } }).then(function (r) {
           if (r.ok) {
             state.articles = r.articles;
+            artUndoSet(snap);
             renderArticles();
-            toast('已删除', true);
+            paintDelMsg('#pane-articles [data-save="article"]', '已删除《' + artTitle + '》· 可撤销', true);
           }
           return r;
         });
@@ -5692,9 +5726,9 @@ tr:hover td{background:#fcfbf8}
         var ids = artPicked();
         if (!ids.length) { toast('先勾选文章', true); return; }
         var prevSnapshot = state.articles.slice();
-        askConfirm('批量删除', '确定删除选中的 ' + ids.length + ' 篇吗？', function () {
+        askConfirm('批量删除', '会删掉选中的 ' + ids.length + ' 篇，删完可以点「撤销」恢复（只保留最近一次）。', function () {
           return api('/api/articles', { method: 'POST', body: { password: pw, action: 'bulk', op: 'remove', ids: ids } }).then(function (r) {
-            if (r.ok) { state.articles = r.articles; state.artSel.clear(); artUndoSet(prevSnapshot); renderArticles(); toast('已删除 ' + r.removed + ' 篇（可撤销）', true); }
+            if (r.ok) { state.articles = r.articles; state.artSel.clear(); artUndoSet(prevSnapshot); renderArticles(); paintDelMsg('#pane-articles [data-save="article"]', '已删除 ' + r.removed + ' 篇 · 可撤销', true); }
             return r;
           });
         });
@@ -6376,9 +6410,15 @@ tr:hover td{background:#fcfbf8}
     $('qaList').addEventListener('click', function (e) {
       var b = e.target.closest ? e.target.closest('[data-qadel]') : null;
       if (!b) return;
-      qaState = readQaForm();
-      qaState.items.splice(Number(b.getAttribute('data-qadel')), 1);
-      renderQa();
+      var qi = Number(b.getAttribute('data-qadel'));
+      var qq = (qaState.items[qi] && qaState.items[qi].q) || '';
+      askConfirm('删除这条问答？', '会从列表里移除「' + qq.slice(0, 20) + '」。注意：还要点「保存问答」才真正生效，保存前可以先把文字复制走。', function () {
+        qaState = readQaForm();
+        qaState.items.splice(qi, 1);
+        renderQa();
+        paintDelMsg('#pane-qa [data-save="qa"]', '已从列表移除 1 条 · 点「保存问答」才生效', false);
+        return Promise.resolve({ ok: true });
+      });
     });
   }
   (function bindCmdk() {
