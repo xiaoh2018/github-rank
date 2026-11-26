@@ -382,6 +382,8 @@ push('首页预载周榜数据（与 script 地址一致）', bundleJs.indexOf('
 const navHtml = await (await fetch(base + '/nav?t=' + t)).text();
 const artHtml = await (await fetch(base + '/articles?t=' + t)).text();
 const faqHtml = await (await fetch(base + '/faq?t=' + t)).text();
+push('状态行能挂「下一步」按钮', bundleJs.includes('action.target') && bundleJs.includes("'去设置'"), '');
+push('状态行按钮有样式（不是黑药丸）', home.includes('#status .status-act{'), '');
 push('文章页读失败给人话 + 重试', artHtml.includes('文章没读出来') && artHtml.includes('data-retry="1"') && artHtml.includes('不影响榜单'), '');
 push('问答页读失败给人话 + 就地重试', faqHtml.includes('问答没读出来') && faqHtml.includes('data-qa-retry') && faqHtml.includes('loadQa()'), '');
 push('文章页加载态是骨架卡（不是一句话）', artHtml.includes('sk-card') && artHtml.indexOf('正在加载文章') < 0, '');

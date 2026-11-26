@@ -1120,10 +1120,25 @@ function visibleRepos() {
 }
 
 // ---------- 渲染 ----------
-function setStatus(text, isError) {
+function setStatus(text, isError, action) {
   const s = $('status');
-  s.textContent = text;
   s.className = isError ? 'error' : '';
+  s.textContent = text;
+  // 状态行只说明「发生了什么」，action 负责「下一步点哪儿」——
+  // 光说「额度用完了」，读者还得自己去找「设置」按钮在哪。
+  if (action && action.target) {
+    const b = el('button', 'status-act', action.label || '去设置');
+    b.type = 'button';
+    b.onclick = () => {
+      const box = $(action.target);
+      if (box) box.hidden = false;
+      if (typeof refreshTokenHint === 'function') refreshTokenHint();
+      const inp = $('token');
+      if (inp) { try { inp.focus({ preventScroll: true }); } catch (e) { inp.focus(); } }
+    };
+    s.append(' ');
+    s.append(b);
+  }
 }
 
 function renderSkeleton() {
@@ -1459,7 +1474,7 @@ async function liveRefresh() {
   serverMode = false;
   if (!getToken()) {
     if (!(await serverHasToken())) {
-      setStatus('还没有可用的 Token，无法立即刷新。当前显示的是定时抓取的静态数据；请在「设置」中填写你自己的 Token 后再试。', true);
+      setStatus('立即刷新要你自己的 GitHub Token。不填也能看榜单 —— 数据每 3 小时自动更新一次。', true, { target: 'settings' });
       return;
     }
     serverMode = true;
@@ -1495,7 +1510,8 @@ async function liveRefresh() {
       : '刷新成功：共 ' + repos.length + ' 个项目，更新于 ' + state.updatedAt + '。') + tail);
   } catch (e) {
     if (id !== reqId) return;
-    setStatus('实时刷新失败：' + e.message + ' 当前仍显示之前的数据。', true);
+    const needToken = /Token|额度|限制|凭证|凭据/i.test(String(e.message || ''));
+    setStatus('实时刷新失败：' + e.message + ' 当前仍显示之前的数据。', true, needToken ? { target: 'settings' } : null);
   } finally {
     btn.disabled = false;
   }

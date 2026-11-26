@@ -151,6 +151,8 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
 .stat-lang:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 #status{margin:var(--gap) 0 0;color:var(--muted)}
 #status.error{color:var(--danger)}
+  #status .status-act{margin-left:6px;padding:0 2px;border:0;background:none;color:var(--accent);font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+  #status .status-act:focus-visible{outline:2px solid var(--accent-ink,var(--accent));outline-offset:2px;border-radius:4px}
 #list{list-style:none;padding:0;margin:var(--gap) 0 0;display:flex;flex-direction:column;gap:var(--gap);scroll-margin-top:76px}
 .item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:grid;grid-template-columns:44px 1fr auto;gap:12px;box-shadow:var(--shadow);transition:border-color .15s}
 .item:hover{border-color:var(--gold)}
