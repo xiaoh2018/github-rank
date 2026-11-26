@@ -61,8 +61,8 @@ check('退回复制后按钮变「已复制」', await js("document.querySelecto
 // 3) 桌面不显示（避免一排三个按钮）
 await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
 await sleep(400);
-const desk = await js("(function(){var b=document.querySelector('#list .item .mshare');return {disp:getComputedStyle(b).display, count:document.querySelectorAll('#list .item .mshare').length};})()");
-check('1440 上「分享」隐藏（卡片悬停才出复制/卡片）', desk.disp === 'none', desk);
+const desk = await js("(function(){var w=document.querySelector('#list .item .mshare-row'),b=document.querySelector('#list .item .mshare');var r=b?b.getBoundingClientRect():{width:0,height:0};return {row:w?getComputedStyle(w).display:null, box:[Math.round(r.width),Math.round(r.height)], count:document.querySelectorAll('#list .item .mshare').length};})()");
+check('1440 上「分享」隐藏（整行 display:none、按钮占 0）', desk.row === 'none' && desk.box[1] === 0, desk);
 
 // 4) 390 不横向溢出
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });

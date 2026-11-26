@@ -20,7 +20,7 @@ push('导航图标声明 16×16', home.includes('width="16" height="16"'));
 
 const bundleJs = await (await fetch(base + '/js/bundle.js?v=' + t)).text();
 push('手机上有「分享」（系统分享面板，退回复制）', bundleJs.includes('async function shareRepo(') && bundleJs.includes('navigator.share('), '');
-push('「分享」只在窄屏出现（桌面隐藏）', home.includes('#list .item .mini.mshare{display:none') && home.includes('#list .item .mini.mshare{display:inline-flex'), '');
+push('「分享」只在窄屏出现（桌面隐藏）', home.includes('#list .item .mshare-row{display:none') && home.includes('#list .item .mini.mshare{display:inline-flex'), '');
 push('「分享」有带项目名的可访问名 + 32px 触摸高度', bundleJs.includes("'分享「' + (r.name || '项目') + '」'") && home.includes('min-height:32px;padding:0 10px'), '');
 push('bundle 平滑滚动走 __sb 助手', bundleJs.includes('behavior: window.__sb()'));
 push('头像声明 22×22 并异步解码', bundleJs.includes('img.width = 22') && bundleJs.includes("img.decoding = 'async'"));

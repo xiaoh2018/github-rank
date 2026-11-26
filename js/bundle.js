@@ -570,7 +570,8 @@ function renderItem(r, rank, maxStars, trend) {
   share.onclick = () => shareCard(r, rank);
   meta.append(share);
   body.append(meta);
-  body.append(mshare);
+  var mrow = el('div', 'mshare-row');
+  mrow.append(mshare);
 
   const tagList = r.topics || [];
   if (tagList.length) {
@@ -594,6 +595,7 @@ function renderItem(r, rank, maxStars, trend) {
   fill.style.width = (maxStars ? Math.max(2, Math.round(r.stars / maxStars * 100)) : 0) + '%';
   bar.append(fill);
   body.append(bar);
+  body.append(mrow);
   li.append(body);
 
   const fav = el('button', 'fav' + (faved ? ' on' : ''), faved ? '★' : '☆');
