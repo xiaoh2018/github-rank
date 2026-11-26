@@ -105,6 +105,8 @@ push('品牌副标题窄屏最多两行', home.includes('-webkit-line-clamp:2'),
 push('后台命令面板有手机入口', adm.includes('id="cmdkFab"'), '');
 push('后台窄屏表单字号 16px（iOS 不放大）', adm.includes('#app input:not([type=checkbox]):not([type=radio]),#app select,#app textarea{font-size:16px'), '');
 push('后台问答答案框窄屏 16px', adm.includes('#app #qaList .qa-a{font-size:16px'), '');
+push('后台平台表窄屏堆叠成卡片', adm.includes('.geo-plat thead{display:none'), '');
+push('后台侧栏滚动渐隐（x-end + paintSide）', adm.includes('x-end') && adm.includes('__paintSide'), '');
 push('点 tab 后侧栏会把当前项滚进可视区', adm.includes('scrollIntoView({ block:'), '');
 push('阅读器标题窄屏 23px', artText.includes('.reader h1{font-size:23px'), '');
 push('后台表格窄屏可横滚', adm.includes('#navAdmin{overflow-x:auto;'), '');

@@ -1,5 +1,5 @@
 // 用 CDP 截后台面板（headless Chrome 直接打开 /admin 再登录下面的 tab）
-// 用法：node scripts/cdp-shot.mjs <pane> <输出路径> [宽度]
+// 用法：node scripts/cdp-shot.mjs <pane> <输出路径> [宽度] [最大高度]
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -8,6 +8,7 @@ import path from 'node:path';
 const pane = process.argv[2] || 'overview';
 const out = path.resolve(process.argv[3] || 'docs/shots/admin-' + pane + '.png');
 const width = Number(process.argv[4] || 1440);
+const maxH = Number(process.argv[5] || 4200);
 const port = 9500 + Math.floor(Math.random() * 300);
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'cdp-'));
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
@@ -75,13 +76,20 @@ await send('Runtime.evaluate', {
 });
 await sleep(2600);
 const metrics = await send('Page.getLayoutMetrics');
-const h = Math.min(4200, Math.ceil((metrics.cssContentSize && metrics.cssContentSize.height) || 1400));
+const contentH = Math.ceil((metrics.cssContentSize && metrics.cssContentSize.height) || 1400);
+const h = Math.min(maxH, contentH);
 await send('Emulation.setDeviceMetricsOverride', { width, height: h, deviceScaleFactor: 1, mobile: false });
 await sleep(600);
-const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+// 改视口高度会重排，scrollIntoView({inline:center}) 又可能把 window 带偏：截图前再归零一次
+await send('Runtime.evaluate', { expression: `(() => { const s = document.querySelector('.side'); if (s) s.scrollLeft = 0; window.scrollTo(0, 0); document.documentElement.scrollLeft = 0; document.body.scrollLeft = 0; return 1; })()` });
+await sleep(320);// 传了第 5 个参数且比整页短时，用 clip 只截顶部这么高（避免生成几千像素的长图）
+const clipH = maxH < contentH ? maxH : 0;
+const shot = clipH
+  ? await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: 0, y: 0, width, height: clipH, scale: 1 } })
+  : await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, Buffer.from(shot.data, 'base64'));
-console.log('saved ' + out + ' (' + width + 'x' + h + ', ' + fs.statSync(out).size + ' bytes)');
+console.log('saved ' + out + ' (' + width + 'x' + (clipH || h) + ', ' + fs.statSync(out).size + ' bytes)');
 await send('Browser.close');
 ws.close();
 child.kill();

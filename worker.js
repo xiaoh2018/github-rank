@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v150';
+const ASSET_V = 'v151';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3791,6 +3791,35 @@ tr:hover td{background:#fcfbf8}
 @media (max-width:760px){
   .card:has(>table){overflow-x:auto;-webkit-overflow-scrolling:touch}
   .card:has(>table) table{min-width:520px}
+  /* 提交页的 4 列平台表：手机上改成堆叠卡片，用伪元素补列名 */
+  .geo-plat{border-collapse:separate;border-spacing:0}
+  .geo-plat thead{display:none}
+  .geo-plat tbody,.geo-plat tr,.geo-plat td{display:block;width:auto}
+  .geo-plat tr{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px;background:#fff}
+  .geo-plat td{border:0;padding:3px 0;font-size:13.5px}
+  .geo-plat td:first-child{font-size:14.5px;padding-bottom:6px}
+  .geo-plat td:nth-child(2)::before{content:"要做什么 · ";color:var(--muted)}
+  .geo-plat td:nth-child(3)::before{content:"要填的参数 · ";color:var(--muted)}
+  .geo-plat td:nth-child(4)::before{content:"能一键吗 · ";color:var(--muted)}
+  .geo-plat td:nth-child(4){font-weight:600}
+  /* 复制框在窄屏上下排 */
+  .copybox{flex-direction:column;align-items:stretch}
+  .copybox input{width:100%}
+  .copybox .ghost{width:100%;justify-content:center}
+  /* 平台表已经堆叠成卡片，不再需要「右边还有内容」的内阴影 */
+  .card:has(.geo-plat){box-shadow:none}
+  /* 侧栏分组名在横向条里别一个一个字竖排 */
+  .side .navgroup{flex:0 0 auto;white-space:nowrap;font-size:10px;padding:0 8px;opacity:.75}
+  /* 侧栏横向滚动：右缘渐隐提示还有更多，划到末尾自动收起 */
+  .side{scroll-snap-type:x proximity;scroll-padding-left:6px;
+    -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 24px),transparent 100%);
+    mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 24px),transparent 100%)}
+  .side.x-start{
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 24px,#000 calc(100% - 24px),transparent 100%);
+    mask-image:linear-gradient(90deg,transparent 0,#000 24px,#000 calc(100% - 24px),transparent 100%)}
+  .side.x-end{-webkit-mask-image:none;mask-image:none}
+  .side.x-start.x-end{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 24px);mask-image:linear-gradient(90deg,transparent 0,#000 24px)}
+  .side .nav{scroll-snap-align:start}
   .toolbar{gap:8px}
   .toolbar input[type=text],.toolbar input[type=search]{flex:1 1 100%;max-width:none}
   .toolbar select,.toolbar .btn,.toolbar button{flex:1 1 auto;max-width:none;min-width:0}
@@ -6238,6 +6267,21 @@ tr:hover td{background:#fcfbf8}
       if (e.key === 'Escape' && ckOpen) closeCmdk();
     });
     if ($('cmdkFab')) $('cmdkFab').addEventListener('click', openCmdk);
+  /* 手机上侧栏是横向滚动条：x-start / x-end 控制两端渐隐，提示「还能划」 */
+  (function () {
+    var side = document.querySelector('.side');
+    if (!side) return;
+    function paintSide() {
+      var max = side.scrollWidth - side.clientWidth;
+      side.classList.toggle('x-start', side.scrollLeft > 4);
+      side.classList.toggle('x-end', max <= 4 || side.scrollLeft >= max - 4);
+    }
+    side.addEventListener('scroll', paintSide, { passive: true });
+    window.addEventListener('resize', paintSide);
+    window.addEventListener('load', paintSide);
+    setTimeout(paintSide, 80);
+    window.__paintSide = paintSide;
+  })();
   })();
 
   function openAdPrev(id) {
