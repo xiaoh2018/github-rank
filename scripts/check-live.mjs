@@ -252,6 +252,8 @@ push('导航页空态小屏按钮加高（44px 触控）', home.includes('.navem
 push('命令面板条目小屏 44px + 触屏措辞', admHtml.includes('#cmdk .ck-item{min-height:44px') && admHtml.includes('id="ckFoot"'), '');
 push('文章页分类胶囊小屏单行横滚', artText.includes('.chips{flex-wrap:nowrap') && artText.includes('function paintChips'), '');
 push('后台文章工具栏小屏先筛后排', admHtml.includes('#pane-articles .toolbar>#artSort{order:1'), '');
+push('后台侧栏小屏隐藏分组小标题', admHtml.includes('.side .navgroup{display:none}'), '');
+push('后台侧栏小屏压成一行（max-height 58）', admHtml.includes('.side{max-height:58px'), '');
 
 let bad = 0;
 for (const r of rows) {

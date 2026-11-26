@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v157';
+const ASSET_V = 'v158';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3884,6 +3884,12 @@ tr:hover td{background:#fcfbf8}
   #pane-articles .toolbar>#artBulkDel{order:6}
   #pane-articles .toolbar>#artUndo{order:7}
   #pane-articles .toolbar>#artSelNote{order:8;flex:1 1 100%}
+  /* 分组小标题在横向胶囊条里没有意义，且会挤在两个 tab 中间让人误会 */
+  .side .navgroup{display:none}
+  .side .nav{margin:0 2px}
+  /* 横向条只该占一行：原来是 227px 高，把首屏吃掉三分之一 */
+  .side{max-height:58px;align-items:center;padding:6px 4px}
+  .side .nav{align-self:center;height:auto;min-height:44px;padding:10px 12px}
   #navAdmin table{min-width:560px}
   .main{padding:16px 14px 44px}
 }
