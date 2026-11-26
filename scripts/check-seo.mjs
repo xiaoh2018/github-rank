@@ -109,6 +109,14 @@ for (const loc of locs) {
 }
 ok('sitemap 每个地址的 canonical 都指向自己', dup.length === 0, dup.join(' | '));
 
+// sitemap 里不能有 noindex 的地址（例如加密文章整页 noindex，却还挂在 sitemap 上）
+const noidx = [];
+for (const loc of locs.filter((u) => /\/articles\/[^/]+\/\d+\.html$/.test(u))) {
+  const { body } = await get(new URL(loc).pathname);
+  if (/name=["']robots["'][^>]*noindex/i.test(body)) noidx.push(loc);
+}
+ok('sitemap 不含 noindex 的文章页', noidx.length === 0, noidx.join(' | '));
+
 const robots = await (await fetch(base + '/robots.txt?t=' + t)).text();
 ok('robots.txt 声明了 sitemap', /Sitemap:\s*https?:\/\/\S+/.test(robots));
 const llms = await fetch(base + '/llms.txt?t=' + t);

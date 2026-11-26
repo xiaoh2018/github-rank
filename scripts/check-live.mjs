@@ -118,7 +118,7 @@ push('前台手机端表单 16px（文章页）', artText.includes(':is(input,se
   push('筛选空态三个出口按钮', artText.includes('data-ef="q"') && artText.includes('data-ef="cat"') && artText.includes('data-ef="all"'), '');
 push('前台手机端表单 16px（问答页）', faqText.includes('#q,#search,#navSearch{font-size:16px'), '');
 push('点 tab 后侧栏会把当前项滚进可视区', adm.includes('scrollIntoView({ block:'), '');
-push('阅读器标题窄屏 23px', artText.includes('.reader h1{font-size:23px'), '');
+push('阅读器标题窄屏 23px', artText.includes('.reader h1,.reader h2{font-size:23px'), '');
 push('后台表格窄屏可横滚', adm.includes('#navAdmin{overflow-x:auto;'), '');
 push('问答搜索有高亮（highlightNode + hitmark）', faqText.includes('function highlightNode') && faqText.includes("className = 'hitmark'"));
 push('问答计数显示命中条数', faqText.includes('命中') && faqText.includes('当前显示'));

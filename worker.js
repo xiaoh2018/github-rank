@@ -118,6 +118,9 @@ export default {
         xml += '  <url><loc>' + origin + '/articles</loc><lastmod>' + today + '</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>\n';
         for (const a of list.slice(0, 2000)) {
           if (!a || !a.id) continue;
+          // 加密文章的详情页是 noindex（不把密文页交给搜索引擎），就不该出现在 sitemap 里：
+          // 一条「我存在但别索引我」的地址只会拉低整站的抓取质量。
+          if (a.locked && a.lock && a.lock.ct) continue;
           const lm = a.date ? String(a.date).slice(0, 10) : '';
           const artPath = a.slug
     ? '/articles/' + String(a.slug).split('/').map(encodeURIComponent).join('/') + '.html'
@@ -1655,7 +1658,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v192';
+const ASSET_V = 'v193';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
