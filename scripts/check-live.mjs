@@ -339,6 +339,10 @@ push('文章详情是页内阅读器（不再跳 /articles/xxx.html）', home.in
 push('文章详情地址用 ?post= 深链（bundle 也保留它）', home.includes('/?page=articles&post=') && bundleJs.includes("get('post')"));
 push('空正文有明确说明（不是白屏）', home.includes('这篇还没有正文'));
 push('阅读器 Esc 可关（document 捕获层）', home.includes("!dlg.open) return;"));
+push('手机一列时布局改成 stretch（不再横向溢出/右侧空条）', home.includes('.layout{display:flex;flex-direction:column;align-items:stretch}'));
+push('分页器窄屏改两行网格', home.includes('#pager{display:grid;grid-template-columns:auto minmax(0,1fr) auto') && home.includes('#pager #pageInfo{grid-area:1 / 2'));
+push('步进按钮撑到 34×34', home.includes('.pjbtn{min-width:34px;min-height:34px}'));
+push('可点目标最小 32px（阅读全文/全部文章/ticker ×）', home.includes('.ad-ticker .tk-x{width:34px;height:34px') && home.includes('.artmore,#artViewList .artcard a.read'));
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
