@@ -86,7 +86,9 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .chip.is-on:hover{color:var(--accent-on,#fff)}
 .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .chip b{font-weight:600;opacity:.75;margin-left:4px;font-size:11px}
-.cards{display:flex;flex-direction:column;gap:14px}
+.skip{position:absolute;left:-9999px;top:0;z-index:80;padding:10px 14px;border-radius:0 0 10px 0;background:var(--accent);color:#fff;font-weight:700;text-decoration:none;font-size:14px}
+.skip:focus{left:0;outline:2px solid var(--accent-ink,var(--accent));outline-offset:2px}
+.cards{display:flex;flex-direction:column;gap:14px;scroll-margin-top:96px}
 html[data-artcols="double"] .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
 html[data-artcols="triple"] .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
 html[data-artcols="auto"] .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;align-items:start}
@@ -328,6 +330,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
 </style>
 </head>
 <body>
+<a class="skip" href="#cards">跳到文章列表</a>
 <div class="wrap">
   <header>
     <div class="brand">
@@ -1314,9 +1317,32 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   });
   window.addEventListener('hashchange', function () { route(); });
 
+  // 跳转链接：本站正文在自定义滚动容器里，浏览器自带的 fragment 滚动不生效，所以自己滚 + 移焦点
+  (function () {
+    var skip = document.querySelector('a.skip');
+    var box = document.getElementById('cards');
+    if (!skip || !box) return;
+    skip.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (!box.hasAttribute('tabindex')) box.setAttribute('tabindex', '-1');
+      box.focus({ preventScroll: true });
+      box.scrollIntoView({ block: 'start' });
+      try { history.replaceState(null, '', location.pathname + location.search + '#cards'); } catch (err) {}
+    });
+  })();
+
+
   function route() {
     var byPath = artFromPath();
-    var id = byPath ? String(byPath.id) : String(location.hash || '').replace(/^#/, '');
+    var raw = String(location.hash || '').replace(/^#/, '');
+    // 页面内锚点（#cards、正文小节 #sec-N …）不归文章路由管：滚过去就完事。
+    // 否则 route() 会把 #cards 当成文章 id，找不到 → 顺手 replaceState 抹掉 hash，跳转链接成了摆设。
+    if (!byPath && raw && document.getElementById(raw)) {
+      var anchor = document.getElementById(raw);
+      if (anchor.scrollIntoView) anchor.scrollIntoView({ block: 'start', behavior: 'instant' });
+      return;
+    }
+    var id = byPath ? String(byPath.id) : raw;
     if (id) openReader(decodeURIComponent(id));
     else if (state.open || !$('reader').hidden) hideReader(true);
   }

@@ -522,6 +522,8 @@ function renderItem(r, rank, maxStars, trend) {
   meta.append(updEl);
 
   const copy = el('button', 'mini', '复制');
+  copy.title = '复制仓库链接';
+  copy.setAttribute('aria-label', '复制仓库链接');
   copy.title = '复制项目名、描述和链接';
   copy.onclick = async () => {
     const text = r.name + ' ★' + fmt(r.stars) + '\n' + (r.desc ? r.desc + '\n' : '') + repoUrl(r);
@@ -532,6 +534,8 @@ function renderItem(r, rank, maxStars, trend) {
   meta.append(copy);
 
   const share = el('button', 'mini', '卡片');
+  share.title = '生成分享卡片';
+  share.setAttribute('aria-label', '生成分享卡片');
   share.title = '生成分享卡片图片';
   share.onclick = () => shareCard(r, rank);
   meta.append(share);
