@@ -29,7 +29,7 @@
     s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (_, alt, url) {
       var u = safeUrl(url);
       if (!u) return hold(alt);
-      return hold('<img src="' + u + '" alt="' + alt + '" loading="lazy" decoding="async">');
+      return hold('<img src="' + u + '" alt="' + (alt || '配图') + '" loading="lazy" decoding="async">');
     });
     s = s.replace(/\[([^\]]+)\]\(((?:[^()\s]|\([^()\s]*\))+)\)/g, function (_, text, url) {
       var u = safeUrl(url);

@@ -930,7 +930,8 @@ window.__sb = function () { return window.__motionQuery && window.__motionQuery.
     } else {
       lbList = all.length ? all : [];
     }
-    $('lbImg').src = src;
+    $('lbImg').hidden = false;
+  $('lbImg').src = src;
     $('lbImg').alt = alt || '文章配图';
     lb.hidden = false;
     paintLb();
@@ -965,7 +966,8 @@ window.__sb = function () { return window.__motionQuery && window.__motionQuery.
     var lb = $('lightbox');
     if (!lb || lb.hidden) return;
     lb.hidden = true;
-    $('lbImg').src = '';
+    $('lbImg').hidden = true;
+  $('lbImg').src = '';
     document.body.classList.remove('lb-open');
   }
 
@@ -1491,7 +1493,7 @@ window.__sb = function () { return window.__motionQuery && window.__motionQuery.
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="查看文章配图">
   <button class="lb-close" id="lbClose" type="button" aria-label="关闭图片">×</button>
   <button class="lb-nav lb-prev" id="lbPrev" type="button" aria-label="上一张" hidden>‹</button>
-  <img id="lbImg" alt="">
+  <img id="lbImg" alt="" width="1200" height="800" loading="lazy" decoding="async" hidden>
   <button class="lb-nav lb-next" id="lbNext" type="button" aria-label="下一张" hidden>›</button>
   <div class="lb-count" id="lbCount" hidden></div>
   <div class="lb-hint">← → 切换图片，点空白处或按 Esc 关闭</div>

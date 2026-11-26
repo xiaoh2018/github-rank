@@ -1836,7 +1836,7 @@ getJSON('/data/site.json').then(function(site){
         var vis=expanded?items:items.slice(0,NAV_PAGE);
         vis.forEach(function(it,idx){
           html+='<a class="navcard" href="'+escH(it.url)+'" target="_blank" rel="noopener noreferrer">'+
-            '<span class="icw"><span class="ic-l">'+escH(String(it.name || it.url || '?').trim().charAt(0))+'</span>'+(it.icon?'<img src="'+escH(it.icon)+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">':'')+'</span>'+
+            '<span class="icw"><span class="ic-l">'+escH(String(it.name || it.url || '?').trim().charAt(0))+'</span>'+(it.icon?'<img src="'+escH(it.icon)+'" alt="" width="16" height="16" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">':'')+'</span>'+
             '<span class="nb"><b>'+navHl(it.name)+'</b>'+
             (it.desc?'<small>'+navHl(it.desc)+'</small>':'')+
             '<span class="host">'+escH(navHost(it.url))+'</span></span></a>';

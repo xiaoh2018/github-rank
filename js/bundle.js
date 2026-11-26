@@ -688,6 +688,9 @@ function renderAuthors(list) {
       img.className = 'au-avatar';
       img.alt = '';
       img.loading = 'lazy';
+      img.decoding = 'async';
+      img.width = 22;
+      img.height = 22;
       img.src = 'https://github.com/' + encodeURIComponent(name) + '.png?size=56';
       img.onerror = () => img.replaceWith(el('span', 'au-avatar au-fallback', name.charAt(0).toUpperCase()));
       const info = el('div', 'au-info');
