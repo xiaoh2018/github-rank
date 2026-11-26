@@ -301,6 +301,14 @@ html[data-theme="ink"] .navcard .hitmark,html[data-theme="ink"] .navjump .hitmar
 @media (hover:none){
   #list .item .mini{display:none}
 }
+/* 数据没读出来时的卡片：别只留一行红字，说清怎么回事、给下一步 */
+.err-card{grid-column:1/-1;list-style:none}
+.errbox{padding:30px 20px;border:1px dashed var(--border);border-radius:14px;background:var(--card);text-align:center}
+.errbox>b{display:block;font-size:16.5px;margin-bottom:8px}
+.errbox .errwhy{margin:0 0 14px;color:var(--muted);font-size:13.5px;line-height:1.7}
+.errbox .erracts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.errbox .errhint{margin:14px 0 0;color:var(--muted);font-size:12.5px}
+
 @media (max-width:760px){
   /* 窄屏一律隐藏：不依赖 (hover)/(pointer) 判断，手机、平板、触屏笔记本都干净 */
   #list .item .mini{display:none}

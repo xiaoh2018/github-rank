@@ -1124,15 +1124,39 @@ function renderSkeleton() {
   setStatus('加载数据…');
 }
 
+// 把技术错误翻成人话：读者不需要看 "Failed to fetch"
+function errReason(e) {
+  const m = String((e && e.message) || '') + ' ' + String((e && e.name) || '');
+  if (/Failed to fetch|NetworkError|Load failed|network|ERR_/i.test(m) || /网络|断网|连不上|请求失败/.test(m)) return '网络连不上。可能是断网，也可能是当前网络环境访问 GitHub 受限。';
+  if (/429|rate limit|too many/i.test(m)) return 'GitHub 说请求太频繁了，等一分钟再点重试。';
+  if (/\b50\d\b/.test(m)) return 'GitHub 那边暂时出问题了，过一会儿再试。';
+  if (/超时|timeout|abort/i.test(m)) return '等太久没响应，可能是网络很慢。';
+  if (/404/.test(m)) return '数据文件没找到（可能正在发布新数据），刷新一次通常就好。';
+  return '没能从 GitHub 取到数据。';
+}
+
 function showError(e, retryFn) {
-  $('list').replaceChildren();
   $('pager').hidden = true;
   ['stats', 'dist', 'authors', 'changes'].forEach(id => { $(id).hidden = true; });
-  setStatus(e.message + ' ', true);
+  setStatus('');
+  const box = el('div', 'errbox');
+  box.append(el('b', null, '没读到数据'));
+  box.append(el('p', 'errwhy', errReason(e)));
+  const acts = el('div', 'erracts');
   const retry = el('button', 'btn', '重试');
-  retry.style.marginLeft = '8px';
+  retry.type = 'button';
   retry.onclick = retryFn;
-  $('status').append(retry);
+  acts.append(retry);
+  const later = el('button', 'btn ghost', '稍后再看');
+  later.type = 'button';
+  later.onclick = () => { state.repos = []; render(); };
+  acts.append(later);
+  box.append(acts);
+  box.append(el('p', 'errhint', '收藏和主题设置存在你自己的浏览器里，不受影响。'));
+  const li = el('li', 'err-card');
+  li.append(box);
+  $('list').replaceChildren(li);
+  $('list').removeAttribute('aria-busy');
 }
 
 function renderRepos() {
@@ -1319,6 +1343,7 @@ async function load(bypassCache) {
   const base = buildQuery(state);
   // 默认直接用静态数据（不发网络请求）；缺少对应 range 时降级到实时拉取
   const meta = bypassCache ? null : staticMeta();
+  let staticMissing = false;
   if (meta) window.__ghrankMeta = meta;
   if (meta) {
     let packed = staticRange(state.range);   // 已加载过（或旧版单文件已就绪）
@@ -1327,7 +1352,12 @@ async function load(bypassCache) {
       setStatus('加载数据…');
       renderSkeleton();
       $('pager').hidden = true;
-      try { packed = await ensureRange(state.range); } catch (e) { packed = null; }
+      try { packed = await ensureRange(state.range); } catch (e) {
+        packed = null;
+        staticMissing = true;
+        // 静态数据文件没拿到（CDN 抖动 / 部署中 / 被拦）——立刻告诉读者正在换路子，别让人盯着骨架
+        setStatus('静态数据没读到，正在从 GitHub 实时拉取…');
+      }
       if (id !== reqId) return;
     }
     if (packed) {
@@ -1361,12 +1391,17 @@ async function load(bypassCache) {
     render();
     setStatus('显示缓存数据，正在后台更新…');
   } else {
-    setStatus('加载中…');
+    setStatus(staticMissing ? '静态数据没读到，正在从 GitHub 实时拉取…' : '加载中…');
     renderSkeleton();
     $('pager').hidden = true;
   }
+  // 超过 8 秒还没回来就换一句人话，避免「加载中…」挂在那里像死掉
+  const slowTimer = setTimeout(() => {
+    if (id === reqId) setStatus('还在拉取…GitHub 响应有点慢，最多再等十几秒。');
+  }, 8000);
   try {
     const { repos, partial } = await loadRepos(state, bypassCache);
+    clearTimeout(slowTimer);
     if (id !== reqId) return;
     applyRepos(base, repos);
     state.source = 'live';
@@ -1374,6 +1409,7 @@ async function load(bypassCache) {
     render();
     if (partial) setStatus('部分数据加载失败，已显示能拿到的项目。');
   } catch (e) {
+    clearTimeout(slowTimer);
     if (id !== reqId) return;
     state.repos = []; state.trend = {}; state.dropped = []; state.hasBase = false;
     showError(e, () => load(bypassCache));
