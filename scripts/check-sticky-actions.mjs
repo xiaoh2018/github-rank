@@ -89,10 +89,10 @@ const probe = (tab) => `(function(){
       const r = await evalJs(probe(tab));
       await sleep(400);
       push('手机：' + tab + ' 保存按钮吸底', r && r.pos === 'sticky', r && r.pos);
-      push('手机：' + tab + ' 保存按钮撑满卡片（≥ 卡片宽 - 40）', r && r.btnW >= r.actW - 40, r ? r.btnW + '/' + r.actW : '');
+      push('手机：' + tab + ' 保存按钮占满剩余宽度（≥ 卡片宽 - 90）', r && r.btnW >= r.actW - 90, r ? r.btnW + '/' + r.actW : '');
       push('手机：' + tab + ' 保存按钮高度 ≥ 44', r && r.btnH >= 44, r && r.btnH);
-      push('手机：' + tab + ' 命令面板按钮不与保存条重叠', r && r.overlap === false, r && r.overlap);
-      push('手机：命令面板按钮抬到保存条上方（离底 ≥ 70）', r && r.fabBottomGap >= 70, r && r.fabBottomGap);
+      push('手机：' + tab + ' 命令面板按钮不与保存条按钮重叠', r && r.overlap === false, r && r.overlap);
+      push('手机：命令面板按钮落在保存条这一行里（离底 ≤ 40）', r && r.fabBottomGap <= 40, r && r.fabBottomGap);
     }
   } finally { ws.close(); child.kill(); }
 }
