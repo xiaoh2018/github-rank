@@ -462,7 +462,7 @@ console.log('16. 顶部导航 / 滚动条 / 广告点击 / 间隔可配');
 const uiHome = await (await hit('/')).text();
 ok(uiHome.indexOf('id="mainNav"') > 0, '首页顶部有主导航容器');
 ok(uiHome.indexOf('class="mnav') > 0, '主导航有榜单/导航入口');
-ok(uiHome.indexOf('href="/articles"') > 0, '顶部有文章入口');
+ok(uiHome.indexOf('id="tabArticles"') > 0, '顶部有文章入口（页内 tab）');
 ok(uiHome.indexOf('id="adTicker"') > 0, '首页有顶部滚动条容器');
 ok(uiHome.indexOf('id="adModal"') > 0, '首页有广告弹窗容器');
 const uiAdm = await (await hit('/admin')).text();

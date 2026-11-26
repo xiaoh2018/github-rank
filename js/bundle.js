@@ -573,13 +573,26 @@ function renderStats(list) {
   list.forEach(r => { if (r.lang) langCount[r.lang] = (langCount[r.lang] || 0) + 1; });
   const topLang = Object.entries(langCount).sort((a, b) => b[1] - a[1])[0];
   box.hidden = false;
-  const mk = (v, label) => { const d = el('div', 'stat'); d.append(el('b', null, v), el('span', null, label)); return d; };
-  box.replaceChildren(
-    mk(String(list.length), '当前榜单项目数'),
-    mk(fmt(totalStars), '星标总数'),
-    mk(fmt(Math.round(totalStars / list.length)), '平均星标'),
-    mk(topLang ? topLang[0] + ' × ' + topLang[1] : '—', '最热门语言')
-  );
+  box.className = 'stats slim';
+  const parts = [el('span', null, list.length + ' 个项目'), el('span', 'statsep', '·'), el('span', null, fmt(totalStars) + ' 星')];
+  if (topLang) {
+    parts.push(el('span', 'statsep', '·'));
+    const btn = el('button', 'stat-lang', '最热 ' + topLang[0]);
+    btn.type = 'button';
+    btn.title = '只看 ' + topLang[0] + '（共 ' + topLang[1] + ' 个）';
+    btn.onclick = () => {
+      const sel = $('lang');
+      if (!sel) return;
+      if (!Array.prototype.some.call(sel.options, (o) => o.value === topLang[0])) {
+        sel.append(new Option(topLang[0], topLang[0]));
+      }
+      sel.value = topLang[0];
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    parts.push(btn);
+  }
+  box.replaceChildren.apply(box, parts);
 }
 
 function renderDist(list) {
