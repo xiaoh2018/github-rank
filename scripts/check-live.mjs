@@ -278,6 +278,8 @@ push('数据来源提示改成人话（静态数据不再解释一堆）', bundl
 push('窄屏有「分析」按钮收起侧栏', home.includes('id="insightBtn"') && home.includes('.insights-toggle{display:none'), '');
 push('窄屏侧栏挪到榜单上方（order:-1）', home.includes('.insights{order:-1'), '');
 push('收起/展开逻辑在 bundle 里', bundleJs.includes('syncInsightFold'), '');
+push('底部说明一句话 + 「数据怎么来的」按钮', home.includes('id="aboutMore"') && home.includes('class="linkbtn"'), '');
+push('技术细节在关于弹窗里折叠', home.includes('<details class="technote">') && home.includes('数据是怎么取的（技术细节）'), '');
 push('设置面板三块独立卡片 + Token 卡存在', home.includes('id="tokenCard"') && home.includes('#settings>.card{'), '');
 push('Token 提示改成短句（两处占位符都换了）', bundleJs.includes('粘贴以 ghp_ 开头的 Token（可不填）'), '');
 push('教程默认收起（不再一屏六步）', home.includes('<summary>怎么获取 Token（约 1 分钟）</summary>') && !home.includes('<details class="guide" open>'), '');

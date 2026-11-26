@@ -401,6 +401,12 @@ html[data-theme="ink"] .navcard .hitmark,html[data-theme="ink"] .navjump .hitmar
 .au-stars{font-family:Consolas,ui-monospace,monospace;font-size:13px;font-weight:600;color:var(--accent);text-align:right}
 .insights .author-row{grid-template-columns:22px 24px minmax(0,1fr) 54px}
 .insights .au-bar{display:none}
+  .linkbtn{border:0;background:none;padding:0;margin-left:4px;color:var(--accent);font:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+  .linkbtn:hover{color:var(--text)}
+  .linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+  .technote{margin-top:14px;border-top:1px dashed var(--border);padding-top:10px;font-size:13px;color:var(--muted)}
+  .technote>summary{cursor:pointer;color:var(--accent);font-weight:600}
+  .technote p{margin:8px 0 0;line-height:1.75}
   .insights-toggle{display:none;margin:12px 0 0}
   @media (max-width:760px){
     .insights-toggle{display:inline-flex;align-items:center;min-height:40px}
@@ -820,13 +826,19 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         <p>页面默认读取定时抓取的静态数据，每 3 小时更新一次；数据来自 GitHub 公开的 Search API。「总榜」是 GitHub 全站按星标降序的前 500 名（深翻 10 页搜索结果），近 7 天 / 30 天 / 1 年三个榜只收该时间段内新建的仓库。筛选条件会写进网址（例如 ?range=month&amp;lang=Python&amp;sort=trend），复制地址栏即可分享同一视图。</p>
       </div>
       <div id="geoFaq" class="geo-faq" hidden></div>
+      <details class="technote">
+        <summary>数据是怎么取的（技术细节）</summary>
+        <p><b>抓取规则</b>：每个榜单条件按星标区间分段、分页查询（只取星标数超过 50 的仓库），合并去重后最多取前 500 个；结果在浏览器里缓存 2 小时，避免重复请求。</p>
+        <p><b>口径</b>：「今日增量」是与至少 1 小时前的一次记录对比得出的星标涨数；「新晋 / 掉队」是同一对比里新进榜与掉出榜的项目。开发者榜与组织榜取粉丝数超过 1000 的前 50 个账号。</p>
+      </details>
       </dialog>
     <section class="articles" id="articles" aria-labelledby="articlesTitle" hidden>
       <div class="arthead"><h2 id="articlesTitle">最新文章</h2><span class="artnote" id="artNote"></span><a class="artmore" href="/?page=articles" id="artMore">全部文章 →</a></div>
       <div class="ad-slot" id="adArticle" role="region" aria-label="广告位（文章区）" hidden></div>
       <div id="articleList"></div>
     </section>
-    <p class="note">数据来自 GitHub Search API：每个条件按星标区间分段、分页查询（星标数超过 50 的仓库），合并去重后最多取前 500 个，结果在浏览器中缓存 2 小时。今日增量和新晋 / 掉队是和至少 1 小时前的一次记录对比得出的。开发者榜与组织榜取粉丝数超过 1000 的前 50 个账号。筛选条件会保存在网址里，方便分享。</p>
+    <p class="note">数据取自 GitHub，每 3 小时自动更新，每个榜取前 500 个；筛选条件会写进网址，复制链接就能分享同一个视图。
+      <button type="button" class="linkbtn" id="aboutMore">数据怎么来的</button></p>
       <section class="friends" id="friendLinks" aria-labelledby="friendsTitle" hidden><h2 id="friendsTitle">友情链接</h2><ul class="friend-list" id="friendList"></ul></section>
 
     </div>
@@ -1503,6 +1515,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var aboutDlg=document.getElementById('aboutDialog');
     var btnAbout=document.getElementById('btnAbout');
     var aboutClose=document.getElementById('aboutClose');
+    var aboutMore=document.getElementById('aboutMore');
+    if(aboutMore&&aboutDlg) aboutMore.onclick=function(){ aboutDlg.showModal(); };
     function bindDialogA11y(dlg){
       if(!dlg) return;
       var sel='button,[href],input,textarea,select,[tabindex]:not([tabindex="-1"])';
