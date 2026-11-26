@@ -12,6 +12,9 @@ push('404 带导航', nfText.includes('href="/nav"') && nfText.includes('这个�
 push('404 不缓存', (nf.headers.get('cache-control') || '').includes('no-store'));
 
 const home = await (await fetch(base + '/?v=' + t)).text();
+push('切视图会改标签页标题（榜单保留服务器那条）', home.includes('VIEW_TITLES') && home.includes("nav:'站点导航") && home.includes('window.__rankTitle'), '');
+push('有读屏播报区（aria-live + 视觉隐藏）', home.includes('id="viewLive" aria-live="polite"') && home.includes('.sr{position:absolute;width:1px'), '');
+push('切换时写 document.title 与播报文案', home.includes("document.title = v2==='rank'") && home.includes("'已切换到'"), '');
 push('首页弹窗焦点陷阱', home.includes('bindDialogA11y'));
 push('首页卡片入场', home.includes('@keyframes cardIn'));
 push('首页广告位容器', home.includes('id="adHomeTop"') && home.includes('id="adSidebar"'));
