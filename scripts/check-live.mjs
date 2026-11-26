@@ -343,6 +343,9 @@ push('后台封面有预览（尺寸 + 打不开提示）', admHtml.includes('id
 push('封面校验口径与前台一致（允许 / 开头）', admHtml.includes('v.charAt(0) === ') || admHtml.includes('要填 http(s):// 链接，或站内以 / 开头的路径'), '');
 push('后台文章列表可行内改分类（下拉 + 状态行）', admHtml.includes('data-artcat=') && admHtml.includes('id="artInlineMsg"') && admHtml.includes('function setArtCat'), '');
 push('静态文章页的 md.js 用绝对路径（嵌套 URL 不 404）', (await (await fetch(base + '/articles/cat/1.html?t=' + t)).text()).includes('src="/js/md.js'), '');
+push('后台对话框统一 aria-modal（showModal 包裹）', admHtml.includes('HTMLDialogElement.prototype.showModal') && admHtml.includes('setAttribute("aria-modal", "true")'), '');
+push('后台对话框 Tab 首尾环（栈式，只对最上层生效）', admHtml.includes('DLG_STACK') && admHtml.includes('var first = list[0], last = list[list.length - 1]'), '');
+push('后台 Esc 只点取消/关闭，不误触删除', admHtml.includes('function dlgCancelText') && admHtml.includes('pick.click()'), '');
 push('保存按钮文字会变「保存中…」并恢复', admHtml.includes("saveLabel(btn, '保存中…')") && admHtml.includes('btn.textContent = text || btn.dataset.label'), '');
 push('保存失败给人话原因 + 重试', admHtml.includes("msg.textContent = '保存失败：' + saveReason(r)") && admHtml.includes("again.textContent = '重试'"), '');
 push('删除结果有常驻状态行助手', admHtml.includes('function paintDelMsg') && admHtml.includes('function delMsgBox'));

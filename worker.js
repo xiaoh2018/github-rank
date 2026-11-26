@@ -1688,7 +1688,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v219';
+const ASSET_V = 'v220';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -5331,6 +5331,84 @@ tr:hover td{background:#fcfbf8}
     if (sec === 'geo') v.faq = readFaq();
     return v;
   }
+  /* 对话框无障碍：aria-modal / Tab 首尾环 / Esc 收口 / 关闭还焦点（整组统一） */
+  var DLG_STACK = [];
+  var DLG_LAST = null;
+  document.addEventListener("pointerdown", function (e) { var t = e.target; if (t && t.focus && !t.closest("dialog")) DLG_LAST = t; }, true);
+  document.addEventListener("focusin", function (e) { var t = e.target; if (!t || (t.closest && t.closest("dialog"))) return; if (t === document.body) return; DLG_LAST = t; }, true);
+  var DLG_SEL = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+  function dlgItems(dlg) {
+    var out = [];
+    var list = dlg.querySelectorAll(DLG_SEL);
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i];
+      if (el.closest && el.closest("[hidden]")) continue;
+      if (el.getAttribute("aria-hidden") === "true") continue;
+      if (el.type === "hidden") continue;
+      var r = el.getBoundingClientRect();
+      if (!r.width && !r.height) continue;
+      out.push(el);
+    }
+    return out;
+  }
+  function dlgTop() { return DLG_STACK.length ? DLG_STACK[DLG_STACK.length - 1] : null; }
+  function dlgCancelText(t) { return /取消|关闭|×/.test(t); }
+  if (window.HTMLDialogElement) {
+    var nativeShow = HTMLDialogElement.prototype.showModal;
+    HTMLDialogElement.prototype.showModal = function () {
+      var opener = document.activeElement;
+      if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "-1");
+      if (this.__opener === undefined) this.__opener = opener && opener !== document.body ? opener : (DLG_LAST && DLG_LAST.isConnected ? DLG_LAST : null);
+      this.setAttribute("aria-modal", "true");
+      nativeShow.call(this);
+      if (DLG_STACK.indexOf(this) < 0) DLG_STACK.push(this);
+      var top = this;
+      requestAnimationFrame(function () {
+        var list = dlgItems(top);
+        (list[0] || top).focus({ preventScroll: true });
+      });
+    };
+  }
+  document.addEventListener("close", function (e) {
+    var dlg = e.target;
+    if (!dlg || dlg.tagName !== "DIALOG") return;
+    dlg.removeAttribute("aria-modal");
+    var i = DLG_STACK.indexOf(dlg);
+    if (i >= 0) DLG_STACK.splice(i, 1);
+    var back = dlg.__opener;
+    var live = back && back.isConnected && back.getClientRects().length > 0;
+    var fallbackSel = dlg.getAttribute("data-fallback");
+    dlg.__opener = undefined;
+    requestAnimationFrame(function () {
+      if (live) { back.focus({ preventScroll: true }); return; }
+      var el = fallbackSel ? document.querySelector(fallbackSel) : null;
+      if (!el) el = document.querySelector(".side .nav.is-on, .side .nav[aria-current], .side .nav.active") || document.querySelector(".topbar button, .app button") || document.getElementById("app");
+      if (el) el.focus({ preventScroll: true });
+    });
+  }, true);
+  document.addEventListener("keydown", function (e) {
+    var top = dlgTop();
+    if (!top || !top.open) return;
+    if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
+      var list0 = top.querySelectorAll("button");
+      var pick = null;
+      for (var i = 0; i < list0.length; i++) {
+        if (list0[i].hasAttribute("data-cancel") || dlgCancelText(list0[i].textContent || "")) { pick = list0[i]; break; }
+      }
+      if (pick) pick.click(); else top.close();
+      return;
+    }
+    if (e.key !== "Tab") return;
+    var list = dlgItems(top);
+    if (!list.length) { e.preventDefault(); top.focus(); return; }
+    var first = list[0], last = list[list.length - 1], cur = document.activeElement;
+    if (!top.contains(cur)) { e.preventDefault(); (e.shiftKey ? last : first).focus(); return; }
+    if (e.shiftKey && cur === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && cur === last) { e.preventDefault(); first.focus(); }
+  }, true);
+
   function saveMsgFor(btn) {
     var el = btn.getAttribute('data-save') === 'qa' ? $('qaSaveMsg') : null;
     if (!el) {
