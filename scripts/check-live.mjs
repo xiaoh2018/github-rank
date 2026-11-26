@@ -346,6 +346,9 @@ push('可点目标最小 32px（阅读全文/全部文章/ticker ×）', home.in
 push('「分析」按钮只属于榜单视图', home.includes('body[data-page="nav"] #insightBtn'));
 push('导航卡片网址行 12px（小屏）', home.includes('.navcard .host{font-size:12px}'));
 push('分类计数与网址行小屏提到 12px', home.includes('.navgroup>h3 .cnt,.nj em,.navcard .host{font-size:12px}'));
+push('问答分类胶囊 12px（两处）', home.includes('.faqview .qa .qtag{flex:0 0 auto;font-size:12px') && faqText.includes('.qtag{font-size:12px'));
+push('问答序号可点面积 ≥32 高', faqText.includes('min-width:34px;min-height:32px'));
+push('正文链接可点面积加厚（inline-block 负边距）', home.includes('.faqview .artvlead a,.faqview .ans a{display:inline-block'));
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
