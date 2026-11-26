@@ -64,6 +64,11 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .btools input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(176,125,16,.14)}
 .btools select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font:inherit;color:var(--text)}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+@media (max-width:760px){
+  .chips{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding-bottom:2px;-webkit-overflow-scrolling:touch;-webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%);mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%)}
+  .chips.x-end{mask-image:none}
+  .chip{flex:0 0 auto;min-height:38px;display:inline-flex;align-items:center;padding:8px 13px}
+}
 .chip{appearance:none;border:1px solid var(--border);background:var(--card);color:var(--muted);font:600 12.5px/1 inherit;padding:7px 12px;border-radius:999px;cursor:pointer}
 .chip.is-on{background:var(--accent);border-color:var(--accent);color:#fff}
 .chip b{font-weight:600;opacity:.75;margin-left:4px;font-size:11px}
@@ -706,7 +711,17 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       html += '<button class="chip' + (state.cat === n ? ' is-on' : '') + '" data-cat="' + esc(n) + '">' + esc(catDisplay(n)) + '<b>' + m[n] + '</b></button>';
     });
     $('chips').innerHTML = html;
+    paintChips();
   }
+
+  function paintChips() {
+    var box = $('chips');
+    if (!box) return;
+    var max = box.scrollWidth - box.clientWidth;
+    box.classList.toggle('x-end', max <= 4 || box.scrollLeft >= max - 4);
+  }
+
+  if ($('chips')) $('chips').addEventListener('scroll', paintChips, { passive: true });
 
   function renderSide() {
     var m = catCount();

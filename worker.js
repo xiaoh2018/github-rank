@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v156';
+const ASSET_V = 'v157';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3875,6 +3875,15 @@ tr:hover td{background:#fcfbf8}
   .toolbar input[type=text],.toolbar input[type=search]{flex:1 1 100%;max-width:none}
   .toolbar select,.toolbar .btn,.toolbar button{flex:1 1 auto;max-width:none;min-width:0}
   .toolbar .note,.toolbar .msg{flex:1 1 100%;margin-left:0}
+  /* 文章面板：先筛后排，批量删除垫底，避免首屏正对着「删除选中」 */
+  #pane-articles .toolbar>#artSort{order:1}
+  #pane-articles .toolbar>#artCatFilter{order:2}
+  #pane-articles .toolbar>#artAllMatch{order:3}
+  #pane-articles .toolbar>#artBulkCat{order:4}
+  #pane-articles .toolbar>#artBulkApply{order:5}
+  #pane-articles .toolbar>#artBulkDel{order:6}
+  #pane-articles .toolbar>#artUndo{order:7}
+  #pane-articles .toolbar>#artSelNote{order:8;flex:1 1 100%}
   #navAdmin table{min-width:560px}
   .main{padding:16px 14px 44px}
 }

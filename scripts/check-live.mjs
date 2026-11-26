@@ -250,6 +250,8 @@ push('文章分页器窄屏信息独占一行', artListHtml.includes('.apager sp
 push('后台保存按钮手机吸底并给 ⌘ 留位', admHtml.includes('.card .actions{position:sticky') && admHtml.includes('padding:10px 0 12px 70px'), '');
 push('导航页空态小屏按钮加高（44px 触控）', home.includes('.navempty .btn,.navempty button,.navempty a.btn{min-height:44px'), '');
 push('命令面板条目小屏 44px + 触屏措辞', admHtml.includes('#cmdk .ck-item{min-height:44px') && admHtml.includes('id="ckFoot"'), '');
+push('文章页分类胶囊小屏单行横滚', artText.includes('.chips{flex-wrap:nowrap') && artText.includes('function paintChips'), '');
+push('后台文章工具栏小屏先筛后排', admHtml.includes('#pane-articles .toolbar>#artSort{order:1'), '');
 
 let bad = 0;
 for (const r of rows) {
