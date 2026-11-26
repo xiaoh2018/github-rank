@@ -335,6 +335,10 @@ push('文章卡片列数可设置（首页）', home.includes('body[data-artcols
 push('文章页跟随列数设置', artListHtml.includes('html[data-artcols="double"] .cards'));
 push('后台有列数开关', admHtml.includes('type="radio" name="article-cols"') && admHtml.includes('文章卡片列数'));
 
+push('文章详情是页内阅读器（不再跳 /articles/xxx.html）', home.includes('id="artDlg"') && home.includes('class="artdlg"') && home.includes('data-artpost'));
+push('文章详情地址用 ?post= 深链（bundle 也保留它）', home.includes('/?page=articles&post=') && bundleJs.includes("get('post')"));
+push('空正文有明确说明（不是白屏）', home.includes('这篇还没有正文'));
+push('阅读器 Esc 可关（document 捕获层）', home.includes("!dlg.open) return;"));
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
