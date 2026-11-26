@@ -757,7 +757,9 @@ function cachePolicy(pathname) {
   // 所有 HTML 页面都走这一档：改了文案/样式要能在几分钟内生效。
   // 以前白名单漏了 /faq（掉到下面 js/css 那一档 = 边缘 24 小时 + swr 7 天），
   // 结果问答页改一次要等一天才换新，属于「改完看不见」的隐形故障。
-  if (pathname === '/' || pathname === '/nav' || pathname === '/articles' || /\.html$/.test(pathname)) {
+  // 注意 /faq 是「无扩展名的页面路由」，不能只靠 /\.html$/ 判断（漏过它一次：
+  // 结果问答页继续按 js/css 那档缓存 24 小时，改完一天才生效）。
+  if (pathname === '/' || pathname === '/nav' || pathname === '/articles' || pathname === '/faq' || /\.html$/.test(pathname)) {
     return { ttl: 600, browser: 300, sMaxAge: 600, swr: 3600 };
   }
   // js / css / 图标 / manifest 这类 shell 文件几个月才变一次，浏览器可以放心长缓存
@@ -1661,7 +1663,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v195';
+const ASSET_V = 'v196';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
