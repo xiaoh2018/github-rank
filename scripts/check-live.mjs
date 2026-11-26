@@ -357,6 +357,10 @@ push('静态文章页去掉重复副标题', artText.indexOf('站长写的东西
 push('后台 320 窄屏：工具栏换行 + 长链接断行 + 卡片字号', /#pane-articles #artTbody td\{font-size:12\.5px\}/.test(admHtml) && admHtml.indexOf('word-break:break-all;overflow-wrap:anywhere') >= 0);
 push('导航面板工具栏可换行', admHtml.indexOf('.nav-toolbar{flex-wrap:wrap') >= 0);
 push('提交页平台表取消 min-width', admHtml.indexOf('.card:has(.geo-plat) table{min-width:0}') >= 0);
+const weekJs = await (await fetch(base + '/data/repos-week.js?t=' + t)).text();
+push('数据瘦身：不再落盘 url 字段', weekJs.indexOf('"url":"https://github.com/') < 0 && weekJs.length > 10000);
+push('数据瘦身：时间戳是 epoch 秒', /"updated":1[6-9][0-9]{8}/.test(weekJs));
+push('首页预载周榜数据（与 script 地址一致）', bundleJs.indexOf('s.src = file;') >= 0 && bundleJs.indexOf('function repoUrl(r)') >= 0);
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

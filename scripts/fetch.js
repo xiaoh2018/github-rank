@@ -41,6 +41,12 @@ function dateStr(days) {
   return new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
 }
 
+// 时间统一存成 epoch 秒：ISO 字符串每个 20 字节，500 条就是 30KB
+function epoch(iso) {
+  const t = Date.parse(iso || '');
+  return isFinite(t) ? Math.floor(t / 1000) : null;
+}
+
 function segQuery(base, seg) {
   const stars = seg.hi ? `stars:${seg.lo}..${seg.hi}` : `stars:>${seg.lo}`;
   return base.replace('stars:>' + MIN_STARS, stars);
@@ -49,17 +55,18 @@ function segQuery(base, seg) {
 function trimRepo(r) {
   return {
     name: r.full_name,
-    url: r.html_url,
+    // url 不再落盘：前端用 https://github.com/ + name 拼，省 7% 体积
     desc: r.description || '',
     lang: r.language || '',
     stars: r.stargazers_count,
     forks: r.forks_count,
     issues: r.open_issues_count,
-    updated: r.updated_at,
-    pushed: r.pushed_at,
-    created: r.created_at,
+    updated: epoch(r.updated_at),
+    pushed: epoch(r.pushed_at),
+    created: epoch(r.created_at),
     license: (r.license && r.license.spdx_id) || '',
-    topics: (r.topics || []).slice(0, 5),
+    topics: (r.topics || []).slice(0, 3),
+    tcount: (r.topics || []).length,
   };
 }
 

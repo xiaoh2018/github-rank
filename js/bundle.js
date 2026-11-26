@@ -300,7 +300,8 @@ function ensureRange(name) {
   rangePending[name] = new Promise((resolve, reject) => {
     const meta = staticMeta();
     const s = document.createElement('script');
-    s.src = file + (meta && meta.generatedAt ? '?v=' + encodeURIComponent(meta.generatedAt) : '');
+    // 不带 ?v=：与 <link rel="preload"> 的 URL 保持一致，否则会重复下载；缓存由 600s/900s TTL 兜底
+  s.src = file;
     s.async = true;
     s.onload = () => {
       const got = (window.__GHRANK_RANGES__ || {})[name];
@@ -314,7 +315,7 @@ function ensureRange(name) {
       // 这时退到仓库里仍然存在的旧 data/repos-all.js，页面不至于空掉。
       if (file !== 'data/repos-all.js') {
         const alt = document.createElement('script');
-        alt.src = 'data/repos-all.js' + (meta && meta.generatedAt ? '?v=' + encodeURIComponent(meta.generatedAt) : '');
+        alt.src = 'data/repos-all.js';
         alt.async = true;
         alt.onload = () => {
           const map2 = window.__GHRANK_RANGES__ || {};
@@ -456,8 +457,13 @@ function signed(n) {
   return (n > 0 ? '+' : n < 0 ? '−' : '±') + fmt(Math.abs(n));
 }
 
+function repoUrl(r) {
+  return r.url || (r.name ? 'https://github.com/' + r.name : 'https://github.com');
+}
+
 function timeAgo(iso) {
-  const s = Math.max(0, (Date.now() - new Date(iso)) / 1000);
+  const t = typeof iso === 'number' ? iso * 1000 : Date.parse(iso);
+  const s = Math.max(0, (Date.now() - (isFinite(t) ? t : Date.now())) / 1000);
   if (s < 3600) return '刚刚';
   if (s < 86400) return Math.floor(s / 3600) + ' 小时前';
   if (s < 86400 * 30) return Math.floor(s / 86400) + ' 天前';
@@ -477,7 +483,7 @@ function renderItem(r, rank, maxStars, trend) {
 
   const body = el('div');
   const a = el('a', 'name', r.name);
-  a.href = r.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+  a.href = repoUrl(r); a.target = '_blank'; a.rel = 'noopener noreferrer';
   a.onclick = e => { e.preventDefault(); openDrawer(r); };   // 中键 / 右键仍可新开
   body.append(a);
   const descText = (getLang() === 'zh' && r.desc_zh) ? r.desc_zh : r.desc;
@@ -518,7 +524,7 @@ function renderItem(r, rank, maxStars, trend) {
   const copy = el('button', 'mini', '复制');
   copy.title = '复制项目名、描述和链接';
   copy.onclick = async () => {
-    const text = r.name + ' ★' + fmt(r.stars) + '\n' + (r.desc ? r.desc + '\n' : '') + r.url;
+    const text = r.name + ' ★' + fmt(r.stars) + '\n' + (r.desc ? r.desc + '\n' : '') + repoUrl(r);
     try { await navigator.clipboard.writeText(text); copy.textContent = '已复制'; }
     catch (e) { copy.textContent = '复制失败'; }
     setTimeout(() => { copy.textContent = '复制'; }, 1500);
@@ -531,18 +537,19 @@ function renderItem(r, rank, maxStars, trend) {
   meta.append(share);
   body.append(meta);
 
-  if (r.topics.length) {
+  const tagList = r.topics || [];
+  if (tagList.length) {
     const tags = el('div', 'tags');
-    const shown = r.topics.slice(0, 3);
+    const shown = tagList.slice(0, 3);
     shown.forEach(tp => {
       const one = el('span', 'tag', tp);
       one.title = tp;
       tags.append(one);
     });
-    if (r.topics.length > shown.length) {
-      const rest = r.topics.slice(shown.length);
-      const more = el('span', 'tag more', '+' + rest.length);
-      more.title = rest.join('、');
+    if ((r.tcount || r.topics.length) > shown.length) {
+      const extra = Math.max(0, (r.tcount || tagList.length) - shown.length);
+      const more = el('span', 'tag more', '+' + extra);
+      more.title = '另有 ' + extra + ' 个标签';
       tags.append(more);
     }
     body.append(tags);
