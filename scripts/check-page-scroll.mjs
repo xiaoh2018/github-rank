@@ -95,7 +95,7 @@ push('列表顶紧贴视口上沿（0–110px）', after.top >= -5 && after.top 
 await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
 await ev(`window.scrollTo(0, document.documentElement.scrollHeight)`);
 await sleep(200);
-await ev(`document.getElementById('prev').click()`);
+await ev(`document.getElementById('next').click()`);
 await sleep(120);
 const y1 = await ev(`Math.round(window.scrollY)`);
 push('减少动效时瞬时就位（120ms 内到位）', Math.abs(y1 - (geo.listTop - 76)) <= 60, 'y=' + y1);

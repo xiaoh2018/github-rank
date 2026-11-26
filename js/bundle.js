@@ -1677,8 +1677,8 @@ document.querySelectorAll('#ranges .btn').forEach(b => {
   };
 });
 $('lang').onchange = e => { state.lang = e.target.value; state.page = 1; syncHash(); load(); };
-$('sort').onchange = e => { state.sort = e.target.value; state.page = 1; syncHash(); render(); };
-$('pageSize').onchange = e => { state.pageSize = +e.target.value; state.page = 1; render(); };
+$('sort').onchange = e => { state.sort = e.target.value; state.page = 1; syncHash(); render(); goList(); };
+$('pageSize').onchange = e => { state.pageSize = +e.target.value; state.page = 1; render(); goList(); };
 // 中文输入法：拼音还在输入框里（没上屏）时不要触发过滤
 function imeBind(el, fn) {
   if (!el) return;
@@ -1715,16 +1715,38 @@ function goList() {
   }, 400);
 }
 imeBind($('q'), () => { state.q = $('q').value; state.page = 1; render(); });
-$('prev').onclick = () => { state.page--; render(); goList(); };
-$('next').onclick = () => { state.page++; render(); goList(); };
+// ---------- 翻页位置记忆 ----------
+// 离开一页时记下「看到哪里」，翻回来（上一页 / 点页码）恢复；翻到没去过的页仍回列表顶。
+var pgY = {};
+function pgKey() {
+  return [state.view, state.range, state.sort, state.lang, state.cat, state.q, state.pageSize, state.page].join('|');
+}
+function restoreScroll(y) {
+  const gen = ++listAnchorGen;
+  const jump = () => window.scrollTo(0, y);
+  requestAnimationFrame(() => requestAnimationFrame(jump));
+  setTimeout(() => {
+    if (gen !== listAnchorGen) return;
+    if (Math.abs(window.scrollY - y) > 24) window.scrollTo(0, y);
+  }, 400);
+}
+function setPage(n) {
+  if (window.scrollY > 120) pgY[pgKey()] = Math.round(window.scrollY);
+  const back = n < state.page; // 只有往回翻才恢复位置：往前走是读新内容，要从列表起点开始
+  state.page = n;
+  render();
+  const want = pgY[pgKey()];
+  if (back && typeof want === 'number' && want > 120) restoreScroll(want); else goList();
+}
+window.__pgY = pgY;
+$('prev').onclick = () => setPage(state.page - 1);
+$('next').onclick = () => setPage(state.page + 1);
 if ($('pgJump')) {
   const goJump = () => {
     const total = Math.max(1, Math.ceil(visibleRepos().length / state.pageSize));
     const n = parseInt($('pgJump').value, 10);
     if (!isFinite(n)) { $('pgJump').value = String(state.page); return; }
-    state.page = Math.min(total, Math.max(1, n));
-    render();
-    goList();
+    setPage(Math.min(total, Math.max(1, n)));
   };
   $('pgJump').addEventListener('change', goJump);
   $('pgJump').addEventListener('keydown', e => {

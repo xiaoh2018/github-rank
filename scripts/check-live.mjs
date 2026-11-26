@@ -335,6 +335,9 @@ push('桌面用 display:contents 保持三个下拉行内', home.includes('#rank
 push('榜单分类胶囊窄屏单行横滚 + 渐隐', home.includes('#cats{flex-wrap:nowrap;overflow-x:auto') && home.includes('#cats.x-end{-webkit-mask-image:none'), '');
 
 push('数据没读到时给错误卡片（而不是空白）', bundleJs.includes('function errReason') && bundleJs.includes("'err-card'") && home.includes('.errbox{'), '');
+push('翻页位置记忆（离开一页记位置、回访恢复）', bundleJs.includes('function pgKey()') && bundleJs.includes('window.__pgY = pgY'), '');
+push('上一页/下一页走 setPage（不再一律回列表顶）', bundleJs.includes("$('prev').onclick = () => setPage(state.page - 1)") && bundleJs.includes("$('next').onclick = () => setPage(state.page + 1)"), '');
+push('换排序 / 换每页条数后回到列表起点', bundleJs.includes("syncHash(); render(); goList(); };") && bundleJs.includes('state.pageSize = +e.target.value'), '');
 push('错误卡给「重试 / 稍后再看」并安抚本地数据', bundleJs.includes("el('button', 'btn', '重试')") && bundleJs.includes("el('button', 'btn ghost', '稍后再看')") && bundleJs.includes('收藏和主题设置存在你自己的浏览器里'), '');
 push('静态数据没读到会立刻改说实时拉取', bundleJs.includes('静态数据没读到，正在从 GitHub 实时拉取') && bundleJs.includes('还在拉取…GitHub 响应有点慢'), '');
 push('后台保存有常驻状态行（不再是 toast）', admHtml.includes('.save-msg.err{color:var(--bad)}') && admHtml.includes('function saveRun') && admHtml.includes("setAttribute('role', 'status')"), '');
