@@ -680,6 +680,19 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   }
 
 </style>
+<script>
+/* 中文输入法：拼音未上屏时不要触发过滤 */
+window.__imeBind = function (el, fn) {
+  if (!el) return;
+  var composing = false;
+  el.addEventListener('compositionstart', function () { composing = true; });
+  el.addEventListener('compositionend', function () { composing = false; fn(); });
+  el.addEventListener('input', function (ev) {
+    if (composing || el.isComposing || (ev && ev.isComposing)) return;
+    fn();
+  });
+};
+</script>
 </head>
 <body>
 <div class="ad-ticker" id="adTicker" hidden></div>
@@ -1699,7 +1712,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       var inp=document.getElementById('navSearch');
       var q=(inp&&inp.value?inp.value:'').trim().toLowerCase();
       var nc=document.getElementById('navClear'); if(nc) nc.hidden=!q;
-      if(nc && !nc.dataset.bound){ nc.dataset.bound='1'; nc.addEventListener('click', function(){ var i2=document.getElementById('navSearch'); if(i2){ i2.value=''; renderNav(); i2.focus(); } }); var i3=document.getElementById('navSearch'); if(i3){ i3.addEventListener('input', function(){ nc.hidden=!i3.value; }); } }
+      if(nc && !nc.dataset.bound){ nc.dataset.bound='1'; nc.addEventListener('click', function(){ var i2=document.getElementById('navSearch'); if(i2){ i2.value=''; renderNav(); i2.focus(); } }); var i3=document.getElementById('navSearch'); if(i3){ window.__imeBind(i3, function(){ nc.hidden=!i3.value; }); } }
       var groups=(navData&&navData.groups)||[];
       var total=0, shown=0, html='', jump='';
       groups.forEach(function(g, gi){
@@ -1826,7 +1839,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var tFaq=document.getElementById('tabFaq');
     if(tFaq) tFaq.addEventListener('click',function(){ setView('faq'); });
     var faqSearchBox=document.getElementById('faqSearch');
-    if(faqSearchBox) faqSearchBox.addEventListener('input',function(){ faqq.q=str(this.value).toLowerCase(); renderFaq(); });
+    if(faqSearchBox) window.__imeBind(faqSearchBox, function(){ faqq.q=str(faqSearchBox.value).toLowerCase(); renderFaq(); });
     var faqChipsBox=document.getElementById('faqChips');
     if(faqChipsBox) faqChipsBox.addEventListener('click',function(e){
       var b=e.target&&e.target.closest?e.target.closest('[data-faqtag]'):null;
@@ -1838,7 +1851,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var artMore=document.getElementById('artMore');
     if(artMore) artMore.addEventListener('click',function(e){ e.preventDefault(); setView('articles'); if(window.scrollTo) window.scrollTo({top:0,behavior:'smooth'}); });
     var artSearchBox=document.getElementById('artSearch');
-    if(artSearchBox) artSearchBox.addEventListener('input',function(){ artv.q=str(this.value).toLowerCase(); renderArtView(); });
+    if(artSearchBox) window.__imeBind(artSearchBox, function(){ artv.q=str(artSearchBox.value).toLowerCase(); renderArtView(); });
     var artSortBox=document.getElementById('artSort');
     if(artSortBox) artSortBox.addEventListener('change',function(){ artv.sort=this.value||'new'; renderArtView(); });
     var artChipsBox=document.getElementById('artChips');
@@ -1850,7 +1863,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       renderArtView();
     });
     var navSearchBox=document.getElementById('navSearch');
-    if(navSearchBox) navSearchBox.addEventListener('input',function(){ if(navLoaded) renderNav(); });
+    if(navSearchBox) window.__imeBind(navSearchBox, function(){ if(navLoaded) renderNav(); });
     // 直接打开导航页：/nav、/?page=nav、/#nav 都认（head 里已提前记下意图）
     // 只认 URL 里的意图（/nav、/?page=nav、/#nav）；不读历史记忆，否则从 /faq 点「榜单」会跳到导航页
     var wantNav = window.__wantNav === true;

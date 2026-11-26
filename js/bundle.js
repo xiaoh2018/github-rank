@@ -1581,7 +1581,18 @@ document.querySelectorAll('#ranges .btn').forEach(b => {
 $('lang').onchange = e => { state.lang = e.target.value; state.page = 1; syncHash(); load(); };
 $('sort').onchange = e => { state.sort = e.target.value; state.page = 1; syncHash(); render(); };
 $('pageSize').onchange = e => { state.pageSize = +e.target.value; state.page = 1; render(); };
-$('q').oninput = e => { state.q = e.target.value; state.page = 1; render(); };
+// 中文输入法：拼音还在输入框里（没上屏）时不要触发过滤
+function imeBind(el, fn) {
+  if (!el) return;
+  let composing = false;
+  el.addEventListener('compositionstart', () => { composing = true; });
+  el.addEventListener('compositionend', () => { composing = false; fn(); });
+  el.addEventListener('input', (ev) => {
+    if (composing || el.isComposing || (ev && ev.isComposing)) return;
+    fn();
+  });
+}
+imeBind($('q'), () => { state.q = $('q').value; state.page = 1; render(); });
 $('prev').onclick = () => { state.page--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 $('next').onclick = () => { state.page++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 if ($('pgJump')) {

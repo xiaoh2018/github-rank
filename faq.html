@@ -406,7 +406,17 @@ html[data-theme="notion"]{
     syncUrl(true);
     render();
   });
-  document.getElementById('q').addEventListener('input', function () { syncUrl(false); render(); });
+  (function () {
+    var box = document.getElementById('q');
+    if (!box) return;
+    var imeOn = false;
+    box.addEventListener('compositionstart', function () { imeOn = true; });
+    box.addEventListener('compositionend', function () { imeOn = false; syncUrl(false); render(); });
+    box.addEventListener('input', function (ev) {
+      if (imeOn || box.isComposing || (ev && ev.isComposing)) return;
+      syncUrl(false); render();
+    });
+  })();
 
   document.getElementById('list').addEventListener('click', function (e) {
     var b = e.target.closest('[data-reset]');

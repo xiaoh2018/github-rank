@@ -326,6 +326,11 @@ push('阅读器有字号调节（A−/A＋）', artListHtml.includes('id="rfMinu
 push('字号记在本机 localStorage', artListHtml.includes('ghrank-reader-font'));
 push('阅读器不再出现「加密文章」措辞', !artListHtml.includes('加密文章'));
 push('不再给读者看「以前标记过加密（旧数据）」', !artListHtml.includes('以前标记过加密'));
+const bundleSrc = await (await fetch(base + '/js/bundle.js?v=' + t)).text();
+push('输入法打字时不逐字过滤（首页）', bundleSrc.includes('function imeBind'));
+push('静态文章页也跳过拼音阶段', artListHtml.includes('compositionstart'));
+push('后台三个筛选框也跳过拼音阶段', admHtml.includes('function imeBind') && admHtml.includes("imeBind($('navFilter')"));
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

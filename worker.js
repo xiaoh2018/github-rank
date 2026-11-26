@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v181';
+const ASSET_V = 'v182';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4570,6 +4570,17 @@ tr:hover td{background:#fcfbf8}
   var confirmFn = null;
 
   function $(id) { return document.getElementById(id); }
+  // 中文输入法：拼音未上屏时不要触发过滤
+  function imeBind(el, fn) {
+    if (!el) return;
+    var composing = false;
+    el.addEventListener('compositionstart', function () { composing = true; });
+    el.addEventListener('compositionend', function () { composing = false; fn(); });
+    el.addEventListener('input', function (ev) {
+      if (composing || el.isComposing || (ev && ev.isComposing)) return;
+      fn();
+    });
+  }
   function esc(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
@@ -5736,7 +5747,7 @@ tr:hover td{background:#fcfbf8}
       dlg.classList.toggle('full');
       this.textContent = dlg.classList.contains('full') ? '⤡ 还原' : '⤢ 放大';
     });
-    if ($('artSearch')) $('artSearch').addEventListener('input', function () { state.artPage = 1; renderArticles(); });
+    if ($('artSearch')) imeBind($('artSearch'), function () { state.artPage = 1; renderArticles(); });
     $('artTbody').addEventListener('click', function (e) {
     var t = e.target;
     var ed = t.getAttribute && t.getAttribute('data-artedit');
@@ -6096,7 +6107,7 @@ tr:hover td{background:#fcfbf8}
     renderNavAdmin();
     toast(added ? '已导入 ' + added + ' 个站点到「' + g.name + '」，记得点保存' : '没识别到可导入的行（第二列要是 http(s) 网址）', added > 0);
   }
-  $('navFilter').addEventListener('input', renderNavAdmin);
+  imeBind($('navFilter'), renderNavAdmin);
   document.addEventListener('click', function (e) {
     var b = e.target.closest ? e.target.closest('[data-navfreset]') : null;
     if (!b) return;
@@ -6472,7 +6483,7 @@ tr:hover td{background:#fcfbf8}
       }
     });
     var f = $('qaFilter');
-    if (f && f.dataset.bound !== '1') { f.dataset.bound = '1'; f.addEventListener('input', renderQa); }
+    if (f && f.dataset.bound !== '1') { f.dataset.bound = '1'; imeBind(f, renderQa); }
     var tf = $('qaTagFilter');
     if (tf && tf.dataset.bound !== '1') { tf.dataset.bound = '1'; tf.addEventListener('change', renderQa); }
   }
