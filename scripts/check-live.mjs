@@ -351,6 +351,9 @@ push('问答序号可点面积 ≥32 高', faqText.includes('min-width:34px;min-
 push('正文链接可点面积加厚（inline-block 负边距）', home.includes('.faqview .artvlead a,.faqview .ans a{display:inline-block'));
 push('问答导语不再宣传「加密文章」', !/加密文章怎么解锁/.test(faqText) && !/加密文章怎么解锁/.test(home));
 push('搜索占位符按屏宽切换（短/长两套）', home.includes('data-ph-sm="搜项目、语言、标签…"') && home.includes('data-ph-lg='));
+push('三页主题按钮文案统一「主题 · X」', /主题 · /.test(home) && /主题 · /.test(artText) && /主题 · /.test(faqText));
+push('问答页补上主题按钮', faqText.indexOf('id="btnTheme"') >= 0);
+push('静态文章页去掉重复副标题', artText.indexOf('站长写的东西，按时间倒序') < 0);
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

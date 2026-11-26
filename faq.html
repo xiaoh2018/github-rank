@@ -150,6 +150,7 @@ html[data-theme="notion"]{
     </nav>
     <div class="head-actions">
       <a class="btn" href="/">← 回榜单</a>
+      <button class="btn" id="btnTheme" type="button">主题</button>
     </div>
   </header>
 
@@ -432,11 +433,21 @@ html[data-theme="notion"]{
   var THEME_KEY = 'ghrank-theme';
   var THEMES = ['paper', 'ink', 'stripe', 'notion'];
   var THEME_BG = { paper: '#faf7f0', ink: '#08090b', stripe: '#ffffff', notion: '#f7f6f3' };
+  var THEME_LABEL = { paper: '暖纸白', ink: 'Linear 冷暗', stripe: 'Stripe 亮白', notion: 'Notion 柔灰' };
+  function paintThemeBtn(t) {
+    var btn = document.getElementById('btnTheme');
+    if (!btn) return;
+    var short = { paper: '暖纸白', ink: '冷暗', stripe: '亮白', notion: '柔灰' }[t] || '暖纸白';
+    btn.textContent = '主题 · ' + short;
+    btn.title = '切换配色主题（当前：' + (THEME_LABEL[t] || '暖纸白') + '）';
+    btn.setAttribute('aria-label', '切换配色主题，当前 ' + (THEME_LABEL[t] || '暖纸白'));
+  }
   function applyTheme(t) {
     if (THEMES.indexOf(t) < 0) t = 'paper';
     document.documentElement.setAttribute('data-theme', t);
     var meta = document.querySelector("meta[name=\"theme-color\"]");
     if (meta) meta.setAttribute("content", THEME_BG[t] || THEME_BG.paper);
+    paintThemeBtn(t);
   }
   fetch('/api/site', { cache: 'no-cache' })
     .then(function (r) { return r.json(); })
@@ -448,6 +459,13 @@ html[data-theme="notion"]{
       if (saved === 'dark') saved = 'ink';
       var use = (st.allowUser !== false && THEMES.indexOf(saved) >= 0) ? saved : (st.name || 'paper');
       applyTheme(use);
+      var tb = document.getElementById('btnTheme');
+      if (tb) tb.onclick = function () {
+        var cur = document.documentElement.getAttribute('data-theme') || 'paper';
+        var next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
+        try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+        applyTheme(next);
+      };
     })
     .catch(function () { applyTheme('paper'); });
 

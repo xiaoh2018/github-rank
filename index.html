@@ -1657,7 +1657,7 @@ window.__imeBind = function (el, fn) {
         chips[i].classList.toggle('is-on',chips[i].getAttribute('data-theme-pick')===t);
       }
       var btn=document.getElementById('btnTheme');
-      if(btn) btn.textContent=THEME_LABEL[t]||'主题';
+      if(btn){ var short={paper:'暖纸白',ink:'冷暗',stripe:'亮白',notion:'柔灰'}[t]||'暖纸白'; btn.textContent='主题 · '+short; btn.title='切换配色主题（当前：'+(THEME_LABEL[t]||'暖纸白')+'）'; btn.setAttribute('aria-label','切换配色主题，当前 '+(THEME_LABEL[t]||'暖纸白')); }
       var meta=document.querySelector('meta[name="theme-color"]');
       if(meta) meta.setAttribute('content', t==='paper'?'#faf7f0':(t==='ink'?'#08090b':(t==='stripe'?'#ffffff':'#f7f6f3')));
       return t;
