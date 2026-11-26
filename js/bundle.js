@@ -558,6 +558,11 @@ function renderItem(r, rank, maxStars, trend) {
   };
   meta.append(copy);
 
+  const mshare = el('button', 'mini mshare', '分享');
+  mshare.type = 'button';
+  mshare.setAttribute('aria-label', '分享「' + (r.name || '项目') + '」');
+  mshare.onclick = () => shareRepo(r, mshare);
+
   const share = el('button', 'mini', '卡片');
   share.title = '生成分享卡片';
   share.setAttribute('aria-label', '生成分享卡片');
@@ -565,6 +570,7 @@ function renderItem(r, rank, maxStars, trend) {
   share.onclick = () => shareCard(r, rank);
   meta.append(share);
   body.append(meta);
+  body.append(mshare);
 
   const tagList = r.topics || [];
   if (tagList.length) {
@@ -938,6 +944,27 @@ function initDrawer() {
 }
 
 // ---------- Canvas 分享卡片 ----------
+function shareText(r) {
+  return (r.name || '') + ' ★' + fmt(r.stars) + String.fromCharCode(10) + (r.desc || '') + String.fromCharCode(10) + repoUrl(r);
+}
+
+async function shareRepo(r, btn) {
+  const text = shareText(r);
+  const say = (t) => {
+    if (!btn) return;
+    const old = btn.textContent;
+    btn.textContent = t;
+    setTimeout(() => { btn.textContent = old; }, 1600);
+  };
+  if (navigator.share) {
+    try { await navigator.share({ title: r.name, text: text, url: repoUrl(r) }); say('已分享'); }
+    catch (e) { if (e && e.name === 'AbortError') return; say('没分享出去'); }
+    return;
+  }
+  try { await navigator.clipboard.writeText(text); say('已复制'); }
+  catch (e) { say('复制失败'); }
+}
+
 function shareCard(r, rank) {
   const W = 900, H = 470;
   const c = document.createElement('canvas');

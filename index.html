@@ -302,12 +302,14 @@ html[data-theme="ink"] .navcard .hitmark,html[data-theme="ink"] .navjump .hitmar
 .skip{position:absolute;left:-9999px;top:0;z-index:80;padding:10px 14px;border-radius:0 0 10px 0;background:var(--accent);color:#fff;font-weight:700;text-decoration:none;font-size:14px}
 .skip:focus{left:0;outline:2px solid var(--accent-ink,var(--accent));outline-offset:2px}
 .mini{background:var(--chip);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:0 8px;font:inherit;font-size:12px;cursor:pointer}
+#list .item .mini.mshare{display:none;margin-left:auto;margin-top:6px}
 @media (hover:hover) and (pointer:fine){
   #list .item .mini{opacity:0;transition:opacity .15s ease}
   #list .item:hover .mini,#list .item:focus-within .mini{opacity:1}
 }
 @media (hover:none){
   #list .item .mini{display:none}
+  #list .item .mini.mshare{display:inline-flex;align-items:center;opacity:1;align-self:flex-end;min-height:32px;padding:0 10px;font-size:12.5px}
 }
 /* 数据没读出来时的卡片：别只留一行红字，说清怎么回事、给下一步 */
 .err-card{grid-column:1/-1;list-style:none}
@@ -320,6 +322,7 @@ html[data-theme="ink"] .navcard .hitmark,html[data-theme="ink"] .navjump .hitmar
 @media (max-width:760px){
   /* 窄屏一律隐藏：不依赖 (hover)/(pointer) 判断，手机、平板、触屏笔记本都干净 */
   #list .item .mini{display:none}
+  #list .item .mini.mshare{display:inline-flex;align-items:center;opacity:1;align-self:flex-end;min-height:32px;padding:0 10px;font-size:12.5px}
   /* 换行后的行距收窄：14px 的 gap 在手机上会让两行信息看起来像断开的两段 */
   #list .item .meta{gap:2px 10px}
 }
