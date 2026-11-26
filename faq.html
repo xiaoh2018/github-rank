@@ -112,6 +112,15 @@ html[data-theme="notion"]{
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
 }
 </style>
+<style>
+/* 手机端表单字号 16px：小于 16px 时 iOS Safari 聚焦会自动放大整页 */
+@media (max-width:760px){
+  :is(input,select,textarea):not([type=checkbox]):not([type=radio]){font-size:16px;min-height:44px}
+  /* #q 这类 id 选择器（1,0,0）比上面 (0,2,1) 高，要单独点名 */
+  #q,#search,#navSearch{font-size:16px;min-height:44px}
+  #pgJump{min-width:64px}
+}
+</style>
 </head>
 <body>
 <div class="wrap">
