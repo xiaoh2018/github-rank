@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v148';
+const ASSET_V = 'v149';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3764,6 +3764,8 @@ tr:hover td{background:#fcfbf8}
   .ck-item.on{background:#eff6ff;color:#1d4ed8}
   .ck-item small{color:#94a3b8}
   .ck-foot{padding:4px 4px 0;font-size:12px;color:#94a3b8}
+.cmdk-fab{position:fixed;left:14px;bottom:16px;z-index:30;width:46px;height:46px;padding:0;border-radius:15px;font-size:17px;line-height:1;box-shadow:0 8px 20px rgba(15,23,42,.18)}
+@media (min-width:761px){.cmdk-fab{display:none}}
   .side .nav:focus-visible{outline-offset:-2px;box-shadow:0 0 0 3px rgba(37,99,235,.25)}
   .navgroup:first-child .nav{margin-top:0}
   .skip-link{position:absolute;left:-9999px;top:8px;z-index:99;background:#fff;border:1px solid #2563eb;border-radius:8px;padding:8px 12px;font-size:13px}
@@ -4323,11 +4325,12 @@ tr:hover td{background:#fcfbf8}
 
   </main>
 </div>
+<button type="button" class="btn ghost cmdk-fab" id="cmdkFab" aria-label="快速跳转（Ctrl+K）" aria-keyshortcuts="Control+K" title="快速跳转（Ctrl+K）">⌘</button>
 <dialog id="cmdk" class="cmdk" aria-label="快速跳转">
   <div class="ck-box">
     <input id="ckInput" type="search" placeholder="跳到面板…（↑↓ 选择，Enter 打开，Esc 关闭）" autocomplete="off">
     <div class="ck-list" id="ckList"></div>
-    <div class="ck-foot">Ctrl/⌘ + K 或 / 随时打开</div>
+    <div class="ck-foot">Ctrl/⌘ + K 或 / 随时打开（手机上点左下角 ⌘）</div>
   </div>
 </dialog>
 <dialog id="addDlg">
@@ -4521,6 +4524,8 @@ tr:hover td{background:#fcfbf8}
     document.querySelectorAll('.nav').forEach(function (b) {
       b.setAttribute('aria-current', b.getAttribute('data-tab') === tab ? 'true' : 'false');
     });
+    var curNav = document.querySelector('.nav[data-tab="' + tab + '"]');
+    if (curNav && curNav.scrollIntoView) curNav.scrollIntoView({ block: 'nearest', inline: 'center' });
     history.replaceState(null, '', '#' + tab);
     window.scrollTo(0, 0);
   }
@@ -4533,6 +4538,7 @@ tr:hover td{background:#fcfbf8}
     overview: '概览', layout: '榜单布局', articles: '文章', nav: '导航页',
     seo: 'SEO 与 GEO', links: '友链', ad: '广告', contact: '联系方式',
     beian: '备案信息', submit: '收录提交', keys: '设置与密钥', translate: '翻译',
+    qa: '问答', theme: '主题',
   };
   var ckItems = [], ckIndex = 0, ckOpen = false;
 
@@ -6224,6 +6230,7 @@ tr:hover td{background:#fcfbf8}
       if (e.key === '/' && !typing) { e.preventDefault(); openCmdk(); return; }
       if (e.key === 'Escape' && ckOpen) closeCmdk();
     });
+    if ($('cmdkFab')) $('cmdkFab').addEventListener('click', openCmdk);
   })();
 
   function openAdPrev(id) {

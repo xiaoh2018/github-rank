@@ -102,6 +102,9 @@ push('窄屏表格最小列宽（不再挤成竖排）', artText.includes('min-w
 push('窄屏表格右缘滚动提示', artText.includes('box-shadow:inset -14px 0 12px -14px'), '');
 push('文章页统计卡窄屏三列一行', artText.includes('repeat(3,minmax(0,1fr))'), '');
 push('品牌副标题窄屏最多两行', home.includes('-webkit-line-clamp:2'), '');
+push('后台命令面板有手机入口', adm.includes('id="cmdkFab"'), '');
+push('点 tab 后侧栏会把当前项滚进可视区', adm.includes('scrollIntoView({ block:'), '');
+push('阅读器标题窄屏 23px', artText.includes('.reader h1{font-size:23px'), '');
 push('后台表格窄屏可横滚', adm.includes('#navAdmin{overflow-x:auto;'), '');
 push('问答搜索有高亮（highlightNode + hitmark）', faqText.includes('function highlightNode') && faqText.includes("className = 'hitmark'"));
 push('问答计数显示命中条数', faqText.includes('命中') && faqText.includes('当前显示'));
