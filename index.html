@@ -839,7 +839,7 @@ window.__imeBind = function (el, fn) {
           <option value="100">每页 100 条</option>
         </select>
       </div>
-        <input type="text" id="q" class="grow repo-only" placeholder="搜索：如 rust 命令行、AI 绘图、前端 框架（按 / 快速定位）" aria-label="搜索">
+        <input type="text" id="q" class="grow repo-only" data-ph-lg="搜索：如 rust 命令行、AI 绘图、前端 框架（按 / 快速定位）" data-ph-sm="搜项目、语言、标签…" placeholder="搜索：如 rust 命令行、AI 绘图、前端 框架（按 / 快速定位）" aria-label="搜索">
 
     </div>
     <div class="cats repo-only" id="cats" aria-label="项目分类"></div>
@@ -929,7 +929,7 @@ window.__imeBind = function (el, fn) {
       <p class="artvlead">站长写的一些记录，按时间倒序，最新的在最前面。</p>
     </div>
     <div class="artvbar">
-      <input type="search" id="artSearch" placeholder="搜索标题、摘要、分类…" aria-label="搜索文章" autocomplete="off">
+      <input type="search" id="artSearch" data-ph-lg="搜索标题、摘要、分类…" data-ph-sm="搜标题或摘要…" placeholder="搜索标题、摘要、分类…" aria-label="搜索文章" autocomplete="off">
       <select id="artSort" aria-label="排序">
         <option value="new">最新在前</option>
         <option value="old">最早在前</option>
@@ -945,7 +945,7 @@ window.__imeBind = function (el, fn) {
       <p class="artvlead">数据从哪来、多久更新一次、能不能被搜到、有问题怎么找站长——常见问题都在这儿。</p>
     </div>
     <div class="artvbar">
-      <input type="search" id="faqSearch" placeholder="搜索问题或答案…" aria-label="搜索问答" autocomplete="off">
+      <input type="search" id="faqSearch" data-ph-lg="搜索问题或答案…" data-ph-sm="搜问题或关键词…" placeholder="搜索问题或答案…" aria-label="搜索问答" autocomplete="off">
     </div>
     <div class="chips" id="faqChips" aria-label="按标签筛选问答"></div>
     <div id="faqList"><div class="empty">正在加载问答…</div></div>
@@ -2074,6 +2074,21 @@ getJSON('/data/site.json').then(function(site){
   pwEl.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); goEl.click(); } });
   var m0=mLoc();
   if(m0) openArt(decodeURIComponent(m0[1]), true);
+})();
+</script>
+
+<script>
+(function () {
+  var els = [].slice.call(document.querySelectorAll('[data-ph-lg]'));
+  function paint() {
+    var narrow = window.matchMedia('(max-width:600px)').matches;
+    els.forEach(function (el) {
+      var v = narrow ? el.getAttribute('data-ph-sm') : el.getAttribute('data-ph-lg');
+      if (v) el.placeholder = v;
+    });
+  }
+  paint();
+  window.addEventListener('resize', paint);
 })();
 </script>
 </body>

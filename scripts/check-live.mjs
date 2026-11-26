@@ -349,6 +349,8 @@ push('分类计数与网址行小屏提到 12px', home.includes('.navgroup>h3 .c
 push('问答分类胶囊 12px（两处）', home.includes('.faqview .qa .qtag{flex:0 0 auto;font-size:12px') && faqText.includes('.qtag{font-size:12px'));
 push('问答序号可点面积 ≥32 高', faqText.includes('min-width:34px;min-height:32px'));
 push('正文链接可点面积加厚（inline-block 负边距）', home.includes('.faqview .artvlead a,.faqview .ans a{display:inline-block'));
+push('问答导语不再宣传「加密文章」', !/加密文章怎么解锁/.test(faqText) && !/加密文章怎么解锁/.test(home));
+push('搜索占位符按屏宽切换（短/长两套）', home.includes('data-ph-sm="搜项目、语言、标签…"') && home.includes('data-ph-lg='));
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

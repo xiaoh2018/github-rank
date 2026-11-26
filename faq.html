@@ -157,7 +157,7 @@ html[data-theme="notion"]{
     <h1>常见问答</h1>
     <p class="lead" id="intro">关于本站的高频问题：数据从哪来、多久更新、怎么被搜到、有问题怎么找站长。</p>
     <div class="tools">
-      <input id="q" type="search" placeholder="搜索问题或关键词，例如「更新」「收录」「密码」" autocomplete="off">
+      <input id="q" type="search" data-ph-lg="搜索问题或关键词，例如「更新」「收录」「密码」" data-ph-sm="搜问题或关键词…" placeholder="搜索问题或关键词，例如「更新」「收录」「密码」" autocomplete="off">
       <span class="note" id="count" style="margin:0"></span>
       <button type="button" class="chip" id="expandAll" data-open="0">展开全部</button>
     </div>
@@ -480,5 +480,20 @@ html[data-theme="notion"]{
   })();
 </script>
 <button class="totop" id="totop" type="button" aria-label="返回顶部" hidden>↑</button>
+
+<script>
+(function () {
+  var els = [].slice.call(document.querySelectorAll('[data-ph-lg]'));
+  function paint() {
+    var narrow = window.matchMedia('(max-width:600px)').matches;
+    els.forEach(function (el) {
+      var v = narrow ? el.getAttribute('data-ph-sm') : el.getAttribute('data-ph-lg');
+      if (v) el.placeholder = v;
+    });
+  }
+  paint();
+  window.addEventListener('resize', paint);
+})();
+</script>
 </body>
 </html>

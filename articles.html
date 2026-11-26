@@ -350,7 +350,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   <div class="blog" id="blog" data-side="right">
     <section class="blistwrap" id="listWrap">
       <div class="btools">
-        <input type="search" id="search" placeholder="搜索标题、摘要、标签…（按 / 快速定位）" autocomplete="off">
+        <input type="search" id="search" data-ph-lg="搜索标题、摘要、标签…（按 / 快速定位）" data-ph-sm="搜标题、摘要、标签…" placeholder="搜索标题、摘要、标签…（按 / 快速定位）" autocomplete="off">
         <select id="sort" aria-label="排序">
           <option value="new">最新在前</option>
           <option value="old">最早在前</option>
@@ -1396,6 +1396,21 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   <div class="lb-hint">← → 切换图片，点空白处或按 Esc 关闭</div>
 </div>
 <div class="rprogress" id="rprogress" hidden></div>
+
+<script>
+(function () {
+  var els = [].slice.call(document.querySelectorAll('[data-ph-lg]'));
+  function paint() {
+    var narrow = window.matchMedia('(max-width:600px)').matches;
+    els.forEach(function (el) {
+      var v = narrow ? el.getAttribute('data-ph-sm') : el.getAttribute('data-ph-lg');
+      if (v) el.placeholder = v;
+    });
+  }
+  paint();
+  window.addEventListener('resize', paint);
+})();
+</script>
 </body>
 </html>
 <!-- build v100 -->
