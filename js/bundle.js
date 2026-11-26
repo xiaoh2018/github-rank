@@ -1225,6 +1225,7 @@ function paintFresh() {
     box = document.createElement('p');
     box.id = 'freshness';
     box.className = 'fresh';
+    box.title = '每 3 小时自动抓取一次';
     note.parentNode.insertBefore(box, note);
   }
   var meta = window.__ghrankMeta || null;
@@ -1232,7 +1233,8 @@ function paintFresh() {
   if (!at) { box.hidden = true; return; }
   var mins = Math.max(0, Math.round((Date.now() - at) / 60000));
   var ago = mins < 60 ? mins + ' 分钟前' : (Math.round(mins / 60) + ' 小时前');
-  box.textContent = '数据更新于 ' + ago + ' · 每 3 小时自动抓一次';
+  box.textContent = '数据更新于 ' + ago;
+  box.title = '每 3 小时自动抓取一次';
   box.hidden = false;
 }
 
@@ -1338,13 +1340,12 @@ async function load(bypassCache) {
 function updateSourceNote() {
   const el = $('srcNote');
   if (!el) return;
-  const when = state.updatedAt ? '（' + state.updatedAt + '）' : '';
-  const src = state.source === 'live' ? '当前数据：从 GitHub 实时拉取' + when
-    : state.source === 'static' ? '当前数据：定时抓取的静态文件（每 3 小时更新）' + when
-    : '当前数据：加载中';
-  el.textContent = src + '。' + (getToken()
-    ? '点「立即刷新」会用你的 Token 直接请求 GitHub，拉取最新数据。'
-    : '点「立即刷新」会使用服务器配置的 Token 实时请求 GitHub；服务器额度用完时，再在「设置」里填写你自己的 Token。');
+  if (state.source === 'live') {
+    const when = state.updatedAt ? '（' + state.updatedAt + '）' : '';
+    el.textContent = '本次数据：刚从 GitHub 实时拉取' + when + '。';
+  } else {
+    el.textContent = '';
+  }
 }
 
 // ---------- 立即刷新（需要 Token；失败时保留当前数据） ----------

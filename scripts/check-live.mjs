@@ -273,6 +273,9 @@ push('榜单卡取自然高度（不再强行等高留白）', home.includes('ga
 push('分类胶囊有统一视觉（实心选中 + 圆角 + hover）', home.includes('.chip.is-on{background:var(--accent)') && home.includes('.chip:hover{border-color:var(--accent)') && home.includes('function paintChipBox'), '');
 push('文章页胶囊与首页同一套样式', artText.includes('.chip.is-on{background:var(--accent)') && artText.includes('.chip:hover{border-color:var(--accent)'), '');
 push('问答页胶囊选中改为实心（与首页一致）', faqText.includes('.chip.is-on{background:var(--accent)') && faqText.includes('.chip:hover{border-color:var(--accent)'), '');
+push('空的数据来源提示不占位', home.includes('#srcNote:empty{display:none}'), '');
+push('数据来源提示改成人话（静态数据不再解释一堆）', bundleJs.includes('本次数据：刚从 GitHub 实时拉取') && !bundleJs.includes('当前数据：定时抓取的静态文件'), '');
+push('导出类按钮移进「设置 → 数据」', home.includes('<b>数据</b>') && home.includes('收藏只存在这个浏览器'), '');
 push('统计区压成一行摘要（不再是四张卡）', home.includes('.stats.slim{display:flex') && home.includes('.stat-lang{') , '');
 push('摘要里的「最热语言」可点击筛选', bundleJs.includes("'stat-lang'") && bundleJs.includes("new Option(topLang[0], topLang[0])"), '');
 push('窄屏有「筛选」按钮与角标', home.includes('id="mfToggle"') && home.includes('id="mfBody"') && home.includes('id="mfN"'), '');

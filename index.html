@@ -123,6 +123,7 @@ h1{font-size:26px;margin:0;font-weight:700;letter-spacing:-.01em}
 select,input{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;font:inherit;min-width:0}
 select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outline-offset:0}
 .grow{flex:1 1 200px}
+#srcNote:empty{display:none}
 .note{color:var(--muted);font-size:12px;margin:10px 0 0}
  .guide{margin-top:12px;font-size:13px;color:var(--text)}
  .guide summary{cursor:pointer;color:var(--accent);font-weight:500;min-height:40px;display:flex;align-items:center}
@@ -725,7 +726,16 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
  <a class="btn guide-link" href="https://github.com/settings/tokens/new?description=ghrank&scopes=" target="_blank" rel="noopener noreferrer">打开 GitHub 创建 Token 页面 ↗</a>
  <p class="guide-tip">Token 只保存在你自己的浏览器里，不会上传到别处。如果泄露了，到 GitHub 的 Token 设置页删除即可。</p>
  </details>
- <p class="note">Token 只在点击「立即刷新」时使用，可把搜索额度从每分钟 10 次提到 30 次；默认数据来自定时抓取的静态文件（每 3 小时更新），不消耗额度。Token 只保存在本机 localStorage 中，不会上传到别处。</p>
+ <p class="note">Token 只在点击「立即刷新」时使用，可把搜索额度从每分钟 10 次提到 30 次；默认数据每 3 小时自动更新一次，不消耗额度。Token 只保存在本机 localStorage 中，不会上传到别处。</p>
+
+  <div class="card">
+    <div class="card-head"><b>数据</b><span class="msg">收藏只存在这个浏览器，换设备要自己导出</span></div>
+    <div class="controls">
+      <button class="btn ghost" id="btnFavExport">导出收藏</button>
+      <button class="btn ghost" id="btnFavImport">导入收藏</button>
+      <button class="btn ghost" id="btnExport">导出 CSV</button>
+    </div>
+  </div>
   </section>
 
   <section class="panel" id="rankBar">
@@ -773,11 +783,6 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     <div class="controls">
       <button class="btn ghost" id="btnFavFilter">☆ 只看收藏</button>
       <button class="btn ghost" id="btnRefresh">↻ 立即刷新</button>
-    </div>
-    <div class="controls">
-      <button class="btn ghost" id="btnFavExport">导出收藏</button>
-      <button class="btn ghost" id="btnFavImport">导入收藏</button>
-      <button class="btn ghost" id="btnExport">导出 CSV</button>
     </div>
   </div>
 
