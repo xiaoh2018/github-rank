@@ -53,6 +53,16 @@ const faqText = await faq.text();
 push('/faq 页面', faq.ok, faq.status);
 push('问答带主题引导', faqText.includes('ghrank-theme'));
 
+// 所有 HTML 页面的边缘缓存必须是「几分钟」级：以前 /faq 掉进了 js/css 那一档（24 小时 + swr 7 天），
+// 改完一天才生效。这里用带 ?v= 的地址读头（绕过旧边缘对象），守住这条策略。
+const htmlTtl = [];
+for (const p of ['/', '/articles', '/nav', '/faq']) {
+  const r = await fetch(base + p + '?v=' + t, { method: 'GET' });
+  const cc = r.headers.get('cache-control') || '';
+  const m = cc.match(/s-maxage=(\d+)/);
+  htmlTtl.push(p + ':' + (m ? m[1] : 'none'));
+  push('HTML 页边缘缓存 ≤ 15 分钟 ' + p, m && Number(m[1]) <= 900, cc);
+}
 const llms = await fetch(base + '/llms.txt?v=' + t);
 const llmsText = await llms.text();
 push('/llms.txt', llms.ok && llmsText.startsWith('# '), llms.status + ' ' + llmsText.length + 'B');

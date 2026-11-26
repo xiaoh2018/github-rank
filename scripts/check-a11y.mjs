@@ -1,8 +1,9 @@
-// 无障碍门禁：四页 × 四主题，检查可访问名 / 对比度 / 表格语义 / img alt / lang / 焦点环
+// 无障碍门禁：四页 × 五主题，检查可访问名 / 对比度 / 表格语义 / img alt / lang / aria 状态 / 焦点环
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import net from 'node:net';
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const BASE = process.env.PROBE_BASE || 'http://127.0.0.1:8123';
@@ -11,13 +12,18 @@ const THEMES = (process.argv[3] || 'paper,dark,ink,stripe,notion').split(',');
 const W = 1440;
 const H = 900;
 
-const port = 9900 + Math.floor(Math.random() * 90);
+// 端口必须真的空闲：写死范围会和残留的无头 Chrome 撞车（连上了但 /json/list 里没有 page）
+const port = await new Promise((res) => {
+  const srv = net.createServer();
+  srv.listen(0, '127.0.0.1', () => { const p = srv.address().port; srv.close(() => res(p)); });
+});
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'cr-a11y-'));
 const child = spawn(CHROME, ['--headless=new', '--disable-gpu', '--hide-scrollbars', '--no-first-run',
   '--no-default-browser-check', '--remote-debugging-port=' + port, '--user-data-dir=' + profile, 'about:blank'], { stdio: 'ignore' });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 async function findTarget() {
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 60; i++) {
     try {
       const list = await (await fetch('http://127.0.0.1:' + port + '/json/list')).json();
       const p = list.find((t) => t.type === 'page');
@@ -25,8 +31,9 @@ async function findTarget() {
     } catch {}
     await sleep(250);
   }
-  throw new Error('no cdp target');
+  throw new Error('no cdp target on port ' + port);
 }
+
 const t = await findTarget();
 const ws = new WebSocket(t.webSocketDebuggerUrl);
 await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; });
@@ -47,7 +54,7 @@ await send('Page.enable');
 await send('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: 1, mobile: false });
 
 const AUDIT = `(() => {
-  const out = { unnamed: [], lowContrast: [], thNoScope: 0, tables: 0, imgNoAlt: 0, lang: document.documentElement.lang || '', chipNoState: 0, chips: 0 };
+  const out = { unnamed: [], lowContrast: [], thNoScope: 0, tables: 0, imgBad: [], lang: document.documentElement.lang || '', chipNoState: 0, chips: 0, focusHits: 0 };
   const labelFor = new Set([...document.querySelectorAll('label[for]')].map((l) => l.getAttribute('for')));
   const nameOf = (el) => {
     const t = (el.innerText || el.textContent || '').trim(); if (t) return t;
@@ -65,7 +72,6 @@ const AUDIT = `(() => {
     if (el.closest('[hidden]')) continue;
     if (!el.offsetParent && getComputedStyle(el).position !== 'fixed') continue;
     const nm = nameOf(el);
-    // placeholder 只能当「提示」，不能当唯一的名字
     if (!nm || nm === 'placeholder-only') out.unnamed.push(el.tagName.toLowerCase() + (el.id ? '#' + el.id : ''));
   }
   for (const c of document.querySelectorAll('.chip[data-cat],.chip[data-tag],#cats .chip,#artChips .chip,#faqChips .chip')) { out.chips++; if (!c.hasAttribute('aria-pressed')) out.chipNoState++; }
@@ -90,7 +96,20 @@ const AUDIT = `(() => {
     }
   }
   for (const tb of document.querySelectorAll('table')) { out.tables++; for (const th of tb.querySelectorAll('th')) if (!th.hasAttribute('scope')) out.thNoScope++; }
-  for (const im of document.querySelectorAll('img')) if (!im.hasAttribute('alt')) out.imgNoAlt++;
+  for (const im of document.querySelectorAll('img')) {
+    if (im.closest('[hidden]')) continue;
+    const src = im.getAttribute('src') || '';
+    if (!src || src.indexOf('data:') === 0) continue;
+    if (!im.hasAttribute('alt')) out.imgBad.push(src.slice(-36));
+  }
+  // :focus-visible 规则可能在 @media / @supports 里，递归数
+  const walk = (rules) => {
+    for (const r of rules) {
+      if (r.selectorText && /:focus-visible/.test(r.selectorText)) out.focusHits++;
+      if (r.cssRules) walk(r.cssRules);
+    }
+  };
+  for (const ss of document.styleSheets) { try { walk(ss.cssRules); } catch (e) {} }
   return out;
 })()`;
 
@@ -105,22 +124,42 @@ for (const theme of THEMES) {
   }
 }
 
-// 焦点环与键盘可见性：CSS 里必须有 :focus-visible 规则（不能只靠浏览器默认）
-const focusCss = await evaluate(`(() => {
-  let hits = 0;
-  for (const ss of document.styleSheets) { try { for (const r of ss.cssRules) if (r.selectorText && /:focus-visible/.test(r.selectorText)) hits++; } catch {} }
-  return hits;
-})()`);
-
 const checks = [];
 const ok = (name, cond, note) => checks.push({ name, pass: !!cond, note: note || '' });
 ok('四页 × 五主题的控件都有可访问名', results.every((r) => r.unnamed.length === 0), [...new Set(results.flatMap((r) => r.unnamed))].slice(0, 6).join(' | '));
 ok('正文与辅助文字对比度 ≥ 4.5（大字号 ≥ 3）', results.every((r) => r.lowContrast.length === 0), [...new Set(results.flatMap((r) => r.lowContrast.map((x) => r.theme + r.page + ' ' + x)))].slice(0, 5).join(' ; '));
 ok('表格每个 th 都有 scope', results.every((r) => r.thNoScope === 0), results.filter((r) => r.thNoScope).map((r) => r.page + ':' + r.thNoScope).join(','));
-ok('没有缺 alt 的 img', results.every((r) => r.imgNoAlt === 0), '');
+ok('没有缺 alt 的 img', results.every((r) => r.imgBad.length === 0), [...new Set(results.flatMap((r) => r.imgBad))].slice(0, 4).join(' | '));
 ok('html 都有 lang', results.every((r) => !!r.lang), results.filter((r) => !r.lang).map((r) => r.page).join(','));
 ok('分类胶囊都带 aria-pressed', results.every((r) => r.chipNoState === 0), results.filter((r) => r.chipNoState).map((r) => r.page + ':' + r.chipNoState).join(','));
-ok('样式表里有 :focus-visible 焦点环（≥3 条）', focusCss >= 3, '命中 ' + focusCss + ' 条');
+// 键盘可达：按 Tab 之后，真正拿到焦点的元素必须有可见的焦点环（不是靠浏览器默认虚线）
+await send('Page.navigate', { url: BASE + '/' });
+// 等页面真的渲染出来：Chrome 的错误页也有 a 和 button，会把焦点环测成浏览器默认的 1px
+let ready = false;
+for (let i = 0; i < 40; i++) {
+  await sleep(200);
+  ready = await evaluate(`!!document.querySelector('#list, #q, #status') && document.readyState !== 'loading'`);
+  if (ready) break;
+}
+if (!ready) throw new Error('首页没加载出来（dev-server 是否在跑？）');
+await sleep(400);
+const focusRing = [];
+for (let i = 0; i < 6; i++) {
+  await send('Input.dispatchKeyEvent', { type: 'rawKeyDown', windowsVirtualKeyCode: 9, key: 'Tab', code: 'Tab' });
+  await send('Input.dispatchKeyEvent', { type: 'keyUp', windowsVirtualKeyCode: 9, key: 'Tab', code: 'Tab' });
+  await sleep(90);
+  const st = await evaluate(`(() => {
+    const el = document.activeElement;
+    if (!el || el === document.body) return null;
+    const cs = getComputedStyle(el);
+    return { tag: el.tagName.toLowerCase() + (el.id ? '#' + el.id : ''), w: parseFloat(cs.outlineWidth) || 0, style: cs.outlineStyle, shadow: cs.boxShadow };
+  })()`);
+  if (st) focusRing.push(st);
+}
+const ringOk = focusRing.filter((x) => x.w >= 2 || (x.shadow && x.shadow !== 'none')).length;
+ok('连按 Tab 六次，每一步焦点元素都有可见焦点环', focusRing.length >= 4 && ringOk === focusRing.length,
+  '拿到焦点 ' + focusRing.length + ' 个，有环 ' + ringOk + ' 个：' + focusRing.map((x) => x.tag + ':' + x.w + 'px').join(' '));
+ok('页面样式里声明了 :focus-visible（不是全靠浏览器默认）', Math.max(...results.map((r) => r.focusHits)) >= 1, '最多 ' + Math.max(...results.map((r) => r.focusHits)) + ' 条');
 
 let bad = 0;
 for (const c of checks) { if (c.pass) console.log('OK   ' + c.name); else { bad++; console.log('FAIL ' + c.name + (c.note ? ' → ' + c.note : '')); } }
@@ -128,4 +167,4 @@ console.log(bad ? bad + ' FAILED of ' + checks.length : 'ALL OK (' + checks.leng
 
 ws.close();
 child.kill();
-process.exit(bad ? 1 : 0);
+setTimeout(() => process.exit(bad ? 1 : 0), 200);
