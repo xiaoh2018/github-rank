@@ -343,6 +343,9 @@ push('手机一列时布局改成 stretch（不再横向溢出/右侧空条）',
 push('分页器窄屏改两行网格', home.includes('#pager{display:grid;grid-template-columns:auto minmax(0,1fr) auto') && home.includes('#pager #pageInfo{grid-area:1 / 2'));
 push('步进按钮撑到 34×34', home.includes('.pjbtn{min-width:34px;min-height:34px}'));
 push('可点目标最小 32px（阅读全文/全部文章/ticker ×）', home.includes('.ad-ticker .tk-x{width:34px;height:34px') && home.includes('.artmore,#artViewList .artcard a.read'));
+push('「分析」按钮只属于榜单视图', home.includes('body[data-page="nav"] #insightBtn'));
+push('导航卡片网址行 12px（小屏）', home.includes('.navcard .host{font-size:12px}'));
+push('分类计数与网址行小屏提到 12px', home.includes('.navgroup>h3 .cnt,.nj em,.navcard .host{font-size:12px}'));
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

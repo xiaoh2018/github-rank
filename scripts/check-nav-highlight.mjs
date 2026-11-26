@@ -123,7 +123,7 @@ try {
 
   console.log('== 6. 搜不到时的空态 ==');
   await search('ZZQ不存在的站点');
-  const s5 = await evalJs(`(() => ({ note: (document.querySelector('#navBody .note') || {}).textContent || '', marks: document.querySelectorAll('.hitmark').length }))()`);
+  const s5 = await evalJs(`(() => ({ note: (document.querySelector('#navBody .navempty') || {}).textContent || '', marks: document.querySelectorAll('.hitmark').length }))()`);
   ok('搜不到显示空态文案', /没有匹配的站点/.test(s5 && s5.note), s5 && s5.note);
   ok('空态时无高亮残留', s5 && s5.marks === 0, s5 && s5.marks);
 } finally {
