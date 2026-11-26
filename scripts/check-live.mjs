@@ -399,6 +399,9 @@ push('问答页有完整分享卡', faqHtml.indexOf('property="og:url" content="
 push('问答页跟随站点主题（5 套 token 齐备）', ['dark', 'ink', 'stripe', 'notion'].every((t) => faqHtml.includes('html[data-theme="' + t + '"]')) && faqHtml.includes('--fg:var(--text)'), '');
 push('问答页主题 token 与首页同值', ['--bg:#faf7f0', '--card:#ffffff', '--text:#1c2230'].every((k) => faqHtml.replace(/\s+/g, '').includes(k)), '');
 push('问答页不再自带旧 palette（#fffdf8 / #7a6b56）', !faqHtml.includes('#fffdf8') && !faqHtml.includes('#7a6b56'), '');
+push('实时刷新有「已用时」与进度文案', bundleJs.includes('正在实时刷新 · 已用 ') && bundleJs.includes("已取到 ' + got + ' 个项目"), '');
+push('实时刷新能取消（真 abort，不是假文案）', bundleJs.includes('取消这次刷新') && bundleJs.includes('ctrl.abort()') && bundleJs.includes('已取消这次刷新，仍在看之前的数据'), '');
+push('loadRepos 支持外部 signal', bundleJs.includes('outerSignal') && bundleJs.includes('if (signal && signal.aborted)'), '');
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
