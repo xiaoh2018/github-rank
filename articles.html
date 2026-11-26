@@ -1049,7 +1049,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var reallyLocked = !!(a.locked && a.hasLock !== false);
     if (reallyLocked) {
       var lockHint = (a.unlockHint || (state.site && state.site.article && state.site.article.unlockHint) || '').trim();
-      body.innerHTML = readerCover(a) + '<div class="locknote"><p>' + (lockHint ? esc(lockHint) : '这篇是加密文章，输入密码后阅读正文。') + '</p>' +
+      body.innerHTML = readerCover(a) + '<div class="locknote"><p>' + (lockHint ? esc(lockHint) : '这篇需要密码才能看，问站长要。') + '</p>' +
         '<button class="btn primary" id="lockOpen" type="button">输入密码解锁</button></div>';
       $('lockOpen').addEventListener('click', function () { askPassword(a.id); });
       askPassword(a.id);
