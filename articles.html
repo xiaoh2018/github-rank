@@ -1005,6 +1005,9 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   function openReader(id) {
     var a = findArt(id);
     if (!a) { closeReader(); return; }
+    if ($('reader').hidden) { state.listScroll = window.scrollY || 0; }
+    // 等阅读视图布局完再回到顶部，否则会被旧文档高度夹住
+    requestAnimationFrame(function () { window.scrollTo(0, 0); });
     var tools = $('rTools'); if (tools) tools.hidden = false;
     state.open = a;
     $('listWrap').classList.add('is-reading');
@@ -1131,7 +1134,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     return hit;
   }
 
-  function closeReader() {
+  // 只改界面、不动历史：由路由（popstate / 首次进页面）调用
+  function hideReader(restoreScroll) {
     state.open = null;
     $('reader').hidden = true;
     var pbar = document.getElementById('rprogress');
@@ -1139,8 +1143,22 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     $('listWrap').classList.remove('is-reading');
     $('hero').hidden = false;
     document.title = '文章 · GitHub 热门项目排行榜';
-    history.replaceState(null, '', '/articles');
     renderAds(state.site);
+    if (restoreScroll && state.listScroll != null) {
+      var y = state.listScroll;
+      setTimeout(function () { window.scrollTo(0, y); }, 0);
+    }
+  }
+
+  // 读者点「返回文章列表」/按 Esc：有历史就退回去（浏览器会自己恢复滚动位置），没有就原地替换
+  function closeReader() {
+    if (state.readerPushed) {
+      state.readerPushed = false;
+      history.back();
+      return;
+    }
+    hideReader(true);
+    history.replaceState(null, '', '/articles');
   }
 
   $('rback').addEventListener('click', closeReader);
@@ -1149,6 +1167,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     if (!a) return;
     e.preventDefault();
     var id = a.getAttribute('data-id');
+    state.readerPushed = true;
+    state.listScroll = window.scrollY || 0;
     history.pushState(null, '', pathOf(id));
     openReader(id);
   });
@@ -1157,6 +1177,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     if (!a) return;
     e.preventDefault();
     var id = decodeURIComponent(String(a.getAttribute('href') || '').replace(/^#/, ''));
+    state.readerPushed = true;
+    state.listScroll = window.scrollY || 0;
     history.pushState(null, '', pathOf(id));
     openReader(id);
   });
@@ -1168,6 +1190,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var did = a.getAttribute('data-id');
     if (did) {
       e.preventDefault();
+      state.readerPushed = true;
+      state.listScroll = window.scrollY || 0;
       history.pushState(null, '', pathOf(did));
       openReader(did);
       return;
@@ -1176,6 +1200,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     if (href.charAt(0) === '#') {
       e.preventDefault();
       var id = decodeURIComponent(href.slice(1));
+      state.readerPushed = true;
+      state.listScroll = window.scrollY || 0;
       history.pushState(null, '', href);
       openReader(id);
     }
@@ -1236,7 +1262,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     var byPath = artFromPath();
     var id = byPath ? String(byPath.id) : String(location.hash || '').replace(/^#/, '');
     if (id) openReader(decodeURIComponent(id));
-    else if (state.open || !$('reader').hidden) closeReader();
+    else if (state.open || !$('reader').hidden) hideReader(true);
   }
 
   // 筛选状态同步到 URL：刷新/分享/前进后退都能保持「分类 + 关键词 + 排序 + 页码」

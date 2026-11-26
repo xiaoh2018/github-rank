@@ -108,6 +108,10 @@ push('后台问答答案框窄屏 16px', adm.includes('#app #qaList .qa-a{font-s
 push('后台平台表窄屏堆叠成卡片', adm.includes('.geo-plat thead{display:none'), '');
 push('后台侧栏滚动渐隐（x-end + paintSide）', adm.includes('x-end') && adm.includes('__paintSide'), '');
 push('前台手机端表单 16px（文章页）', artText.includes(':is(input,select,textarea):not([type=checkbox])'), '');
+  // —— 阅读器状态与地址栏一致（v179）
+  push('阅读器界面与历史分离（hideReader）', artText.includes('function hideReader'), '');
+  push('打开文章时用 rAF 回到正文顶部', artText.includes('requestAnimationFrame(function () { window.scrollTo(0, 0); })'), '');
+  push('关闭阅读器走 history.back()（后退语义正确）', artText.includes('history.back()') && artText.includes('readerPushed'), '');
 push('前台手机端表单 16px（问答页）', faqText.includes('#q,#search,#navSearch{font-size:16px'), '');
 push('点 tab 后侧栏会把当前项滚进可视区', adm.includes('scrollIntoView({ block:'), '');
 push('阅读器标题窄屏 23px', artText.includes('.reader h1{font-size:23px'), '');
