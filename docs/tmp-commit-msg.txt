@@ -1,7 +1,0 @@
-feat(admin): 封面字段与前台同口径 + 预览；修模板字面量正则导致的整脚本 SyntaxError
-
-- 后台封面校验放行站内相对路径（/og-image.png），与前台一致；错误文案写清两种合法写法
-- 封面输入框改 text + inputmode=url（type=url 会拦住 / 开头），加 320×180 预览与「1200×630，比例 1.90」/「这张图打不开」状态
-- 修 ADMIN_PAGE 内 /^(https?:\/\/|\/)/i 在模板字面量里退化成 /^(https?:/|/)/i 的 SyntaxError（导致后台所有绑定不执行）
-- 新门禁 scripts/check-cover-admin.mjs（14 项）；check-live +3 断言
-- docs §183
