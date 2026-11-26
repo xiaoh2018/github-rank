@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v175';
+const ASSET_V = 'v176';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3373,6 +3373,11 @@ button.small{padding:6px 12px;min-height:32px;font-size:13px}
 button:disabled{opacity:.5;cursor:not-allowed}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
 .msg{color:var(--muted);font-size:14px}
+.dirt{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:11.5px;font-weight:600;vertical-align:3px}
+.dirt[hidden]{display:none}
+.draft-bar{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:2px 0 0;padding:9px 12px;border:1px solid #fde68a;border-radius:10px;background:#fffbeb;font-size:12.5px;color:#92400e;line-height:1.6}
+.draft-bar[hidden]{display:none}
+.draft-bar>span{flex:1 1 100%;min-width:0}
 .save-msg{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;margin-left:10px;font-size:12.5px;line-height:1.7;color:var(--muted)}
 .save-msg.ok{color:#15803d}
 .save-msg.err{color:var(--bad)}
@@ -3515,7 +3520,7 @@ td>.empty-card{margin:0}
 dialog.wide{width:min(1120px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:0;overflow:hidden}
 dialog.wide[open]{display:grid;grid-template-rows:auto minmax(0,1fr)}
 dialog.wide.full{width:calc(100% - 16px);max-height:calc(100dvh - 16px)}
-.dlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 22px;border-bottom:1px solid var(--line)}
+.dlg-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 22px;border-bottom:1px solid var(--line)}
 .dlg-head h2,.dlg-head h3{margin:0 0 2px}
 .dlg-head .msg{margin:0;font-size:13px}
 .dlg-head-actions{display:flex;gap:8px;flex:none}
@@ -4466,10 +4471,15 @@ tr:hover td{background:#fcfbf8}
 </dialog>
 <dialog id="artDlg" class="wide">
   <div class="dlg-head">
-    <div><h2 id="artTitle">写新文章</h3><p class="msg">标题必填；日期留空默认今天；正文支持 Markdown，段落之间空一行。</p></div>
+    <div><h2 id="artTitle">写新文章</h2><span class="dirt" id="artDirtyBadge" hidden>未保存</span><p class="msg">标题必填；日期留空默认今天；正文支持 Markdown，段落之间空一行。</p></div>
     <div class="dlg-head-actions">
       <button type="button" class="ghost small" id="artFullBtn" title="铺满窗口">⤢ 放大</button>
       <button type="button" class="ghost small" data-close="artDlg">关闭</button>
+    </div>
+    <div class="draft-bar" id="draftBar" hidden>
+      <span id="draftText"></span>
+      <button type="button" class="ghost small" id="draftRestore">恢复草稿</button>
+      <button type="button" class="ghost small" id="draftDrop">丢弃</button>
     </div>
   </div>
   <div class="art-grid">
@@ -4719,7 +4729,9 @@ tr:hover td{background:#fcfbf8}
   });
   document.addEventListener('click', function (e) {
     var c = e.target.getAttribute && e.target.getAttribute('data-close');
-    if (c) $(c).close();
+    if (!c) return;
+    if (c === 'artDlg' && artDirty) { artAskDiscard(); return; }
+    $(c).close();
   });
 
   // ---- 概览：保活状态 ----
@@ -5452,8 +5464,117 @@ tr:hover td{background:#fcfbf8}
     $('artErr').textContent = '';
     paintPreview();
     $('artDlg').showModal();
+    artDirty = false;
+    artPaintDirty();
+    if (a) { var dbar = $('draftBar'); if (dbar) dbar.hidden = true; }
+    else artOfferDraft();
+  }
+  var ART_DRAFT = 'ghrank-art-draft';
+  var artDirty = false;
+  var artDraftTimer = null;
+  function artFormState() {
+    return {
+      title: $('artTitleIn').value, date: $('artDate').value, summary: $('artSummary').value,
+      cover: $('artCover') ? $('artCover').value : '', body: $('artBody').value,
+      category: $('artCategory').value, cat: $('artCat').value, seq: $('artSeq').value,
+      hint: $('artHint').value, locked: $('artLock').checked,
+      pinned: $('artPinned') ? $('artPinned').checked : false
+    };
+  }
+  function artPaintDirty() {
+    var b = $('artDirtyBadge');
+    if (b) b.hidden = !artDirty;
+  }
+  function artSaveDraft() {
+    if (!artDirty) return;
+    try {
+      var d = artFormState();
+      d.at = Date.now();
+      localStorage.setItem(ART_DRAFT, JSON.stringify(d));
+    } catch (e) {}
+  }
+  function artReadDraft() {
+    try {
+      var d = JSON.parse(localStorage.getItem(ART_DRAFT) || 'null');
+      if (d && Date.now() - (d.at || 0) < 7 * 864e5 && (d.title || d.body)) return d;
+    } catch (e) {}
+    return null;
+  }
+  function artClearDraft() {
+    clearTimeout(artDraftTimer);
+    try { localStorage.removeItem(ART_DRAFT); } catch (e) {}
+    var bar = $('draftBar');
+    if (bar) bar.hidden = true;
+  }
+  function artFill(s) {
+    $('artTitleIn').value = s.title || '';
+    $('artDate').value = s.date || today();
+    $('artSummary').value = s.summary || '';
+    if ($('artCover')) $('artCover').value = s.cover || '';
+    $('artBody').value = s.body || '';
+    $('artCategory').value = s.category || '';
+    $('artCat').value = s.cat || '';
+    $('artSeq').value = s.seq || '';
+    $('artHint').value = s.hint || '';
+    $('artLock').checked = !!s.locked;
+    if ($('artPinned')) $('artPinned').checked = !!s.pinned;
+    if ($('artPw')) $('artPw').value = '';
+    slugPreview();
+    paintPreview();
+  }
+  function artOfferDraft() {
+    var bar = $('draftBar');
+    if (!bar) return;
+    var d = artReadDraft();
+    if (!d) { bar.hidden = true; return; }
+    var w = new Date(d.at);
+    var hh = ('0' + w.getHours()).slice(-2) + ':' + ('0' + w.getMinutes()).slice(-2);
+    $('draftText').textContent = '上次没保存的草稿（' + (w.getMonth() + 1) + '/' + w.getDate() + ' ' + hh + '）：' + (d.title || '（无标题）');
+    bar.hidden = false;
+  }
+  function artMarkDirty() {
+    artDirty = true;
+    artPaintDirty();
+    clearTimeout(artDraftTimer);
+    artDraftTimer = setTimeout(artSaveDraft, 700);
+  }
+  function artAskDiscard() {
+    askConfirm('这篇还没保存', '标题或正文改了还没保存，关掉就没了（草稿留在本机，下次进来自动提示恢复）。', function () {
+      $('artDlg').close();
+      artDirty = false;
+      artPaintDirty();
+      return Promise.resolve({ ok: true });
+    }, '放弃改动');
   }
   $('artNew').addEventListener('click', function () { openArt(null); });
+  document.addEventListener('keydown', function (e) {
+    var d = $('artDlg');
+    if (e.key !== 'Escape' || !d || !d.open) return;
+    var del = $('delDlg');
+    if (del && del.open) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (artDirty) artAskDiscard(); else d.close();
+  }, true);
+  $('artDlg').addEventListener('cancel', function () {
+    var d = $('artDlg');
+    if (artDirty && d && d.open) { artAskDiscard(); }
+  });
+  $('artDlg').addEventListener('input', artMarkDirty);
+  $('artDlg').addEventListener('change', artMarkDirty);
+  if ($('draftRestore')) $('draftRestore').addEventListener('click', function () {
+    var d = artReadDraft();
+    if (d) { artFill(d); artMarkDirty(); toast('草稿已恢复，记得保存', true); }
+    $('draftBar').hidden = true;
+  });
+  if ($('draftDrop')) $('draftDrop').addEventListener('click', function () {
+    artClearDraft();
+    toast('草稿已丢弃', true);
+  });
+  window.addEventListener('beforeunload', function (e) {
+    var d = $('artDlg');
+    if (artDirty && d && d.open) { e.preventDefault(); e.returnValue = ''; return ''; }
+  });
   $('artSubmit').addEventListener('click', function () {
     var article = {
       title: $('artTitleIn').value,
@@ -5492,6 +5613,9 @@ tr:hover td{background:#fcfbf8}
       if (r.ok) {
         state.articles = r.articles;
         renderArticles();
+        artClearDraft();
+        artDirty = false;
+        artPaintDirty();
         $('artDlg').close();
         toast('文章已保存', true);
       } else {
