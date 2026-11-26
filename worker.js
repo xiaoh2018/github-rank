@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v155';
+const ASSET_V = 'v156';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3789,6 +3789,8 @@ tr:hover td{background:#fcfbf8}
   .main .btn,.main button,.main a.btn,.ghost.small{min-height:38px;display:inline-flex;align-items:center;justify-content:center}
   .card .actions{position:sticky;bottom:0;z-index:2;display:flex;gap:8px;flex-wrap:wrap;padding:10px 0 12px 70px;margin-top:8px;background:var(--card);border-top:1px solid var(--line)}
   .card .actions>button,.card .actions>.btn{flex:1 1 100%;min-height:44px}
+  #cmdk .ck-item{min-height:44px;padding:11px 12px;font-size:14px}
+  #cmdk .ck-box{max-height:calc(100dvh - 32px)}
   .app{grid-template-columns:1fr}
   .side{position:sticky;top:0;height:auto;display:flex;overflow-x:auto;padding:0;border-right:0;border-bottom:1px solid #16233a;background:linear-gradient(180deg,#0b1220 0%,#0d1a2f 100%)}
   .side .brandlink{display:none}
@@ -3819,6 +3821,7 @@ tr:hover td{background:#fcfbf8}
   .ck-item.on{background:#eff6ff;color:#1d4ed8}
   .ck-item small{color:#94a3b8}
   .ck-foot{padding:4px 4px 0;font-size:12px;color:#94a3b8}
+@media (max-width:760px){#cmdk .ck-foot{font-size:12.5px;padding:8px 4px 0;text-align:center}}
 .cmdk-fab{position:fixed;left:14px;bottom:16px;z-index:30;width:46px;height:46px;padding:0;border-radius:15px;font-size:17px;line-height:1;box-shadow:0 8px 20px rgba(15,23,42,.18)}
 @media (min-width:761px){.cmdk-fab{display:none}}
   .side .nav:focus-visible{outline-offset:-2px;box-shadow:0 0 0 3px rgba(37,99,235,.25)}
@@ -4414,7 +4417,7 @@ tr:hover td{background:#fcfbf8}
   <div class="ck-box">
     <input id="ckInput" type="search" placeholder="跳到面板…（↑↓ 选择，Enter 打开，Esc 关闭）" autocomplete="off">
     <div class="ck-list" id="ckList"></div>
-    <div class="ck-foot">Ctrl/⌘ + K 或 / 随时打开（手机上点左下角 ⌘）</div>
+    <div class="ck-foot" id="ckFoot">Ctrl/⌘ + K 或 / 随时打开</div>
   </div>
 </dialog>
 <dialog id="addDlg">
@@ -4655,7 +4658,14 @@ tr:hover td{background:#fcfbf8}
     ckIndex = 0;
     if (!d.open) d.showModal();
     var inp = $('ckInput');
-    if (inp) { inp.value = ''; inp.focus(); }
+    var narrow = window.matchMedia('(max-width:760px)').matches;
+    if (inp) {
+      inp.value = '';
+      inp.placeholder = narrow ? '搜面板名…' : '跳到面板…（↑↓ 选择，Enter 打开，Esc 关闭）';
+      inp.focus();
+    }
+    var foot = $('ckFoot');
+    if (foot) foot.textContent = narrow ? '点一下面板名就跳过去' : 'Ctrl/⌘ + K 或 / 随时打开';
     paintCmdk('');
   }
 

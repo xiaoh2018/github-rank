@@ -248,6 +248,8 @@ push('体检接口带 AI 与保活摘要', !!(healthApi && healthApi.translator 
 push('后台体检只发一个请求（todoCounts）', admHtml.includes('todoCounts') && admHtml.indexOf("api('/api/health')") >= 0, '');
 push('文章分页器窄屏信息独占一行', artListHtml.includes('.apager span{order:-1'), '');
 push('后台保存按钮手机吸底并给 ⌘ 留位', admHtml.includes('.card .actions{position:sticky') && admHtml.includes('padding:10px 0 12px 70px'), '');
+push('导航页空态小屏按钮加高（44px 触控）', home.includes('.navempty .btn,.navempty button,.navempty a.btn{min-height:44px'), '');
+push('命令面板条目小屏 44px + 触屏措辞', admHtml.includes('#cmdk .ck-item{min-height:44px') && admHtml.includes('id="ckFoot"'), '');
 
 let bad = 0;
 for (const r of rows) {

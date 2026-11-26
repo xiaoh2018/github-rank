@@ -82,6 +82,10 @@ footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:v
 .empty{padding:26px 20px;border:1px dashed var(--border);border-radius:14px;background:var(--card);text-align:center}
 .empty b{display:block;font-size:15px;margin-bottom:6px}
 .empty p{margin:0 0 12px;color:var(--muted);font-size:13px}
+@media (max-width:760px){
+  .empty{padding:24px 16px}
+  .empty .chip,.empty button,.empty .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:0 18px}
+}
 .skrow{height:58px;border-radius:12px;background:linear-gradient(90deg,var(--chip),rgba(0,0,0,.05),var(--chip));background-size:220% 100%;animation:ghsk 1.3s linear infinite;margin:10px 0}
 @keyframes ghsk{0%{background-position:220% 0}100%{background-position:-220% 0}}
 @media (prefers-reduced-motion:reduce){.skrow{animation:none}}
