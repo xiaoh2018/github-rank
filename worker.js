@@ -1688,7 +1688,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v228';
+const ASSET_V = 'v229';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3456,6 +3456,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .draft-bar>span{flex:1 1 100%;min-width:0}
 .save-msg{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;margin-left:10px;font-size:12.5px;line-height:1.7;color:var(--muted)}
 .save-msg.ok{color:#15803d}
+.tickwarn{margin:2px 0 12px;font-size:12.5px;line-height:1.7;color:var(--bad)}
+.tickwarn::before{content:"⚠ ";font-weight:700}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 .save-msg.err{color:var(--bad)}
 .row-actions a.small{display:inline-flex;align-items:center;min-height:30px;padding:0 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--fg);text-decoration:none;font-size:12.5px}
@@ -4143,12 +4145,13 @@ tr:hover td{background:#fcfbf8}
 
         <div class="segtabs" data-group="ad"><button type="button" class="is-on" data-adsec="fixed">固定位 6</button><button type="button" data-adsec="inline">信息流位 3</button><button type="button" data-adsec="ticker">顶部滚动条</button></div>
       <div class="card ticker-card" data-sec="ticker">
-        <div class="card-head"><div><h2>顶部滚动条</h2><p class="desc">页面最上面一条滚动文字，适合活动通知/一句话广告。访客点 × 可以关掉，本机会记住 7 天。</p></div>
+        <div class="card-head"><div><h2>顶部滚动条</h2><p class="desc">出现在<b>首页与导航页的顶部</b>（文章页、问答页是独立页面，不放这条）的一条滚动文字，适合活动通知或一句话公告。开启后文案至少 6 个字，占位内容（123 / test）会被拒绝。访客点 × 可以关掉，本机会记住 7 天。</p></div>
           <label class="toggle"><input type="checkbox" id="ticker-enabled">开启</label></div>
         <div class="grid2">
           <label class="field">滚动文字（最多 200 字）<input type="text" id="ticker-text" maxlength="200" placeholder="例如：本站数据每 3 小时自动更新一次"></label>
           <label class="field">滚动速度（秒 / 圈，6–60，越小越快）<input type="number" id="ticker-speed" min="6" max="60" step="1" value="18"></label>
         </div>
+        <p class="tickwarn" id="tickerWarn" hidden></p>
         <div class="grid2">
           <label class="field">点击跳转链接（可选）<input type="url" id="ticker-link" placeholder="https://…"></label>
           <label class="field">点击弹窗内容（可选，HTML）<textarea class="code" id="ticker-modal" rows="2" maxlength="20000" placeholder="填了就点开弹窗，优先于链接"></textarea></label>
@@ -5115,6 +5118,7 @@ tr:hover td{background:#fcfbf8}
     $('ticker-enabled').checked = tk.enabled === true;
     $('ticker-text').value = typeof tk.text === 'string' ? tk.text : '';
     $('ticker-speed').value = tk.speed || 18;
+    try { tickerAudit(); $("ticker-enabled").onchange = tickerAudit; $("ticker-text").oninput = tickerAudit; } catch (e) {}
     $('ticker-link').value = typeof tk.link === 'string' ? tk.link : '';
     $('ticker-modal').value = typeof tk.modal === 'string' ? tk.modal : '';
     var rt = s.runtime || {};
@@ -5438,7 +5442,19 @@ tr:hover td{background:#fcfbf8}
     else if (!e.shiftKey && cur === last) { e.preventDefault(); first.focus(); }
   }, true);
 
-  function saveMsgFor(btn) {
+  // 顶部滚动条：边填边提醒（服务端同样会拒，这里只是别让人白点一次保存）
+function tickerAudit(){
+  var en=$("ticker-enabled"), tx=$("ticker-text"), w=$("tickerWarn");
+  if(!en||!tx||!w) return;
+  var on=en.checked===true, t=String(tx.value||"").trim(), msg="";
+  if(on){
+    if(!t) msg="开启后要写一句滚动的文字，否则保存会被拒绝。";
+    else if(t.length<6) msg="文案太短（"+t.length+" 个字）：至少写一句 6 个字以上的话。";
+    else if(/^[\d\s._-]+$/.test(t)||/^(test|todo|asdf|demo|example|placeholder|示例|测试|占位)/i.test(t)) msg="这看起来是占位内容（和「123」「test」一样），保存会被拒绝。";
+  }
+  w.textContent=msg; w.hidden=!msg;
+}
+function saveMsgFor(btn) {
     var el = btn.getAttribute('data-save') === 'qa' ? $('qaSaveMsg') : null;
     if (!el) {
       el = btn.parentNode.querySelector('.save-msg');
