@@ -1273,7 +1273,26 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
       });
     }
-    function artCatOf(it){ return str(it.category)||'未分类'; }
+    function artCatOf(it){
+      var cat=str(it.category)||'未分类';
+      if(!siteCatEn) return cat;
+      var first=String(it.slug||'').split('/')[0];
+      return first||cat;
+    }
+    function artCardCat(it){
+      var raw=str(it.category);
+      if(!raw) return '';
+      if(!siteCatEn) return raw;
+      var first=String(it.slug||'').split('/')[0];
+      return first||raw;
+    }
+    function artMins(it){
+      var body=String((it&&it.body)||'');
+      if(!body) return 0;
+      var cjk=(body.match(/[\u4e00-\u9fa5]/g)||[]).length;
+      var words=body.replace(/[\u4e00-\u9fa5]/g,' ').split(/\s+/).filter(Boolean).length;
+      return Math.max(1,Math.round(cjk/400+words/200));
+    }
     function artCardEl(it){
       var card=document.createElement('article');
       card.className='artcard';
@@ -1285,13 +1304,13 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       }
       var top=document.createElement('div');
       top.className='artcard-top';
-      var c=document.createElement('span');
-      c.className='artcard-cat';
-      c.textContent=artCatOf(it);
-      top.appendChild(c);
+      var cardCat=artCardCat(it);
+      if(cardCat){ var c=document.createElement('span'); c.className='artcard-cat'; c.textContent=cardCat; top.appendChild(c); }
       if(it.pinned){ var pin=document.createElement('span'); pin.className='pinchip'; pin.textContent='置顶'; top.appendChild(pin); }
       var date=str(it.date);
       if(date){ var tm=document.createElement('time'); tm.setAttribute('datetime',date); tm.textContent=date.slice(0,10); top.appendChild(tm); }
+      var mins=artMins(it);
+      if(mins){ var mn=document.createElement('span'); mn.className='artcard-mins'; mn.textContent='约 '+mins+' 分钟'; top.appendChild(mn); }
       card.appendChild(top);
       var h=document.createElement('h3');
       var a=document.createElement('a');
@@ -1604,6 +1623,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       if(remember!==false){ try{ localStorage.setItem('ghrank:theme',name); }catch(e){} }
       return name;
     }
+    var siteCatEn=false;
     function applySiteTheme(th){
       siteTheme=(th&&typeof th==='object')?{name:th.name||'paper',allowUser:th.allowUser!==false}:{name:'paper',allowUser:true};
       var row=document.getElementById('themeRow');
@@ -1631,6 +1651,12 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     getJSON('/data/site.json').then(function(site){
       if(!site||typeof site!=='object') return;
       applyLayout(site.layout);
+      var nextCatEn=!!(site.article&&site.article.catEn);
+      if(nextCatEn!==siteCatEn){
+        siteCatEn=nextCatEn;
+        if(typeof renderArticles==='function'&&window.__ghrankArticles) renderArticles(window.__ghrankArticles);
+        if(typeof renderArtView==='function') renderArtView();
+      }
       applySiteTheme(site.theme);
       renderAds(site.ad);
       renderContact(site.contact);

@@ -451,10 +451,12 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   }
   // 分类标签：后台开关打开时显示英文（slug 第一段），否则显示原文分类
   function catLabel(a) {
+    // 没有分类就不显示标签：别拿 slug 前缀冒充分类（未分类的文章 slug 常是 cat/N）
+    if (!a.category) return '';
     var en = !!(state.site && state.site.article && state.site.article.catEn);
-    if (!en) return a.category || '';
+    if (!en) return a.category;
     var first = String(a.slug || '').split('/')[0];
-    return first || a.category || '';
+    return first || a.category;
   }
 
   function esc(s) {
@@ -609,18 +611,17 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   }
 
   function cardHtml(a) {
-    var tags = (a.tags || []).slice(0, 3).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
     var cover = a.cover
       ? '<span class="acover" style="display:block;width:100%;aspect-ratio:16/9;border-radius:10px;background:var(--chip) center/cover no-repeat url(' + "'" + String(a.cover).replace(/['"()\\]/g, '') + "'" + ')"></span>'
       : '';
     return '<a class="acard" href="' + esc(artPath(a)) + '" data-id="' + esc(a.id) + '">' + cover +
-      '<h3>' + (a.pinned ? '<span class="pinchip">置顶</span>' : '') + esc(a.title || '(无标题)') + (a.locked && a.hasLock !== false ? ' 🔒' : '') + '</h3>' +
+      '<h3>' + (a.pinned ? '<span class="pinchip">置顶</span>' : '') + esc(a.title || '(无标题)') + '</h3>' +
       descOf(a) +
       '<div class="ameta">' +
-        (catLabel(a) ? '<span class="tag">' + esc(catLabel(a)) + '</span>' : '') + tags +
+        (catLabel(a) ? '<span class="tag">' + esc(catLabel(a)) + '</span>' : '') +
         '<span>' + esc(String(a.date || '').slice(0, 10)) + '</span>' +
         (readMins(a) ? '<span>约 ' + readMins(a) + ' 分钟</span>' : '') +
-        (a.locked ? (a.hasLock !== false ? '<span>加密</span>' : '<span>旧数据未加密</span>') : '') +
+        (a.locked && a.hasLock !== false ? '<span>🔒 需要密码</span>' : '') +
       '</div></a>';
   }
 

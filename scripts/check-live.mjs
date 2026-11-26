@@ -306,6 +306,10 @@ push('删问答会提示要先保存才生效', admHtml.includes('已从列表�
 push('文章编辑器有本地草稿与「恢复草稿」', admHtml.includes("var ART_DRAFT = 'ghrank-art-draft'") && admHtml.includes('function artOfferDraft') && admHtml.includes('id="draftRestore"'));
 push('未保存时关弹窗会先确认', admHtml.includes('这篇还没保存') && admHtml.includes("'放弃改动'"));
 push('刷新/关标签页有拦截', admHtml.includes("addEventListener('beforeunload'") && admHtml.includes('artDirty'));
+push('首页文章卡片有阅读时长', home.includes('function artMins(') && home.includes("'约 '+mins+' 分钟'"));
+push('首页文章卡片分类尊重「显示英文」开关', home.includes('function artCardCat(') && home.includes('siteCatEn'));
+push('静态文章页不再出现「旧数据未加密」', !artListHtml.includes('旧数据未加密'));
+push('静态文章页无分类时不拿 slug 冒充分类', artListHtml.includes('别拿 slug 前缀冒充分类'));
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
