@@ -118,6 +118,11 @@ push('前台手机端表单 16px（文章页）', artText.includes(':is(input,se
   push('筛选空态三个出口按钮', artText.includes('data-ef="q"') && artText.includes('data-ef="cat"') && artText.includes('data-ef="all"'), '');
 push('前台手机端表单 16px（问答页）', faqText.includes('#q,#search,#navSearch{font-size:16px'), '');
 push('点 tab 后侧栏会把当前项滚进可视区', adm.includes('scrollIntoView({ block:'), '');
+push('无障碍：首页给了 accent-ink / accent-text 两个颜色', homeText.includes('--accent-ink:#8a6008') && homeText.includes('--accent-text:#8a6008'), '');
+push('无障碍：选中态胶囊用 accent-ink 托白字', homeText.includes('.chip.is-on{background:var(--accent-ink,var(--accent))'), '');
+push('无障碍：文章页胶囊有 aria-pressed', artText.includes('aria-pressed="\' + (state.cat === \'all\')'), '');
+push('无障碍：问答页表格 th 带 scope', faqText.includes('<th scope="col">'), '');
+push('无障碍：三个搜索框都有 aria-label', homeText.includes('aria-label="搜索站点"') && artText.includes('aria-label="搜索文章"') && faqText.includes('aria-label="搜索问答"'), '');
 push('阅读器标题窄屏 23px', artText.includes('.reader h1,.reader h2{font-size:23px'), '');
 push('后台表格窄屏可横滚', adm.includes('#navAdmin{overflow-x:auto;'), '');
 push('问答搜索有高亮（highlightNode + hitmark）', faqText.includes('function highlightNode') && faqText.includes("className = 'hitmark'"));

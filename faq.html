@@ -21,11 +21,11 @@
 <style>
 :root{
   --bg:#faf7f0; --card:#fffdf8; --fg:#33291c; --muted:#7a6b56; --line:#e8e0cf;
-  --accent:#b07d10; --accent-soft:#f6eddc; --chip:#f3ecdc; --shadow:0 1px 2px rgba(60,45,20,.06),0 8px 24px rgba(60,45,20,.05);
+  --accent:#b07d10;--accent-ink:#8a6008;--accent-text:#8a6008; --accent-soft:#f6eddc; --chip:#f3ecdc; --shadow:0 1px 2px rgba(60,45,20,.06),0 8px 24px rgba(60,45,20,.05);
   --gap:16px; --radius:14px;
 }
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#15130f; --card:#1e1a14; --fg:#f0e9dc; --muted:#a99a82; --line:#332c22; --accent:#e0b457; --accent-soft:#2a2419; --chip:#241f17; --shadow:0 1px 2px rgba(0,0,0,.4); }
+  :root{ --bg:#15130f; --card:#1e1a14; --fg:#f0e9dc; --muted:#a99a82; --line:#332c22; --accent:#e0b457;--accent-ink:#e0b457;--accent-text:#e0b457;--accent-on:#2a1f00; --accent-soft:#2a2419; --chip:#241f17; --shadow:0 1px 2px rgba(0,0,0,.4); }
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
@@ -57,10 +57,10 @@ h1{font-size:26px;margin:6px 0 8px;letter-spacing:-.3px}
   .chip{flex:0 0 auto;min-height:38px;display:inline-flex;align-items:center;padding:8px 14px}
 }
 .chip{appearance:none;display:inline-flex;align-items:center;padding:7px 15px;border-radius:999px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:13px;line-height:1;cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s,background .15s,box-shadow .15s,transform .12s}
-.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--chip)}
+.chip:hover{border-color:var(--accent);color:var(--accent-text,var(--accent));background:var(--chip)}
 .chip:active{transform:translateY(1px)}
-.chip.is-on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;box-shadow:0 6px 16px -10px var(--accent)}
-.chip.is-on:hover{color:#fff}
+.chip.is-on{background:var(--accent-ink,var(--accent));border-color:var(--accent-ink,var(--accent));color:var(--accent-on,#fff);font-weight:600;box-shadow:0 6px 16px -10px var(--accent)}
+.chip.is-on:hover{color:var(--accent-on,#fff)}
 .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 #expandAll{margin-left:auto;border-color:var(--line);background:var(--card)}
 .qalist{display:grid;gap:12px}
@@ -97,7 +97,7 @@ html[data-theme="ink"] .qa .hitmark{background:rgba(240,190,90,.32)}
 .qa .ans table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}
 .qa .ans th,.qa .ans td{border:1px solid var(--line);padding:6px 8px;text-align:left}
 .qa .ans a{word-break:break-all}
-.qtag{font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:1px solid transparent;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.qtag{font-size:12px;font-weight:600;color:var(--accent-text,var(--accent));background:var(--accent-soft);border:1px solid transparent;border-radius:999px;padding:2px 9px;white-space:nowrap}
 .note a,.qa .ans a{display:inline-block;padding:6px 2px;margin:-6px 0;line-height:1.4}
 .note{color:var(--muted);font-size:13px;margin-top:22px}
 footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;gap:12px;flex-wrap:wrap}
@@ -116,18 +116,18 @@ footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:v
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 html[data-theme="ink"]{
   --bg:#08090b;--card:#101216;--fg:#e8ecf4;--muted:#8b93a7;
-  --line:#1e222b;--accent:#6e79d6;--accent-soft:#171a22;--chip:#171a22;
+  --line:#1e222b;--accent:#6e79d6;--accent-ink:#4f59b8;--accent-text:#aab3f2;--accent-soft:#171a22;--chip:#171a22;
   --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 34px -22px rgba(0,0,0,.7);
 }
 html[data-theme="ink"]{color-scheme:dark}
 html[data-theme="stripe"]{
   --bg:#ffffff;--card:#ffffff;--fg:#0a2540;--muted:#425466;
-  --line:#e3e8ee;--accent:#635bff;--accent-soft:#f6f9fc;--chip:#f6f9fc;
+  --line:#e3e8ee;--accent:#635bff;--accent-ink:#4f46e5;--accent-text:#4f46e5;--accent-soft:#f6f9fc;--chip:#f6f9fc;
   --shadow:0 1px 2px rgba(10,37,64,.06),0 12px 28px -18px rgba(10,37,64,.28);
 }
 html[data-theme="notion"]{
-  --bg:#f7f6f3;--card:#ffffff;--fg:#37352f;--muted:#787774;
-  --line:#e9e7e2;--accent:#2f6feb;--accent-soft:#efeee9;--chip:#efeee9;
+  --bg:#f7f6f3;--card:#ffffff;--fg:#37352f;--muted:#6b6a67;
+  --line:#e9e7e2;--accent:#2f6feb;--accent-ink:#1f57c4;--accent-text:#1f57c4;--accent-soft:#efeee9;--chip:#efeee9;
   --shadow:0 1px 2px rgba(55,53,47,.06),0 10px 26px -18px rgba(55,53,47,.22);
 }
     .totop{position:fixed;right:16px;bottom:16px;z-index:29;width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:16px;line-height:1;cursor:pointer;box-shadow:var(--shadow);display:grid;place-items:center;transition:transform .15s ease,color .15s ease}
@@ -168,9 +168,9 @@ html[data-theme="notion"]{
     <h1>常见问答</h1>
     <p class="lead" id="intro">关于本站的高频问题：数据从哪来、多久更新、怎么被搜到、有问题怎么找站长。</p>
     <div class="tools">
-      <input id="q" type="search" data-ph-lg="搜索问题或关键词，例如「更新」「收录」「密码」" data-ph-sm="搜问题或关键词…" placeholder="搜索问题或关键词，例如「更新」「收录」「密码」" autocomplete="off">
+      <input id="q" type="search" aria-label="搜索问答" data-ph-lg="搜索问题或关键词，例如「更新」「收录」「密码」" data-ph-sm="搜问题或关键词…" placeholder="搜索问题或关键词，例如「更新」「收录」「密码」" autocomplete="off">
       <span class="note" id="count" style="margin:0"></span>
-      <button type="button" class="chip" id="expandAll" data-open="0">展开全部</button>
+      <button type="button" class="chip" id="expandAll" data-open="0" aria-expanded="false">展开全部</button>
     </div>
     <div class="chips" id="tags"></div>
   </section>
@@ -246,7 +246,7 @@ html[data-theme="notion"]{
           rows.push(cells.slice(1, cells.length - 1));
           i++;
         }
-        out.push('<table><thead><tr>' + head.map(function (h) { return '<th>' + inline(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        out.push('<table><thead><tr>' + head.map(function (h) { return '<th scope="col">' + inline(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
           rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + inline(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>');
         continue;
       }
@@ -353,6 +353,7 @@ html[data-theme="notion"]{
       var openAll = expandBtn.getAttribute('data-open') !== '1';
       Array.prototype.forEach.call(document.querySelectorAll('details.qa'), function (d) { d.open = openAll; });
       expandBtn.setAttribute('data-open', openAll ? '1' : '0');
+  expandBtn.setAttribute('aria-expanded', openAll ? 'true' : 'false');
       expandBtn.textContent = openAll ? '收起全部' : '展开全部';
     });
   }
@@ -371,7 +372,7 @@ html[data-theme="notion"]{
     box.innerHTML = ['all'].concat(tags).map(function (t) {
       var n = counts[t] || 0;
       var cls = 'chip' + (t === tag ? ' is-on' : '') + (kw && !n ? ' is-empty' : '');
-      return '<button type="button" class="' + cls + '" data-tag="' + esc(t) + '"' + (kw && !n ? ' aria-disabled="true"' : '') + '>' + (t === 'all' ? '全部' : esc(t)) + '<b>' + n + '</b></button>';
+      return '<button type="button" class="' + cls + '" aria-pressed="' + (t === tag) + '" data-tag="' + esc(t) + '"' + (kw && !n ? ' aria-disabled="true"' : '') + '>' + (t === 'all' ? '全部' : esc(t)) + '<b>' + n + '</b></button>';
     }).join('');
     paintChips();
   }

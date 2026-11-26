@@ -60,14 +60,14 @@ window.__wantFaq = (function () {
 <style>
 :root{
   --bg:#faf7f0;--card:#ffffff;--text:#1c2230;--muted:#6b7280;
-  --border:#e5e0d4;--accent:#b07d10;--gold:#f0b429;--silver:#9aa4b2;--bronze:#b0764a;
+  --border:#e5e0d4;--accent:#b07d10;--accent-ink:#8a6008;--accent-text:#8a6008;--gold:#f0b429;--silver:#9aa4b2;--bronze:#b0764a;
   --chip:#f1ecdf;--danger:#c2402f;--bar-track:#eee8da;
   --shadow:0 1px 2px rgba(28,34,48,.06),0 8px 24px -16px rgba(28,34,48,.25);
   --radius:12px;--radius-sm:8px;--pad:16px;--gap:12px;
 }
 html[data-theme="dark"]{
   --bg:#0a0e1a;--card:#111726;--text:#e8ecf4;--muted:#8b95a7;
-  --border:#232c42;--accent:#f5c64e;--gold:#f0b429;--silver:#7f8ba0;--bronze:#a8714a;
+  --border:#232c42;--accent:#f5c64e;--accent-ink:#f5c64e;--accent-text:#f5c64e;--accent-on:#2a1f00;--gold:#f0b429;--silver:#7f8ba0;--bronze:#a8714a;
   --chip:#1a2338;--danger:#f87171;--bar-track:#1a2338;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -20px rgba(0,0,0,.8);
 }
@@ -575,10 +575,10 @@ body[data-page="articles"] #rankBar,body[data-page="articles"] #stats,body[data-
 /* 分类胶囊：选中实心深色 + 投影，未选中细描边；窄屏单行横滚，右缘渐隐提示还有更多 */
 .chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .chip{display:inline-flex;align-items:center;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:999px;padding:7px 15px;font:inherit;font-size:13px;line-height:1;cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s,background .15s,box-shadow .15s,transform .12s}
-.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--chip)}
+.chip:hover{border-color:var(--accent);color:var(--accent-text,var(--accent));background:var(--chip)}
 .chip:active{transform:translateY(1px)}
-.chip.is-on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 16px -10px var(--accent)}
-.chip.is-on:hover{color:#fff}
+.chip.is-on{background:var(--accent-ink,var(--accent));border-color:var(--accent-ink,var(--accent));color:var(--accent-on,#fff);box-shadow:0 6px 16px -10px var(--accent)}
+.chip.is-on:hover{color:var(--accent-on,#fff)}
 .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (max-width:760px){
   #artChips,#faqChips{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding-bottom:2px;-webkit-overflow-scrolling:touch;-webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%);mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%)}
@@ -595,7 +595,7 @@ body[data-page="articles"] #rankBar,body[data-page="articles"] #stats,body[data-
   .faqview .qa>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
   .faqview .qa .qmark{flex:0 0 auto;width:20px;height:20px;margin-top:2px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:800;display:grid;place-items:center}
   .faqview .qa .qtext{flex:1 1 auto;min-width:0}
-  .faqview .qa .qtag{flex:0 0 auto;font-size:12px;line-height:1.5;color:var(--muted);background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:2px 9px;margin-top:3px}
+  .faqview .qa .qtag{flex:0 0 auto;font-size:12px;line-height:1.5;color:var(--accent-text,var(--muted));background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:2px 9px;margin-top:3px}
 .faqview .artvlead a,.faqview .ans a{display:inline-block;padding:6px 2px;margin:-6px 0;line-height:1.35}
   .faqview .qa .ans{padding:0 16px 15px 46px;color:#39404b;font-size:14px;line-height:1.85}
   .faqview .qa .ans p{margin:0 0 8px}
@@ -646,23 +646,23 @@ html[data-theme="dark"] .article-body th,html[data-theme="ink"] .article-body th
 /* ---- 多主题：ink(Linear 冷暗) / stripe(亮白) / notion(柔灰) ---- */
 html[data-theme="ink"]{
   --bg:#08090b;--card:#101216;--text:#e8ecf4;--muted:#8b93a7;
-  --border:#1e222b;--accent:#6e79d6;--gold:#6e79d6;--chip:#171a22;
+  --border:#1e222b;--accent:#6e79d6;--accent-ink:#4f59b8;--accent-text:#aab3f2;--gold:#6e79d6;--chip:#171a22;
   --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 34px -22px rgba(0,0,0,.7);
 }
 html[data-theme="stripe"]{
   --bg:#ffffff;--card:#ffffff;--text:#0a2540;--muted:#425466;
-  --border:#e3e8ee;--accent:#635bff;--gold:#635bff;--chip:#f6f9fc;
+  --border:#e3e8ee;--accent:#635bff;--accent-ink:#4f46e5;--accent-text:#4f46e5;--gold:#635bff;--chip:#f6f9fc;
   --shadow:0 1px 2px rgba(10,37,64,.06),0 12px 28px -18px rgba(10,37,64,.28);
 }
 html[data-theme="notion"]{
-  --bg:#f7f6f3;--card:#ffffff;--text:#37352f;--muted:#787774;
-  --border:#e9e7e2;--accent:#2f6feb;--gold:#2f6feb;--chip:#efeee9;
+  --bg:#f7f6f3;--card:#ffffff;--text:#37352f;--muted:#6b6a67;
+  --border:#e9e7e2;--accent:#2f6feb;--accent-ink:#1f57c4;--accent-text:#1f57c4;--gold:#2f6feb;--chip:#efeee9;
   --shadow:0 1px 2px rgba(55,53,47,.06),0 10px 26px -18px rgba(55,53,47,.22);
 }
 html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     .theme-picks{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
     .theme-chip{min-height:34px;padding:4px 12px;font-size:13px}
-    .theme-chip.is-on{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+    .theme-chip.is-on{border-color:var(--accent);color:var(--accent-text,var(--accent));box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
     .card-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}
     .card-head b{font-size:14px}
     .card-head .msg{font-size:12px;color:var(--muted)}
@@ -911,7 +911,7 @@ window.__imeBind = function (el, fn) {
       <p class="sub">常用站点按分类整理，点卡片直接在新标签打开。</p>
     </div>
     <div class="navtools">
-      <input type="search" id="navSearch" placeholder="搜站点名 / 描述 / 网址…" autocomplete="off">
+      <input type="search" id="navSearch" placeholder="搜站点名 / 描述 / 网址…" autocomplete="off" aria-label="搜索站点">
       <button type="button" class="btn navclear" id="navClear" hidden>清空</button>
       <span class="note" id="navCount"></span>
     </div>
