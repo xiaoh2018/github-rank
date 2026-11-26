@@ -1688,7 +1688,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v217';
+const ASSET_V = 'v218';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3169,8 +3169,10 @@ function checkArticle(v) {
   if (cat.length > 24) return { ok: false, error: '分类最多 24 个字符' };
   clean.category = cat;
   const cover = v.cover == null ? '' : String(v.cover).trim();
-  if (cover && (!/^https?:\/\//i.test(cover) || cover.length > 300)) {
-    return { ok: false, error: '封面图地址必须是 http(s) 链接，且不超过 300 字符' };
+  // 前台已经支持站内相对路径（/og-image.png），后台校验必须同口径，
+  // 否则会出现「卡片能显示、保存却被拒」这种自相矛盾。
+  if (cover && (!/^(https?:\/\/|\/)/i.test(cover) || cover.length > 300)) {
+    return { ok: false, error: '封面图要填 http(s):// 开头的链接，或站内以 / 开头的路径（如 /og-image.png），且不超过 300 字符' };
   }
   clean.cover = cover;
   // 置顶：首页/文章页把置顶的排在最前（同一天多篇时也算数）
@@ -3793,6 +3795,11 @@ code.slot-id{background:#f6f1e4;color:#7a6a4c}
 .slugprev.warn{color:#b4232b}
 .slugline{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px;font-size:11.5px;color:#8a8172;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
 .cthumb{display:inline-block;width:38px;height:21px;vertical-align:-4px;margin-right:7px;border-radius:4px;border:1px solid var(--line);background:var(--chip) center/cover no-repeat}
+.covprev{display:flex;align-items:center;gap:10px;margin:8px 0 10px;padding:8px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.covprev[hidden]{display:none}
+.covprev img{width:160px;height:90px;object-fit:cover;border-radius:8px;background:var(--chip);flex:0 0 auto}
+.covstate{font-size:12.5px;line-height:1.6;color:var(--muted)}
+.covstate.bad{color:var(--bad)}
 .pinchip{display:inline-block;padding:0 6px;margin-right:6px;border-radius:999px;font-size:11px;
   line-height:17px;color:#8a4b00;background:#fff1d6;border:1px solid #f0c887;font-weight:600}
 .art-lock{display:inline-block;white-space:nowrap;font-size:11px;padding:1px 6px;border-radius:6px;background:#f6e7c8;color:#7a5a11;font-weight:600;margin-left:6px;vertical-align:middle}
@@ -4604,8 +4611,9 @@ tr:hover td{background:#fcfbf8}
       </div>
       <div class="slugprev" id="artSlugPrev" aria-live="polite" style="margin:-2px 0 10px"></div>
       <label for="artCover">封面图</label>
-      <input type="url" id="artCover" maxlength="300" placeholder="https://…（可选，16:9 横图最好，留空就不显示封面）">
-      <div class="hint">建议 1200×675；放图床或仓库 raw 链接都行。</div>
+      <input type="text" id="artCover" maxlength="300" inputmode="url" placeholder="https://… 或 /og-image.png（可选，16:9 横图最好，留空就不显示封面）">
+      <div class="covprev" id="covPrevWrap" hidden><img id="covPrevImg" alt="" width="320" height="180" loading="lazy" decoding="async"><span class="covstate" id="covState"></span></div>
+      <div class="hint">建议 1200×675；图床链接、仓库 raw 链接，或站内以 / 开头的路径（如 /og-image.png）都行。</div>
       <label class="toggle inline"><input type="checkbox" id="artPinned"> 置顶这篇（排在列表最前面）</label>
       <label for="artSummary">摘要</label>
       <textarea id="artSummary" maxlength="300" style="min-height:74px" placeholder="一两句话说清这篇讲什么，会显示在列表里，也会被 AI 搜索引用。"></textarea>
@@ -5564,6 +5572,29 @@ tr:hover td{background:#fcfbf8}
       renderArticles();
     });
   }
+  // 封面预览：填了就出缩略图并报尺寸；打不开/格式不对当场说清
+  var covTimer = 0;
+  function artCoverPaint() {
+    var inp = $('artCover'), wrap = $('covPrevWrap'), img = $('covPrevImg'), st = $('covState');
+    if (!inp || !wrap || !img || !st) return;
+    var v = inp.value.trim();
+    if (!v) { wrap.hidden = true; img.removeAttribute('src'); st.textContent = ''; st.className = 'covstate'; return; }
+    wrap.hidden = false;
+    if (!(/^https?:/i.test(v) || v.charAt(0) === '/')) {
+      img.removeAttribute('src');
+      st.className = 'covstate bad';
+      st.textContent = '要填 http(s):// 链接，或站内以 / 开头的路径';
+      return;
+    }
+    st.className = 'covstate';
+    st.textContent = '正在读取…';
+    img.onload = function () { st.className = 'covstate'; st.textContent = img.naturalWidth + '×' + img.naturalHeight + '，比例 ' + (img.naturalWidth / Math.max(1, img.naturalHeight)).toFixed(2); };
+    img.onerror = function () { st.className = 'covstate bad'; st.textContent = '这张图打不开，检查地址或换个图床'; };
+    img.src = v;
+  }
+  if ($('artCover')) $('artCover').addEventListener('input', function () { clearTimeout(covTimer); covTimer = setTimeout(artCoverPaint, 250); });
+  if (typeof window !== 'undefined') window.__artCoverPaint = artCoverPaint;
+
   function openArt(a) {
     editingId = a ? a.id : null;
     editingLocked = !!(a && a.locked && a.hasLock !== false);
@@ -5572,6 +5603,7 @@ tr:hover td{background:#fcfbf8}
     $('artDate').value = a ? a.date : today();
     $('artSummary').value = a ? a.summary : '';
     if ($('artCover')) $('artCover').value = a && a.cover ? a.cover : '';
+    if (typeof artCoverPaint === 'function') artCoverPaint();
     if ($('artPinned')) $('artPinned').checked = !!(a && a.pinned);
     $('artBody').value = a ? a.body : '';
     $('artLock').checked = !!(a && a.locked);
@@ -5632,6 +5664,7 @@ tr:hover td{background:#fcfbf8}
     $('artDate').value = s.date || today();
     $('artSummary').value = s.summary || '';
     if ($('artCover')) $('artCover').value = s.cover || '';
+      if (typeof artCoverPaint === 'function') artCoverPaint();
     $('artBody').value = s.body || '';
     $('artCategory').value = s.category || '';
     $('artCat').value = s.cat || '';

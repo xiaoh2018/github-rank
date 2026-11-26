@@ -338,6 +338,9 @@ push('数据没读到时给错误卡片（而不是空白）', bundleJs.includes
 push('错误卡给「重试 / 稍后再看」并安抚本地数据', bundleJs.includes("el('button', 'btn', '重试')") && bundleJs.includes("el('button', 'btn ghost', '稍后再看')") && bundleJs.includes('收藏和主题设置存在你自己的浏览器里'), '');
 push('静态数据没读到会立刻改说实时拉取', bundleJs.includes('静态数据没读到，正在从 GitHub 实时拉取') && bundleJs.includes('还在拉取…GitHub 响应有点慢'), '');
 push('后台保存有常驻状态行（不再是 toast）', admHtml.includes('.save-msg.err{color:var(--bad)}') && admHtml.includes('function saveRun') && admHtml.includes("setAttribute('role', 'status')"), '');
+push('后台封面字段接受站内路径（文本框 + hint）', admHtml.includes('id="artCover"') && admHtml.includes('站内以 / 开头的路径'), '');
+push('后台封面有预览（尺寸 + 打不开提示）', admHtml.includes('id="covPrevWrap"') && admHtml.includes('function artCoverPaint') && admHtml.includes('这张图打不开'), '');
+push('封面校验口径与前台一致（允许 / 开头）', admHtml.includes('v.charAt(0) === ') || admHtml.includes('要填 http(s):// 链接，或站内以 / 开头的路径'), '');
 push('保存按钮文字会变「保存中…」并恢复', admHtml.includes("saveLabel(btn, '保存中…')") && admHtml.includes('btn.textContent = text || btn.dataset.label'), '');
 push('保存失败给人话原因 + 重试', admHtml.includes("msg.textContent = '保存失败：' + saveReason(r)") && admHtml.includes("again.textContent = '重试'"), '');
 push('删除结果有常驻状态行助手', admHtml.includes('function paintDelMsg') && admHtml.includes('function delMsgBox'));
