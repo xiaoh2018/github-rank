@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v145';
+const ASSET_V = 'v146';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3755,6 +3755,7 @@ tr:hover td{background:#fcfbf8}
 }
   :focus-visible{outline:2px solid #2563eb;outline-offset:2px;border-radius:6px}
   .main table thead th{position:sticky;top:0;z-index:2;background:#f8fafc}
+.card:has(>table){overflow-x:auto}
   .cmdk{width:min(540px,calc(100% - 24px));padding:0;border:0;border-radius:16px;box-shadow:0 24px 60px rgba(15,23,42,.22)}
   .cmdk .ck-box{padding:12px 12px 10px}
   .cmdk input{width:100%;padding:11px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px}
@@ -3768,6 +3769,7 @@ tr:hover td{background:#fcfbf8}
   .skip-link{position:absolute;left:-9999px;top:8px;z-index:99;background:#fff;border:1px solid #2563eb;border-radius:8px;padding:8px 12px;font-size:13px}
   .skip-link:focus{left:12px}
 /* 导航表格：固定列宽、单行省略、按钮显式 */
+#navAdmin{overflow-x:auto;-webkit-overflow-scrolling:touch}
 #navAdmin table{table-layout:fixed;width:100%}
 #navAdmin td:nth-child(1){width:17%}
 #navAdmin td:nth-child(2){width:27%}
@@ -3777,6 +3779,12 @@ tr:hover td{background:#fcfbf8}
 #navAdmin td{padding:6px;vertical-align:middle}
 #navAdmin td input{width:100%;min-width:0;text-overflow:ellipsis}
 #navAdmin td input:focus{text-overflow:clip}
+@media (max-width:760px){
+  .card:has(>table){overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .card:has(>table) table{min-width:520px}
+  #navAdmin table{min-width:560px}
+  .main{padding:16px 14px 44px}
+}
 #navAdmin button[data-ifetch]{white-space:nowrap;font-size:12px;padding:3px 9px;border:1px solid var(--line);background:#fff;color:#4f46e5;font-weight:600;border-radius:8px;cursor:pointer}
 #navAdmin button[data-ifetch]:hover{border-color:#4f46e5;background:#eef2ff}
 .toolbar #navFilter{flex:1 1 320px;min-width:0;max-width:none}
