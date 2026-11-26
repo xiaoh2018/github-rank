@@ -270,6 +270,9 @@ push('榜单卡标签折叠有 +N 样式', home.includes('.tag.more{background:t
 push('榜单卡复制/卡片按钮 hover 才出现', home.includes('#list .item .mini{opacity:0') && home.includes('@media (hover:none)'), '');
 push('榜单卡文案：活跃度 + 短更新时间', bundleJs.includes("'活跃度 '") && bundleJs.includes("'更新'") , '');
 push('榜单卡取自然高度（不再强行等高留白）', home.includes('gap:var(--gap);align-items:start}') , '');
+push('分类胶囊有统一视觉（实心选中 + 圆角 + hover）', home.includes('.chip.is-on{background:var(--accent)') && home.includes('.chip:hover{border-color:var(--accent)') && home.includes('function paintChipBox'), '');
+push('文章页胶囊与首页同一套样式', artText.includes('.chip.is-on{background:var(--accent)') && artText.includes('.chip:hover{border-color:var(--accent)'), '');
+push('问答页胶囊选中改为实心（与首页一致）', faqText.includes('.chip.is-on{background:var(--accent)') && faqText.includes('.chip:hover{border-color:var(--accent)'), '');
 
 let bad = 0;
 for (const r of rows) {

@@ -69,8 +69,12 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
   .chips.x-end{mask-image:none}
   .chip{flex:0 0 auto;min-height:38px;display:inline-flex;align-items:center;padding:8px 13px}
 }
-.chip{appearance:none;border:1px solid var(--border);background:var(--card);color:var(--muted);font:600 12.5px/1 inherit;padding:7px 12px;border-radius:999px;cursor:pointer}
-.chip.is-on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip{appearance:none;display:inline-flex;align-items:center;border:1px solid var(--border);background:var(--card);color:var(--muted);font:600 13px/1 inherit;padding:7px 15px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s,background .15s,box-shadow .15s,transform .12s}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--chip)}
+.chip:active{transform:translateY(1px)}
+.chip.is-on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 16px -10px var(--accent)}
+.chip.is-on:hover{color:#fff}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .chip b{font-weight:600;opacity:.75;margin-left:4px;font-size:11px}
 .cards{display:flex;flex-direction:column;gap:14px}
 .apager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px;flex-wrap:wrap}

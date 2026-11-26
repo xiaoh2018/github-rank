@@ -132,7 +132,10 @@ select:focus,input:focus,button:focus-visible{outline:2px solid var(--gold);outl
  .guide-tip{color:var(--muted);font-size:12px;margin:8px 0 0}
 /* 分类标签 */
 .cats{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.cat{border:1px solid var(--border);background:var(--chip);border-radius:999px;padding:3px 14px;font-size:13px;cursor:pointer;color:var(--muted);transition:border-color .15s,color .15s}
+.cat{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:7px 15px;font-size:13px;line-height:1;cursor:pointer;color:var(--muted);white-space:nowrap;transition:border-color .15s,color .15s,background .15s,box-shadow .15s}
+.cat:hover{border-color:var(--accent);color:var(--accent);background:var(--chip)}
+.cat.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 16px -10px var(--accent)}
+.cat.on:hover{color:#fff}
 .cat:hover{border-color:var(--gold);color:var(--accent)}
 .cat.on{background:var(--gold);border-color:var(--gold);color:#10141f;font-weight:600}
 /* 统计概览 */
@@ -511,6 +514,19 @@ body[data-page="articles"] #rankBar,body[data-page="articles"] #stats,body[data-
 .artvbar input{flex:1 1 auto;min-width:0}
 .artvbar select{flex:0 0 auto}
 .artview .chips{margin:0 0 14px}
+/* 分类胶囊：选中实心深色 + 投影，未选中细描边；窄屏单行横滚，右缘渐隐提示还有更多 */
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:999px;padding:7px 15px;font:inherit;font-size:13px;line-height:1;cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s,background .15s,box-shadow .15s,transform .12s}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--chip)}
+.chip:active{transform:translateY(1px)}
+.chip.is-on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 16px -10px var(--accent)}
+.chip.is-on:hover{color:#fff}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:760px){
+  #artChips,#faqChips{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding-bottom:2px;-webkit-overflow-scrolling:touch;-webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%);mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%)}
+  #artChips.x-end,#faqChips.x-end{-webkit-mask-image:none;mask-image:none}
+  .chip{min-height:38px;padding:8px 14px}
+}
 #artViewList .empty{padding:28px 18px;border:1px dashed var(--border);border-radius:12px;text-align:center;color:var(--muted);font-size:13.5px}
 @media (max-width:600px){.artvbar{flex-wrap:wrap}.artvbar input,.artvbar select{flex:1 1 100%}}
   body[data-page="faq"] #rankBar,body[data-page="faq"] #stats,body[data-page="faq"] #adHomeTop{display:none}
@@ -521,7 +537,7 @@ body[data-page="articles"] #rankBar,body[data-page="articles"] #stats,body[data-
   .faqview .qa>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
   .faqview .qa .qmark{flex:0 0 auto;width:20px;height:20px;margin-top:2px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:800;display:grid;place-items:center}
   .faqview .qa .qtext{flex:1 1 auto;min-width:0}
-  .faqview .qa .qtag{flex:0 0 auto;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 7px;margin-top:3px}
+  .faqview .qa .qtag{flex:0 0 auto;font-size:11.5px;line-height:1.5;color:var(--muted);background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:2px 9px;margin-top:3px}
   .faqview .qa .ans{padding:0 16px 15px 46px;color:#39404b;font-size:14px;line-height:1.85}
   .faqview .qa .ans p{margin:0 0 8px}
   .faqview .qa .ans p:last-child{margin-bottom:0}
@@ -1219,6 +1235,20 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       card.appendChild(foot);
       return card;
     }
+    function paintChipBox(box){
+      if(!box) return;
+      var max=box.scrollWidth-box.clientWidth;
+      box.classList.toggle('x-end', max<=4 || box.scrollLeft>=max-4);
+    }
+    function bindChipScroll(){
+      ['artChips','faqChips'].forEach(function(id){
+        var box=document.getElementById(id);
+        if(box && !box.__chipBound){
+          box.__chipBound=1;
+          box.addEventListener('scroll',function(){ paintChipBox(box); },{passive:true});
+        }
+      });
+    }
     function artvChips(){
       var box=document.getElementById('artChips');
       if(!box) return;
@@ -1229,6 +1259,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         html+='<button type="button" class="chip'+(artv.cat===c?' is-on':'')+'" data-artcat="'+artvEsc(c)+'">'+artvEsc(c)+'</button>';
       });
       box.innerHTML=html;
+      paintChipBox(box); bindChipScroll();
     }
     function artvMatch(it){
       if(artv.cat!=='all' && artCatOf(it)!==artv.cat) return false;
@@ -1303,6 +1334,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
         html+='<button type="button" class="chip'+(faqq.tag===t?' is-on':'')+'" data-faqtag="'+artvEsc(t)+'">'+artvEsc(t)+'</button>';
       });
       box.innerHTML=html;
+      paintChipBox(box); bindChipScroll();
     }
     function renderFaq(){
       var box=document.getElementById('faqList');
