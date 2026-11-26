@@ -4622,5 +4622,10 @@
  "Draw an outline. Pull it up. Open-source push/pull 3D modeler in Rust: desktop app, CLI and MCP server.": "绘制轮廓。拉伸。基于 Rust 的开源推/拉式 3D 建模器：桌面应用程序、CLI 和 MCP 服务器。",
  "Community launcher": "社区启动器",
  "Antigravity Max (agy-max): All-in-one flagship workbench for Google Antigravity 2.0 - built-in agy-fast accelerator, Codex-style search/Git/goals workflow, Prism optics, context & quota dashboard, multi-account & no-TUN proxy | Antigravity 2.0 满血全能增强工作台": "Antigravity Max (agy-max)：适用于 Google Antigravity 2.0 的一体化旗舰工作台——内置 agy-fast 加速器、Codex 风格的搜索/Git/目标工作流、Prism 光学、上下文和配额仪表板、多账户和无 TUN 代理 | Antigravity 2.0 满血全能增强工作台",
- "北冥引擎 · 代码即影片：three.js + Canvas 2D + FFmpeg 的三渲二 / 2.5D 风格化渲染管线": "北冥引擎 · 代码即影片：three.js + Canvas 2D + FFmpeg 的三渲二/2.5D 风格化渲染管线"
+ "北冥引擎 · 代码即影片：three.js + Canvas 2D + FFmpeg 的三渲二 / 2.5D 风格化渲染管线": "北冥引擎 · 代码即影片：three.js + Canvas 2D + FFmpeg 的三渲二/2.5D 风格化渲染管线",
+ "fck_data_brokers.py is a free, open-source Python script that sends opt-out and deletion requests to data brokers on your behalf.": "fck_data_brokers.py 是一款免费的开源 Python 脚本，可代您向数据经纪商发送退出和删除请求。",
+ "Reproducibility materials for delay-aware physics-guided wind farm power forecasting.": "用于考虑延迟的物理引导风电场功率预测的可重复性材料。",
+ "VIctory tuned and fixed for an RTX 4090: runs the Xbox Series title from your own files. Built on Marvisak/VIctory and its forks; everyone is credited in the README and docs/credits.md.": "针对 RTX 4090 进行调优和修复的 VIctory：从您自己的文件中运行 Xbox Series 游戏。基于 Marvisak/VIctory 及其分支构建；所有贡献者均在 README 和 docs/credits.md 中列出。",
+ "Agent Native, Rust based, high performance way to build apps on web, iOS, macOS, Android, Linux and other platforms. ": "Agent Native 是一种基于 Rust 的高性能方式，用于在 Web、iOS、macOS、Android、Linux 和其他平台上构建应用。",
+ "A 3D printing workbench for Codex on Mac and Windows. Track designs, slices, materials and print results.": "适用于 Mac 和 Windows 的 Codex 3D 打印工作台。跟踪设计、切片、材料和打印结果。"
 }
