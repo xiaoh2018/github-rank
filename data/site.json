@@ -106,10 +106,10 @@
     "allowUser": true
   },
   "layout": {
-    "mode": "triple",
+    "mode": "auto",
     "side": "right",
     "users": "triple",
-    "articleSide": "right"
+    "articleSide": "none"
   },
   "contact": {
     "enabled": true,
