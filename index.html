@@ -692,6 +692,15 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
 
   /* 分类胶囊：窄屏单行横滚 + 右缘渐隐 */
   @media (max-width:760px){
+  /* 触屏：导航分组折叠按钮原来只有 25px 高（整行都是它的点击区，但手指按不准） */
+  .navgroup>h3{margin:0 0 2px}
+  .navgroup .gtog{min-height:40px;padding:6px 0}
+  .navgroup .gtog .chev{font-size:12px}
+  /* 站点胶囊 28px -> 36px，手指按得准；间距略收，行数不变 */
+  .nj{min-height:36px;padding-top:0;padding-bottom:0}
+  /* 图标首字母 10.5px 在手机上是纯装饰，别小到看不清 */
+  .navcard .icw .ic-l{font-size:11px}
+
     #rankBar .mf-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:0 0 auto;min-height:40px;padding:8px 14px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--muted);font-size:13px;line-height:1;cursor:pointer}
     #rankBar .mf-toggle::after{content:"▾";font-size:11px;opacity:.7}
     #rankBar .mf-toggle[aria-expanded="true"]{color:var(--accent);border-color:var(--accent)}
