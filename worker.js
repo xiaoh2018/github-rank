@@ -1688,7 +1688,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v222';
+const ASSET_V = 'v223';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -5372,6 +5372,10 @@ tr:hover td{background:#fcfbf8}
       if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "-1");
       if (this.__opener === undefined) this.__opener = opener && opener !== document.body ? opener : (DLG_LAST && DLG_LAST.isConnected ? DLG_LAST : null);
       this.setAttribute("aria-modal", "true");
+      this.__scH = document.documentElement.style.overflow;
+      this.__scB = document.body.style.overflow;
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
       nativeShow.call(this);
       if (DLG_STACK.indexOf(this) < 0) DLG_STACK.push(this);
       var top = this;
@@ -5385,6 +5389,11 @@ tr:hover td{background:#fcfbf8}
     var dlg = e.target;
     if (!dlg || dlg.tagName !== "DIALOG") return;
     dlg.removeAttribute("aria-modal");
+    var stillOpen = DLG_STACK.filter(function (x) { return x !== dlg && x.open; }).length;
+    if (!stillOpen) {
+      document.documentElement.style.overflow = dlg.__scH || "";
+      document.body.style.overflow = dlg.__scB || "";
+    }
     var i = DLG_STACK.indexOf(dlg);
     if (i >= 0) DLG_STACK.splice(i, 1);
     var back = dlg.__opener;
