@@ -700,8 +700,10 @@ async function serveSite(env, entry, pathname) {
   if (!repoOf(env).owner || !repoOf(env).name) {
     return text('还没配置 REPO_OWNER / REPO_NAME 变量，请按部署说明添加', 503);
   }
+  // 带版本号：ASSET_V 一变，raw 的缓存键就变，不会把旧字节写进新版本的成品缓存
   const raw =
-    'https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/' + entry[0];
+    'https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/' + entry[0] +
+    '?v=' + encodeURIComponent(ASSET_V);
   const r = await fetch(raw, { cf: { cacheTtl: RAW_TTL, cacheEverything: true } });
   if (!r.ok) {
       return text('读取站点文件失败：' + r.status + '（请确认仓库是公开的，且文件已经推送到 ' + branch(env) + ' 分支）', 502);
@@ -1675,7 +1677,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v205';
+const ASSET_V = 'v206';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };

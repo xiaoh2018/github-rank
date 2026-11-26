@@ -64,7 +64,7 @@ globalThis.fetch = async (input, init) => {
     try { return await realFetch(url, init); } catch (e) { return new Response('dev fetch failed: ' + e.message, { status: 502 }); }
   }
   if (url.startsWith('https://raw.githubusercontent.com/')) {
-    const rel = decodeURIComponent(url.split('/main/')[1] || '');
+    const rel = decodeURIComponent((url.split('/main/')[1] || '').split('?')[0]); // worker 现在会给 raw 加 ?v=
     const buf = local(rel);
     return buf ? new Response(buf) : new Response('not found', { status: 404 });
   }

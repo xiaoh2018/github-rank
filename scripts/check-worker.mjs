@@ -971,5 +971,11 @@ console.log('\n== 25. 分类管理 + 文章 .html 地址 ==');
     ok(missHtml.indexOf('这个页面不存在') >= 0, '不存在的文章给 404 页', '');
   }
   }
+// raw 子请求必须带版本号（否则发版后新键会缓存旧字节，见 docs §172）
+{
+  const src = fs.readFileSync('worker.js', 'utf8');
+  ok(src.indexOf("'?v=' + encodeURIComponent(ASSET_V)") > 0, 'worker: raw 子请求带 ?v= 版本号', '');
+}
+
 console.log(fail === 0 ? '全部通过（回源 ' + rawCount + ' 次，API ' + apiCount + ' 次）' : fail + ' 项失败');
 process.exit(fail === 0 ? 0 : 1);
