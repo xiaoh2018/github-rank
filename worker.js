@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v182';
+const ASSET_V = 'v183';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2422,6 +2422,7 @@ function defaultSite() {
     article: {
       unlockHint: '',
       catEn: false,
+      cols: 'double',
       categories: [
         { key: 'tech', name: '技术', desc: '开发、部署、性能' },
         { key: 'note', name: '随笔', desc: '零散记录' },
@@ -2445,6 +2446,7 @@ function normalizeSite(o) {
   d.article = {
     unlockHint: typeof art.unlockHint === 'string' ? art.unlockHint.slice(0, 300) : '',
     catEn: !!art.catEn,
+    cols: ['auto', 'single', 'double', 'triple'].indexOf(art.cols) >= 0 ? art.cols : 'double',
   };
   const rawCats = o && o.article && Array.isArray(o.article.categories) ? o.article.categories : null;
   if (rawCats) {
@@ -2601,7 +2603,11 @@ function checkSection(section, value) {
         cats.push({ key: key, name: name, desc: desc });
       }
     }
-    return { ok: true, clean: { unlockHint: hint, catEn: !!value.catEn, categories: cats } };
+    var colsIn = value.cols === undefined ? 'double' : value.cols;
+    if (['auto', 'single', 'double', 'triple'].indexOf(colsIn) < 0) {
+      return { ok: false, error: '文章卡片列数只能是 auto、single、double 或 triple' };
+    }
+    return { ok: true, clean: { unlockHint: hint, catEn: !!value.catEn, cols: colsIn, categories: cats } };
   }
   if (section === 'theme') {
     const name = String((value && value.name) || '').trim();
@@ -4422,6 +4428,16 @@ tr:hover td{background:#fcfbf8}
       </div>
       <div class="intro">文章用来沉淀长内容：会被搜索引擎收录，也会被 AI 搜索引用。正文支持 Markdown（标题、列表、代码块、链接、图片），写作时右侧实时预览。保存即发布，刷新文章页即可看到。</div>
       <div class="card">
+        <div class="card-head"><b>文章卡片列数</b><span class="msg">首页「最新文章」和文章页都按这个列数</span></div>
+        <div class="hint">手机上一律单列，不受这里影响；选「自动」时按屏幕宽度铺满。</div>
+        <div class="choice-grid">
+          <label class="choice"><input type="radio" name="article-cols" value="auto"><span class="choice-t">自动<b>随屏幕宽度</b></span></label>
+          <label class="choice"><input type="radio" name="article-cols" value="single"><span class="choice-t">单列<b>一行一篇</b></span></label>
+          <label class="choice"><input type="radio" name="article-cols" value="double"><span class="choice-t">双列<b>桌面推荐</b></span></label>
+          <label class="choice"><input type="radio" name="article-cols" value="triple"><span class="choice-t">三列<b>1280px 以上三栏</b></span></label>
+        </div>
+      </div>
+      <div class="card">
         <div class="card-head"><b>分类管理</b><span class="msg">英文词进网址，显示名给访客看</span></div>
         <div class="hint">网址永远是 <code>/articles/&lt;英文词&gt;/&lt;序号&gt;.html</code>（如 <code>/articles/tech/3.html</code>）。中文分类名只用来展示，不进链接。</div>
         <table class="cat-table">
@@ -5011,6 +5027,9 @@ tr:hover td{background:#fcfbf8}
       for (var ri = 0; ri < radios.length; ri++) radios[ri].checked = radios[ri].value === tn;
       if ($('theme-allow')) $('theme-allow').checked = !(s && s.theme && s.theme.allowUser === false);
       if ($('artCatEn')) $('artCatEn').checked = !!(s && s.article && s.article.catEn);
+    var acolsNow = (s && s.article && s.article.cols) || 'double';
+    var acR = document.querySelectorAll('input[name="article-cols"]');
+    for (var aci = 0; aci < acR.length; aci++) acR[aci].checked = acR[aci].value === acolsNow;
       renderCats((s && s.article && s.article.categories) || []);
       if ($('artUnlockHint')) $('artUnlockHint').value = (s && s.article && s.article.unlockHint) || '';
     $('beian-enabled').checked = !!b.enabled;
@@ -5165,9 +5184,13 @@ tr:hover td{background:#fcfbf8}
       return { name: pickedTheme, allowUser: $('theme-allow') ? $('theme-allow').checked : true };
     }
     if (sec === 'article') {
+      var acr = document.querySelectorAll('input[name="article-cols"]');
+      var acols = 'double';
+      for (var ai = 0; ai < acr.length; ai++) if (acr[ai].checked) acols = acr[ai].value;
       return {
         unlockHint: ($('artUnlockHint') && $('artUnlockHint').value) || '',
         catEn: $('artCatEn') ? $('artCatEn').checked : false,
+        cols: acols,
         categories: readCats(),
       };
     }
