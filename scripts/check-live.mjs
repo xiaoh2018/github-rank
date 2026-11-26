@@ -246,6 +246,8 @@ const healthApi = await (function () {
 push('体检接口一次返回提交状态（health.submit）', !!(healthApi && healthApi.submit && typeof healthApi.submit.keyFileOk === 'boolean'), '');
 push('体检接口带 AI 与保活摘要', !!(healthApi && healthApi.translator && typeof healthApi.level === 'string' && healthApi.next !== undefined), '');
 push('后台体检只发一个请求（todoCounts）', admHtml.includes('todoCounts') && admHtml.indexOf("api('/api/health')") >= 0, '');
+push('文章分页器窄屏信息独占一行', artListHtml.includes('.apager span{order:-1'), '');
+push('后台保存按钮手机吸底', admHtml.includes('.card .actions{position:sticky') && admHtml.includes('.cmdk-fab{bottom:96px}'), '');
 
 let bad = 0;
 for (const r of rows) {

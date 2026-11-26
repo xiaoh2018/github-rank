@@ -71,6 +71,12 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .apager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px;flex-wrap:wrap}
 .apager span{font-size:13px;color:var(--muted)}
 .apager button{padding:7px 16px}
+@media (max-width:520px){
+  .apager{gap:8px;margin-top:14px;justify-content:space-between;align-items:center}
+  .apager span{order:-1;flex:1 1 100%;text-align:center;font-size:12.5px;line-height:1.6}
+  .apager button{padding:10px 16px;min-height:44px;min-width:96px}
+  .apager button:disabled{opacity:.45;cursor:not-allowed}
+}
 .acard{display:block;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);transition:transform .12s,border-color .12s,box-shadow .12s;cursor:pointer;text-decoration:none;color:inherit}
 .acard:hover{transform:translateY(-1px);border-color:var(--accent);text-decoration:none;box-shadow:0 8px 24px -16px rgba(15,23,42,.55)}
 .acard:focus-visible{outline:2px solid var(--accent);outline-offset:3px}

@@ -75,7 +75,7 @@ const fab = await evaluate(`(() => {
 check('后台有命令面板浮动入口', fab && fab.exists, fab);
 check('浮动入口在窄屏可见', fab && fab.display !== 'none', fab && fab.display);
 check('浮动入口尺寸够点（44+）', fab && fab.w >= 44 && fab.h >= 44, fab);
-check('浮动入口在视口内且贴底', fab && fab.inView && fab.bottomGap >= 0 && fab.bottomGap <= 40, fab);
+check('浮动入口在视口内且避开吸底保存条（离底 70–120）', fab && fab.inView && fab.bottomGap >= 70 && fab.bottomGap <= 120, fab);
 
 const opened = await evaluate(`(() => {
   const b = document.getElementById('cmdkFab');

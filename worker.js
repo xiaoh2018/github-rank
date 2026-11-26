@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v154';
+const ASSET_V = 'v155';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3787,6 +3787,8 @@ tr:hover td{background:#fcfbf8}
   .status-item{flex-wrap:wrap;row-gap:2px}
   .status-item>span:not(.dot){flex:1 1 100%;color:var(--muted);font-size:13px;padding-left:18px}
   .main .btn,.main button,.main a.btn,.ghost.small{min-height:38px;display:inline-flex;align-items:center;justify-content:center}
+  .card .actions{position:sticky;bottom:0;z-index:2;display:flex;gap:8px;flex-wrap:wrap;padding:10px 0 12px;margin-top:8px;background:var(--card);border-top:1px solid var(--line)}
+  .card .actions>button,.card .actions>.btn{flex:1 1 100%;min-height:44px}
   .app{grid-template-columns:1fr}
   .side{position:sticky;top:0;height:auto;display:flex;overflow-x:auto;padding:0;border-right:0;border-bottom:1px solid #16233a;background:linear-gradient(180deg,#0b1220 0%,#0d1a2f 100%)}
   .side .brandlink{display:none}
@@ -3819,6 +3821,7 @@ tr:hover td{background:#fcfbf8}
   .ck-foot{padding:4px 4px 0;font-size:12px;color:#94a3b8}
 .cmdk-fab{position:fixed;left:14px;bottom:16px;z-index:30;width:46px;height:46px;padding:0;border-radius:15px;font-size:17px;line-height:1;box-shadow:0 8px 20px rgba(15,23,42,.18)}
 @media (min-width:761px){.cmdk-fab{display:none}}
+@media (max-width:760px){.cmdk-fab{bottom:96px}}
   .side .nav:focus-visible{outline-offset:-2px;box-shadow:0 0 0 3px rgba(37,99,235,.25)}
   .navgroup:first-child .nav{margin-top:0}
   .skip-link{position:absolute;left:-9999px;top:8px;z-index:99;background:#fff;border:1px solid #2563eb;border-radius:8px;padding:8px 12px;font-size:13px}
