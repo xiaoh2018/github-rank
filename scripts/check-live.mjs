@@ -348,6 +348,9 @@ push('后台对话框 Tab 首尾环（栈式，只对最上层生效）', admHtm
 push('后台 Esc 只点取消/关闭，不误触删除', admHtml.includes('function dlgCancelText') && admHtml.includes('pick.click()'), '');
 push('导航每行有「打开」链接（新标签 + noopener）', admHtml.includes('class="small nav-open"') && admHtml.includes('target="_blank" rel="noopener"'), '');
 push('「打开」有带站点名的可访问名', admHtml.includes('aria-label="打开 \' + navEsc(it.name'), '');
+push('后台站点地址按当前域名注入（__SITE__ 已替换）', admHtml.includes('value="https://github.661026.xyz/sitemap.xml"') && !admHtml.includes('__SITE__') && !admHtml.includes('__HOST__'), '');
+push('收录面板状态分三组（凭据/站点/记录）', admHtml.includes('class="sgroup"') && admHtml.includes('sgh">凭据') && admHtml.includes('sgh">记录'), '');
+push('提交结果有「接下来」出口（Bing / 百度 / 平台清单）', admHtml.includes('function subNext') && admHtml.includes('bing.com/webmasters/sitemaps') && admHtml.includes('#geoCard'), '');
 push('没填网址时「打开」不可点（span 而非 href=#）', admHtml.includes('nav-open off') && admHtml.includes('还没填网址'), '');
 push('保存按钮文字会变「保存中…」并恢复', admHtml.includes("saveLabel(btn, '保存中…')") && admHtml.includes('btn.textContent = text || btn.dataset.label'), '');
 push('保存失败给人话原因 + 重试', admHtml.includes("msg.textContent = '保存失败：' + saveReason(r)") && admHtml.includes("again.textContent = '重试'"), '');

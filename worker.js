@@ -162,7 +162,7 @@ export default {
         return json(r, r.ok ? 200 : 500);
       }
       if (url.pathname === '/admin' && request.method === 'GET') {
-        return new Response(ADMIN_PAGE, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
+        return new Response(ADMIN_PAGE.split('__SITE__').join(url.origin).split('__HOST__').join(url.host), { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
       }
       if (url.pathname === '/api/links' && (request.method === 'GET' || request.method === 'POST')) {
         return handleLinks(request, env);
@@ -1688,7 +1688,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v221';
+const ASSET_V = 'v222';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3589,6 +3589,14 @@ td>.empty-card{margin:0}
 .tr-box h4{margin:0 0 6px;font-size:12px;color:var(--muted);font-weight:600}
 .tr-box p{margin:0;color:var(--text);word-break:break-word;line-height:1.6}
 .tr-bad{border-color:#fecaca;background:#fef2f2}
+.tr-next{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:8px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;background:#fff;font-size:13px}
+.tr-next b{flex:0 0 auto;font-size:12px;color:var(--muted)}
+.tr-next span{flex:1 1 180px;min-width:0;color:var(--muted)}
+.tr-next a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.tr-next a:focus-visible{outline:2px solid var(--accent-ink,var(--accent));outline-offset:2px}
+.sgroup{margin-top:10px}
+.sgroup:first-child{margin-top:0}
+.sgh{display:block;margin:0 0 6px;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.03em}
 /* ---- 宽弹窗（写文章） ---- */
 dialog.wide{width:min(1120px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:0;overflow:hidden}
 dialog.wide[open]{display:grid;grid-template-rows:auto minmax(0,1fr)}
@@ -4092,9 +4100,9 @@ tr:hover td{background:#fcfbf8}
         <div class="card-head"><b>站点体检</b><span class="hint">绿色=正常，红色=需要处理</span></div>
         <div class="status-list" id="healthBox"><div class="empty">加载中…</div></div>
         <div class="row-actions">
-          <button type="button" class="ghost" data-copy="https://github.661026.xyz/sitemap.xml">复制 sitemap.xml</button>
-          <button type="button" class="ghost" data-copy="https://github.661026.xyz/llms.txt">复制 llms.txt</button>
-          <button type="button" class="ghost" data-copy="https://github.661026.xyz/robots.txt">复制 robots.txt</button>
+          <button type="button" class="ghost" data-copy="__SITE__/sitemap.xml">复制 sitemap.xml</button>
+          <button type="button" class="ghost" data-copy="__SITE__/llms.txt">复制 llms.txt</button>
+          <button type="button" class="ghost" data-copy="__SITE__/robots.txt">复制 robots.txt</button>
           <button type="button" class="ghost" id="healthReload">刷新体检</button>
         </div>
         <p class="hint">搜索引擎的「提交站点地图」框里，直接粘贴上面复制的地址即可。</p>
@@ -4345,12 +4353,12 @@ tr:hover td{background:#fcfbf8}
       </div>
               <div class="segtabs" data-group="seogeo"><button type="button" class="is-on" data-go="seo">SEO 基础</button><button type="button" data-go="qa">问答（GEO）</button><button type="button" data-go="submit">收录与平台</button></div>
       <p class="intro">提交走 IndexNow（Bing、Yandex、Seznam 共用）和百度主动推送；豆包、通义千问、ChatGPT 这些没有公开的收录接口，靠 robots.txt 放行 + llms.txt + 站点地图被爬到。<b>建议每天点一次，或者交给 Actions 定时。</b></p>
-      <div class="card">
+      <div class="card" id="geoCard">
         <div class="card-head"><div><h2>GEO 平台清单：每个平台怎么弄</h2><p class="desc">国内 AI 搜索没有「提交就被引用」的直通车——它们各自接的是某家搜索索引。下面是逐个平台的入口、要填的参数、能不能一键。</p></div></div>
         <table class="geo-plat">
           <thead><tr><th>平台 / 索引</th><th>要做什么</th><th>要填的参数</th><th>能一键吗</th></tr></thead>
           <tbody>
-            <tr><td><b>Bing / IndexNow</b><br><span class="desc">DeepSeek、Kimi、秘塔的联网搜索多半吃必应索引</span></td><td>后台「立即提交」已经调 IndexNow 推送；再到 Bing Webmaster Tools 加站点、提交 sitemap</td><td>IndexNow Key（自动生成，见上方状态）<br>站点：<code>https://github.661026.xyz</code></td><td>推送可一键；Bing 后台加站点需登录一次</td></tr>
+            <tr><td><b>Bing / IndexNow</b><br><span class="desc">DeepSeek、Kimi、秘塔的联网搜索多半吃必应索引</span></td><td>后台「立即提交」已经调 IndexNow 推送；再到 Bing Webmaster Tools 加站点、提交 sitemap</td><td>IndexNow Key（自动生成，见上方状态）<br>站点：<code>__SITE__</code></td><td>推送可一键；Bing 后台加站点需登录一次</td></tr>
             <tr><td><b>百度 / 文心</b></td><td>在「设置与密钥」填准入密钥 → 后台「立即提交」自动推普通收录（每日配额）</td><td>准入密钥（ziyuan.baidu.com → 普通收录 → API 提交）</td><td>可一键</td></tr>
             <tr><td><b>字节 / 豆包</b><br><span class="desc">吃 <code>Bytespider</code> 爬虫 + 头条生态</span></td><td>① robots 已放行 Bytespider ② 到字节搜索资源平台加站点、提交 sitemap ③ 发头条号文章并回链</td><td>验证码（HTML 标签形式，填到下面「平台验证码」卡里，我这页会注入 head）</td><td>验证码注入可一键；平台加站点需登录一次</td></tr>
             <tr><td><b>搜狗 / 腾讯元宝</b></td><td>搜狗站长平台加站点 + 提交 sitemap；元宝还会吃公众号内容 → 发公众号文章带回链</td><td>搜狗验证码（同上，可自动注入）</td><td>验证码注入可一键</td></tr>
@@ -4358,8 +4366,8 @@ tr:hover td{background:#fcfbf8}
             <tr><td><b>Google</b></td><td>Search Console 加资源、提交 sitemap</td><td>无需本站参数</td><td>手动（需登录）</td></tr>
           </tbody>
         </table>
-        <div class="copybox"><input id="geoSm" value="https://github.661026.xyz/sitemap.xml" aria-label="站点地图地址" readonly><button type="button" class="ghost" data-copy="geoSm">复制 sitemap 地址</button></div>
-        <div class="copybox"><input id="geoLlms" value="https://github.661026.xyz/llms.txt" aria-label="llms.txt 地址" readonly><button type="button" class="ghost" data-copy="geoLlms">复制 llms.txt</button></div>
+        <div class="copybox"><input id="geoSm" value="__SITE__/sitemap.xml" aria-label="站点地图地址" readonly><button type="button" class="ghost" data-copy="geoSm">复制 sitemap 地址</button></div>
+        <div class="copybox"><input id="geoLlms" value="__SITE__/llms.txt" aria-label="llms.txt 地址" readonly><button type="button" class="ghost" data-copy="geoLlms">复制 llms.txt</button></div>
         <div class="hint">把这两个地址贴到各平台的「sitemap 提交」框里即可；验证码填到下面「平台验证码」卡，保存后前台 head 会自动带上对应的 meta 标签。</div>
       </div>
       <div class="card">
@@ -4374,14 +4382,14 @@ tr:hover td{background:#fcfbf8}
         <div class="card-head"><b>IndexNow 一直失败？照这三步查</b></div>
         <ol class="steps">
           <li>先看上面「IndexNow key」那行的 <b>key 文件</b>能不能直接在浏览器打开。能打开应该只显示一串字符；打不开（404）说明 Worker 还是旧版 —— 这个路由是新加的，部署一次就好了。</li>
-          <li>能打开但提交仍失败：多半是 <b>域名对不上</b>。IndexNow 要求提交的 host 与 keyLocation 同域，请把「SEO 与 GEO → 站点地址」写成真实访问域名 <code>https://github.661026.xyz</code>，不要用 workers.dev 备用域名。</li>
+          <li>能打开但提交仍失败：多半是 <b>域名对不上</b>。IndexNow 要求提交的 host 与 keyLocation 同域，请把「SEO 与 GEO → 站点地址」写成真实访问域名 <code>__SITE__</code>，不要用 workers.dev 备用域名。</li>
           <li>手工入口：<a href="https://www.bing.com/webmasters/indexnow" target="_blank" rel="noopener">Bing Webmaster → IndexNow</a>（Bing / Yandex / Seznam / Naver 共用），规范见 <a href="https://www.indexnow.org/documentation" target="_blank" rel="noopener">indexnow.org</a>；本质就是把 URL 列表 POST 到 <code>https://api.indexnow.org/indexnow</code>，本站的「立即提交」替你做这一步。</li>
         </ol>
       </div>
       <div class="card">
         <div class="card-head"><b>百度准入密钥在哪拿</b></div>
         <ol class="steps">
-          <li>打开 <a href="https://ziyuan.baidu.com/site/index" target="_blank" rel="noopener">百度搜索资源平台 → 站点管理</a>，确认 <code>github.661026.xyz</code> 已验证（HTML 验证的 meta 本站已内置）。</li>
+          <li>打开 <a href="https://ziyuan.baidu.com/site/index" target="_blank" rel="noopener">百度搜索资源平台 → 站点管理</a>，确认 <code>__HOST__</code> 已验证（HTML 验证的 meta 本站已内置）。</li>
           <li>左侧 <a href="https://ziyuan.baidu.com/dailysubmit/index" target="_blank" rel="noopener">普通收录 → API 提交</a>，页面上「准入密钥」那一串就是 <code>BAIDU_TOKEN</code>。</li>
           <li>粘到 <a href="#translate" data-goto="translate">翻译与密钥 → 运行设置 → 百度准入密钥</a>，保存后回本页点「立即提交」，结果里会显示百度返回的 <code>success</code> 与 <code>remain</code>。</li>
         </ol>
@@ -4436,7 +4444,7 @@ tr:hover td{background:#fcfbf8}
         <div class="card-head"><div><h2>搜索结果长这样</h2><p class="desc">左边填的东西会决定这段预览。蓝色是标题（60 字内不截断），绿色是网址，灰色是描述（160 字内不截断）。</p></div></div>
         <div class="serp">
           <div class="serp-t" id="serpTitle">GitHub 热门项目排行榜</div>
-          <div class="serp-u" id="serpUrl">github.661026.xyz</div>
+          <div class="serp-u" id="serpUrl">__HOST__</div>
           <div class="serp-d" id="serpDesc">（这里会显示页面描述，建议 80–120 字）</div>
         </div>
         <div class="cnow" id="serpTitleCnt">—</div>
@@ -4891,7 +4899,7 @@ tr:hover td{background:#fcfbf8}
       } : null;
       var ai = (h && h.ai) || null;
       var rows = [];
-      var sm = (sub && sub.sitemap) || 'https://github.661026.xyz/sitemap.xml';
+      var sm = (sub && sub.sitemap) || '__SITE__/sitemap.xml';
             var base = sm.indexOf('/sitemap.xml') > 0 ? sm.slice(0, sm.indexOf('/sitemap.xml')) : sm;
       rows.push(healthRow('站点地址', true, base));
       if (h) {
@@ -5239,7 +5247,7 @@ tr:hover td{background:#fcfbf8}
     var shown = url.indexOf('https://') === 0 ? url.slice(8) : url.indexOf('http://') === 0 ? url.slice(7) : url;
     var tBox = $('serpTitle'), uBox = $('serpUrl'), dBox = $('serpDesc');
     if (tBox) tBox.textContent = title.length > 60 ? title.slice(0, 60) + '…' : title;
-    if (uBox) uBox.textContent = shown || 'github.661026.xyz';
+    if (uBox) uBox.textContent = shown || '__HOST__';
     if (dBox) dBox.textContent = desc ? (desc.length > 160 ? desc.slice(0, 160) + '…' : desc) : '（这里会显示页面描述，建议 80–120 字）';
     var tc = $('serpTitleCnt'), dc = $('serpDescCnt');
     if (tc) {
@@ -6579,6 +6587,13 @@ tr:hover td{background:#fcfbf8}
     return '<div class="status-item"><b>' + label + '</b><span' +
       (ok === false ? ' class="tr-bad"' : '') + '>' + value + '</span></div>';
   }
+  function subNext() {
+    return '<div class="tr-next"><b>接下来</b>' +
+      '<span>提交只是「告诉」平台；收没收，要在平台后台看。</span>' +
+      '<a href="https://www.bing.com/webmasters/sitemaps" target="_blank" rel="noopener">Bing 站点地图</a>' +
+      '<a href="https://ziyuan.baidu.com/linksubmit/index" target="_blank" rel="noopener">百度普通收录</a>' +
+      '<a href="#geoCard">本页平台清单</a></div>';
+  }
   function subBox(name, o) {
     if (!o) return '';
     var head = '<b>' + name + '</b> · ' + (o.ok ? '成功' : '失败') + (o.status ? '（HTTP ' + o.status + '）' : '') + (typeof o.ms === 'number' ? ' · ' + o.ms + 'ms' : '');
@@ -6601,16 +6616,20 @@ tr:hover td{background:#fcfbf8}
       var s = r.status;
       var last = s.lastRun;
       box.innerHTML =
+        '<div class="sgroup"><b class="sgh">凭据</b>' +
         subLine('IndexNow key', '<code>' + navEsc(s.indexNowKey) + '</code>　key 文件：<code>' + navEsc(s.keyFile) + '</code>', true) +
+        subLine('百度推送', s.baiduToken ? '已配置准入密钥（来源：' + navEsc(s.baiduTokenSource || 'env') + '），可以主动推' : '没填准入密钥，点提交时会跳过百度', !!s.baiduToken) +
+        subLine('Workers AI 今日', s.aiUsage ? (s.aiUsage.used + ' / ' + (s.aiUsage.unlimited ? '不限制' : s.aiUsage.cap) + ' 次' + (s.aiUsage.capSource === 'admin' ? '（上限来自后台）' : '')) : '—', true) +
+        '</div><div class="sgroup"><b class="sgh">站点</b>' +
         subLine('站点地图', '<a href="' + navEsc(s.sitemap) + '" target="_blank" rel="noopener">' + navEsc(s.sitemap) + '</a>', true) +
         subLine('大模型说明', '<a href="' + navEsc(s.llms) + '" target="_blank" rel="noopener">' + navEsc(s.llms) + '</a>（llms.txt，抓到就是最新榜单）', true) +
         subLine('key 文件自检', s.keyFileOk ? '能访问　' + navEsc(s.keyFileNote || '') : '打不开：' + navEsc(s.keyFileNote || '未知原因') + '（多半是 Worker 未部署到最新版）', !!s.keyFileOk) +
         subLine('key 文件内容', s.keyFileMatch ? '与后台填的 key 一致（IndexNow 会来读这个文件校验）' : '和后台填的 key 不一致，Bing 会拒（422）', !!s.keyFileMatch) +
-        subLine('百度推送', s.baiduToken ? '已配置准入密钥（来源：' + navEsc(s.baiduTokenSource || 'env') + '），可以主动推' : '没填准入密钥，点提交时会跳过百度', !!s.baiduToken) +
-        subLine('Workers AI 今日', s.aiUsage ? (s.aiUsage.used + ' / ' + (s.aiUsage.unlimited ? '不限制' : s.aiUsage.cap) + ' 次' + (s.aiUsage.capSource === 'admin' ? '（上限来自后台）' : '')) : '—', true) +
+        '</div><div class="sgroup"><b class="sgh">记录</b>' +
         subLine('这次会推送', (s.urlCount ? (s.urlCount + ' 条（含首页、/articles 与前 100 篇文章）') : '—') + (s.urlSample && s.urlSample.length ? '<br><span class="muted">' + s.urlSample.slice(0, 3).map(function (u) { return navEsc(u); }).join('<br>') + '</span>' : ''), !!s.urlCount) +
         subLine('冷却状态', (s.cooldown && s.cooldown.seconds > 0) ? '还要等 ' + s.cooldown.seconds + ' 秒才能再推（防 IndexNow 429）' : '可以提交', !(s.cooldown && s.cooldown.seconds > 0)) +
-        subLine('最近一次提交', last ? ((last.at ? new Date(last.at).toLocaleString() : '时间未知（旧记录）') + '　' + ((last.results && last.results.indexNow && last.results.indexNow.ok) ? 'IndexNow 成功' : 'IndexNow 未成功')) : '还没提交过', !!last);
+        subLine('最近一次提交', last ? ((last.at ? new Date(last.at).toLocaleString() : '时间未知（旧记录）') + '　' + ((last.results && last.results.indexNow && last.results.indexNow.ok) ? 'IndexNow 成功' : 'IndexNow 未成功')) : '还没提交过', !!last) +
+        '</div>';
       var cool = (s.cooldown && s.cooldown.seconds) ? s.cooldown.seconds : 0;
       (function () {
         var wrap = $('subStatus');
@@ -6631,8 +6650,6 @@ tr:hover td{background:#fcfbf8}
       var outBox = $('subOut');
       var res = (last && last.results) ? last.results : null;
       if (res) {
-        box.innerHTML += '<div style="margin-top:10px">' +
-          subBox('上次 IndexNow', res.indexNow) + subBox('上次百度', res.baidu) + '</div>';
         if (outBox) {
           outBox.innerHTML = '<p class="note">下面这些是上次提交的结果（' + new Date(last.at || Date.now()).toLocaleString() + '），重新提交会覆盖。</p>' +
             subBox('上次 IndexNow', res.indexNow) + subBox('上次百度', res.baidu);
@@ -6668,7 +6685,8 @@ tr:hover td{background:#fcfbf8}
       out.innerHTML = '<div class="tr-box">本次提交 <b>' + (r.urls || 0) + '</b> 个地址（首页 + 文章列表 + 每篇文章）' +
         (r.root ? '<br>站点地址：<code>' + navEsc(r.root) + '</code>（必须与百度验证、key 文件同域）' : '') + '</div>' +
         subBox('IndexNow（Bing / Yandex / Naver）', res.indexNow) +
-        subBox('百度普通收录', res.baidu);
+        subBox('百度普通收录', res.baidu) +
+        subNext();
       toast('提交完成', true);
       loadSubmit();
     });
