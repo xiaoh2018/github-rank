@@ -128,6 +128,9 @@ push('前台手机端表单 16px（文章页）', artText.includes(':is(input,se
   push('筛选空态三个出口按钮', artText.includes('data-ef="q"') && artText.includes('data-ef="cat"') && artText.includes('data-ef="all"'), '');
 push('前台手机端表单 16px（问答页）', faqText.includes('#q,#search,#navSearch{font-size:16px'), '');
 push('点 tab 后侧栏会把当前项滚进可视区', adm.includes('scrollIntoView({ block:'), '');
+push('文章页读失败给人话 + 重试', artHtml.includes('文章没读出来') && artHtml.includes('data-retry="1"') && artHtml.includes('不影响榜单'), '');
+push('问答页读失败给人话 + 就地重试', faqHtml.includes('问答没读出来') && faqHtml.includes('data-qa-retry') && faqHtml.includes('loadQa()'), '');
+push('文章页加载态是骨架卡（不是一句话）', artHtml.includes('sk-card') && artHtml.indexOf('正在加载文章') < 0, '');
 push('翻页落点是列表顶（goList 自己算偏移）', bundleJs.includes('function goList()') && bundleJs.includes('const OFFSET = 76'), '');
 push('列表给了 scroll-margin-top（吸顶条让位）', home.includes('#list{list-style:none') && home.includes('scroll-margin-top:76px'), '');
 push('翻页校正不会和读者抢滚动条（listAnchorGen 代际标记）', bundleJs.includes('listAnchorGen++'), '');

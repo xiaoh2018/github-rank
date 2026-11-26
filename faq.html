@@ -107,6 +107,12 @@ footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:v
 .empty b{display:block;font-size:15px;margin-bottom:6px}
 .empty p{margin:0 0 12px;color:var(--muted);font-size:13px}
 @media (max-width:760px){
+  .loaderr{padding:30px 20px;text-align:center;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+  .loaderr b{display:block;font-size:16px;margin-bottom:6px}
+  .loaderr p{margin:0 auto;max-width:40em;color:var(--muted);font-size:13.5px;line-height:1.75}
+  .loaderr .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .loaderr .acts .btn,.loaderr .acts .ghost{min-height:40px;display:inline-flex;align-items:center;padding:0 16px;border-radius:10px;text-decoration:none}
+  .loaderr small{display:block;margin-top:12px;color:var(--muted);font-size:12px}
   .empty{padding:24px 16px}
   .empty .chip,.empty button,.empty .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:0 18px}
 }
@@ -485,17 +491,41 @@ html[data-theme="notion"]{
 
   renderSkeleton();
 
-  fetch('/data/qa.json', { cache: 'no-cache' })
-    .then(function (r) { return r.json(); })
-    .then(function (qa) {
-      QA = { intro: (qa && qa.intro) || '', items: (qa && qa.items) || [] };
-      if (QA.intro) document.getElementById('intro').textContent = QA.intro;
-      readUrlFilters();
-      render();
-    })
-    .catch(function () {
-      document.getElementById('list').innerHTML = '<div class="empty" role="status"><b>问答没读出来</b><p>数据源可能暂时不可用，稍后刷新再试。</p></div>';
-    });
+  // 读不到问答时：说清是哪一步坏了（断网 / 服务器 5xx / 数据格式），并给一个就地重试。
+  // 以前只有一句「数据源可能暂时不可用」，读者不知道要不要再等。
+  function qaErrReason(e) {
+    var m = String((e && e.message) || e || '');
+    if (/HTTP 5/.test(m)) return '站点服务器出了点问题（' + m + '），过一会儿再试通常就好了。';
+    if (/HTTP 4/.test(m)) return '这个请求被拒绝了（' + m + '），可能地址变了。';
+    if (/JSON|Unexpected token/i.test(m)) return '读到的不是问答数据，可能是缓存出了问题，重试一次。';
+    return '网络连不上。可能是断网，也可能是当前网络访问不了这个站点。';
+  }
+
+  function loadQa() {
+    var box = document.getElementById('list');
+    fetch('/data/qa.json', { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (qa) {
+        QA = { intro: (qa && qa.intro) || '', items: (qa && qa.items) || [] };
+        if (QA.intro) document.getElementById('intro').textContent = QA.intro;
+        readUrlFilters();
+        render();
+      })
+      .catch(function (e) {
+        if (!box) return;
+        box.removeAttribute('aria-busy');
+        box.innerHTML = '<div class="loaderr" role="status">' +
+          '<b>问答没读出来</b>' +
+          '<p>' + esc(qaErrReason(e)) + '</p>' +
+          '<div class="acts"><button type="button" class="btn" data-qa-retry="1">重试</button>' +
+          '<a class="ghost" href="/">先去看榜单</a></div>' +
+          '<small>问答读不到，不影响榜单、导航和文章。</small>' +
+          '</div>';
+        var btn = box.querySelector('[data-qa-retry]');
+        if (btn) btn.addEventListener('click', function () { loadQa(); });
+      });
+  }
+  loadQa();
 })();
   (function(){
     function initTotop(){

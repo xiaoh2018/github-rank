@@ -113,6 +113,21 @@ html[data-artcols="auto"] .cards{display:grid;grid-template-columns:repeat(auto-
 .ameta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:12px;color:var(--muted)}
 .tag{background:var(--chip);color:var(--accent);border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600}
 .empty{padding:40px 20px;text-align:center;color:var(--muted);background:var(--card);border:1px dashed var(--border);border-radius:var(--radius)}
+  /* 加载骨架：形状照着真实卡片来，避免「先看到一句话、再整屏跳成卡片」 */
+  .sk-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;margin-bottom:14px}
+  .sk-line{display:block;height:12px;border-radius:6px;margin:9px 0;background:linear-gradient(90deg,var(--chip),var(--card),var(--chip));background-size:200% 100%;animation:sk 1.4s linear infinite}
+  .sk-line.t{height:17px;width:55%}
+  .sk-line.w70{width:70%}
+  .sk-line.w35{width:35%}
+  @keyframes sk{from{background-position:0 0}to{background-position:-200% 0}}
+  @media (prefers-reduced-motion:reduce){.sk-line{animation:none}}
+  /* 读不到文章：说清楚是哪一步出了问题，并给重试 */
+  .loaderr{padding:30px 20px;text-align:center;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+  .loaderr b{display:block;font-size:16px;margin-bottom:6px}
+  .loaderr p{margin:0 auto;max-width:40em;color:var(--muted);font-size:13.5px;line-height:1.75}
+  .loaderr .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .loaderr .acts .btn,.loaderr .acts .ghost{min-height:40px;display:inline-flex;align-items:center;padding:0 16px;border-radius:10px;text-decoration:none}
+  .loaderr small{display:block;margin-top:12px;color:var(--muted);font-size:12px}
   .empty-filter b{display:block;font-size:16px;color:var(--fg);margin-bottom:6px}
   .ef-cond{margin:0 auto;max-width:44em;line-height:1.75;font-size:13.5px}
   .ef-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
@@ -371,7 +386,9 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       </div>
       <div class="chips" id="chips"></div>
       <div class="cards" id="cards">
-        <div class="empty">正在加载文章…</div>
+        <div class="sk-card" aria-hidden="true"><i class="sk-line t"></i><i class="sk-line"></i><i class="sk-line w70"></i><i class="sk-line w35"></i></div>
+        <div class="sk-card" aria-hidden="true"><i class="sk-line t"></i><i class="sk-line"></i><i class="sk-line w70"></i><i class="sk-line w35"></i></div>
+        <div class="sk-card" aria-hidden="true"><i class="sk-line t"></i><i class="sk-line"></i><i class="sk-line w70"></i></div>
       </div>
       <nav class="apager" id="apager" hidden aria-label="文章分页"></nav>
 
@@ -449,7 +466,7 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
-  var state = { arts: [], site: null, cat: 'all', q: '', sort: 'new', open: null, page: 1 };
+  var state = { arts: [], site: null, cat: 'all', q: '', sort: 'new', open: null, page: 1, artsLoading: true, artsError: '' };
 
   // 主题：paper / ink / stripe / notion
   var THEME_KEY = 'ghrankTheme';
@@ -703,11 +720,41 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
     flashLim(dir);
   });
 
+  function skCards(n) {
+    var one = '<div class="sk-card" aria-hidden="true"><i class="sk-line t"></i><i class="sk-line"></i><i class="sk-line w70"></i><i class="sk-line w35"></i></div>';
+    var out = '';
+    for (var i = 0; i < n; i++) out += one;
+    return out;
+  }
+
+  // 把异常翻成人话：读者不需要看 HTTP 状态码，但需要知道「再试有没有用」
+  function artsErrReason(e) {
+    var m = String((e && e.message) || e || '');
+    if (/HTTP 5/.test(m)) return '站点服务器出了点问题（' + m + '），过一会儿再试通常就好了。';
+    if (/HTTP 4/.test(m)) return '这个请求被拒绝了（' + m + '），可能地址变了。';
+    if (/JSON|Unexpected token/i.test(m)) return '读到的不是文章数据，可能是缓存出了问题，重试一次。';
+    return '网络连不上。可能是断网，也可能是当前网络访问不了这个站点。';
+  }
+
   function renderCards() {
     var list = visibleArts();
     var box = $('cards');
     var pager = $('apager');
     if (pager) pager.hidden = true;
+    if (state.artsLoading) {
+      box.innerHTML = skCards(3);
+      return;
+    }
+    if (state.artsError) {
+      box.innerHTML = '<div class="loaderr" role="status">' +
+        '<b>文章没读出来</b>' +
+        '<p>' + esc(state.artsError) + '</p>' +
+        '<div class="acts"><button type="button" class="btn" data-retry="1">重试</button>' +
+        '<a class="ghost" href="/">先去看榜单</a></div>' +
+        '<small>文章列表读不到，不影响榜单、导航和问答。</small>' +
+        '</div>';
+      return;
+    }
     if (!state.arts.length) {
       box.innerHTML = '<div class="empty">还没有文章。站长在后台「文章」里写第一篇。</div>';
       return;
@@ -1280,6 +1327,8 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
 
   // 空态里的「只清关键词 / 只清分类 / 清空全部筛选」
   $('cards').addEventListener('click', function (ev) {
+    var rt = ev.target && ev.target.closest ? ev.target.closest('[data-retry]') : null;
+    if (rt) { loadAll(); return; }
     var b = ev.target && ev.target.closest ? ev.target.closest('[data-ef]') : null;
     if (!b) return;
     var k = b.getAttribute('data-ef');
@@ -1376,9 +1425,11 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
   function loadAll() {
     readUrlFilters();
     Promise.all([
-      fetch('/data/articles.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }),
+      fetch('/data/articles.json', { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }),
       fetch('/data/site.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; }),
     ]).then(function (res) {
+      state.artsLoading = false;
+      state.artsError = '';
       state.arts = Array.isArray(res[0]) ? res[0] : [];
       state.site = res[1] || {};
   var _ac = (state.site.article && state.site.article.cols) || 'double';
@@ -1395,6 +1446,14 @@ html[data-theme="ink"] meta,html[data-theme="ink"]{color-scheme:dark}
       renderCards();
       renderAds(state.site);
       route();
+    }).catch(function (e) {
+      // 以前这里把失败吞成「空数组」，于是断网时页面写「还没有文章，站长写第一篇」——
+      // 对读者是假信息，对站长是冤枉。现在分开处理：读失败就说是读失败。
+      state.artsLoading = false;
+      state.artsError = artsErrReason(e);
+      renderChips();
+      renderSide();
+      renderCards();
     });
   }
   loadAll();
