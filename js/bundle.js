@@ -203,7 +203,7 @@ function segQuery(base, seg) {
   return base.replace('stars:>' + MIN_STARS, stars);
 }
 
-async function fetchSearch(q, kind = 'repositories', sort = 'stars', page = 1) {
+async function fetchSearch(q, kind = 'repositories', sort = 'stars', page = 1, outerSignal) {
   let url = `https://api.github.com/search/${kind}?q=${encodeURIComponent(q)}` +
       `&sort=${sort}&order=desc&per_page=${PAGE_SIZE}&page=${page}`;
   const headers = { Accept: 'application/vnd.github+json' };
@@ -213,6 +213,11 @@ async function fetchSearch(q, kind = 'repositories', sort = 'stars', page = 1) {
   let res;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 20000);
+  // 外部（读者点「取消」）也要能中断：两路 abort 收拢到同一个 controller
+  if (outerSignal) {
+    if (outerSignal.aborted) ctrl.abort();
+    else outerSignal.addEventListener('abort', () => ctrl.abort(), { once: true });
+  }
   try {
     res = await fetch(url, { headers, signal: ctrl.signal });
     } catch (e) {
@@ -335,7 +340,7 @@ function ensureRange(name) {
 }
 
 // 分段 + 分页拉取，合并去重。返回 {repos, partial}；partial=中途失败，只用了已拿到的数据（不缓存）
-async function loadRepos(state, bypassCache, onProgress) {
+async function loadRepos(state, bypassCache, onProgress, signal) {
   const base = buildQuery(state);
   const key = CACHE_PREFIX + base;
   if (!bypassCache) {
@@ -352,9 +357,10 @@ async function loadRepos(state, bypassCache, onProgress) {
   const maxPages = deep ? 10 : PAGES_PER_SEG;
   outer: for (const seg of segs) {
     for (let page = 1; page <= maxPages; page++) {
+      if (signal && signal.aborted) { partial = out.length > 0; break outer; }
       let items;
       try {
-        items = await fetchSearch(segQuery(base, seg), 'repositories', 'stars', page);
+        items = await fetchSearch(segQuery(base, seg), 'repositories', 'stars', page, signal);
       } catch (e) {
         if (out.length) { partial = true; break outer; }   // 已有数据，容忍部分失败
         throw e;
@@ -1126,6 +1132,15 @@ function setStatus(text, isError, action) {
   s.textContent = text;
   // 状态行只说明「发生了什么」，action 负责「下一步点哪儿」——
   // 光说「额度用完了」，读者还得自己去找「设置」按钮在哪。
+  // action.run：就地执行的动作（例如「取消」），不需要跳转到别处
+  if (action && typeof action.run === 'function') {
+    const b = el('button', 'status-act', action.label || '取消');
+    b.type = 'button';
+    b.addEventListener('click', () => { try { action.run(); } catch (e) { /* 取消失败不影响界面 */ } });
+    s.append(' ');
+    s.append(b);
+    return;
+  }
   if (action && action.target) {
     const b = el('button', 'status-act', action.label || '去设置');
     b.type = 'button';
@@ -1483,7 +1498,20 @@ async function liveRefresh() {
   const base = buildQuery(state);
   const btn = $('btnRefresh');
   btn.disabled = true;
-  setStatus('正在用 Token 实时刷新，请稍候…');
+  // 一次刷新一个 controller：读者点「取消」时真把在飞的请求掐掉，
+  // 而不是只换一句文案、后台继续烧额度
+  const ctrl = new AbortController();
+  let got = 0;
+  let cancelled = false;
+  const t0 = Date.now();
+  const say = (text) => setStatus(text, false, { label: '取消这次刷新', run: () => { cancelled = true; ctrl.abort(); } });
+  say('正在用 Token 实时刷新，请稍候…');
+  // 每 1.2 秒报一次「已用几秒 / 已取到几个」：慢网下读者才知道它没死
+  const ticker = setInterval(() => {
+    if (id !== reqId || cancelled) return;
+    const sec = Math.round((Date.now() - t0) / 1000);
+    say('正在实时刷新 · 已用 ' + sec + ' 秒 · 已取到 ' + got + ' 个项目');
+  }, 1200);
   // 同时让服务器触发一次仓库数据更新，之后所有访客打开都能拿到新数据
   let serverMsg = '';
   if (serverMode) {
@@ -1496,10 +1524,14 @@ async function liveRefresh() {
     }
   }
   try {
-    const { repos, partial } = await loadRepos(state, true, n => {
-      if (id === reqId) setStatus('正在用 Token 实时刷新，已取到 ' + n + ' 个项目…');
-    });
+    const { repos, partial } = await loadRepos(state, true, n => { got = n; }, ctrl.signal);
+    clearInterval(ticker);
     if (id !== reqId) return;
+    if (cancelled) {
+      // 取消后不写缓存、不动列表：读者看到的是「停下」而不是「清空」
+      setStatus('已取消这次刷新，仍在看之前的数据。数据每 3 小时自动更新一次。');
+      return;
+    }
     applyRepos(base, repos);
     state.source = 'live';
     state.updatedAt = new Date().toLocaleString();
@@ -1509,10 +1541,16 @@ async function liveRefresh() {
       ? '刷新部分成功：中途有请求失败，只拿到 ' + repos.length + ' 个项目，更新于 ' + state.updatedAt + '。'
       : '刷新成功：共 ' + repos.length + ' 个项目，更新于 ' + state.updatedAt + '。') + tail);
   } catch (e) {
+    clearInterval(ticker);
     if (id !== reqId) return;
+    if (cancelled) {
+      setStatus('已取消这次刷新，仍在看之前的数据。数据每 3 小时自动更新一次。');
+      return;
+    }
     const needToken = /Token|额度|限制|凭证|凭据/i.test(String(e.message || ''));
     setStatus('实时刷新失败：' + e.message + ' 当前仍显示之前的数据。', true, needToken ? { target: 'settings' } : null);
   } finally {
+    clearInterval(ticker);
     btn.disabled = false;
   }
 }
