@@ -1630,7 +1630,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v189';
+const ASSET_V = 'v190';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3891,6 +3891,19 @@ tr:hover td{background:#fcfbf8}
   .copybox .ghost{width:100%;justify-content:center}
   /* 平台表已经堆叠成卡片，不再需要「右边还有内容」的内阴影 */
   .card:has(.geo-plat){box-shadow:none}
+  /* 320 窄屏：工具栏换行、表格不再被 min-width 撑破、小字提到 12px、行内链接可点 */
+  .nav-toolbar{flex-wrap:wrap;gap:10px}
+  .nav-toolbar input{flex:1 1 100%;max-width:none}
+  .nav-stat{flex:0 0 auto}
+  .card:has(.geo-plat) table{min-width:0}
+  .geo-plat a,.geo-plat code{white-space:normal;word-break:break-all}
+  #pane-submit code,#pane-keys code,#pane-submit .kv a,#pane-keys .kv a,#pane-submit .kv code{white-space:normal;word-break:break-all;overflow-wrap:anywhere;min-width:0;max-width:100%}
+  #pane-submit a[href],#pane-keys a[href]{display:inline-block;min-height:32px;line-height:1.9;padding:5px 0;word-break:break-all}
+  #pane-submit a[href],#pane-keys a[href]{display:inline-block;min-height:32px;line-height:1.95;padding:5px 0;word-break:break-all}
+  .slugline,.art-lock,#artTbody td{font-size:12px}
+  #pane-articles #artTbody td{font-size:12.5px}
+  #pane-articles #artTbody button{min-height:44px;min-width:40px}
+  #pane-articles #artPager button,#pane-articles .pjump input{min-height:44px;min-width:44px}
   /* 侧栏分组名在横向条里别一个一个字竖排 */
   .side .navgroup{flex:0 0 auto;white-space:nowrap;font-size:10px;padding:0 8px;opacity:.75}
   /* 侧栏横向滚动：右缘渐隐提示还有更多，划到末尾自动收起 */

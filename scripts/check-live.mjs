@@ -354,6 +354,9 @@ push('搜索占位符按屏宽切换（短/长两套）', home.includes('data-ph
 push('三页主题按钮文案统一「主题 · X」', /主题 · /.test(home) && /主题 · /.test(artText) && /主题 · /.test(faqText));
 push('问答页补上主题按钮', faqText.indexOf('id="btnTheme"') >= 0);
 push('静态文章页去掉重复副标题', artText.indexOf('站长写的东西，按时间倒序') < 0);
+push('后台 320 窄屏：工具栏换行 + 长链接断行 + 卡片字号', /#pane-articles #artTbody td\{font-size:12\.5px\}/.test(admHtml) && admHtml.indexOf('word-break:break-all;overflow-wrap:anywhere') >= 0);
+push('导航面板工具栏可换行', admHtml.indexOf('.nav-toolbar{flex-wrap:wrap') >= 0);
+push('提交页平台表取消 min-width', admHtml.indexOf('.card:has(.geo-plat) table{min-width:0}') >= 0);
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
