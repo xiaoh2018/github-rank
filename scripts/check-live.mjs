@@ -128,6 +128,9 @@ push('前台手机端表单 16px（文章页）', artText.includes(':is(input,se
   push('筛选空态三个出口按钮', artText.includes('data-ef="q"') && artText.includes('data-ef="cat"') && artText.includes('data-ef="all"'), '');
 push('前台手机端表单 16px（问答页）', faqText.includes('#q,#search,#navSearch{font-size:16px'), '');
 push('点 tab 后侧栏会把当前项滚进可视区', adm.includes('scrollIntoView({ block:'), '');
+push('翻页落点是列表顶（goList 自己算偏移）', bundleJs.includes('function goList()') && bundleJs.includes('const OFFSET = 76'), '');
+push('列表给了 scroll-margin-top（吸顶条让位）', home.includes('#list{list-style:none') && home.includes('scroll-margin-top:76px'), '');
+push('翻页校正不会和读者抢滚动条（listAnchorGen 代际标记）', bundleJs.includes('listAnchorGen++'), '');
 push('无障碍：首页给了 accent-ink / accent-text 两个颜色', home.includes('--accent-ink:#8a6008') && home.includes('--accent-text:#8a6008'), '');
 push('无障碍：选中态胶囊用 accent-ink 托白字', home.includes('.chip.is-on{background:var(--accent-ink,var(--accent))'), '');
 push('无障碍：文章页胶囊有 aria-pressed', artText.includes('aria-pressed="\' + (state.cat === \'all\')'), '');

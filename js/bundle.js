@@ -1565,7 +1565,7 @@ const sentinel = document.createElement('div');
 sentinel.style.cssText = 'position:absolute;top:400px;width:0;height:0';
 document.body.prepend(sentinel);
 new IntersectionObserver(([e]) => $('top').classList.toggle('show', !e.isIntersecting)).observe(sentinel);
-$('top').onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+$('top').onclick = () => { listAnchorGen++; window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
 // ---------- 事件 ----------
 function setRange(r) {
@@ -1602,9 +1602,33 @@ function imeBind(el, fn) {
     fn();
   });
 }
+// 翻页后滚到「列表顶」，而不是回到页面顶：390 宽下页面顶到列表顶有约 660px
+// （标题 + 工具条 + 筛选胶囊），每翻一页都要重滚一遍是纯粹的浪费。
+let listAnchorGen = 0;
+['wheel', 'touchstart', 'keydown'].forEach((t) => {
+  window.addEventListener(t, () => { listAnchorGen++; }, { passive: true });
+});
+function goList() {
+  // 翻页落点 = 列表顶 - 吸顶工具条高度。这里刻意用「瞬时」滚动：
+  // 平滑动画会和「渲染后高度变化」抢同一个目标，实测会停在半路（多滚/少滚 200px 级）。
+  const el = $('list');
+  if (!el) { window.scrollTo(0, 0); return; }
+  const OFFSET = 76; // 与 CSS 的 scroll-margin-top 保持一致
+  const target = () => Math.max(0, Math.round(el.getBoundingClientRect().top + window.scrollY - OFFSET));
+  const gen = ++listAnchorGen;
+  const jump = () => window.scrollTo(0, target());
+  requestAnimationFrame(() => requestAnimationFrame(jump));
+  // 广告位 / 分页器这类异步插入会改变列表上方的总高度：400ms 后再锚一次。
+  // 但如果这期间读者自己滚了（wheel / 触摸 / 按键），就不再拽回来 —— 校正不能和人对抢。
+  setTimeout(() => {
+    if (gen !== listAnchorGen) return;
+    const t = target();
+    if (Math.abs(window.scrollY - t) > 24) window.scrollTo(0, t);
+  }, 400);
+}
 imeBind($('q'), () => { state.q = $('q').value; state.page = 1; render(); });
-$('prev').onclick = () => { state.page--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-$('next').onclick = () => { state.page++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+$('prev').onclick = () => { state.page--; render(); goList(); };
+$('next').onclick = () => { state.page++; render(); goList(); };
 if ($('pgJump')) {
   const goJump = () => {
     const total = Math.max(1, Math.ceil(visibleRepos().length / state.pageSize));
@@ -1612,7 +1636,7 @@ if ($('pgJump')) {
     if (!isFinite(n)) { $('pgJump').value = String(state.page); return; }
     state.page = Math.min(total, Math.max(1, n));
     render();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    goList();
   };
   $('pgJump').addEventListener('change', goJump);
   $('pgJump').addEventListener('keydown', e => {
