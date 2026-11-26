@@ -1677,7 +1677,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v212';
+const ASSET_V = 'v213';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3433,6 +3433,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .draft-bar>span{flex:1 1 100%;min-width:0}
 .save-msg{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;margin-left:10px;font-size:12.5px;line-height:1.7;color:var(--muted)}
 .save-msg.ok{color:#15803d}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 .save-msg.err{color:var(--bad)}
 .save-msg .linkbtn{margin:0;padding:0 2px;min-height:0;border:0;background:none;color:inherit;font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer;box-shadow:none}
 .save-msg .linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}

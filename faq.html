@@ -231,6 +231,8 @@ html[data-theme="notion"]{
 </div>
 
 <script>
+window.__motionQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+window.__sb = function () { return window.__motionQuery && window.__motionQuery.matches ? 'auto' : 'smooth'; };
 (function () {
   var QA = { intro: '', items: [] };
   var tag = 'all';
@@ -564,7 +566,7 @@ html[data-theme="notion"]{
       btn.__bound = true;
       var tick = function(){ btn.hidden = (window.scrollY || document.documentElement.scrollTop || 0) < 420; };
       window.addEventListener('scroll', tick, { passive: true });
-      btn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      btn.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: window.__sb() }); });
       tick();
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initTotop);

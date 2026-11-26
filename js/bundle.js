@@ -1,6 +1,9 @@
 /* 由 js/ 下的各模块合并而成：普通脚本，双击 index.html 即可运行 */
 (function () {
 'use strict';
+// 尊重系统「减少动态效果」：平滑滚动交给统一助手
+window.__motionQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+window.__sb = function () { return window.__motionQuery && window.__motionQuery.matches ? 'auto' : 'smooth'; };
 // ===== config.js =====
 // 常量与分类规则（ES Module）
 const RANGES = {
@@ -625,7 +628,7 @@ function renderStats(list) {
       }
       sel.value = topLang[0];
       sel.dispatchEvent(new Event('change', { bubbles: true }));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: window.__sb() });
     };
     parts.push(btn);
   }
@@ -1647,7 +1650,7 @@ const sentinel = document.createElement('div');
 sentinel.style.cssText = 'position:absolute;top:400px;width:0;height:0';
 document.body.prepend(sentinel);
 new IntersectionObserver(([e]) => $('top').classList.toggle('show', !e.isIntersecting)).observe(sentinel);
-$('top').onclick = () => { listAnchorGen++; window.scrollTo({ top: 0, behavior: 'smooth' }); };
+$('top').onclick = () => { listAnchorGen++; window.scrollTo({ top: 0, behavior: window.__sb() }); };
 
 // ---------- 事件 ----------
 function setRange(r) {

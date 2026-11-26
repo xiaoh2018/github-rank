@@ -6,6 +6,8 @@
 <meta name="baidu-site-verification" content="codeva-4YWBTyvKRg" />
 <!--{{GHRANK_VERIFY}}-->
 <script>
+window.__motionQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+window.__sb = function () { return window.__motionQuery && window.__motionQuery.matches ? 'auto' : 'smooth'; };
 /* bundle.js 初始化时会重写地址栏（去掉不认识的参数），所以在它之前先把「要打开导航页」的意图记下来 */
 window.__wantNav = (function () {
   try {
@@ -1948,7 +1950,7 @@ getJSON('/data/site.json').then(function(site){
       renderFaq();
     });
     var artMore=document.getElementById('artMore');
-    if(artMore) artMore.addEventListener('click',function(e){ e.preventDefault(); setView('articles'); if(window.scrollTo) window.scrollTo({top:0,behavior:'smooth'}); });
+    if(artMore) artMore.addEventListener('click',function(e){ e.preventDefault(); setView('articles'); if(window.scrollTo) window.scrollTo({top:0,behavior: window.__sb()}); });
     var artSearchBox=document.getElementById('artSearch');
     if(artSearchBox) window.__imeBind(artSearchBox, function(){ artv.q=str(artSearchBox.value).toLowerCase(); renderArtView(); });
     var artSortBox=document.getElementById('artSort');

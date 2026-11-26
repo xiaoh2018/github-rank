@@ -15,8 +15,10 @@ const home = await (await fetch(base + '/?v=' + t)).text();
 push('首页弹窗焦点陷阱', home.includes('bindDialogA11y'));
 push('首页卡片入场', home.includes('@keyframes cardIn'));
 push('首页广告位容器', home.includes('id="adHomeTop"') && home.includes('id="adSidebar"'));
+push('首页尊重「减少动态效果」', home.includes('window.__sb') && home.includes('prefers-reduced-motion'));
 
 const bundleJs = await (await fetch(base + '/js/bundle.js?v=' + t)).text();
+push('bundle 平滑滚动走 __sb 助手', bundleJs.includes('behavior: window.__sb()'));
 push('对话框 aria-modal + 焦点圈', home.includes('aria-modal') && home.includes('__bindDlgA11y'));
 push('对话框 Esc 与 × 同一关闭路径', home.includes('走与「×」相同的关闭路径'));
 const artApi = await (await fetch(base + '/api/articles?v=' + t)).text();
@@ -246,6 +248,7 @@ const faqTotop = await (await fetch(base + '/faq?v=' + t)).text();
 push('/faq 有返回顶部按钮', faqTotop.includes('id="totop"') && faqTotop.includes('initTotop'), '');
 push('/faq 页脚有 RSS', faqTotop.includes('href="/rss.xml"'), '');
 const admHtml = await (await fetch(base + '/admin?v=' + t)).text();
+push('后台也有 reduced-motion 兜底', admHtml.includes('@media (prefers-reduced-motion: reduce)'));
 // —— 后台文章列表手机端变卡片（v181）
 push('文章表格手机端变卡片（tr grid）', admHtml.includes('#artTbody tr{display:grid'), '');
 push('卡片摘要最多两行', admHtml.includes('-webkit-line-clamp:2;-webkit-box-orient:vertical'), '');
