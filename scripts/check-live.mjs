@@ -422,6 +422,9 @@ push('数据瘦身：时间戳是 epoch 秒', /(?:"updated"|updated)\s*:\s*1[6-9
 push('首页预载周榜数据（与 script 地址一致）', bundleJs.indexOf('s.src = file;') >= 0 && bundleJs.indexOf('function repoUrl(r)') >= 0);
 const navHtml = await (await fetch(base + '/nav?t=' + t)).text();
 const artHtml = await (await fetch(base + '/articles?t=' + t)).text();
+push('文章列表翻页记忆位置（apY + 只往回恢复）', artHtml.includes('window.__apY = apY') && artHtml.includes('function apRestore(y)'), '');
+push('文章分页键含筛选维度', artHtml.includes("function apKey(n) { return [state.cat, state.q.trim(), state.sort, n].join('|'); }"), '');
+push('往前翻仍回列表顶（scroll-margin 96）', artHtml.includes("box.scrollIntoView({ behavior: window.__sb(), block: 'start' })") && artHtml.includes('scroll-margin-top:96px'), '');
 push('后台模态打开时锁背景（html/body overflow 置 hidden 并恢复）', admHtml.includes('document.documentElement.style.overflow = "hidden"') && admHtml.includes('__scH'), '');
 push('前台图片查看器是原生 dialog', artHtml.includes('<dialog class="lightbox"') && artHtml.includes('.lightbox:not([open])'), '');
 push('图片查看器用 showModal 打开并在关闭时解锁背景', artHtml.includes('if (!lb.open) lb.showModal()') && artHtml.includes('lb.__lbAuto'), '');

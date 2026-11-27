@@ -536,6 +536,15 @@ window.__sb = function () { return window.__motionQuery && window.__motionQuery.
   // 广告：与首页同一套配置（site.ad.slots）
   var AD_EVERY = 2;
   var PER = 9;
+  // 翻页位置记忆：只记内存，键里含全部筛选维度
+  var apY = {};
+  function apKey(n) { return [state.cat, state.q.trim(), state.sort, n].join('|'); }
+  window.__apY = apY;
+  function apRestore(y) {
+    function put() { window.scrollTo(0, y); }
+    window.requestAnimationFrame(function () { window.requestAnimationFrame(put); });
+    setTimeout(put, 400);
+  }
   var adSlot = {};
   function mountAd(el, s) {
     if (!el) return;
@@ -1358,11 +1367,16 @@ window.__sb = function () { return window.__motionQuery && window.__motionQuery.
       if (!b || b.disabled) return;
       var p = parseInt(b.getAttribute('data-page'), 10);
       if (!p || p === state.page) return;
+      var here = Math.round(window.scrollY);
+      if (here > 100) apY[apKey(state.page)] = here;
+      var back = p < state.page;
+      var want = apY[apKey(p)] || 0;
       state.page = p;
       syncUrl(true);
       renderCards();
       var box = $('cards');
-      if (box && box.scrollIntoView) box.scrollIntoView({ behavior: window.__sb(), block: 'start' });
+      if (back && want > 100) apRestore(want);
+      else if (box && box.scrollIntoView) box.scrollIntoView({ behavior: window.__sb(), block: 'start' });
     });
   }
   window.addEventListener('popstate', function () {
