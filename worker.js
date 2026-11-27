@@ -1688,7 +1688,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v230';
+const ASSET_V = 'v231';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3996,6 +3996,14 @@ tr:hover td{background:#fcfbf8}
   #pane-articles #artTbody td{font-size:12.5px}
   #pane-articles #artTbody button{min-height:44px;min-width:40px}
   #pane-articles #artPager button,#pane-articles .pjump input{min-height:44px;min-width:44px}
+  #pane-articles .artpager .ajump{display:inline-flex;align-items:center;gap:6px}
+  @media (max-width:760px){
+    #pane-articles .artpager{gap:8px}
+    #pane-articles .artpager .msg{flex:1 1 100%;order:-1;text-align:center;font-size:12px;line-height:1.6}
+    #pane-articles .artpager button{white-space:nowrap;min-width:84px;padding:8px 12px}
+    #pane-articles .artpager .ajump{flex:1 1 100%;justify-content:center;margin-top:2px}
+  }
+  #pane-articles .artpager .ajump input{width:62px;min-height:32px;padding:2px 8px;border:1px solid var(--line);border-radius:8px;font:inherit;text-align:center}
   /* 侧栏分组名在横向条里别一个一个字竖排 */
   .side .navgroup{flex:0 0 auto;white-space:nowrap;font-size:10px;padding:0 8px;opacity:.75}
   /* 侧栏横向滚动：右缘渐隐提示还有更多，划到末尾自动收起 */
@@ -6069,6 +6077,36 @@ function saveMsgFor(btn) {
     }
   });
 
+    // 翻页位置记忆（只记内存）+ 换页后把表格带回视口
+    var artPgY = {};
+    function artPgKey(n) {
+      var box = $('artSearch');
+      return [String(box && box.value || '').trim(), state.artCat || '', state.artSort || '', n].join('|');
+    }
+    function artTableTop() {
+      var tb = $('artTbody');
+      if (!tb) return 0;
+      var card = tb.closest ? tb.closest('.card') : null;
+      var el = card || tb;
+      var r = el.getBoundingClientRect();
+      return Math.max(0, Math.round(r.top + window.scrollY) - 12);
+    }
+    function artScrollTo(y) {
+      function put() { window.scrollTo(0, y); }
+      window.requestAnimationFrame(function () { window.requestAnimationFrame(put); });
+      setTimeout(put, 360);
+    }
+    function artGoPage(n) {
+      var here = Math.round(window.scrollY);
+      var top = artTableTop();
+      if (here > top + 120) artPgY[artPgKey(state.artPage)] = here;
+      var back = n < (state.artPage || 1);
+      var want = artPgY[artPgKey(n)] || 0;
+      state.artPage = n;
+      renderArticles();
+      if (back && want > top + 120) artScrollTo(want);
+      else artScrollTo(artTableTop());
+    }
     function renderArtPager(pages, total) {
       var box = $('artPager');
       if (!box) return;
@@ -6076,14 +6114,30 @@ function saveMsgFor(btn) {
       box.hidden = false;
       box.innerHTML = '<button type="button" class="ghost small" data-artpage="prev"' + (state.artPage <= 1 ? ' disabled' : '') + '>上一页</button>' +
         '<span class="msg">第 ' + state.artPage + ' / ' + pages + ' 页 · 共 ' + total + ' 篇</span>' +
+        '<span class="ajump" title="跳到第几页（共 ' + pages + ' 页）"><input id="artJump" type="number" min="1" max="' + pages + '" value="' + state.artPage + '" inputmode="numeric" placeholder="页" aria-label="跳到第几页（共 ' + pages + ' 页）">' +
+        '<button type="button" class="ghost small" data-artjump="1">去</button></span>' +
         '<button type="button" class="ghost small" data-artpage="next"' + (state.artPage >= pages ? ' disabled' : '') + '>下一页</button>';
     }
     document.addEventListener('click', function (e) {
+      var j = e.target.closest && e.target.closest('[data-artjump]');
+      if (j) { artJumpGo(); return; }
       var b = e.target.closest && e.target.closest('[data-artpage]');
       if (!b) return;
       var dir = b.getAttribute('data-artpage');
-      state.artPage = Math.max(1, (state.artPage || 1) + (dir === 'next' ? 1 : -1));
-      renderArticles();
+      artGoPage(Math.max(1, (state.artPage || 1) + (dir === 'next' ? 1 : -1)));
+    });
+    function artJumpGo() {
+      var inp = $('artJump');
+      if (!inp) return;
+      var n = parseInt(inp.value, 10);
+      var max = parseInt(inp.getAttribute('max'), 10) || 1;
+      if (!isFinite(n)) { inp.value = state.artPage; return; }
+      n = Math.min(Math.max(1, n), max);
+      if (n === state.artPage) { inp.value = n; return; }
+      artGoPage(n);
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.target && e.target.id === 'artJump' && e.key === 'Enter') { e.preventDefault(); artJumpGo(); }
     });
 
     // ---- 文章批量操作 ----
