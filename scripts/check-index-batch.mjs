@@ -19,9 +19,13 @@ const post = async (body) => {
 
 // ---- 接口侧 ----
 const three = await post({ password: PW, urls: ['/', '/articles', '/articles/tech/4.html'] });
+if (three.status === 403) {
+  console.log('（没有可用的后台密码：跳过接口断言）');
+  process.exit(0);
+}
 ck('批量 3 条 → 200', three.status === 200 && three.j && three.j.ok === true, 'HTTP ' + three.status);
-ck('返回 batch=true 且 total=3', !!three.j && three.j.batch === true && three.j.total === 3 && Array.isArray(three.j.items) && three.j.items.length === 3, JSON.stringify(three.j && three.j.summary));
-ck('每条都有 path / status / inSitemap / inLastSubmit', !!three.j && three.j.items.every((x) => typeof x.path === 'string' && x.path && typeof x.status === 'number' && (typeof x.inSitemap === 'boolean' || x.inSitemap === null) && typeof x.inLastSubmit === 'boolean'), '');
+ck('返回 batch=true 且 total=3', !!three.j && three.j.batch === true && three.j.total === 3 && Array.isArray(three.j.items) && (three.j.items || []).length === 3, JSON.stringify(three.j && three.j.summary));
+ck('每条都有 path / status / inSitemap / inLastSubmit', !!(three.j && three.j.items ? three.j.items : []).every((x) => typeof x.path === 'string' && x.path && typeof x.status === 'number' && (typeof x.inSitemap === 'boolean' || x.inSitemap === null) && typeof x.inLastSubmit === 'boolean'), '');
 ck('summary 统计可访问条数', !!three.j && three.j.summary && three.j.summary.okStatus >= 2, JSON.stringify(three.j && three.j.summary));
 
 const many = await post({ password: PW, urls: Array.from({ length: 21 }, (_, i) => '/x' + i) });

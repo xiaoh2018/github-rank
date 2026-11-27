@@ -571,7 +571,7 @@ push('收录自查窄屏改成上下排（标签在上）', admHtml.includes('.i
 push('sitemap 读不到时不再判「没被收录」', admHtml.includes('这一项不能当成「没被收录」'), '');
 
 push('收录自查支持批量（textarea + 表格）', admHtml.includes('id="ickBatch"') && admHtml.includes('ick-tw'), '');
-push('批量上限 20 条并说明', admHtml.includes('一次最多查 20 条'), '');
+push('批量入口写明了上限', admHtml.includes('一次最多查 20 条，一行一条'), '');
 
 let bad = 0;
 for (const r of rows) {
