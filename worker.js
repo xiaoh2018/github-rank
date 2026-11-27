@@ -1736,7 +1736,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v253';
+const ASSET_V = 'v254';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -6169,7 +6169,17 @@ function saveMsgFor(btn) {
         box.textContent = '链接：选好分类后自动生成（英文分类词直接用，中文分类会落成 cat）';
         return;
       }
-      var seqIn = ($('artSeq').value || '').trim().toLowerCase();
+      var seqIn = ($('artSeq').value || '').trim();
+      if (seqIn && !/^[0-9]+$/.test(seqIn)) {
+        box.className = 'slugprev warn';
+        box.textContent = '序号只能是数字（现在填的是「' + seqIn.slice(0, 20) + '」）；留空会自动取这个分类的下一个。';
+        return;
+      }
+      if (seqIn && parseInt(seqIn, 10) < 1) {
+        box.className = 'slugprev warn';
+        box.textContent = '序号要从 1 开始（现在填的是「' + seqIn.slice(0, 20) + '」）；留空会自动取这个分类的下一个。';
+        return;
+      }
       var seq = seqIn;
       var list = state.articles || [];
       var auto = false;

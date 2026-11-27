@@ -73,9 +73,35 @@ try {
   const p4 = await prev();
   pass('撞已有地址时变红并说明会加 -2', /warn/.test(p4.c || '') && /占用/.test(p4.t || '') && /tech\/4-2/.test(p4.t || ''), p4.t + ' | ' + p4.c);
 
+  await setVal('artSeq', '-3');
+  await sleep(200);
+  const p5 = await prev();
+  pass('序号填负数时预览不承诺地址，而是说只能填数字', /warn/.test(p5.c || '') && /只能是数字/.test(p5.t || '') && !/articles\/tech\/-3/.test(p5.t || ''), p5.t);
+
+  await setVal('artSeq', 'abc');
+  await sleep(200);
+  const p6 = await prev();
+  pass('序号填字母时同样拦下', /warn/.test(p6.c || '') && /只能是数字/.test(p6.t || ''), p6.t);
+
+  await setVal('artSeq', '0');
+  await sleep(200);
+  const p7 = await prev();
+  pass('序号填 0 时提示从 1 开始', /warn/.test(p7.c || '') && /从 1 开始/.test(p7.t || ''), p7.t);
+
+  await setVal('artSeq', '');
+  await sleep(200);
+  const p8 = await prev();
+  pass('清空序号后回到自动并说明', !/warn/.test(p8.c || '') && /自动取这个分类的下一个/.test(p8.t || ''), p8.t);
+
   await ev("(function(){document.querySelector('#artDlg [data-close=\"artDlg\"]').click();return 1;})()");
-  await sleep(300);
-  pass('关闭弹窗', (await ev("document.getElementById('artDlg').open === false")) === true, '');
+  await sleep(350);
+  const guard = await ev("(function(){var d=document.getElementById('delDlg');return {open:!!(d&&d.open),title:(document.getElementById('delTitle')||{}).textContent||'',ok:(document.getElementById('delSubmit')||{}).textContent||''};})()");
+  pass('表单有改动时关闭会先确认（草稿守卫）', guard.open === true && /还没保存/.test(guard.title), JSON.stringify(guard));
+  pass('确认按钮写「放弃改动」而不是「确定删除」', /放弃改动/.test(guard.ok), guard.ok);
+  await ev("(function(){document.getElementById('delSubmit').click();return 1;})()");
+  await sleep(400);
+  const after = await ev("(function(){return {art:!!(document.getElementById('artDlg')&&document.getElementById('artDlg').open), c:!!(document.getElementById('delDlg')&&document.getElementById('delDlg').open)};})()");
+  pass('确认后两个弹窗都关掉', after.art === false && after.c === false, JSON.stringify(after));
 } finally {
   try { ws.close(); } catch {}
   try { child.kill(); } catch {}
