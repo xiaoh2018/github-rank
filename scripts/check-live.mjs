@@ -12,6 +12,10 @@ push('404 带导航', nfText.includes('href="/nav"') && nfText.includes('这个�
 push('404 不缓存', (nf.headers.get('cache-control') || '').includes('no-store'));
 
 const home = await (await fetch(base + '/?v=' + t)).text();
+  const linksRaw = (await (await fetch(base + '/data/links.json')).text()).trim();
+  push('友链数据没有占位条目（已清成 []）', linksRaw.replace(/\s+/g, '') === '[]', linksRaw.slice(0, 40));
+  push('友链卡片空态会整块隐藏', home.includes('if(!n){ box.hidden=true; return; }'), '');
+  push('友链在新标签打开并带 noopener', home.includes("a.rel='noopener nofollow'") && home.includes("a.target='_blank'"), '');
 const siteCfg = await (await fetch(base + '/api/site?t=' + t)).json();
 const adCfg = ((siteCfg && siteCfg.site) || siteCfg || {}).ad || {};
 push('顶部滚动条是关的、文案为空（没有占位广告）', !!adCfg.ticker && adCfg.ticker.enabled === false && String(adCfg.ticker.text || '') === '', adCfg.ticker);

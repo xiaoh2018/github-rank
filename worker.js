@@ -1522,6 +1522,9 @@ async function handleLinks(request, env) {
       return { ok: false, error: '网址格式不正确' };
     }
     if (desc.length > 80) return { ok: false, error: '描述最多 80 字' };
+    if (/^[0-9]+$/.test(name) || /^(test|todo|asdf|demo|example|placeholder|abc|foo|bar|示例|测试|占位)$/i.test(name)) {
+      return { ok: false, error: '这个名字看起来是占位内容（和「123」「test」一样），请写对方的站点名称' };
+    }
     return { ok: true, value: { name: name, url: url, desc: desc } };
   };
 
@@ -1688,7 +1691,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v232';
+const ASSET_V = 'v233';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
