@@ -4855,5 +4855,19 @@
  "Marvel Rivals UE5 external tool delivering bounding box visuals and match intel.": "《漫威争锋》UE5外部工具，提供包围盒可视化和对战情报。",
  "Open-source, local-first observability and evals for AI agents: see what Claude Code, Codex, Cursor and others did and what it cost.": "面向 AI 代理的开源、本地优先可观测性和评估：了解 Claude Code、Codex、Cursor 等工具的运作方式及其成本。",
  "Made for listening, not logging in. Levyra is an open-source music player for Android and Windows, bringing music discovery, synced lyrics, radio and beautiful artwork together. No ads, no tracking, just music ♫": "专为聆听而生，无需登录。Levyra是一款适用于Android和Windows的开源音乐播放器，将音乐发现、同步歌词、电台和精美封面融为一体。无广告，无跟踪，只有音乐 ♫",
- "An open-source, faster Devin alternative": "一款开源、更快的 Devin 替代品"
+ "An open-source, faster Devin alternative": "一款开源、更快的 Devin 替代品",
+ "Free AI image upscaler and photo denoiser for Windows powered by Vulkan GPU acceleration and ncnn neural networks.": "免费的 AI 图片放大器和照片降噪器，适用于 Windows，由 Vulkan GPU 加速和 ncnn 神经网络提供支持。",
+ "Free Windows 11 desktop app to customize Mica, Acrylic, and system backdrop effects for Win32 applications.": "免费的 Windows 11 桌面应用程序，用于为 Win32 应用程序自定义 Mica、Acrylic 和系统背景效果。",
+ "Free Windows 10 & 11 DWM customization tool for Aero, Acrylic, Mica, blur and transparent title bar effects.": "免费的 Windows 10 和 11 DWM 自定义工具，用于实现 Aero、Acrylic、Mica、模糊和透明标题栏效果。",
+ "Free open-source Windows hardware monitoring app for CPU, GPU, RAM, SSD temperatures, fan speeds and system performance.": "免费的开源 Windows 硬件监控应用程序，用于监控 CPU、GPU、RAM、SSD 温度、风扇转速和系统性能。",
+ "Fast, free Windows image viewer with photo browsing, editing, folder management, and optional video playback.": "快速、免费的 Windows 图片查看器，具备照片浏览、编辑、文件夹管理和可选的视频播放功能。",
+ "Ableton Push 3 Standalone for Windows 10/11. Plays and sequences MIDI and audio tracks, records clips into scenes and mixes full arrangements for producing and performing music live on the Push hardware.": "适用于 Windows 10/11 的 Ableton Push 3 独立版。播放和编排 MIDI 和音频轨道，将片段录制到场景中，并混音完整的编曲，以便在 Push 硬件上现场制作和演奏音乐。",
+ "VIctory fork for NVIDIA PC FSR 3.1 upscaler, card-side buffer compares, borderless full screen, live ambient light tuning.": "NVIDIA PC FSR 3.1 升级器的 Victory 分支，显卡端缓冲区比较、无边框全屏、实时环境光调节。",
+ "An offline sound studio for coding agents. Shape a single keypress or layer a coastal storm from 2,882 editable sound effects. Export WAVs for games, apps and videos.": "面向编码代理的离线声音工作室。从2882种可编辑音效中，塑造单次按键音，或叠加沿海风暴音效。导出WAV文件，用于游戏、应用程序和视频。",
+ "DeepHand: 开源触觉灵巧手平台（UCLA RoMeLa MIDAS Hand 一比一复刻中文社区版）— 直驱低阻抗 · 283 三轴触觉 · 全栈软件开源": "DeepHand：开源触觉灵巧手平台（UCLA RoMeLa MIDAS Hand 一比一复刻中文社区版）— 直驱低阻抗 · 283 三轴触觉 · 全栈软件开源",
+ "Deadlock FPS boost and settings tool for Windows: FPS presets for your PC, custom FOV, stretched resolution, shader cache clear to fix stutter and lag. Free, open source.": "适用于 Windows 的《绝地潜兵 2》帧率提升和设置工具：适用于您电脑的帧率预设、自定义视野、拉伸分辨率、清除着色器缓存以解决卡顿和延迟问题。免费、开源。",
+ "Lossless Scaling is crafted for those who require high-quality resizing of images and videos. It ensures that every detail remains sharp, regardless of the adjustments made": "Lossless Scaling专为需要高质量图像和视频尺寸调整的用户打造。无论进行何种调整，它都能确保每个细节都保持清晰。",
+ "Design and model in CAD with the Autodesk engineering suite for AutoCAD and Revit.": "使用适用于 AutoCAD 和 Revit 的 Autodesk 工程套件在 CAD 中进行设计和建模。",
+ "Installs and configures FL Studio components through a scripted setup routine.": "通过脚本化安装例程安装和配置 FL Studio 组件。",
+ "A local-first Mac chat app with on-device history and verifiable AI inference": "一款以本地为先的Mac聊天应用，具备设备端历史记录和可验证的AI推理功能"
 }
