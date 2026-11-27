@@ -142,6 +142,19 @@ http
       res.end(JSON.stringify({ ok: true, purged: true }));
       return;
     }
+    // data-json-bypass：本地 /data/*.json 直接读磁盘，不经过假边缘缓存。
+    // 否则门禁「写完再还原」之后，缓存里还留着测试数据 —— 截图和本地核对会看到幽灵内容。
+    {
+      const pn = new URL(url).pathname;
+      if (/^\/data\/[A-Za-z0-9._-]+\.json$/.test(pn)) {
+        const buf = local(pn.replace(/^\/+/, ''));
+        if (buf) {
+          res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+          res.end(buf);
+          return;
+        }
+      }
+    }
     const headers = {};
     for (const [k, v] of Object.entries(req.headers)) headers[k] = Array.isArray(v) ? v.join(', ') : v;
     let out;
