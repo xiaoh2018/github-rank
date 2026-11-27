@@ -4656,5 +4656,9 @@
  "Windows Reimagined": "焕然一新的 Windows",
  "交互式电子电路学堂：用可以动手拨弄的仿真学电路": "交互式电子电路学堂：用可以动手拨弄的仿真学电路",
  "Local fork of the victory layer: memory emulation, streaming, submit path and visual fixes, with tools and notes": "Victory 层本地分支：内存仿真、流式传输、提交路径和视觉修复，附带工具和备注",
- "Oxlint rules that keep code on the design system: tokens, props, imports and composition.": "Oxlint 规则可使代码符合设计系统：令牌、属性、导入和组合。"
+ "Oxlint rules that keep code on the design system: tokens, props, imports and composition.": "Oxlint 规则可使代码符合设计系统：令牌、属性、导入和组合。",
+ "PopAgent local web UI for your coding agents: watch the reasoning stream, cut in with a correction mid-turn, manage models and tools. Works with pi, Codex, Claude Code, OpenCode and DSH. Sessions stay the engine's own files — no database, no account.": "PopAgent 为您的编码代理提供本地 Web UI：观看推理流，在回合中途插入更正，管理模型和工具。可与pi、Codex、Claude Code、OpenCode和DSH配合使用。会话保存在引擎自己的文件中——无需数据库，也无需账户。",
+ "Inspect CitizenFX NUI resources with a devtools dumper that saves what the client loads.": "使用开发工具转储器检查CitizenFX NUI资源，该转储器会保存客户端加载的内容。",
+ "Brushes, panels, and canvas flow tuned for Clip Studio Paint Ex.": "为 Clip Studio Paint Ex 优化的画笔、面板和画布流程。",
+ "Games, 3D worlds and web pages built with Claude Fable 5.2 that you can actually open — 251 live works (every link checked) + 156 video demos, each with a GIF preview and creator credit. Updated daily.": "使用Claude Fable 5.2构建的游戏、3D世界和网页，您可以实际打开——251个实时作品（每个链接均已检查）+ 156个视频演示，每个都带有GIF预览和创作者署名。每日更新。"
 }
