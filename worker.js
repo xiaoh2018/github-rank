@@ -1812,7 +1812,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v271';
+const ASSET_V = 'v272';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2156,7 +2156,7 @@ async function llmsTxt(env, origin) {
   lines.push('- ' + root + '/data/articles.json — 文章列表与正文');
   lines.push('- ' + root + '/data/nav.json — 导航站点列表（分类 / 名称 / 地址 / 描述 / 图标）');
   lines.push('- ' + root + '/api/status — 数据新鲜度与最近一次抓取状态（JSON，60 秒缓存）');
-  lines.push('- ' + root + '/api/rank?range=week&limit=20 — 排行榜 JSON（range=week/month/year/total/all，limit 1–100，可选 lang=Rust；5 分钟缓存）');
+  lines.push('- ' + root + '/api/rank?range=week&limit=20 — 排行榜数据（range=week/month/year/total/all，limit 1–100，可选 lang=Rust / topic=desktop-app，format=tsv 可下载表格；5 分钟缓存）');
   lines.push('- ' + root + '/sitemap.xml — 全站页面清单（含 lastmod）');
   lines.push('- ' + root + '/rss.xml — 文章 RSS 订阅源（RSS 2.0）');
   lines.push('');
@@ -2496,6 +2496,11 @@ async function handleRank(request, env, url, origin) {
       return new Response(JSON.stringify({ ok: false, error: 'limit 要是 1–100 的整数（现在给的是「' + limRaw + '」）' }), { status: 400, headers: noStore });
     }
   }
+  const format = String(p.get('format') || 'json').trim().toLowerCase();
+  if (format !== 'json' && format !== 'tsv') {
+    return new Response(JSON.stringify({ ok: false, error: 'format 只能是 json 或 tsv（现在给的是「' + format + '」）' }), { status: 400, headers: noStore });
+  }
+  const topic = String(p.get('topic') || '').trim().toLowerCase();
   const lang = String(p.get('lang') || '').trim();
   // 直接读仓库 raw（与其它数据读取同一口径），不要走本站 /data/ 路由：
   // 那条路由只放行固定的几个数据文件，新加的 .json 会被 404 掉
@@ -2521,6 +2526,9 @@ async function handleRank(request, env, url, origin) {
     const want = lang.toLowerCase();
     list = repos.filter((r) => String(r.lang || '').toLowerCase() === want);
   }
+  if (topic) {
+    list = list.filter((r) => Array.isArray(r.topics) && r.topics.some((t) => String(t).toLowerCase() === topic));
+  }
   const items = list.slice(0, limit).map((r, i) => ({
     rank: i + 1,
     name: r.name,
@@ -2534,6 +2542,24 @@ async function handleRank(request, env, url, origin) {
   }));
   const body = { ok: true, range: range, generatedAt: gm ? gm[1] : '', total: list.length, returned: items.length, items: items };
   if (lang) body.lang = lang;
+  if (topic) body.topic = topic;
+  if (format === 'tsv') {
+    // 表格软件 / 命令行直接能吃：制表符分隔，第一行是表头；字段里的制表与换行换成空格
+    const cell = (v) => String(v == null ? '' : v).replace(/[\t\r\n]+/g, ' ').trim();
+    const lines = ['rank\tname\tstars\tforks\tlang\ttopics\tdesc\turl'];
+    items.forEach((x) => {
+      lines.push([x.rank, x.name, x.stars, x.forks, x.lang, (x.topics || []).join(','), x.descZh || x.desc, x.url].map(cell).join('\t'));
+    });
+    return new Response(lines.join('\n') + '\n', {
+      status: 200,
+      headers: {
+        'content-type': 'text/tab-separated-values; charset=utf-8',
+        'cache-control': 'public, max-age=300, s-maxage=300',
+        'access-control-allow-origin': '*',
+        'content-disposition': 'attachment; filename="rank-' + range + '.tsv"',
+      },
+    });
+  }
   return new Response(JSON.stringify(body), {
     status: 200,
     headers: {

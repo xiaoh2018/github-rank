@@ -49,6 +49,26 @@ ok('lang 时 total 是过滤后的数', !!(rust.j && rust.j.total <= def.j.total
 const totalRange = await get('?range=total&limit=2');
 ok('range=total 可用', totalRange.status === 200 && totalRange.j && totalRange.j.range === 'total' && totalRange.j.items.length === 2, totalRange.status);
 
+const tsv = await fetch(BASE + '/api/rank?limit=3&format=tsv');
+const tsvText = await tsv.text();
+const tsvLines = tsvText.trim().split(String.fromCharCode(10));
+ok('format=tsv 返回表格类型', tsv.status === 200 && /^text\/tab-separated-values/.test(tsv.headers.get('content-type') || ''), tsv.headers.get('content-type'));
+ok('tsv 第一行是表头', /^rank\tname\tstars\tforks\tlang\ttopics\tdesc\turl$/.test(tsvLines[0] || ''), tsvLines[0]);
+ok('tsv 行数 = limit + 1', tsvLines.length === 4, tsvLines.length);
+ok('tsv 每行 8 列', tsvLines.slice(1).every((l) => l.split(String.fromCharCode(9)).length === 8), tsvLines[1] && tsvLines[1].split(String.fromCharCode(9)).length);
+ok('tsv 带下载文件名', /attachment; filename="rank-week\.tsv"/.test(tsv.headers.get('content-disposition') || ''), tsv.headers.get('content-disposition'));
+const badFmt = await get('?format=xml');
+ok('format=xml → 400', badFmt.status === 400 && /json 或 tsv/.test((badFmt.j && badFmt.j.error) || ''), badFmt.status);
+
+const firstWithTopics = (def.j && def.j.items || []).find((x) => Array.isArray(x.topics) && x.topics.length);
+const pickTopic = (firstWithTopics && firstWithTopics.topics[0]) || 'desktop-app';
+const byTopic = await get('?limit=100&topic=' + encodeURIComponent(pickTopic));
+ok('topic 过滤：有结果', !!(pickTopic && byTopic.status === 200 && byTopic.j && byTopic.j.total > 0), pickTopic + ' → ' + (byTopic.j && byTopic.j.total));
+ok('topic 过滤：每条都带该 topic', !!(byTopic.j && byTopic.j.items.every((x) => Array.isArray(x.topics) && x.topics.some((t) => String(t).toLowerCase() === pickTopic.toLowerCase()))), byTopic.j && byTopic.j.returned);
+ok('topic 过滤：total 小于全量', !!(byTopic.j && byTopic.j.total < def.j.total), byTopic.j && byTopic.j.total);
+const noneTopic = await get('?topic=zzzznope');
+ok('不存在的 topic → 0 条（证明过滤生效）', noneTopic.status === 200 && noneTopic.j && noneTopic.j.total === 0 && noneTopic.j.items.length === 0, noneTopic.j && noneTopic.j.total);
+
 for (const r of rows) console.log((r.ok ? '  OK   ' : '  FAIL ') + r.name + (r.detail ? '  → ' + r.detail : ''));
 console.log(bad ? `\n${bad} FAILED of ${rows.length}` : `\nALL OK (${rows.length})  @${BASE}`);
 process.exit(bad ? 1 : 0);

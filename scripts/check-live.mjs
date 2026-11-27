@@ -85,6 +85,13 @@ let rankJson = null;
 try { rankJson = await rankRes.json(); } catch (e) { rankJson = null; }
 push('/api/rank 可用（机器可读排行）', rankRes.ok && !!rankJson && rankJson.ok === true && rankJson.total > 0 && Array.isArray(rankJson.items) && rankJson.items.length === 2, rankRes.status + ' total=' + (rankJson && rankJson.total));
 push('/api/rank 边缘缓存 5 分钟 + 允许跨域', !!rankRes.headers.get('cache-control') && rankRes.headers.get('cache-control').includes('s-maxage=300') && rankRes.headers.get('access-control-allow-origin') === '*', (rankRes.headers.get('cache-control') || '') + ' | ' + (rankRes.headers.get('access-control-allow-origin') || ''));
+const rankTsv = await fetch(base + '/api/rank?limit=2&format=tsv&v=' + t, { headers: { 'cache-control': 'no-cache' } });
+const rankTsvLines = (await rankTsv.text()).trim().split(String.fromCharCode(10));
+const tsvHead = ['rank', 'name', 'stars', 'forks', 'lang', 'topics', 'desc', 'url'].join(String.fromCharCode(9));
+push('/api/rank 支持 format=tsv（表头 + limit+1 行）', rankTsv.ok && /^text\/tab-separated-values/.test(rankTsv.headers.get('content-type') || '') && rankTsvLines[0] === tsvHead && rankTsvLines.length === 3, rankTsvLines.length);
+const rankTopic = await fetch(base + '/api/rank?limit=100&topic=desktop-app&v=' + t, { headers: { 'cache-control': 'no-cache' } });
+const rankTopicJson = await rankTopic.json().catch(() => null);
+push('/api/rank 支持 topic 过滤', rankTopic.ok && !!rankTopicJson && rankTopicJson.topic === 'desktop-app' && rankTopicJson.total > 0 && rankTopicJson.items.every((x) => (x.topics || []).some((y) => String(y).toLowerCase() === 'desktop-app')), rankTopicJson && rankTopicJson.total);
 
 const submit = await (await fetch(base + '/api/submit?v=' + t)).text();
 push('/api/submit 明细', submit.includes('keyFileOk'));
