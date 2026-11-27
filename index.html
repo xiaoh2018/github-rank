@@ -600,6 +600,11 @@ body[data-page="articles"] #rankBar,body[data-page="articles"] #stats,body[data-
   .chip{min-height:38px;padding:8px 14px}
 }
 #artViewList .empty{padding:28px 18px;border:1px dashed var(--border);border-radius:12px;text-align:center;color:var(--muted);font-size:13.5px}
+#artViewList .artempty p{margin:0}
+#artViewList .artempty p+p{margin-top:6px}
+#artViewList .ef-cond{max-width:44em;margin:6px auto 0;line-height:1.75}
+#artViewList .ef-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+#artViewList .ef-acts button{min-height:38px}
 @media (max-width:600px){.artvbar{flex-wrap:wrap}.artvbar input,.artvbar select{flex:1 1 100%}}
   body[data-page="faq"] #rankBar,body[data-page="faq"] #stats,body[data-page="faq"] #adHomeTop{display:none}
   .faqview .qa{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:0 0 10px;overflow:hidden}
@@ -1470,9 +1475,24 @@ window.__imeBind = function (el, fn) {
       var hay=(str(it.title)+' '+str(it.summary)+' '+artCatOf(it)+' '+tags).toLowerCase();
       return hay.indexOf(q)>=0;
     }
+    function artEmptyHtml(){
+      var cond=[];
+      if(artv.cat && artv.cat!=='all') cond.push('分类「'+artv.cat+'」');
+      if(artv.q) cond.push('关键词「'+artvEsc(artv.q)+'」');
+      var total=artv.list.length;
+      var why=cond.length
+        ? '当前筛选：'+cond.join(' + ')+' —— 站内一共 '+total+' 篇，逐篇看过了都对不上。'
+        : '站内一共 '+total+' 篇文章，还没有可显示的内容。';
+      var acts='';
+      if(artv.q) acts+='<button type="button" data-avf="q">只清关键词</button>';
+      if(artv.cat && artv.cat!=='all') acts+='<button type="button" data-avf="cat">改回全部</button>';
+      if(cond.length) acts+='<button type="button" data-avf="all">清空全部筛选</button>';
+      return '<div class="empty artempty"><p>没有匹配的文章</p><p class="ef-cond">'+why+'</p><div class="ef-acts">'+acts+'</div></div>';
+    }
     function renderArtView(){
       var box=document.getElementById('artViewList');
       if(!box) return;
+      artvChips();  // 分类胶囊与列表必须同一份状态（空态里清筛选后胶囊要跟着回「全部」）
       var items=artv.list.filter(artvMatch);
       if(artv.sort==='old') items.sort(function(a,b){ return String(a.date||'').localeCompare(String(b.date||'')); });
       else if(artv.sort==='title') items.sort(function(a,b){ return String(a.title||'').localeCompare(String(b.title||''),'zh'); });
@@ -1481,7 +1501,7 @@ window.__imeBind = function (el, fn) {
         return String(b.date||'').localeCompare(String(a.date||''));
       });
       if(!items.length){
-        box.innerHTML='<div class="empty">没有匹配的文章'+(artv.q?'，换个关键词试试':'')+'。</div>';
+        box.innerHTML=artEmptyHtml();
         return;
       }
       var grid=document.createElement('div');
@@ -1943,6 +1963,16 @@ getJSON('/data/site.json').then(function(site){
     if(artMore) artMore.addEventListener('click',function(e){ e.preventDefault(); setView('articles'); if(window.scrollTo) window.scrollTo({top:0,behavior: window.__sb()}); });
     var artSearchBox=document.getElementById('artSearch');
     if(artSearchBox) window.__imeBind(artSearchBox, function(){ artv.q=str(artSearchBox.value).toLowerCase(); renderArtView(); });
+    var artListBox=document.getElementById('artViewList');
+    if(artListBox) artListBox.addEventListener('click',function(e){
+      var b=e.target&&e.target.closest?e.target.closest('[data-avf]'):null;
+      if(!b) return;
+      var what=b.getAttribute('data-avf');
+      if(what==='q'||what==='all'){ artv.q=''; if(artSearchBox) artSearchBox.value=''; }
+      if(what==='cat'||what==='all'){ artv.cat='all'; }
+      renderArtView();
+      if(artSearchBox && what!=='q') artSearchBox.focus();
+    });
     var artSortBox=document.getElementById('artSort');
     if(artSortBox) artSortBox.addEventListener('change',function(){ artv.sort=this.value||'new'; renderArtView(); });
     var artChipsBox=document.getElementById('artChips');
