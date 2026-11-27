@@ -1,39 +1,25 @@
 // 导航页排序门禁：后台「导航页」面板的分类 ↑↓ 与组内站点 ↑↓ 要能真正换位，且不保存时重进还原。
 // 用法：先起 dev-server（8123），再 node scripts/check-nav-order.mjs
-import { spawn } from 'node:child_process';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
+import { openCdp } from './lib/cdp.mjs';
 
 const base = process.env.BASE || 'http://127.0.0.1:8123';
 const PW = process.env.ADMIN_PASSWORD || 'dev';
-const CHROME = process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const port = 9650 + Math.floor(Math.random() * 250);
-const prof = fs.mkdtempSync(path.join(os.tmpdir(), 'cr-nav-'));
-const child = spawn(CHROME, ['--headless=new', '--disable-gpu', '--no-first-run', '--remote-debugging-port=' + port, '--user-data-dir=' + prof, 'about:blank'], { stdio: 'ignore' });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let fails = 0;
 const ok = (name, cond, detail) => { console.log((cond ? '  PASS  ' : '  FAIL  ') + name + (cond ? '' : '  [' + (detail == null ? '' : detail) + ']')); if (!cond) fails++; };
 
-let target;
-for (let i = 0; i < 40 && !target; i++) {
-  try { const l = await (await fetch('http://127.0.0.1:' + port + '/json/list')).json(); target = l.find((x) => x.type === 'page'); } catch {}
-  if (!target) await sleep(250);
-}
-if (!target) { console.error('Chrome 没起来'); process.exit(1); }
+// 起浏览器/端口/清理/异常形状统一交给 scripts/lib/cdp.mjs（此前是每份门禁各抄一遍）
+const cdp = await openCdp({ width: 1440, height: 1000 });
+await cdp.init();
+const send = cdp.send;
 
-const ws = new WebSocket(target.webSocketDebuggerUrl);
-await new Promise((r, j) => { ws.onopen = r; ws.onerror = j; });
-let id = 0;
-const pend = new Map();
-ws.onmessage = (e) => { const m = JSON.parse(e.data); if (m.id && pend.has(m.id)) { pend.get(m.id)(m); pend.delete(m.id); } };
-const send = (method, params = {}) => { const i = ++id; ws.send(JSON.stringify({ id: i, method, params })); return new Promise((r) => pend.set(i, r)); };
 const evalJs = async (expression) => {
-  const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
-  if (r.result && r.result.exceptionDetails) return { __err: JSON.stringify(r.result.exceptionDetails).slice(0, 220) };
-  return r.result && r.result.result ? r.result.result.value : undefined;
+  const v = await cdp.js(expression);
+  // 库里异常统一成 {__err}，这里保持与本门禁原来的调用方式一致
+  return v && v.__err ? v : v;
 };
+
 const login = async () => {
   await sleep(1600);
   await evalJs(`(() => { const p = document.querySelector('#pw'); if (p) { p.value = ${JSON.stringify(PW)}; const f = document.querySelector('#loginForm'); if (f) f.requestSubmit(); } return 1; })()`);
@@ -182,6 +168,5 @@ try {
 }
 
 console.log(fails ? `导航排序门禁 ${fails} 项失败` : '导航排序门禁全部通过');
-try { await send('Browser.close'); } catch {}
-child.kill();
+await cdp.close();
 process.exit(fails ? 1 : 0);

@@ -24,9 +24,9 @@ const adopters = gates.filter((f) => fs.readFileSync(path.join('scripts', f), 'u
 push('至少 2 个门禁已改用共享启动器', adopters.length >= 2, adopters.join(',') || '0 个');
 
 // 棘轮：还自带该样板的门禁只许减少
-// 基线 119（第 25 轮统计：迁移 check-lazy-md 之后）；每迁移一个就把它调小一次
+// 基线 118（第 26 轮：迁移 check-nav-order 之后）；每迁移一个就把它调小一次
 // 注意：本文件在注释里提到这个字符串，必须把自己排除，否则统计会自己 +1
-const BASELINE = 119;
+const BASELINE = 118;
 const dup = gates.filter((f) => f !== 'check-cdp-lib.mjs' && fs.readFileSync(path.join('scripts', f), 'utf8').includes('/json/' + 'list'));
 push('自带 CDP 样板的门禁数不超过基线（只许减少）', dup.length <= BASELINE, dup.length + ' / 基线 ' + BASELINE);
 

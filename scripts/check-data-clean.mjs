@@ -20,7 +20,26 @@ const digest = (buf) => crypto.createHash('sha256').update(buf).digest('hex').sl
 
 // 内容级比对：git status 会因为 CRLF/stat 认为「改了」，但内容其实一模一样。
 // 这里改成跟 HEAD 里的字节比（只把 CRLF 归一成 LF，其余逐字比）。
-const normText = (buf) => String(buf).split('\r\n').join('\n');
+// 比对口径：JSON 文件按「语义」比（顶层 updatedAt/generatedAt 是写入时间，每次写都会变），
+// 其它文本按字节比（只统一换行）。这样既能抓住「测试数据没还原」，又不会因为时间戳误报。
+const sortKeys = (v) => {
+  if (Array.isArray(v)) return v.map(sortKeys);
+  if (v && typeof v === 'object') {
+    const out = {};
+    for (const k of Object.keys(v).sort()) out[k] = sortKeys(v[k]);
+    return out;
+  }
+  return v;
+};
+const normText = (buf, rel) => {
+  const t = String(buf).split('\r\n').join('\n');
+  if (!rel || !/\.json$/.test(rel)) return t.trimEnd();
+  try {
+    const j = JSON.parse(t);
+    if (j && typeof j === 'object') { delete j.updatedAt; delete j.generatedAt; }
+    return JSON.stringify(sortKeys(j));
+  } catch { return t.trimEnd(); }
+};
 const HEAD_CACHE = new Map();
 function headBuf(rel) {
   if (HEAD_CACHE.has(rel)) return HEAD_CACHE.get(rel);
@@ -41,7 +60,7 @@ function diffFromHead() {
     const head = headBuf(rel);
     if (!disk) { bad.push(rel + '：磁盘上不存在'); continue; }
     if (!head) { bad.push(rel + '：HEAD 里没有这个文件'); continue; }
-    if (normText(disk) !== normText(head)) bad.push(rel + '：' + digest(disk) + ' ≠ ' + digest(head));
+    if (normText(disk, rel) !== normText(head, rel)) bad.push(rel + '：' + digest(disk) + ' ≠ ' + digest(head));
   }
   return bad;
 }
@@ -50,7 +69,8 @@ function snapshot() {
   for (const name of fs.readdirSync(DATA).sort()) {
     const p = path.join(DATA, name);
     if (!fs.statSync(p).isFile()) continue;
-    out[name] = digest(fs.readFileSync(p));
+    // 用「语义指纹」而不是原始字节：JSON 的 updatedAt/generatedAt 每次写入都会变
+    out[name] = normText(fs.readFileSync(p), 'data/' + name);
   }
   return out;
 }
@@ -83,7 +103,7 @@ ok('被检查的门禁本身跑通：' + target, child.code === 0, 'exit ' + chi
 // 3) 跑完：逐字节比对
 const after = snapshot();
 const changed = diff(before, after);
-ok('门禁跑完后 data/ 逐字节还原', changed.length === 0, changed.join('; '));
+ok('门禁跑完后 data/ 内容还原（JSON 忽略 updatedAt 等写入时间）', changed.length === 0, changed.join('; '));
 
 const badAfter = diffFromHead();
 ok('跑完之后 data/ 与 git HEAD 内容一致', badAfter.length === 0, badAfter.join(' | '));
