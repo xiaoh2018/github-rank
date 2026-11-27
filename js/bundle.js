@@ -1022,8 +1022,24 @@ function applyTheme(t) { document.documentElement.setAttribute('data-theme', t);
 
 // ---------- 中英文（简介 / README 中文）：默认中文，中文没有译文时显示英文原文 ----------
 function getLang() { return localStorage.getItem('ghrank:lang') || 'zh'; }
-function refreshLangBtn() { $('btnLang').textContent = getLang() === 'zh' ? 'English' : '中文'; }
-$('btnLang').onclick = () => { localStorage.setItem('ghrank:lang', getLang() === 'zh' ? 'en' : 'zh'); refreshLangBtn(); render(); };
+function refreshLangBtn() {
+  const el = $('btnLang'); if (!el) return;
+  const zh = getLang() === 'zh';
+  el.textContent = zh ? '描述：中文' : '描述：原文';
+  el.setAttribute('aria-pressed', zh ? 'false' : 'true');
+  el.title = zh
+    ? '项目描述用中文翻译；再点一次改成 GitHub 原文'
+    : '项目描述用 GitHub 原文，中文翻译已关闭；再点一次改回中文';
+}
+$('btnLang').onclick = () => {
+  const toZh = getLang() !== 'zh';
+  localStorage.setItem('ghrank:lang', toZh ? 'zh' : 'en');
+  refreshLangBtn();
+  render();
+  setStatus(toZh
+    ? '项目描述已切回中文翻译（页面其他文字一直是中文，这个按钮只管描述）'
+    : '项目描述已切换为 GitHub 原文（中文翻译已关闭）');
+};
 refreshLangBtn();
 
 // ---------- 下拉框 / 分类 ----------

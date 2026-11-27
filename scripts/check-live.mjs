@@ -48,6 +48,8 @@ push('bundle 平滑滚动走 __sb 助手', bundleJs.includes('behavior: window._
 push('头像声明 22×22 并异步解码', bundleJs.includes('img.width = 22') && bundleJs.includes("img.decoding = 'async'"));
 push('对话框 aria-modal + 焦点圈', home.includes('aria-modal') && home.includes('__bindDlgA11y'));
 push('对话框 Esc 与 × 同一关闭路径', home.includes('走与「×」相同的关闭路径'));
+push('语言按钮写清「描述」而不是笼统的 English', home.includes('id="btnLang" type="button" aria-pressed="false"') && home.includes('描述：中文'), '');
+push('切到原文后状态行说明只管描述', bundleJs.includes('描述：原文') && bundleJs.includes('项目描述已切换为 GitHub 原文'), '');
 const artApi = await (await fetch(base + '/api/articles?v=' + t)).text();
 const art = await (await fetch(base + '/articles?v=' + t)).text();
 push('文章搜索防抖', art.includes('searchTimer'));

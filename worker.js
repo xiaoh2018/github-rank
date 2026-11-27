@@ -1691,7 +1691,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v239';
+const ASSET_V = 'v240';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2510,7 +2510,7 @@ function normalizeSite(o) {
     cols: ['auto', 'single', 'double', 'triple'].indexOf(art.cols) >= 0 ? art.cols : 'double',
   };
   const rawCats = o && o.article && Array.isArray(o.article.categories) ? o.article.categories : null;
-  if (rawCats) {
+  if (rawCats && rawCats.length) {
     const seen = {};
     d.article.categories = [];
     for (const c of rawCats.slice(0, 30)) {
