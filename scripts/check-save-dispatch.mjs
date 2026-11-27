@@ -1,101 +1,190 @@
-// 后台保存派发自查：每个 data-save="X" 都必须有一条**可达**的分支。
-// 踩过的坑：if (sec === 'qa') 被误嵌进 if (sec === 'nav') 里面（缩进还是 6 空格，肉眼看不出），
-// 于是点「保存问答」时落到了 /api/site（section=qa 不在 SITE_SECTIONS），后台报「section 只能是…」。
-// 所以这里不能只看缩进，必须按大括号深度判断分支是否在 api('/api/site') 的同一层级。
+// 保存按钮的分派：点每个 [data-save] 按钮，看它到底 POST 到哪个接口
+// 旧版靠数花括号推断「分支可达」—— ADMIN_PAGE 里全是内联 CSS/JS，括号数不准，误报过 qa / nav 不可达。
+// 现在改成行为测试：真点按钮 + 拦请求看 URL，验证的是用户实际遇到的行为。
+// 用法：node scripts/check-save-dispatch.mjs   （只跑本地；后台写操作需要密码）
+
+import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
-const raw = fs.readFileSync('worker.js', 'utf8');
-const src = raw.split(/\r?\n/);
-const problems = [];
-let checked = 0;
+const BASE = (process.env.PROBE_BASE || 'http://127.0.0.1:8123').replace(/\/+$/, '');
+const PW = process.env.ADMIN_PW || 'dev';
 
-// 逐行计算「进入本行前的花括号深度」，跳过字符串字面量与行注释
-function depthMap(lines) {
-  let depth = 0;
-  const out = [];
-  for (const line of lines) {
-    out.push(depth);
-    let i = 0;
-    while (i < line.length) {
-      const c = line[i];
-      if (c === '/' && line[i + 1] === '/') break;
-      if (c === "'" || c === '"' || c === '`') {
-        const q = c;
-        i++;
-        while (i < line.length && line[i] !== q) { if (line[i] === '\\') i++; i++; }
-        i++;
-        continue;
-      }
-      if (c === '{') depth++;
-      else if (c === '}') depth--;
-      i++;
+let pass = 0;
+let fail = 0;
+const rows = [];
+const push = (name, ok, info) => {
+  rows.push((ok ? 'OK   ' : 'FAIL ') + name + (info === undefined ? '' : '  → ' + info));
+  ok ? pass++ : fail++;
+};
+
+const port = 9600 + Math.floor(Math.random() * 300);
+const userDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cdp-'));
+const chrome = [
+  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+].find((p) => fs.existsSync(p));
+const proc = spawn(chrome, [
+  '--headless=new',
+  '--remote-debugging-port=' + port,
+  '--user-data-dir=' + userDir,
+  '--window-size=1440,900',
+  '--no-first-run',
+  'about:blank',
+], { stdio: 'ignore' });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+let ws = null;
+let id = 0;
+const pending = new Map();
+const paused = [];
+
+for (let i = 0; i < 60; i++) {
+  try {
+    const list = await (await fetch('http://127.0.0.1:' + port + '/json/list')).json();
+    const page = list.find((t) => t.type === 'page');
+    if (page) {
+      ws = new WebSocket(page.webSocketDebuggerUrl);
+      await new Promise((res, rej) => {
+        ws.onopen = res;
+        ws.onerror = rej;
+      });
+      ws.onmessage = (e) => {
+        const m = JSON.parse(e.data);
+        if (m.id && pending.has(m.id)) {
+          pending.get(m.id)(m);
+          pending.delete(m.id);
+          return;
+        }
+        if (m.method === 'Fetch.requestPaused') paused.push(m.params);
+      };
+      break;
     }
-  }
-  return out;
+  } catch {}
+  await sleep(200);
 }
-const depths = depthMap(src);
-
-// 1) 所有 data-save 的 section
-const sections = new Set();
-for (const line of src) {
-  const m = line.match(/data-save="([a-z]+)"/g);
-  if (m) m.forEach((x) => sections.add(x.slice(11, -1)));
+if (!ws) {
+  console.error('连不上 CDP：可能有残留 headless chrome 占着端口，先清掉再跑');
+  process.exit(2);
 }
-
-// 2) 定位派发块
-const startIdx = src.findIndex((l) => /querySelectorAll\('\[data-save\]'\)|\[data-save\]'\)\.forEach/.test(l));
-const siteIdx = src.findIndex((l) => /api\('\/api\/site', \{ method: 'POST'/.test(l));
-if (startIdx < 0 || siteIdx < 0 || siteIdx < startIdx) {
-  console.log('找不到保存派发代码块（data-save 监听器 → api(/api/site)），跳过检查');
-  process.exit(0);
-}
-const siteDepth = depths[siteIdx];
-
-// 3) 同一层级（深度 == siteDepth）的 if (sec === 'X') 才是可达分支
-const baseIfs = new Set();
-for (let i = startIdx; i <= siteIdx; i++) {
-  const m = src[i].match(/if \(sec === '([a-z]+)'\) \{/);
-  if (!m) continue;
-  if (depths[i] === siteDepth) baseIfs.add(m[1]);
-  else problems.push(`if (sec === '${m[1]}') 在第 ${i + 1} 行，但被套进了更深的块（深度 ${depths[i]}，应为 ${siteDepth}）→ 这个分支不可达`);
-}
-
-// 4) 专用接口 section 必须有顶层分支 + 调用对应接口
-const SPECIAL = { qa: '/api/qa', nav: '/api/nav' };
-for (const sec of Object.keys(SPECIAL)) {
-  if (!sections.has(sec)) continue;
-  checked++;
-  if (!baseIfs.has(sec)) problems.push(`data-save="${sec}" 没有可达分支 → 点保存会落到 /api/site 被 400 拒`);
-  const hasApi = src.slice(startIdx, siteIdx + 1).some((l) => l.includes(`'${SPECIAL[sec]}'`));
-  if (!hasApi) problems.push(`data-save="${sec}" 附近没有调用 ${SPECIAL[sec]}`);
-}
-
-// 5) 普通 section 必须在 SITE_SECTIONS 里
-const listMatch = raw.match(/const SITE_SECTIONS = \[([^\]]*)\]/);
-if (listMatch) {
-  const allowed = new Set(listMatch[1].split(',').map((x) => x.trim().replace(/^'|'$/g, '')).filter(Boolean));
-  for (const sec of sections) {
-    if (SPECIAL[sec]) continue;
-    checked++;
-    if (!allowed.has(sec)) problems.push(`data-save="${sec}" 不在 SITE_SECTIONS 里，POST 会被 400 拒`);
-  }
-}
-
-// 6) 重复 id（同一个 id 出现两次，$('id') 只命中第一个）
-const ids = new Map();
-src.forEach((line, i) => {
-  const m = line.match(/\sid="([A-Za-z][\w-]*)"/g);
-  if (m) m.forEach((x) => {
-    const id = x.slice(5, -1);
-    if (!ids.has(id)) ids.set(id, []);
-    ids.get(id).push(i + 1);
+const send = (method, params) =>
+  new Promise((res) => {
+    const mid = ++id;
+    pending.set(mid, res);
+    ws.send(JSON.stringify({ id: mid, method, params: params || {} }));
   });
-});
-for (const [id, lines] of ids) if (lines.length > 1) problems.push(`id="${id}" 重复 ${lines.length} 次（行 ${lines.join(', ')}）`);
+const ev = async (expr) => {
+  const r = await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true });
+  if (r.result && r.result.exceptionDetails) return { __err: r.result.exceptionDetails.text };
+  return r.result && r.result.result ? r.result.result.value : null;
+};
 
-if (problems.length) {
-  console.log('发现 ' + problems.length + ' 个问题：');
-  problems.forEach((p) => console.log('  ✗ ' + p));
-  process.exit(1);
+await send('Page.enable');
+await send('Runtime.enable');
+await send('Fetch.enable', { patterns: [{ urlPattern: '*', requestStage: 'Request' }] });
+
+// 拦截器：/api/* 一律记下来并回 200 {ok:true}；其它请求放行
+let recording = true;
+let calls = [];
+const pump = setInterval(async () => {
+  while (paused.length) {
+    const p = paused.shift();
+    const u = p.request.url;
+    const isApi = /\/api\//.test(u);
+    if (isApi && recording) {
+      calls.push({ path: u.replace(BASE, '').split('?')[0], method: p.request.method, post: p.request.postData || '' });
+    }
+    try {
+      if (isApi) {
+        const body = Buffer.from(JSON.stringify({ ok: true })).toString('base64');
+        await send('Fetch.fulfillRequest', {
+          requestId: p.requestId,
+          responseCode: 200,
+          responseHeaders: [{ name: 'content-type', value: 'application/json; charset=utf-8' }],
+          body: body,
+        });
+      } else {
+        await send('Fetch.continueRequest', { requestId: p.requestId });
+      }
+    } catch (e) {}
+  }
+}, 30);
+
+await send('Page.navigate', { url: BASE + '/admin' });
+await sleep(2200);
+await ev("sessionStorage.setItem('adminPw', " + JSON.stringify(PW) + ")");
+await send('Page.reload', { ignoreCache: true });
+await sleep(2600);
+const gateShown = await ev("getComputedStyle(document.getElementById('gate')).display");
+push('后台已登录（gate 隐藏）', gateShown === 'none', String(gateShown));
+
+// data-save → 期望接口
+const MAP = [
+  ['qa', '/api/qa'],
+  ['nav', '/api/nav'],
+  ['theme', '/api/site'],
+  ['layout', '/api/site'],
+  ['contact', '/api/site'],
+  ['beian', '/api/site'],
+  ['seo', '/api/site'],
+  ['geo', '/api/site'],
+  ['ad', '/api/site'],
+  ['runtime', '/api/site'],
+];
+
+for (const [key, expect] of MAP) {
+  calls = [];
+  const clicked = await ev(
+    "(function(){var b=document.querySelector('[data-save=\"" + key + "\"]'); if(!b) return 'missing'; b.click(); return 'ok';})()"
+  );
+  if (clicked !== 'ok') {
+    push('[' + key + '] 保存按钮存在', false, String(clicked));
+    continue;
+  }
+  await sleep(900);
+  const my = calls.slice();
+  const hit = my.filter((c) => c.method === 'POST');
+  const ok = hit.length === 1 && hit[0].path === expect;
+  push('[' + key + '] 点保存 POST 到 ' + expect, ok, hit.map((c) => c.path).join(',') || '（没有发出请求）');
 }
-console.log(`✓ 保存派发全部可达（检查 ${checked} 个 section），无重复 id`);
+
+// 文章弹窗：保存按钮是 #artSubmit（不是 data-save="article" —— 那是「保存文章设置」，本来就该打 /api/site）
+calls = [];
+const artOpened = await ev("(function(){var b=document.getElementById('artNew'); if(!b) return 'missing'; b.click(); return 'ok';})()");
+await sleep(700);
+const artFilled = await ev(
+  "(function(){var t=document.getElementById('artTitleIn'),s=document.getElementById('artSummary'),b=document.getElementById('artBody');" +
+    "if(!t||!s||!b) return 'no-fields';" +
+    "t.value='保存分派测试'; s.value='测试摘要'; b.value='测试正文';" +
+    "[t,s,b].forEach(function(el){el.dispatchEvent(new Event('input',{bubbles:true}));});" +
+    "var btn=document.getElementById('artSubmit'); if(!btn) return 'no-button'; btn.click(); return 'ok';})()"
+);
+await sleep(1100);
+const artErr = await ev("(function(){var e=document.getElementById('artErr'); return e?(e.textContent||'').trim():'';})()");
+const artPosts = calls.filter((c) => c.method === 'POST');
+push(
+  '[文章弹窗] #artSubmit POST 到 /api/articles',
+  artOpened === 'ok' && artFilled === 'ok' && artPosts.length === 1 && artPosts[0].path === '/api/articles',
+  (artPosts.map((c) => c.path).join(',') || '（没有发出请求）') + (artErr ? ' 面板报错：' + artErr : '')
+);
+
+// 反向：任何一次点击都不该出现「两个请求」或「打到别的接口」
+calls = [];
+await ev("(function(){var b=document.querySelector('[data-save=\"qa\"]'); b && b.click();})()");
+await sleep(1200);
+push('单次点击只发一个请求（不重复提交）', calls.filter((c) => c.method === 'POST').length === 1, String(calls.length) + ' 个请求');
+
+clearInterval(pump);
+console.log(rows.join('\n'));
+console.log('\n' + (fail ? 'FAILED ' + fail + ' of ' + (pass + fail) : 'ALL OK (' + pass + ')') + '  @' + BASE);
+try {
+  ws.close();
+} catch {}
+try {
+  proc.kill();
+} catch {}
+try {
+  fs.rmSync(userDir, { recursive: true, force: true });
+} catch {}
+process.exit(fail ? 1 : 0);
