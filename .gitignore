@@ -6,3 +6,8 @@ node_modules/
 
 # 本地凭据（不要提交）
 apitoken.txt
+docs/tmp-dev.log
+docs/tmp-dev.err
+docs/tmp-*.md
+scripts/tmp-*.mjs
+docs/tmp-commit-msg*.txt
