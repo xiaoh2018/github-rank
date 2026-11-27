@@ -1428,10 +1428,9 @@ window.__imeBind = function (el, fn) {
       if(sum){ var p=document.createElement('p'); p.className='artcard-sum'; p.textContent=sum; card.appendChild(p); }
       var foot=document.createElement('div');
       foot.className='artcard-foot';
-      var read=document.createElement('a');
+      var read=document.createElement('span');
       read.className='read';
-      read.href=artHref(it);
-      read.setAttribute('data-artpost', String(it.slug||''));
+      read.setAttribute('aria-hidden','true');
       read.textContent='阅读全文 →';
       foot.appendChild(read);
       if(it.locked && it.hasLock!==false){ var lk=document.createElement('span'); lk.className='lock'; lk.textContent='🔒 需要密码'; foot.appendChild(lk); }
@@ -1627,10 +1626,9 @@ window.__imeBind = function (el, fn) {
         if(sum){ var p=document.createElement('p'); p.className='artcard-sum'; p.textContent=sum; card.appendChild(p); }
         var foot=document.createElement('div');
         foot.className='artcard-foot';
-        var read=document.createElement('a');
+        var read=document.createElement('span');
         read.className='read';
-        read.href=artHref(it);
-      read.setAttribute('data-artpost', String(it.slug||''));
+        read.setAttribute('aria-hidden','true');
         read.textContent='阅读全文 →';
         foot.appendChild(read);
         // 只有真的存了密文才显示锁：老数据可能 locked=true 但没有 lock.ct，点了会问密码却永远解不开

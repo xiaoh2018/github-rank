@@ -529,6 +529,11 @@ push('筛选/分页视图 noindex,follow（不与首页抢收录）', /<meta nam
 const listHtml = await (await fetch(base + '/articles?cb=' + Date.now())).text();
 push('/articles 带 ItemList 结构化数据', /"@type":"ItemList"/.test(listHtml), '');
 
+push('/articles 卡片是 article + 标题内链（锚文本=标题）',
+  artHtml.includes('<article class="acard" data-id=') && artHtml.includes('class="stretch"') && !artHtml.includes('<a class="acard" href='), '');
+push('首页「阅读全文」不再是链接（装饰 span + aria-hidden）',
+  home.includes("read.setAttribute('aria-hidden','true')") && !home.includes('read.href=artHref'), '');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
