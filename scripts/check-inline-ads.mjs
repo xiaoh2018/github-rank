@@ -36,7 +36,7 @@ await send('Network.setCacheDisabled', { cacheDisabled: true });
 await send('Emulation.setDeviceMetricsOverride', { width: W, height: 1000, deviceScaleFactor: 1, mobile: W < 700 });
 
 let hits = 0;
-if (!REMOTE) {
+{
   const base = JSON.parse(await (await fetch(BASE + '/api/site')).text()).site;
   const slots = {};
   ['home-top', 'list-top', 'list-inline', 'list-bottom', 'sidebar', 'article', 'article-inline', 'nav-inline'].forEach((k) => { slots[k] = { enabled: true, html: '<div class="mk">' + k.toUpperCase() + '</div>', every: 5, link: '', modal: '' }; });
@@ -66,16 +66,14 @@ const out = await js(`(function(){
   return {items:items, ads:ads, lastAd:lastAd, gridLastAd:gridLastAd, navGroups:navLast.length, navLastAd:navLast.filter(Boolean).length, sw:document.documentElement.scrollWidth, cw:document.documentElement.clientWidth};
 })()`);
 let nav = { groups: 0, lastAd: 0 };
-if (!REMOTE) {
-  await send('Page.navigate', { url: BASE + '/nav?t=' + Date.now() });
-  await sleep(2600);
+{
+  await send('Page.navigate', { url: BASE + '/?page=nav&t=' + Date.now() });
+  await sleep(4600);
   nav = await js(`(function(){var gs=[].slice.call(document.querySelectorAll('.navgird'));return {groups:gs.length,lastAd:gs.filter(function(g){var l=g.lastElementChild;return !!(l&&l.classList.contains('ad-inline-card'))}).length};})()`);
 }
 if (globalThis.__pump) clearInterval(globalThis.__pump);
 
-if (REMOTE) {
-  push('线上模式：跳过造数据断言', true, 'REMOTE');
-} else {
+{
   push('拦截确实命中（否则下面全是空转）', hits > 0, 'hits=' + hits);
   push('列表里插了信息流广告', out.ads >= 1, 'ads=' + out.ads);
   push('广告数量按每 5 条插一条算（不含末尾）', out.ads === Math.floor((out.items - 1) / 5), out.ads + ' for ' + out.items + ' items');
