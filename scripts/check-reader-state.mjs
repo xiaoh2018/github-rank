@@ -46,7 +46,7 @@ async function loadList(w = 390, h = 700) {
   const y0 = await e('window.scrollY');
   ok('列表页能滚动（读测试前提）', y0 > 40, 'y0=' + y0);
 
-  await e("document.querySelectorAll('#cards .acard')[2].click()");
+  await e("document.querySelectorAll('#cards .acard')[0].click()");
   await waitFor("!document.querySelector('#reader').hidden");
   await sleep(300);
   ok('点开文章后地址变成文章页', (await url()).indexOf('/articles/') === 0, await url());
@@ -59,7 +59,7 @@ async function loadList(w = 390, h = 700) {
   const y1 = await e('window.scrollY');
   ok('返回后滚动位置被还原', Math.abs(y1 - y0) <= 8, 'y0=' + y0 + ' y1=' + y1);
 
-  await e("document.querySelectorAll('#cards .acard')[2].click()");
+  await e("document.querySelectorAll('#cards .acard')[0].click()");
   await waitFor("!document.querySelector('#reader').hidden");
   await sleep(250);
   await e('history.back()');
@@ -80,13 +80,15 @@ async function loadList(w = 390, h = 700) {
   ok('深链返回不会多塞历史记录', (await e('history.length')) <= hist0, hist0 + ' → ' + (await e('history.length')));
 
   // 刷新仍保持在文章
-  await e("document.querySelectorAll('#cards .acard')[2].click()");
+  await e("document.querySelectorAll('#cards .acard')[0].click()");
   await waitFor("!document.querySelector('#reader').hidden");
+  const tBefore = await e("document.querySelector('#rTitle').textContent");
   await send('Page.reload');
   await waitFor("document.querySelectorAll('#cards .acard').length > 0");
   await sleep(700);
   ok('刷新后仍在阅读器里', (await hidden()) === false);
-  ok('刷新后仍是同一篇', (await e("document.querySelector('#rTitle').textContent")).indexOf('目录高亮') >= 0, await e("document.querySelector('#rTitle').textContent"));
+  const tAfter = await e("document.querySelector('#rTitle').textContent");
+  ok('刷新后仍是同一篇', tAfter === tBefore, tBefore + ' → ' + tAfter);
 
   console.log(bad === 0 ? '\nALL OK (' + total + ')' : '\n' + bad + '/' + total + ' FAILED');
   ws.close(); chrome.kill();

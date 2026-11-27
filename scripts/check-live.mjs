@@ -514,6 +514,9 @@ push('ad 只剩白名单键（enabled,html,slots,ticker）', adKeys === 'enabled
 const cats = (siteJson && siteJson.site && siteJson.site.article && siteJson.site.article.categories) || [];
 push('文章分类非空（空分类会让详情页 301）', Array.isArray(cats) && cats.length >= 1, 'categories=' + cats.length);
 
+push('关闭阅读器不再用 history.back（会把人带离站点）', home.includes('深链进来时历史里没有 art 状态') && !home.includes('history.state.art) history.back()'), '');
+push('底部边界提示可见时长 1.2 秒（原 0.7 秒太短）', artHtml.includes('classList.remove(\'is-hit\'); }, 1200)'), '');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

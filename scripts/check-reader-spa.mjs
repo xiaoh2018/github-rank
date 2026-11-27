@@ -25,7 +25,9 @@ await waitFor("document.querySelectorAll('#artViewList .artcard').length>0");
 await sleep(600);
 chk('文章视图有卡片', (await ev("document.querySelectorAll('#artViewList .artcard').length")) > 0);
 chk('卡片链接带 data-artpost', await ev("!!document.querySelector('#artViewList .artcard [data-artpost]')"));
-chk('链接不再是 /articles/...html', !(await ev("document.querySelector('#artViewList .artcard a').getAttribute('href')")).includes('.html'), await ev("document.querySelector('#artViewList .artcard a').getAttribute('href')"));
+// 第 19 轮起：卡片 href 是规范静态地址（/articles/<slug>.html，爬虫可抓、无 JS 也能读），
+// 点击由 data-artpost 拦成页内弹窗（下面「仍是同一页」那条断言就是在证明它没整页跳转）。
+chk('卡片 href 是规范静态地址（爬虫可抓）', /^\/articles\/(?!\?).+\.html$/.test(await ev("document.querySelector('#artViewList .artcard a').getAttribute('href')")), await ev("document.querySelector('#artViewList .artcard a').getAttribute('href')"));
 
 const nav0 = await ev("(function(){var s=window.__navCount||0;window.__navCount=0;return 1;})()");
 await ev("(function(){var l=document.querySelector('#artViewList .artcard [data-artpost]');l.click();return 1;})()");

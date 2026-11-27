@@ -35,6 +35,36 @@ const evalJs = async (expression) => {
   return r.result && r.result.result ? r.result.result.value : undefined;
 };
 const open = async (u) => { await send('Page.navigate', { url: base + u + (u.indexOf('?') > -1 ? '&' : '?') + 'v=' + Date.now() }); await sleep(1800); };
+// RN_NAV_STUB：线上只有 2 篇文章时测不了「中间那篇两个方向都有链接」「首尾边界」。
+// 用 CDP 把 /data/articles.json 换成 4 篇（只存在内存里，不碰仓库数据）。
+const RN_NAV_STUB = Array.from({ length: 4 }, (_, i) => ({
+  id: 'rnav-' + (i + 1),
+  slug: 'tech/rnav-' + (i + 1),
+  title: '翻页测试第 ' + (i + 1) + ' 篇',
+  date: '2026-11-0' + (9 - i),
+  summary: '为了测阅读器翻页准备的假文章。',
+  body: '正文。'.repeat(60),
+  category: '技术',
+  tags: ['测试'],
+}));
+await send('Network.setCacheDisabled', { cacheDisabled: true });
+await send('Page.setBypassServiceWorker', { bypass: true });
+await send('Fetch.enable', { patterns: [{ urlPattern: '*/data/articles.json*', requestStage: 'Request' }] });
+ws.addEventListener('message', (ev) => {
+  let m; try { m = JSON.parse(ev.data); } catch { return; }
+  if (m.method !== 'Fetch.requestPaused') return;
+  const body = Buffer.from(JSON.stringify(RN_NAV_STUB), 'utf8').toString('base64');
+  send('Fetch.fulfillRequest', {
+    requestId: m.params.requestId,
+    responseCode: 200,
+    responseHeaders: [
+      { name: 'content-type', value: 'application/json; charset=utf-8' },
+      { name: 'cache-control', value: 'no-store' },
+    ],
+    body,
+  });
+});
+
 const state = async () => evalJs(`(() => {
   const r = document.getElementById('reader');
   const nav = document.getElementById('rNav') || {};
@@ -127,15 +157,16 @@ try {
   ok('最新一篇按 ← 边界提示闪一下', hit2 && hit2.hitPrev === true, hit2 && hit2.hitPrev);
 
   console.log('== 6. 深链直达最后一篇 ==');
-  const cardsInfo = await state();
-  // 点列表最后一张卡进入，拿到它的路径，再整页刷新验证深链
-  await evalJs(`document.querySelectorAll('.acard')[${JSON.stringify(cardsInfo.cards.length - 1)}].click()`);
-  await sleep(700);
-  const deepHref = await evalJs(`location.pathname`);
-  await send('Page.navigate', { url: base + deepHref + '?v=' + Date.now() });
+  // 桩数据只活在浏览器里，服务端没有这些文章；深链必须用仓库里真实存在的最后一篇。
+  const realArts = await (await fetch(base + '/data/articles.json')).json();
+  const sorted = realArts.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+  const lastReal = sorted[sorted.length - 1];
+  const deepPath = '/articles/' + String(lastReal.slug || lastReal.id).split('/').map(encodeURIComponent).join('/') + '.html';
+  await send('Fetch.disable');  // 桩只服务前 5 段；深链是服务端渲染的真文章，客户端数据必须回到真实
+  await send('Page.navigate', { url: base + deepPath + '?v=' + Date.now() });
   await sleep(1800);
   const s6 = await state();
-  ok('深链能直接打开这篇', s6 && s6.readerOpen === true && s6.title === cardsInfo.cards[cardsInfo.cards.length - 1], s6 && s6.title + ' vs ' + cardsInfo.cards[cardsInfo.cards.length - 1]);
+  ok('深链能直接打开这篇', s6 && s6.readerOpen === true && s6.title === lastReal.title, s6 && s6.title + ' vs ' + lastReal.title);
   ok('深链打开时边界提示正确', s6 && s6.hasOlder === false && /已经是最后一篇/.test(s6.limNext), s6 && s6.limNext);
 } finally {
   try { ws.close(); } catch {}

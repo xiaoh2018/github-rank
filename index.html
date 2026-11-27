@@ -2253,7 +2253,16 @@ getJSON('/data/site.json').then(function(site){
       if(!fromHistory) history.pushState({art:slug}, '', '/?page=articles&post='+encodeURIComponent(slug));
     });
   }
-  function closeIt(){ if(!dlg.open) return; dlg.close(); window.scrollTo(0, backY||0); }
+  function closeIt(){
+    if(!dlg.open) return;
+    dlg.close();
+    window.scrollTo(0, backY||0);
+    // 深链进来时历史里没有 art 状态，走不到 history.back()；
+    // 若不清理地址栏的 post，刷新/分享会把已关闭的文章又打开一次。
+    if(/[?&]post=/.test(location.search)){
+      try{ history.replaceState(null, '', '/?page=articles'); }catch(e){}
+    }
+  }
   function mLoc(){ return /[?&]post=([^&]+)/.exec(location.search); }
   document.addEventListener('click', function(e){
     var t=e.target && e.target.closest ? e.target.closest('[data-artpost]') : null;
@@ -2262,8 +2271,8 @@ getJSON('/data/site.json').then(function(site){
     e.preventDefault();
     openArt(t.getAttribute('data-artpost')||'', false);
   });
-  document.getElementById('artDlgX').onclick=function(){ if(history.state && history.state.art) history.back(); else closeIt(); };
-  dlg.addEventListener('cancel', function(e){ e.preventDefault(); if(history.state && history.state.art) history.back(); else closeIt(); });
+  document.getElementById('artDlgX').onclick=function(){ closeIt(); };
+  dlg.addEventListener('cancel', function(e){ e.preventDefault(); closeIt(); });
   document.addEventListener('keydown', function(e){
     if(!dlg.open) return;
     if(e.key!=='ArrowLeft' && e.key!=='ArrowRight') return;
@@ -2274,7 +2283,7 @@ getJSON('/data/site.json').then(function(site){
     var btn=e.key==='ArrowLeft' ? b[0] : b[1];
     if(btn && !btn.disabled){ e.preventDefault(); btn.click(); }
   });
-  document.addEventListener('keydown', function(e){ if(e.key!=='Escape' || !dlg.open) return; e.preventDefault(); e.stopPropagation(); if(history.state && history.state.art) history.back(); else closeIt(); }, true);
+  document.addEventListener('keydown', function(e){ if(e.key!=='Escape' || !dlg.open) return; e.preventDefault(); e.stopPropagation(); closeIt(); }, true);
   dlg.addEventListener('close', function(){ cur=null; });
   window.addEventListener('popstate', function(){ var m=mLoc(); if(m) openArt(decodeURIComponent(m[1]), true); else if(dlg.open) closeIt(); });
   goEl.onclick=function(){
