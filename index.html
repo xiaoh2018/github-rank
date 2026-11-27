@@ -1019,7 +1019,6 @@ window.__imeBind = function (el, fn) {
 <div class="drawer-back" id="drawerBack" hidden></div>
 
 <script src="data/repos-meta.js" onerror="var s=document.createElement('script');s.src='data/repos.js';document.head.appendChild(s);"></script>
-<script src="js/md.js"></script>
 <script src="js/bundle.js"></script>
 <script>
 (function(){
@@ -2183,6 +2182,20 @@ getJSON('/data/site.json').then(function(site){
     navEl.hidden=false;
   }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  var mdLoading = null;
+  // md.js 只有「打开文章弹窗」时才需要：首屏不下载，点开时再取
+  function ensureMd(){
+    if (window.KeeMd) return Promise.resolve();
+    if (mdLoading) return mdLoading;
+    mdLoading = new Promise(function(res, rej){
+      var el = document.createElement('script');
+      el.src = '/js/md.js';
+      el.onload = function(){ res(); };
+      el.onerror = function(){ mdLoading = null; rej(new Error('md.js 加载失败')); };
+      document.head.appendChild(el);
+    });
+    return mdLoading;
+  }
   function md(raw){ if(window.KeeMd && typeof window.KeeMd.render==='function'){ try{ return window.KeeMd.render(String(raw||'')); }catch(e){} } return '<p>'+esc(raw).replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>')+'</p>'; }
   function mins(a){ var b=String(a.body||''); if(!b) return 0; var cjk=(b.match(/[\u4e00-\u9fa5]/g)||[]).length; var w=b.replace(/[\u4e00-\u9fa5]/g,' ').split(/\s+/).filter(Boolean).length; return Math.max(1,Math.round(cjk/400+w/200)); }
   function norm(j){ return Array.isArray(j) ? j : ((j && j.articles) || []); }
@@ -2197,8 +2210,21 @@ getJSON('/data/site.json').then(function(site){
     tEl.textContent=String(a.title||'无标题');
     var parts=[]; if(a.category) parts.push(a.category); if(a.date) parts.push(String(a.date).slice(0,10)); var m=mins(a); if(m) parts.push('约 '+m+' 分钟');
     metaEl.textContent=parts.join(' · ');
-    bodyEl.innerHTML=a.body ? md(a.body) : '<p class="adl-empty">这篇还没有正文。</p>';
-    tocBuild(); navPaint();
+    if(!a.body){
+      bodyEl.innerHTML='<p class="adl-empty">这篇还没有正文。</p>';
+      tocBuild(); navPaint();
+    } else {
+      bodyEl.setAttribute('aria-busy','true');
+      ensureMd().then(function(){
+        bodyEl.removeAttribute('aria-busy');
+        bodyEl.innerHTML=md(a.body);
+        tocBuild(); navPaint();
+      }).catch(function(){
+        bodyEl.removeAttribute('aria-busy');
+        bodyEl.textContent=String(a.body);
+        tocBuild(); navPaint();
+      });
+    }
     var locked=!!(a.locked && a.hasLock!==false);
     bodyEl.hidden=locked; lockEl.hidden=!locked;
     if(locked){ errEl.hidden=true; errEl.textContent=''; pwEl.value=''; }
@@ -2258,7 +2284,7 @@ getJSON('/data/site.json').then(function(site){
       .then(function(r){ return r.json().then(function(j){ return {s:r.status,j:j}; }); })
       .then(function(x){
         goEl.disabled=false;
-        if(x.j && x.j.ok){ cur.body=x.j.body||''; bodyEl.innerHTML=md(cur.body); bodyEl.hidden=false; lockEl.hidden=true; }
+        if(x.j && x.j.ok){ cur.body=x.j.body||''; bodyEl.hidden=false; lockEl.hidden=true; ensureMd().then(function(){ bodyEl.innerHTML=md(cur.body); tocBuild(); }).catch(function(){ bodyEl.textContent=String(cur.body); }); }
         else { errEl.hidden=false; errEl.textContent=(x.j&&x.j.error)||('解锁失败（'+x.s+'）'); }
       })
       .catch(function(){ goEl.disabled=false; errEl.hidden=false; errEl.textContent='网络不通，稍后再试'; });

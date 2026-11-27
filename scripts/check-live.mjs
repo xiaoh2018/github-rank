@@ -544,6 +544,9 @@ for (const p of ['/js/app.js', '/js/api.js', '/js/ui.js', '/js/state.js']) {
 }
 push('旧模块文件已删除（请求返回 404）', deadStatus.every((x) => /\=404$/.test(x)), deadStatus.join(' '));
 
+push('首页不再急加载 md.js（改成 ensureMd 按需）',
+  !/<script[^>]+src="\/?js\/md\.js"/.test(home) && home.includes('function ensureMd()'), '');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
