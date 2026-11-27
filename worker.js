@@ -1809,7 +1809,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v269';
+const ASSET_V = 'v270';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2366,6 +2366,7 @@ async function handleIndexCheckOne(request, env, origin, bodyIn) {
 
   let inSitemap = null;
   let sitemapCount = 0;
+  let sitemapUrls = [];
   try {
     const sm = await fetch(base + '/sitemap.xml', { cf: { cacheTtl: 300 } });
     const txt = sm.ok ? await sm.text() : '';
@@ -2374,6 +2375,7 @@ async function handleIndexCheckOne(request, env, origin, bodyIn) {
     let m;
     while ((m = re.exec(txt))) locs.push(m[1].trim());
     sitemapCount = locs.length;
+    sitemapUrls = locs.slice(0, 30);
     inSitemap = locs.indexOf(want) >= 0 || locs.indexOf(wantKey) >= 0;
   } catch (e) {
     inSitemap = null;
@@ -2458,6 +2460,7 @@ async function handleIndexCheckOne(request, env, origin, bodyIn) {
     noindex,
     inSitemap,
     sitemapCount,
+    sitemapUrls,
     inLastSubmit,
     lastAt,
     batchCount: batchCount,
@@ -3995,6 +3998,7 @@ td>.empty-card{margin:0}
   .ick-why{margin-top:8px}
 }
 .ick-batch{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ick-hint{margin:8px 0 0;font-size:12.5px;color:var(--muted)}
 .ick-batch summary{cursor:pointer;font-size:13px;color:var(--muted);font-weight:600}
 .ick-batch textarea{width:100%;margin-top:8px;min-height:84px;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text)}
 .ick-batch .ick-row{margin-top:8px}
@@ -4782,8 +4786,9 @@ tr:hover td{background:#fcfbf8}
         <details class="ick-batch">
           <summary>批量查（一次最多 20 条，一行一条）</summary>
           <textarea id="ickBatch" rows="4" aria-label="批量检查的地址，一行一条" placeholder="一行一条；可以填 /、/articles 或某篇文章地址"></textarea>
-          <div class="ick-row"><button class="btn" type="button" id="ickBatchRun">批量查一下</button></div>
+          <div class="ick-row"><button class="btn ghost" type="button" id="ickFillSitemap">把 sitemap 里的地址填进来</button><button class="btn" type="button" id="ickBatchRun">批量查一下</button></div>
           <div id="ickTable" class="ick-out"></div>
+          <p class="ick-hint">表格列比较多：窄屏时可以点左右滑动查看，或把浏览器窗口拉宽。</p>
         </details>
         <p class="hint">平台那边的记录要 24–72 小时才出现（Bing 还要先在站长工具里验证过本站）。这里能证明的只有「页面允许收录、我们推过」。</p>
       </div>
@@ -7289,6 +7294,32 @@ function saveMsgFor(btn) {
     });
   }
   if ($('ickBatchRun')) $('ickBatchRun').onclick = ickBatchRun;
+  async function ickFillSitemap() {
+    var box = $('ickBatch');
+    var out = $('ickTable');
+    if (!box) return;
+    try {
+      var r = await api('/api/index-check', { method: 'POST', body: { password: pw } });
+      if (!r.ok) { ickSay(r.error || '没取到 sitemap', 'tr-bad'); return; }
+      var all = Array.isArray(r.sitemapUrls) ? r.sitemapUrls : [];
+      if (!all.length) { ickSay('sitemap 里还没有地址（可能刚部署、还没生成）', 'tr-bad'); return; }
+      var paths = [];
+      all.forEach(function (u) {
+        var p = u;
+        try { var x = new URL(u); p = x.pathname + (x.search || ''); } catch (e) {}
+        if (paths.indexOf(p) < 0) paths.push(p);
+      });
+      box.value = paths.slice(0, 20).join(String.fromCharCode(10));
+      if (out) {
+        out.innerHTML = '';
+        var p0 = document.createElement('p');
+        p0.className = 'ick-sum';
+        p0.textContent = '已填入 ' + Math.min(paths.length, 20) + ' 条（sitemap 共 ' + all.length + ' 条，批量上限 20 条）：点「批量查一下」开始。';
+        out.appendChild(p0);
+      }
+    } catch (e) { ickSay('没取到 sitemap：' + e.message, 'tr-bad'); }
+  }
+  if ($('ickFillSitemap')) $('ickFillSitemap').onclick = ickFillSitemap;
   function ickRun() {
     var inp = $('ickUrl');
     var btn = $('ickRun');

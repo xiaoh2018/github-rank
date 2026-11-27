@@ -573,6 +573,9 @@ push('sitemap 读不到时不再判「没被收录」', admHtml.includes('这一
 push('收录自查支持批量（textarea + 表格）', admHtml.includes('id="ickBatch"') && admHtml.includes('ick-tw'), '');
 push('批量入口写明了上限', admHtml.includes('一次最多 20 条，一行一条'), '');
 
+push('批量查支持一键填入 sitemap 地址', admHtml.includes('id="ickFillSitemap"'), '');
+push('宽表旁边提示可左右滑动', admHtml.includes('ick-hint'), '');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

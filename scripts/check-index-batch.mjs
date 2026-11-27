@@ -18,6 +18,11 @@ const post = async (body) => {
 };
 
 // ---- 接口侧 ----
+const single = await post({ password: PW });
+if (single.status === 403) { console.log('（没有可用的后台密码：跳过接口断言）'); process.exit(0); }
+ck('单条查询带 sitemapUrls（供「一键填入」用）',
+  Array.isArray(single.j && single.j.sitemapUrls) && (single.j.sitemapUrls || []).length >= 2 && (single.j.sitemapUrls || []).every((u) => /^http/i.test(u)),
+  JSON.stringify({ n: ((single.j || {}).sitemapUrls || []).length }));
 const three = await post({ password: PW, urls: ['/', '/articles', '/articles/tech/4.html'] });
 if (three.status === 403) {
   console.log('（没有可用的后台密码：跳过接口断言）');
@@ -78,6 +83,29 @@ if (REMOTE) {
   ck('表头六列齐全', ui && ui.head && ui.head.join(',') === '地址,HTTP,robots,canonical,在 sitemap,上次提交', JSON.stringify(ui && ui.head));
   ck('有一条汇总说明', ui && /共 3 条/.test(ui.sum) && /可访问/.test(ui.sum), String(ui && ui.sum).slice(0, 60));
   ck('宽表自带横向滚动（不把整页撑开）', ui && ui.scrollable === true && ui.sw === ui.cw, JSON.stringify({ s: ui && ui.sw, c: ui && ui.cw }));
+  const pre = await cdp.js(`(() => {
+    const b = document.getElementById('ickFillSitemap');
+    const h = document.querySelector('.ick-hint');
+    return { btn: !!b, txt: b ? String(b.textContent || '').trim() : '', hint: h ? String(h.textContent || '') : '' };
+  })()`);
+  ck('有「填 sitemap 地址」按钮且写明用途', pre && pre.btn === true && /sitemap/i.test(pre.txt), JSON.stringify(pre && pre.txt));
+  ck('宽表旁边有「可左右滑动」的提示', pre && /左右滑动/.test(pre.hint), JSON.stringify(String(pre && pre.hint).slice(0, 40)));
+  await cdp.js(`(() => { document.getElementById('ickFillSitemap').click(); return 1; })()`);
+  await new Promise((r) => setTimeout(r, 1600));
+  const filled = await cdp.js(`(() => {
+    const t = document.getElementById('ickBatch');
+    const out = document.getElementById('ickTable');
+    const lines = String(t ? t.value : '').split('\\n').map((x) => x.trim()).filter(Boolean);
+    return {
+      n: lines.length,
+      allPath: lines.length > 0 && lines.every((l) => l.charAt(0) === '/'),
+      msg: out ? String(out.textContent || '') : '',
+      sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth,
+    };
+  })()`);
+  ck('点「填 sitemap 地址」→ 文本框被填入 ≥2 条站内路径', filled && filled.n >= 2 && filled.allPath === true, JSON.stringify({ n: filled && filled.n, all: filled && filled.allPath }));
+  ck('填完说清填了几条 / sitemap 共几条', filled && /已填入/.test(filled.msg) && /sitemap 共/.test(filled.msg), String(filled && filled.msg).slice(0, 60));
+  ck('填完不横向溢出', filled && filled.sw === filled.cw, JSON.stringify({ s: filled && filled.sw, c: filled && filled.cw }));
   await cdp.close();
 }
 
