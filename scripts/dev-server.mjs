@@ -229,4 +229,16 @@ http
   })
   .listen(port, '127.0.0.1', () => {
     console.log('本地预览：http://127.0.0.1:' + port + '/    后台：http://127.0.0.1:' + port + '/admin（密码 ' + PASSWORD + '）');
+    // 本地 data/ 常年落后于 Action 的提交（rest-push 只推我改过的文件），旧数据会骗截图、骗本地门禁
+    try {
+      const metaPath = path.join(root, 'data', 'repos-meta.js');
+      const txt = fs.existsSync(metaPath) ? fs.readFileSync(metaPath, 'utf8') : '';
+      const gen = (txt.match(/generatedAt:\s*"([^"]+)"/) || [])[1] || '';
+      const ageH = gen ? (Date.now() - Date.parse(gen)) / 3600000 : NaN;
+      if (Number.isFinite(ageH) && ageH > 6) {
+        console.log('⚠ 本地数据是 ' + ageH.toFixed(1) + ' 小时前的（' + gen + '）：截图与本地核对都会被它骗。先跑 node scripts/sync-data.mjs');
+      } else if (gen) {
+        console.log('数据：' + gen + '（' + ageH.toFixed(1) + ' 小时前）');
+      }
+    } catch (e) { console.log('数据新鲜度自检跳过：' + e.message); }
   });

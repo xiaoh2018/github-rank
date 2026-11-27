@@ -553,6 +553,12 @@ push('文章视图空态有「为什么空 + 三个出口」',
 push('首页空态说清筛选并提供两个出口',
   bundleJs.includes('当前筛选：') && bundleJs.includes('只清关键词') && bundleJs.includes('清空全部筛选') && bundleJs.includes('这次抓到的 '), '');
 
+const liveMetaTxt = await (await fetch(base + '/data/repos-meta.js?cb=' + Date.now())).text();
+const liveGen = (liveMetaTxt.match(/generatedAt:\s*"([^"]+)"/) || [])[1] || '';
+const liveAgeH = liveGen ? (Date.now() - Date.parse(liveGen)) / 3600000 : NaN;
+push('线上数据是新的（3 小时抓取链路还活着）', Number.isFinite(liveAgeH) && liveAgeH <= 6,
+  'generatedAt=' + liveGen + ' / 距今 ' + (Number.isFinite(liveAgeH) ? liveAgeH.toFixed(1) + ' 小时' : '未知'));
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
