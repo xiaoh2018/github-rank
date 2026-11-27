@@ -129,7 +129,7 @@ check('该 tab 标为当前页', scroll && scroll.aria === 'true', scroll && scr
 await send('Page.navigate', { url: BASE + '/articles/cat/1.html' });
 await sleep(2600);
 const reader = await evaluate(`(() => {
-  const h = document.querySelector('.reader h1');
+  const h = document.querySelector('#rTitle');
   const de = document.documentElement;
   return {
     size: h ? getComputedStyle(h).fontSize : '',

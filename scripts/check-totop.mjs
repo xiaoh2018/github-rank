@@ -39,6 +39,37 @@ await send('Page.enable');
 await send('Runtime.enable');
 await send('Emulation.setDeviceMetricsOverride', { width: 1200, height: 700, deviceScaleFactor: 1, mobile: false });
 
+// TOTOP_STUB_ON：文章只有 2 篇时 /articles 页面不够长，「返回顶部」压根不会出现。
+// 这里把 /data/articles.json 换成 12 篇（只在内存里），让页面足够长，测的是按钮本身而不是数据量。
+const STUB_ARTICLES = Array.from({ length: 12 }, (_, i) => ({
+  id: 'totop-' + (i + 1),
+  slug: 'tech/totop-' + (i + 1),
+  title: '返回顶部测试第 ' + (i + 1) + ' 篇',
+  date: '2026-11-2' + (i % 9),
+  summary: '这一篇只为了让列表够长，好让「返回顶部」按钮出现。'.repeat(3),
+  body: '正文。'.repeat(80),
+  category: '技术',
+  tags: ['测试'],
+}));
+await send('Network.setCacheDisabled', { cacheDisabled: true });
+await send('Page.setBypassServiceWorker', { bypass: true });
+await send('Fetch.enable', { patterns: [{ urlPattern: '*/data/articles.json*', requestStage: 'Request' }] });
+ws.addEventListener('message', async (ev) => {
+  let m;
+  try { m = JSON.parse(ev.data); } catch { return; }
+  if (m.method !== 'Fetch.requestPaused') return;
+  const body = Buffer.from(JSON.stringify(STUB_ARTICLES), 'utf8').toString('base64');
+  await send('Fetch.fulfillRequest', {
+    requestId: m.params.requestId,
+    responseCode: 200,
+    responseHeaders: [
+      { name: 'content-type', value: 'application/json; charset=utf-8' },
+      { name: 'cache-control', value: 'no-store' },
+    ],
+    body,
+  });
+});
+
 for (const page of ['/articles', '/faq']) {
   console.log('== ' + page + ' ==');
   await open(page);

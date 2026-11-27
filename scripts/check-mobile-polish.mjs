@@ -64,23 +64,24 @@ async function go(p) {
 // ---------- /articles ----------
 await go('/articles');
 const art = await evaluate(`(() => {
-  const box = document.querySelector('.bstats');
-  const cards = box ? Array.from(box.querySelectorAll('.bstat')) : [];
+  const hero = document.querySelector('.bhero h1');
+  const desc = document.querySelector('.bhero p');
+  const cards = Array.from(document.querySelectorAll('#cards .acard'));
   const de = document.documentElement;
   return {
-    exists: !!box,
-    display: box ? getComputedStyle(box).display : '',
-    n: cards.length,
-    tops: cards.map((c) => Math.round(c.getBoundingClientRect().top)),
-    widths: cards.map((c) => Math.round(c.getBoundingClientRect().width)),
+    heroText: hero ? hero.textContent.trim() : '',
+    heroSize: hero ? getComputedStyle(hero).fontSize : '',
+    hasDesc: !!desc,
+    cards: cards.length,
+    deadStats: !!document.querySelector('.bstats'),
     overflow: de.scrollWidth > de.clientWidth + 1,
   };
 })()`);
-check('文章页有统计卡容器', art && art.exists, art);
-check('统计卡窄屏用 grid 布局', art && art.display === 'grid', art && art.display);
-check('统计卡 3 张', art && art.n === 3, art && art.n);
-check('统计卡在同一行（顶部对齐）', art && new Set(art.tops).size === 1, art && art.tops);
-check('统计卡宽度不被挤压（>=100px）', art && art.widths.every((w) => w >= 100), art && art.widths);
+check('文章页有标题', art && art.heroText.length > 0, art && art.heroText);
+check('文章页窄屏标题不大于 28px', art && parseFloat(art.heroSize) <= 28, art && art.heroSize);
+check('文章页有说明段落', art && art.hasDesc, art);
+check('文章页渲染出卡片', art && art.cards >= 1, art && art.cards);
+check('文章页不再有 .bstats 死容器', art && art.deadStats === false, art && art.deadStats);
 check('文章页无横向溢出', art && !art.overflow, art);
 
 // ---------- /faq ----------
