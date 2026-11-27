@@ -537,6 +537,13 @@ push('首页「阅读全文」不再是链接（装饰 span + aria-hidden）',
 push('首页只剩一份卡片渲染器（复用 artCardEl）',
   (home.match(/className='artcard'/g) || []).length === 1 && /grid\.appendChild\(artCardEl\(it\)\)/.test(home) && !home.includes('artcard-mins'), '');
 
+const deadStatus = [];
+for (const p of ['/js/app.js', '/js/api.js', '/js/ui.js', '/js/state.js']) {
+  const rr = await fetch(base + p + '?cb=' + Date.now());
+  deadStatus.push(p + '=' + rr.status);
+}
+push('旧模块文件已删除（请求返回 404）', deadStatus.every((x) => /\=404$/.test(x)), deadStatus.join(' '));
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
