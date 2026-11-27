@@ -816,7 +816,7 @@ window.__imeBind = function (el, fn) {
     <div class="card" id="tokenCard">
       <div class="card-head"><b>GitHub Token</b><span class="msg">可选 · 只存在本机，不上传</span></div>
       <div class="controls">
-        <input type="password" id="token" class="grow" placeholder="粘贴以 ghp_ 开头的 Token（可不填）" autocomplete="off">
+        <input type="password" id="token" class="grow" placeholder="粘贴以 ghp_ 开头的 Token（可不填）" aria-label="GitHub Token（只存在你自己的浏览器里）" autocomplete="off" spellcheck="false">
         <button class="btn" id="btnSaveToken">保存</button>
         <button class="btn" id="btnClearToken">清除</button>
       </div>
@@ -862,7 +862,7 @@ window.__imeBind = function (el, fn) {
       <button type="button" class="mf-toggle repo-only" id="mfToggle" aria-expanded="false" aria-controls="mfBody">筛选<span class="mf-n" id="mfN"></span></button>
       <div class="mf-body repo-only" id="mfBody">
         <select id="lang" aria-label="语言"></select>
-        <select id="sort" aria-label="排序">
+        <select id="sort" aria-label="排序方式（榜单）">
           <option value="stars">按星标</option>
           <option value="trend">按今日增量</option>
           <option value="activity">按活跃度</option>
@@ -966,7 +966,7 @@ window.__imeBind = function (el, fn) {
     </div>
     <div class="artvbar">
       <input type="search" id="artSearch" data-ph-lg="搜索标题、摘要、分类…" data-ph-sm="搜标题或摘要…" placeholder="搜索标题、摘要、分类…" aria-label="搜索文章" autocomplete="off">
-      <select id="artSort" aria-label="排序">
+      <select id="artSort" aria-label="排序方式（文章）">
         <option value="new">最新在前</option>
         <option value="old">最早在前</option>
         <option value="title">标题排序</option>
@@ -2076,7 +2076,7 @@ getJSON('/data/site.json').then(function(site){
   <div class="adl-nav" id="adlNav" hidden></div>
   <div class="adl-lock" id="artDlgLock" hidden>
     <p class="adl-lockt">这篇需要密码才能看，问站长要。</p>
-    <div class="adl-row"><input type="password" id="artDlgPw" placeholder="输入密码" autocomplete="off"><button type="button" class="btn" id="artDlgGo">解锁</button></div>
+    <div class="adl-row"><input type="password" id="artDlgPw" aria-label="文章访问密码" placeholder="输入密码" autocomplete="off"><button type="button" class="btn" id="artDlgGo">解锁</button></div>
     <p class="adl-err" id="artDlgErr" hidden></p>
   </div>
 </dialog>

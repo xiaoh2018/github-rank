@@ -19,6 +19,12 @@ push('线上 X-Content-Type-Options = nosniff', homeRes.headers.get('x-content-t
 push('线上 X-Frame-Options = SAMEORIGIN', (homeRes.headers.get('x-frame-options') || '') === 'SAMEORIGIN', String(homeRes.headers.get('x-frame-options')));
 push('线上有 HSTS（https 一年）', /max-age=31536000/.test(homeRes.headers.get('strict-transport-security') || ''), String(homeRes.headers.get('strict-transport-security')));
 push('线上 Referrer-Policy 已设', !!(homeRes.headers.get('referrer-policy') || ''), String(homeRes.headers.get('referrer-policy')));
+push('首页三个控件有可访问名（Token / 两个排序）',
+  home.includes('aria-label="GitHub Token（只存在你自己的浏览器里）"') &&
+  home.includes('aria-label="排序方式（榜单）"') &&
+  home.includes('aria-label="排序方式（文章）"'),
+  '');
+push('文章弹窗密码框有可访问名', home.includes('aria-label="文章访问密码"'), '');
 push('联系面板是 dialog 且可聚焦（tabindex=-1）', home.indexOf('role="dialog" tabindex="-1" aria-labelledby="contactTitle"') >= 0, '');
 push('联系按钮 aria-controls 指向真实面板', home.indexOf('aria-controls="contactPanel"') >= 0 && home.indexOf('id="contactPanel"') >= 0, '');
 push('打开联系面板时把焦点移进面板', home.indexOf('var contactBack=null') >= 0 && home.indexOf('first.focus()') >= 0, '');
@@ -453,6 +459,7 @@ push('数据瘦身：时间戳是 epoch 秒', /(?:"updated"|updated)\s*:\s*1[6-9
 push('首页预载周榜数据（与 script 地址一致）', bundleJs.indexOf('s.src = file;') >= 0 && bundleJs.indexOf('function repoUrl(r)') >= 0);
 const navHtml = await (await fetch(base + '/nav?t=' + t)).text();
 const artHtml = await (await fetch(base + '/articles?t=' + t)).text();
+push('静态文章页密码框有可访问名', artHtml.includes('aria-label="文章访问密码"'), '');
 push('两页「自动」列宽统一为 320px', home.indexOf('minmax(320px,1fr))}') > 0 && artHtml.indexOf('minmax(320px,1fr)') > 0 && artHtml.indexOf('minmax(340px') < 0, '');
 push('首页列数属性挂到 html（不再只挂 body）', home.indexOf('html[data-artcols="auto"] .artgrid') > 0 && home.indexOf('body[data-artcols') < 0, '');
 push('后台说明讲清「自动」由宽度决定', admHtml.indexOf('列数由页面宽度决定') > 0 && admHtml.indexOf('可能不同') > 0, '');

@@ -1,0 +1,770 @@
+[
+ {
+  "f": "check-a11y.mjs",
+  "ok": true,
+  "ms": 31319,
+  "tail": "OK   连按 Tab 六次，每一步焦点元素都有可见焦点环 | OK   页面样式里声明了 :focus-visible（不是全靠浏览器默认） | ALL OK (8)"
+ },
+ {
+  "f": "check-admin-320.mjs",
+  "ok": true,
+  "ms": 11947,
+  "tail": "OK   提交页平台表改成卡片（无 min-width） | OK   提交页长链接与代码强制断行 | ALL OK"
+ },
+ {
+  "f": "check-admin-artpager.mjs",
+  "ok": true,
+  "ms": 11461,
+  "tail": "OK   搜索后分页收起（结果只在 1 页）  → {\"hidden\":true,\"rows\":7} | OK   页面不横向溢出  → 1430,1430 | ALL OK (17)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-admin-arttable.mjs",
+  "ok": true,
+  "ms": 3922,
+  "tail": "OK   [1440] 操作按钮齐全（编辑/预览/删除） | OK   [1440] 桌面按钮不高（≤40） | ALL OK (16)"
+ },
+ {
+  "f": "check-admin-del.mjs",
+  "ok": true,
+  "ms": 11390,
+  "tail": "OK   状态行不与「保存问答」提示抢位 | OK   整页不横向溢出 | ALL OK (18)"
+ },
+ {
+  "f": "check-admin-dlg-a11y.mjs",
+  "ok": true,
+  "ms": 10540,
+  "tail": "OK   Esc 没有真的删掉文章  → rows 2 -> 2 | OK   删除确认关闭后焦点落在按钮上（不是 body）  → {\"open\":false,\"modal\":null,\"inside\":false,\"active\":\"BUTTON#\",\"body\":false} | ALL OK (14)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-admin-draft.mjs",
+  "ok": true,
+  "ms": 10632,
+  "tail": "OK   点「丢弃」会清掉本机草稿 | OK   整页不横向溢出  [1440/1440] | ALL OK (16)"
+ },
+ {
+  "f": "check-admin-empty.mjs",
+  "ok": true,
+  "ms": 9322,
+  "tail": "OK   清空筛选后恢复 23 行 | OK   筛选框已清空（实际 \"\"） | ALL 21 OK"
+ },
+ {
+  "f": "check-admin-flows.mjs",
+  "ok": false,
+  "ms": 45409,
+  "tail": "OK    命令面板 Esc 关闭 | OK    广告位预览弹窗  填槽=ok，预览区 11 字符「预览测试」 | 1 个流程失败"
+ },
+ {
+  "f": "check-admin-labels.mjs",
+  "ok": true,
+  "ms": 10603,
+  "tail": "OK   点「在这里显示」文字能切换开关（label 关联）  → \"OK\" | OK   320 宽广告面板已打开且整页不横向溢出  → {\"shown\":true,\"sw\":320,\"cw\":320} | ALL OK (12)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-admin-mobile-forms.mjs",
+  "ok": true,
+  "ms": 16193,
+  "tail": "全部通过（30 项，视口 390px，14 个面板）"
+ },
+ {
+  "f": "check-admin-nav.mjs",
+  "ok": true,
+  "ms": 5951,
+  "tail": "OK   窄屏无横向溢出  → sw=1414 cw=1414 | OK   点「打开」不会把后台导航走  → ok | ALL OK (11)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-admin-panes.mjs",
+  "ok": true,
+  "ms": 12404,
+  "tail": "MOBILE    articles  {\"vw\":390,\"sw\":390,\"sideH\":58} | OK | MOBILE    submit    {\"vw\":390,\"sw\":390,\"sideH\":58} | OK | MOBILE    ad        {\"vw\":390,\"sw\":390,\"sideH\":58} | OK"
+ },
+ {
+  "f": "check-admin-refs.mjs",
+  "ok": true,
+  "ms": 55,
+  "tail": "静态 id 202 个，脚本引用 160 个 | ✓ 所有 $('id') 引用都能在 HTML 里找到"
+ },
+ {
+  "f": "check-admin-save-msg.mjs",
+  "ok": true,
+  "ms": 10340,
+  "tail": "OK   其它面板同样有独立状态行 | OK   两个面板的状态行互不串台 | ALL OK (12)"
+ },
+ {
+  "f": "check-admin-saves.mjs",
+  "ok": true,
+  "ms": 26364,
+  "tail": "OK    问答 保存 → /api/qa | OK    主题 保存 → /api/site | 全部保存按钮都能真存（10 个面板）"
+ },
+ {
+  "f": "check-admin-script.mjs",
+  "ok": true,
+  "ms": 222,
+  "tail": "#1 OK (107954) | 全部内联脚本可解析"
+ },
+ {
+  "f": "check-artbody.mjs",
+  "ok": true,
+  "ms": 6040,
+  "tail": "OK   列表卡片数 = 数据条数（删掉重复后 2 篇）  → {\"cards\":2,\"arts\":2} | OK   页面不横向溢出  → 1440,1440 | ALL OK (8)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-artcat.mjs",
+  "ok": true,
+  "ms": 10883,
+  "tail": "OK   页面不横向溢出  -> {\"sw\":1430,\"cw\":1430} | OK   下拉宽度不超过 150  -> 72 | ALL OK (11)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-artcols.mjs",
+  "ok": true,
+  "ms": 24052,
+  "tail": "OK   后台不横向溢出  → 1430/1430 | OK   拦截确实命中（否则上面的断言全是空转）  → hits=10 | ALL OK (13)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-article-cards.mjs",
+  "ok": false,
+  "ms": 1431,
+  "tail": "OK   SPA 分类切成英文 key | OK   静态页分类也是英文 key | 2/16 FAILED"
+ },
+ {
+  "f": "check-articles-pager.mjs",
+  "ok": false,
+  "ms": 4035,
+  "tail": "  PASS  print 媒体查询里隐藏了 .apager |   PASS  测试文章清理干净 | 文章分页门禁 2 项失败"
+ },
+ {
+  "f": "check-articles.mjs",
+  "ok": true,
+  "ms": 2852,
+  "tail": "page status 200 len 79944 hasRoot true | sitemap has slug url: false | restored data/articles.json"
+ },
+ {
+  "f": "check-artpager-memory.mjs",
+  "ok": true,
+  "ms": 6626,
+  "tail": "OK   搜索后结果 1 篇且分页收起  → {\"cards\":1,\"hidden\":true} | OK   页面不横向溢出  → 1440,1440 | ALL OK (14)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-artseo.mjs",
+  "ok": true,
+  "ms": 137,
+  "tail": "  PASS  给 404 页而不是空壳 |   PASS  测试文章已清理 | 文章页 SEO 全部通过"
+ },
+ {
+  "f": "check-artview.mjs",
+  "ok": true,
+  "ms": 14448,
+  "tail": "OK   /articles hero 文案已改成读者口径 | OK   /articles 侧栏「站内」三链接 | 全部通过（24 项）"
+ },
+ {
+  "f": "check-beian.mjs",
+  "ok": true,
+  "ms": 10222,
+  "tail": "OK   开启但全空 → 页脚不出现  → {\"hidden\":true,\"txt\":\"\"} | OK   关闭开关但填了号 → 页脚仍不出现  → {\"hidden\":true} | ALL OK (11)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-bulkconfirm.mjs",
+  "ok": false,
+  "ms": 8217,
+  "tail": "  PASS  点取消后弹窗关闭 |   PASS  取消后文章分类与链接没变 | 4 FAILED"
+ },
+ {
+  "f": "check-card-meta.mjs",
+  "ok": true,
+  "ms": 9160,
+  "tail": "OK   桌面信息行仍是单行  [lines=1 h=58] | OK   桌面上鼠标悬停用的「复制 / 卡片」按钮还在（未误伤） | ALL OK (10)"
+ },
+ {
+  "f": "check-card-noise.mjs",
+  "ok": true,
+  "ms": 7623,
+  "tail": "OK   鼠标移上去才出现 → {\"hovered\":true,\"op\":\"1\"} | OK   触屏设备不显示复制/卡片按钮 → {\"display\":\"none\",\"hoverNone\":true} | ALL OK (11)"
+ },
+ {
+  "f": "check-cards-focus.mjs",
+  "ok": true,
+  "ms": 11963,
+  "tail": "  PASS  窄屏表格给了最小宽度并真的溢出 |   PASS  整页仍然不横向溢出 | 全部通过（11 项）"
+ },
+ {
+  "f": "check-cat-labels.mjs",
+  "ok": true,
+  "ms": 9583,
+  "tail": "OK   桌面同一套分类名  [全部 | AI 与大模型 | 效率工具 | Web 前端 | 开发工具 | 安全 | 数据与后端 | 游戏 | 学习资源] | OK   桌面不溢出  [1440/1440] | ALL OK (11)"
+ },
+ {
+  "f": "check-catfilter.mjs",
+  "ok": true,
+  "ms": 6535,
+  "tail": "  PASS  行数回到筛选前 |   PASS  提示清空 | 全部通过"
+ },
+ {
+  "f": "check-chip-style.mjs",
+  "ok": true,
+  "ms": 11768,
+  "tail": "OK   320 胶囊触控高度 ≥36 → 38px | OK   塞满后确实溢出且有右缘渐隐 → sw=948 cw=288 xEnd=false | ALL OK (15)"
+ },
+ {
+  "f": "check-contact.mjs",
+  "ok": true,
+  "ms": 9356,
+  "tail": "OK   开关关闭时按钮不显示  → {\"hidden\":true,\"display\":\"none\",\"w\":0} | OK   全空时按钮不显示（不摆空面板）  → {\"hidden\":true,\"display\":\"none\",\"w\":0} | ALL OK (15)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-cover-admin.mjs",
+  "ok": true,
+  "ms": 11817,
+  "tail": "OK   自检产生的临时文章已删除 | OK   提示里说明了站内路径写法 | ALL OK (14)"
+ },
+ {
+  "f": "check-cover.mjs",
+  "ok": false,
+  "ms": 11648,
+  "tail": "OK   390 宽封面不撑破卡片  → {\"sw\":390,\"cw\":390,\"iw\":0,\"cw2\":0} | data/articles.json 已还原 | FAILED 12/14  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-dead-handlers.mjs",
+  "ok": true,
+  "ms": 72,
+  "tail": "读取的 data-* 属性：40 个 | 全部有对应产出 ✓"
+ },
+ {
+  "f": "check-dialog-a11y.mjs",
+  "ok": true,
+  "ms": 11776,
+  "tail": "OK   [密码弹窗] 打开后焦点在弹窗内  [INPUT#pwIn.] | OK   [密码弹窗] 连按 6 次 Tab 焦点不跑出  [INPUT#pwIn.] | ALL OK (13)"
+ },
+ {
+  "f": "check-empty-states.mjs",
+  "ok": true,
+  "ms": 7857,
+  "tail": "OK   问答搜索框已清空（实际 \"\"） | OK   URL 里的 q 参数已去掉（） | ALL 23 OK"
+ },
+ {
+  "f": "check-error-state.mjs",
+  "ok": true,
+  "ms": 2018,
+  "tail": "OK   桌面同样有错误卡片 | OK   桌面不溢出  [1440/1440] | ALL OK (12)"
+ },
+ {
+  "f": "check-faq-chips.mjs",
+  "ok": true,
+  "ms": 4799,
+  "tail": "  PASS  清空后「全部」复原 |   PASS  清空后没有压暗标签 | 全部通过（13 项）"
+ },
+ {
+  "f": "check-faq-highlight.mjs",
+  "ok": true,
+  "ms": 5395,
+  "tail": "还原问答：10 条（原 10 条） | 已把 data/qa.json 还原成跑之前的内容（只差 updatedAt 也不留噪声） | 全部通过"
+ },
+ {
+  "f": "check-faq-tidy.mjs",
+  "ok": false,
+  "ms": 38116,
+  "tail": "OK   静态 /faq 390 分类标签 12px  [12px] | OK   静态 /faq 390 「#N」链接可点面积 ≥32 高  [32] | 2 FAILED of 16"
+ },
+ {
+  "f": "check-faqview.mjs",
+  "ok": true,
+  "ms": 13196,
+  "tail": "OK   /faq 顶栏「文章」指向 /?page=articles | OK   /faq 顶栏「导航」指向 /?page=nav | ALL OK (22)"
+ },
+ {
+  "f": "check-filter-empty.mjs",
+  "ok": true,
+  "ms": 2905,
+  "tail": "OK   [1440] 「清空全部筛选」后分类回到全部 | OK   [1440] 清空后地址栏不带筛选参数 | ALL OK (28)"
+ },
+ {
+  "f": "check-footnote.mjs",
+  "ok": true,
+  "ms": 7854,
+  "tail": "OK   桌面只占一行到两行  [h=20 ≈ 1 行] | OK   桌面不溢出  [1440/1440] | ALL OK (16)"
+ },
+ {
+  "f": "check-front-flows.mjs",
+  "ok": true,
+  "ms": 45018,
+  "tail": "OK    错误密码有提示  提示「密码不对」 | OK    取消关闭解锁框 | 全部前台流程通过（19 项）"
+ },
+ {
+  "f": "check-front-mobile-forms.mjs",
+  "ok": true,
+  "ms": 23123,
+  "tail": "  OK   导航页@320 表单字号≥16 且 高度≥40 :: 1 个控件 |   OK   导航页@320 整页不横向溢出 :: sw=320 cw=320 | 全部通过（16 项，2 个视口 × 4 个页面）"
+ },
+ {
+  "f": "check-frontend-closure.mjs",
+  "ok": true,
+  "ms": 148,
+  "tail": "  PASS  AI 用量接口给出已用/上限  → used=0 cap=321 |   PASS  后台概览有体检红条容器 | 全部通过（已还原数据）"
+ },
+ {
+  "f": "check-ime.mjs",
+  "ok": true,
+  "ms": 10325,
+  "tail": "OK   后台问答筛选：拼音未上屏时不过滤 | OK   后台问答筛选：上屏后过滤生效 | ALL OK (12)"
+ },
+ {
+  "f": "check-img-zoom.mjs",
+  "ok": false,
+  "ms": 4374,
+  "tail": "  PASS  键盘 Enter 也能放大 |   PASS  清理测试文章 | 3 项失败"
+ },
+ {
+  "f": "check-inline-ads.mjs",
+  "ok": true,
+  "ms": 8672,
+  "tail": "OK   导航分组最后一个不是广告  → 0 / 5 组 | OK   页面不横向溢出  → 1425/1425 | ALL OK (8)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-inline.mjs",
+  "ok": true,
+  "ms": 59,
+  "tail": "#3 OK (409 字符) | #4 OK (1946 字符) | bytes 83187"
+ },
+ {
+  "f": "check-insights-mobile.mjs",
+  "ok": true,
+  "ms": 8005,
+  "tail": "OK   桌面仍是右侧栏（在榜单右边）  [1104 > 56] | OK   桌面侧栏与主内容列同高起（不是与列表卡对齐）  [317 ≈ 317] | ALL OK (14)"
+ },
+ {
+  "f": "check-interaction.mjs",
+  "ok": true,
+  "ms": 8488,
+  "tail": "OK   关闭图片查看器后背景不再被锁（页面够高时能滚）  → {\"tall\":false,\"y\":0} | OK   不横向溢出  → {\"vw\":1440,\"sw\":1440} | ALL OK (16)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-kbd.mjs",
+  "ok": true,
+  "ms": 13144,
+  "tail": "OK   聚焦卡片内迷你按钮时它会显形（不是隐形焦点） | OK   每张卡的可聚焦控件数 ≤ 4（标题 / 复制 / 卡片 / 收藏） | ALL OK (18 项，1440px)"
+ },
+ {
+  "f": "check-lb-multi.mjs",
+  "ok": false,
+  "ms": 5193,
+  "tail": "  PASS  点第 3 张直接定位到 3 / 3 |   PASS  清理测试文章 | 1 项失败"
+ },
+ {
+  "f": "check-links-order.mjs",
+  "ok": false,
+  "ms": 96,
+  "tail": "  PASS  后台友链行有下移按钮 |   PASS  后台点按钮会调 move | 友链排序门禁 2 项失败"
+ },
+ {
+  "f": "check-links.mjs",
+  "ok": true,
+  "ms": 5044,
+  "tail": "OK   友链文字用站点名（不是裸网址）  → 小明的博客 | OK   页面不横向溢出  → [1425,1425] | ALL OK (13)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-load-states.mjs",
+  "ok": true,
+  "ms": 15460,
+  "tail": "OK   慢网下先看到骨架卡（≥3 张） — skel=3 | OK   不再是一句「正在加载文章…」 | ALL OK (19 项，390px)"
+ },
+ {
+  "f": "check-media.mjs",
+  "ok": true,
+  "ms": 13411,
+  "tail": "OK   带尺寸的图片渲染后不塌陷（宽度 > 0）  → {\"alt\":\"配图\",\"w\":\"64\",\"loaded\":true} | OK   320 宽文章页不横向溢出  → {\"sw\":320,\"cw\":320} | ALL OK (17)  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-mobile-admin.mjs",
+  "ok": false,
+  "ms": 8506,
+  "tail": "  PASS  阅读器窄屏不横向溢出 | 失败 1 项 / 通过 12 项 |  - 阅读器标题窄屏 23px :: \"\""
+ },
+ {
+  "f": "check-mobile-polish.mjs",
+  "ok": false,
+  "ms": 9780,
+  "tail": " - 统计卡窄屏用 grid 布局 |  - 统计卡 3 张 |  - 统计卡在同一行（顶部对齐） :: []"
+ },
+ {
+  "f": "check-mobile-tidy.mjs",
+  "ok": true,
+  "ms": 3782,
+  "tail": "OK   390px 可点目标 ≥28 高或 ≥44 宽  [0] | OK   390px 分页器高度 ≤ 140（最多两排）  [94] | ALL OK (18)"
+ },
+ {
+  "f": "check-mobile.mjs",
+  "ok": true,
+  "ms": 9531,
+  "tail": "/articles ok {\"vw\":390,\"sw\":390,\"cw\":390,\"overflow\":false,\"wide\":[]} | /faq ok {\"vw\":390,\"sw\":390,\"cw\":390,\"overflow\":false,\"wide\":[]} | /nav ok {\"vw\":390,\"sw\":390,\"cw\":390,\"overflow\":false,\"wide\":[]}"
+ },
+ {
+  "f": "check-motion.mjs",
+  "ok": true,
+  "ms": 17578,
+  "tail": "OK   默认设置下卡片仍有入场动画（> 0.1s）  → \"0.18s\" | OK   默认设置下是平滑滚动（90ms 时仍在路上）  → {\"y0\":1400,\"y1\":1258} | ALL OK (14)  @1024px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-narrow-faq.mjs",
+  "ok": true,
+  "ms": 3305,
+  "tail": "PASS  320：到末尾后渐隐撤掉  [none] | PASS  320：清掉注入的测试胶囊  [4] | 全部通过（13 项，320px）"
+ },
+ {
+  "f": "check-narrow-nav.mjs",
+  "ok": true,
+  "ms": 8286,
+  "tail": "PASS  1440：分组标题有文字（常用 / 内容 …）  [常用|内容|站点信息|外观与运维] | PASS  1440：每个标签都对应一个面板（无孤儿）  [14 个标签] | 全部通过（10 项）"
+ },
+ {
+  "f": "check-narrow-order.mjs",
+  "ok": true,
+  "ms": 7661,
+  "tail": "PASS  「已选」空提示不占行（隐藏且宽 0）  [{\"hidden\":true,\"w\":0}] | PASS  清理测试文章且无残留  [4] | 全部通过（13 项，320px）"
+ },
+ {
+  "f": "check-narrow-panels.mjs",
+  "ok": true,
+  "ms": 6846,
+  "tail": "全部通过（17 项，视口 390px）"
+ },
+ {
+  "f": "check-narrow-tables.mjs",
+  "ok": true,
+  "ms": 9159,
+  "tail": "  PASS  后台窄屏整页不横向溢出 |   PASS  清理：门禁文章已删除 | 全部通过（12 项）"
+ },
+ {
+  "f": "check-nav-combo.mjs",
+  "ok": true,
+  "ms": 7648,
+  "tail": "  PASS  点开后 15 个全出、按钮消失 |   PASS  导航数据已还原 | 全部通过（12 项）"
+ },
+ {
+  "f": "check-nav-fold.mjs",
+  "ok": true,
+  "ms": 8403,
+  "tail": "== 6. 点分类快捷跳转会自动展开 == |   PASS  点快捷跳转后目标分组自动展开 | 导航折叠门禁全部通过"
+ },
+ {
+  "f": "check-nav-highlight.mjs",
+  "ok": true,
+  "ms": 6949,
+  "tail": "  PASS  搜不到显示空态文案 |   PASS  空态时无高亮残留 | 全部通过"
+ },
+ {
+  "f": "check-nav-more.mjs",
+  "ok": true,
+  "ms": 4140,
+  "tail": "还原导航：ok，当前 5 个分组，残留门禁分组 0 | 已把 data/nav.json 还原成跑之前的内容（只差 updatedAt 也不留噪声） | 全部通过"
+ },
+ {
+  "f": "check-nav-order.mjs",
+  "ok": true,
+  "ms": 12850,
+  "tail": "  PASS  保存后分类数量没变 |   PASS  再保存一次顺序复原 | 导航排序门禁全部通过"
+ },
+ {
+  "f": "check-nav-persist.mjs",
+  "ok": true,
+  "ms": 12136,
+  "tail": "  PASS  清掉本地状态后回到 12 个 + 展开 |   PASS  导航数据已还原 | 全部通过（9 项）"
+ },
+ {
+  "f": "check-nav-tidy.mjs",
+  "ok": true,
+  "ms": 67719,
+  "tail": "OK   390px 分类计数 12px  [12px] | OK   390px 切回榜单后「分析」按钮回来 | ALL OK (18)"
+ },
+ {
+  "f": "check-nav-touch.mjs",
+  "ok": false,
+  "ms": 14586,
+  "tail": "FAIL 五个胶囊宽度一致（网格等宽） — 0~91 | OK   页头不溢出 | FAILED 2/13"
+ },
+ {
+  "f": "check-page-memory.mjs",
+  "ok": true,
+  "ms": 11978,
+  "tail": "OK   390：恢复位置（±40）  → {\"my0\":700,\"now\":700} | OK   390：不横向溢出 | ALL OK (13)  @http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-page-scroll.mjs",
+  "ok": true,
+  "ms": 6327,
+  "tail": "OK   「回到顶部」按钮仍然回到页面顶 | OK   没有横向溢出 | ALL OK (9 项，390px)"
+ },
+ {
+  "f": "check-pager-jump.mjs",
+  "ok": true,
+  "ms": 4940,
+  "tail": "== 4. 打印时隐藏 == |   PASS  打印样式里隐藏了跳页输入 | 全部通过"
+ },
+ {
+  "f": "check-pager-narrow.mjs",
+  "ok": true,
+  "ms": 3777,
+  "tail": "PASS  清理测试文章  [8] | PASS  库里无测试文章残留 | 全部通过（14 项）"
+ },
+ {
+  "f": "check-pager-step.mjs",
+  "ok": true,
+  "ms": 9255,
+  "tail": "== 6. 输入框手输仍有作用 == |   PASS  输入 3 后到第 3 页 | 全部通过"
+ },
+ {
+  "f": "check-pane-wiring.mjs",
+  "ok": true,
+  "ms": 62,
+  "tail": "  动态/只读跳过 15 个：vfBytedance(data-vf) vfSogou(data-vf) vfShenma(data-vf) contact-enabled(FIELDS) contact-title(FIELDS) contact-wechat(FIELDS) contact-email(FIELDS) contact-note(FIELDS) beian-icpUrl(FIELDS) beian-policeUrl("
+ },
+ {
+  "f": "check-payload.mjs",
+  "ok": true,
+  "ms": 54,
+  "tail": "OK   不再重复预载 bundle.js（会下两份） | OK   范围文件地址不带 ?v=（与预载 URL 一致） | ALL OK"
+ },
+ {
+  "f": "check-pinned.mjs",
+  "ok": true,
+  "ms": 89,
+  "tail": "== 4. 清理 == |   PASS  测试文章已删除 | 置顶门禁全部通过"
+ },
+ {
+  "f": "check-placeholder.mjs",
+  "ok": true,
+  "ms": 13309,
+  "tail": "OK   390px 静态问答页占位符够短  [搜问题或关键词…] | OK   1440px 桌面仍用长占位符（带快捷键提示）  [搜索：如 rust 命令行、AI 绘图、前端 框架（按 / 快速定位）] | ALL OK (11)"
+ },
+ {
+  "f": "check-prev-count.mjs",
+  "ok": true,
+  "ms": 128,
+  "tail": "  PASS  后台有「旧地址 … 个（已 301）」文案 | 清理后剩余 2 篇，残留 0 篇 | 全部通过"
+ },
+ {
+  "f": "check-promo.mjs",
+  "ok": true,
+  "ms": 23249,
+  "tail": "OK   /articles 不出现顶部滚动条 | OK   /faq 不出现顶部滚动条 | ALL OK (10)  @http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-qa-order.mjs",
+  "ok": true,
+  "ms": 8992,
+  "tail": "  PASS  重进后顺序回到线上数据 |   PASS  线上问答条数没变 | 问答排序门禁全部通过"
+ },
+ {
+  "f": "check-qafilter.mjs",
+  "ok": true,
+  "ms": 7169,
+  "tail": "  PASS  清空后恢复全部 |   PASS  清空后提示回到「共 N 条」 | 全部通过"
+ },
+ {
+  "f": "check-range-fail.mjs",
+  "ok": true,
+  "ms": 8600,
+  "tail": "OK   状态行不再挂着「加载数据…」  status= | OK   390px 不溢出  over=false | ALL OK (14)"
+ },
+ {
+  "f": "check-reader-font.mjs",
+  "ok": true,
+  "ms": 1665,
+  "tail": "OK   320 宽字号工具条不越界 | OK   320 宽整页不横向溢出 | ALL OK (17)"
+ },
+ {
+  "f": "check-reader-keys.mjs",
+  "ok": false,
+  "ms": 11074,
+  "tail": "  PASS  /faq 页脚有 RSS |   PASS  /rss.xml 可访问且是 RSS 2.0 | 1 FAILED"
+ },
+ {
+  "f": "check-reader-nav.mjs",
+  "ok": false,
+  "ms": 8865,
+  "tail": "  PASS  深链能直接打开这篇 |   PASS  深链打开时边界提示正确 | 2 项失败"
+ },
+ {
+  "f": "check-reader-parity.mjs",
+  "ok": true,
+  "ms": 9268,
+  "tail": "OK   静态页 390 不横向溢出  [390/390] | OK   两个阅读器都不出现「加密文章」措辞 | ALL OK (17 项，390px)"
+ },
+ {
+  "f": "check-reader-spa.mjs",
+  "ok": false,
+  "ms": 9522,
+  "tail": "OK   390 正文 ≥16px  [17] | OK   390 不横向溢出  [[390,390]] | 2 FAILED of 17"
+ },
+ {
+  "f": "check-reader-state.mjs",
+  "ok": false,
+  "ms": 1812,
+  "tail": "OK   列表页能滚动（读测试前提） | ERROR {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":0,\"columnNumber\":45,\"scriptId\":\"12\",\"stackTrace\":{\"callFrames\":[{\"functionName\":\"\",\"scriptId\":\"12\",\"url\":\"\",\"lin"
+ },
+ {
+  "f": "check-reader-tone.mjs",
+  "ok": true,
+  "ms": 7932,
+  "tail": "OK   桌面同样没有技术味长句 | OK   桌面榜单更早出现（481 → 目标 ≤470）  [listTop=399] | ALL OK (13)"
+ },
+ {
+  "f": "check-refresh-cancel.mjs",
+  "ok": true,
+  "ms": 12429,
+  "tail": "OK   取消后：榜单没被清空 — cards=21 | OK   取消后：不再有新请求发出 — before=1 now=1 after=1 | ALL OK (14 项，390px)"
+ },
+ {
+  "f": "check-refresh-errors.mjs",
+  "ok": true,
+  "ms": 11378,
+  "tail": "OK   断网：说人话（网络/连不上） — 实时刷新失败：网络请求失败，请检查网络连接后重试。 当前仍显示之前的数据。 | OK   断网：榜单仍在 — cards=21 | ALL OK (13 项，390px)"
+ },
+ {
+  "f": "check-related.mjs",
+  "ok": true,
+  "ms": 6710,
+  "tail": "  PASS  不含当前这篇 |   PASS  换一篇仍有相关阅读 | 相关阅读门禁全部通过"
+ },
+ {
+  "f": "check-save-dispatch.mjs",
+  "ok": false,
+  "ms": 89,
+  "tail": "  ✗ if (sec === 'nav') 在第 5690 行，但被套进了更深的块（深度 0，应为 1）→ 这个分支不可达 |   ✗ data-save=\"qa\" 没有可达分支 → 点保存会落到 /api/site 被 400 拒 |   ✗ data-save=\"nav\" 没有可达分支 → 点保存会落到 /api/site 被 400 拒"
+ },
+ {
+  "f": "check-search-highlight.mjs",
+  "ok": true,
+  "ms": 6370,
+  "tail": "  PASS  清空后没有残留高亮 | 残留门禁文章: 0 | 全部通过"
+ },
+ {
+  "f": "check-seo.mjs",
+  "ok": true,
+  "ms": 93,
+  "tail": "ALL OK (62)"
+ },
+ {
+  "f": "check-settings-order.mjs",
+  "ok": true,
+  "ms": 4146,
+  "tail": "OK   点开教程能展开（details 高度≥200）  [{\"open\":true,\"h\":422,\"li\":6}] | OK   教程仍是 6 步  [li=6] | ALL OK (14)"
+ },
+ {
+  "f": "check-share-mobile.mjs",
+  "ok": true,
+  "ms": 3199,
+  "tail": "OK   1440 上「分享」隐藏（整行 display:none、按钮占 0）  → {\"row\":\"none\",\"box\":[0,0],\"count\":20} | OK   390 不横向溢出  → [390,390] | ALL OK (12)  @http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-side-recent.mjs",
+  "ok": true,
+  "ms": 4619,
+  "tail": "  PASS  标题与条目一致 |   PASS  第二条也能打开并换地址 | 全部通过"
+ },
+ {
+  "f": "check-slug-alias.mjs",
+  "ok": false,
+  "ms": 129,
+  "tail": "  FAIL  删掉后旧地址 404（不是 301）  [200] | 清理后剩余文章 2 篇，残留测试文章 0 篇 | 5 项失败"
+ },
+ {
+  "f": "check-slug-preview.mjs",
+  "ok": false,
+  "ms": 6419,
+  "tail": "  PASS  撞已有地址时变红并说明会加 -2 |   FAIL  关闭弹窗 | 1 项失败"
+ },
+ {
+  "f": "check-stats-slim.mjs",
+  "ok": true,
+  "ms": 8119,
+  "tail": "OK   桌面所有元素同一行（±2px 基线差）  [272,272,272,272,271] | OK   桌面榜单更早出现（原 544）  [listTop=399] | ALL OK (13)"
+ },
+ {
+  "f": "check-sticky-actions.mjs",
+  "ok": true,
+  "ms": 8689,
+  "tail": "PASS  桌面：保存按钮不吸底（position static）  [static] | PASS  桌面：保存按钮不撑满（< 卡片宽 80%）  [125/998] | 全部通过（12 项）"
+ },
+ {
+  "f": "check-submit-pane.mjs",
+  "ok": true,
+  "ms": 6863,
+  "tail": "OK   窄屏/常规宽度都不横向溢出  → {\"vw\":1430,\"sw\":1430,\"wide\":[]} | OK   提交后按钮恢复可点  → {\"disabled\":false,\"text\":\"全部提交\"} | ALL OK (16/16)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-theme-admin.mjs",
+  "ok": true,
+  "ms": 11539,
+  "tail": "OK   前台：本地选了冷暗 → 页面就是冷暗  → ink | OK   前台：清除后回到站点默认主题  → paper | ALL OK (12)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-theme-affordance.mjs",
+  "ok": true,
+  "ms": 7052,
+  "tail": "OK   静态问答 点一下确实换主题  [paper -> ink] | OK   静态文章页「按时间倒序」只出现一次（去重副标题）  [1] | ALL OK (13)"
+ },
+ {
+  "f": "check-theme-parity.mjs",
+  "ok": true,
+  "ms": 7851,
+  "tail": "OK   paper /faq 正文对比度 ≥7 | OK   paper /nav 正文对比度 ≥7 | ALL OK (11 项通过, 0 项失败)"
+ },
+ {
+  "f": "check-ticker-ui.mjs",
+  "ok": true,
+  "ms": 3024,
+  "tail": "OK   写够 6 个字且不是占位 → 提醒消失  → {\"hidden\":true,\"txt\":\"\"} | OK   关掉开启 → 提醒隐藏（不留红字）  → {\"hidden\":true,\"txt\":\"\"} | ALL OK (10)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-toc.mjs",
+  "ok": true,
+  "ms": 8651,
+  "tail": "  PASS  afterprint 后恢复收起 | 清理：ok，残留 0 | 全部通过"
+ },
+ {
+  "f": "check-toggle-aria.mjs",
+  "ok": true,
+  "ms": 7142,
+  "tail": "OK   「只看收藏」打开后 pressed=true 且文案带（开）  → {\"p\":\"true\",\"t\":\"★ 只看收藏（开）\"} | OK   页面不横向溢出  → [1440,1440] | ALL OK (12)  @1440px  http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-toolbar-collapse.mjs",
+  "ok": true,
+  "ms": 8282,
+  "tail": "OK   桌面下拉与搜索框同排且不重叠  [q=938,160] | OK   桌面分类仍换行排列  [wrap] | ALL OK (25)"
+ },
+ {
+  "f": "check-totop.mjs",
+  "ok": false,
+  "ms": 9662,
+  "tail": "  PASS  /faq 点击后回到顶部 |   PASS  /faq 打印时不显示 | 2 FAILED"
+ },
+ {
+  "f": "check-touch-320.mjs",
+  "ok": true,
+  "ms": 14741,
+  "tail": "PASS  手机上面板底部提示改成触屏措辞  [点一下面板名就跳过去] | PASS  手机上面板输入框占位符缩短  [搜面板名…] | 全部通过（17 项，320px）"
+ },
+ {
+  "f": "check-unlock.mjs",
+  "ok": true,
+  "ms": 10458,
+  "tail": "OK    正确密码解密出正文  正文含机密=true | OK    测试文章已清理  删除=true 列表已无=true | 加密文章端到端通过（6 项）"
+ },
+ {
+  "f": "check-url-filters.mjs",
+  "ok": true,
+  "ms": 14432,
+  "tail": "  PASS  问答从 URL 还原标签与关键词 |   PASS  清空关键词后 URL 去掉 q 参数 | 全部通过（15 项）"
+ },
+ {
+  "f": "check-view-title.mjs",
+  "ok": true,
+  "ms": 6704,
+  "tail": "OK   深链 /?page=articles 首屏标题就是文章  → \"文章 - 站长写的一些记录\" | OK   390 不横向溢出  → [390,390] | ALL OK (14)  @http://127.0.0.1:8123"
+ },
+ {
+  "f": "check-worker.mjs",
+  "ok": true,
+  "ms": 246,
+  "tail": "  PASS  不存在的文章给 404 页 |   PASS  worker: raw 子请求带 ?v= 版本号 | 全部通过（回源 88 次，API 106 次）"
+ }
+]
