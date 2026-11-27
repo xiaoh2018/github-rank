@@ -27,6 +27,18 @@ if (process.platform === 'win32' && !args.includes('--keep-chrome')) {
     console.log('（清理残留 headless chrome 失败，忽略：' + (e && e.message ? e.message : e) + '）');
   }
 }
+function killHeadlessChrome() {
+  if (process.platform !== 'win32') return;
+  try {
+    const ps = [
+      'Get-CimInstance Win32_Process -Filter "Name=\'chrome.exe\'"',
+      "| Where-Object { $_.CommandLine -like '*--headless=new*' }",
+      '| ForEach-Object { try { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue } catch {} }',
+    ].join(' ');
+    execSync('powershell -NoProfile -Command "' + ps.replace(/"/g, '\"') + '"', { stdio: 'ignore', timeout: 20000 });
+  } catch (e) {}
+}
+
 const flag = (name) => args.includes('--' + name);
 const value = (name, def) => {
   const hit = args.find((a) => a.startsWith('--' + name + '='));
@@ -110,12 +122,22 @@ console.log('跑 ' + picked.length + ' 个门禁' + (INCLUDE_LIVE ? '（含线�
 for (const file of picked) {
   resetData('before ' + file);
   process.stdout.write('  ' + file.replace(/\.mjs$/, '').padEnd(28));
-  const r = await runOne(file);
+  let r = await runOne(file);
   resetData('after ' + file);
-  const ok = r.code === 0 && !r.timedOut;
+  let ok = r.code === 0 && !r.timedOut;
+  // 偶发竞态（孤儿 chrome 占端口 / 页面还没渲染完）不该判死：清一次再跑一遍
+  if (!ok && !r.timedOut) {
+    process.stdout.write('重试…  ');
+    killHeadlessChrome();
+    await new Promise((res) => setTimeout(res, 2500));
+    const r2 = await runOne(file);
+    resetData('retry ' + file);
+    if (r2.code === 0 && !r2.timedOut) { r = { ...r2, retried: true }; ok = true; }
+    else { r = r2; }
+  }
   results.push(r);
   if (ok) {
-    if (!QUIET) process.stdout.write('通过  ' + (r.ms / 1000).toFixed(1) + 's\n');
+    if (!QUIET) process.stdout.write('通过' + (r.retried ? '（重试 1 次）' : '  ') + (r.ms / 1000).toFixed(1) + 's\n');
     else process.stdout.write('ok\n');
   } else {
     process.stdout.write((r.timedOut ? '超时' : '失败') + '  ' + (r.ms / 1000).toFixed(1) + 's\n');
@@ -142,7 +164,7 @@ if (JSON_OUT) {
     passed: results.length - failed.length,
     failed: failed.map((f) => ({ file: f.file, code: f.code, timedOut: f.timedOut, last: f.last })),
     seconds: Number(totalS.toFixed(1)),
-    results: results.map((r) => ({ file: r.file, code: r.code, ms: r.ms, timedOut: r.timedOut, last: r.last })),
+    results: results.map((r) => ({ file: r.file, code: r.code, ms: r.ms, timedOut: r.timedOut, retried: !!r.retried, last: r.last })),
   };
   fs.writeFileSync(JSON_OUT, JSON.stringify(payload, null, 2), 'utf8');
   console.log('\n结果已写入 ' + JSON_OUT);

@@ -63,7 +63,7 @@ push('文档：404 页已勾选', /\[x\] 404 页面/.test(doc), '');
 push('文档：ItemList 已勾选', /\[x\] 文章列表 `ItemList`/.test(doc), '');
 push('文档：noindex 已写明', /noindex,follow/.test(doc), '');
 const llms = (await get('/llms.txt')).t;
-push('llms.txt 不承诺未实现的 /api/rank', !/\/api\/rank/.test(llms), '');
+push('llms.txt 写到了已实现的 /api/rank', /\/api\/rank/.test(llms), '');
 
 let failed = 0;
 for (const r of rows) {
