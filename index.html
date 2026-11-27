@@ -1415,7 +1415,7 @@ window.__imeBind = function (el, fn) {
       var date=str(it.date);
       if(date){ var tm=document.createElement('time'); tm.setAttribute('datetime',date); tm.textContent=date.slice(0,10); top.appendChild(tm); }
       var mins=artMins(it);
-      if(mins){ var mn=document.createElement('span'); mn.className='artcard-mins'; mn.textContent='约 '+mins+' 分钟'; top.appendChild(mn); }
+      if(mins){ var mn=document.createElement('span'); mn.className='artcard-min'; mn.textContent='约 '+mins+' 分钟'; top.appendChild(mn); }
       card.appendChild(top);
       var h=document.createElement('h3');
       var a=document.createElement('a');
@@ -1588,53 +1588,7 @@ window.__imeBind = function (el, fn) {
       var grid=document.createElement('div');
       grid.className='artgrid';
       items.slice(0,HOME_MAX).forEach(function(it,idx){
-        var card=document.createElement('article');
-        card.className='artcard';
-        if(it.cover){
-          card.appendChild(coverImg(it.cover));
-        }
-        var top=document.createElement('div');
-        top.className='artcard-top';
-        var c=document.createElement('span');
-        c.className='artcard-cat';
-        c.textContent=str(it.category)||'随笔';
-        top.appendChild(c);
-        if(it.pinned){
-          var pin=document.createElement('span');
-          pin.className='pinchip';
-          pin.textContent='置顶';
-          top.appendChild(pin);
-        }
-        var mins=readMins(it);
-        if(mins){ var mn=document.createElement('span'); mn.className='artcard-min'; mn.textContent='约 '+mins+' 分钟'; top.appendChild(mn); }
-        var date=str(it.date);
-        if(date){
-          var tm=document.createElement('time');
-          tm.setAttribute('datetime',date);
-          tm.textContent=date.slice(0,10);
-          top.appendChild(tm);
-        }
-        card.appendChild(top);
-        var h=document.createElement('h3');
-        var a=document.createElement('a');
-        a.href=artHref(it);
-      a.setAttribute('data-artpost', String(it.slug||''));
-        a.textContent=str(it.title);
-        h.appendChild(a);
-        card.appendChild(h);
-        var sum=str(it.summary);
-        if(sum){ var p=document.createElement('p'); p.className='artcard-sum'; p.textContent=sum; card.appendChild(p); }
-        var foot=document.createElement('div');
-        foot.className='artcard-foot';
-        var read=document.createElement('span');
-        read.className='read';
-        read.setAttribute('aria-hidden','true');
-        read.textContent='阅读全文 →';
-        foot.appendChild(read);
-        // 只有真的存了密文才显示锁：老数据可能 locked=true 但没有 lock.ct，点了会问密码却永远解不开
-      if(it.locked && it.hasLock !== false){ var lk=document.createElement('span'); lk.className='lock'; lk.textContent='🔒 需要密码'; foot.appendChild(lk); }
-        card.appendChild(foot);
-        grid.appendChild(card);
+        grid.appendChild(artCardEl(it));
         var ae=(window.ghrankAdEvery&&window.ghrankAdEvery.article)||2;
         if(ae>0&&(idx+1)%ae===0){
           var inlineAd=document.createElement('div');

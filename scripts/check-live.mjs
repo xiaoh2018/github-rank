@@ -534,6 +534,9 @@ push('/articles 卡片是 article + 标题内链（锚文本=标题）',
 push('首页「阅读全文」不再是链接（装饰 span + aria-hidden）',
   home.includes("read.setAttribute('aria-hidden','true')") && !home.includes('read.href=artHref'), '');
 
+push('首页只剩一份卡片渲染器（复用 artCardEl）',
+  (home.match(/className='artcard'/g) || []).length === 1 && /grid\.appendChild\(artCardEl\(it\)\)/.test(home) && !home.includes('artcard-mins'), '');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
