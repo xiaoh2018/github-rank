@@ -498,6 +498,7 @@ push('跳转链接默认藏起来、聚焦才出现', home.includes('.skip:focus
 push('/articles 不再把页面内锚点当文章 id', artHtml.includes('页面内锚点'), '');
 push('卡片迷你按钮有可访问名', bundleJs.includes("'复制仓库链接'") && bundleJs.includes("'生成分享卡片'"), '');
 push('导航页有自己的标题与 canonical（不是首页副本）', navHtml.indexOf('站点导航 · ') >= 0 && navHtml.indexOf('rel="canonical" href="' + base + '/nav"') >= 0);
+push('导航页搜索空态有「清空搜索」出口', navHtml.indexOf('清空搜索看全部') >= 0 && navHtml.indexOf('data-navreset') >= 0, '');
 push('文章页有完整分享卡', artHtml.indexOf('property="og:url" content="' + base + '/articles"') >= 0 && artHtml.indexOf('name="twitter:card"') >= 0);
 push('问答页有完整分享卡', faqHtml.indexOf('property="og:url" content="' + base + '/faq"') >= 0 && faqHtml.indexOf('name="twitter:card"') >= 0);
 push('问答页跟随站点主题（5 套 token 齐备）', ['dark', 'ink', 'stripe', 'notion'].every((t) => faqHtml.includes('html[data-theme="' + t + '"]')) && faqHtml.includes('--fg:var(--text)'), '');
