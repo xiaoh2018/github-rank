@@ -508,6 +508,12 @@ push('用备用数据文件时要说明可能不是最新', bundleJs.includes('�
 push('文章弹窗有目录 / 字号 / 复制链接三件套', home.includes('id="adlTocBtn"') && home.includes('id="adlPlus"') && home.includes('id="adlCopy"'), '');
 push('两个阅读器共用字号存档与 --rfont', home.includes("RF_KEY='ghrank-reader-font'") && home.includes('var(--rfont'), '');
 push('文章弹窗有上一篇/下一篇', home.includes('id="adlNav"') && home.includes('上一篇：'), '');
+const siteJson = await (await fetch(base + '/api/site?cb=' + Date.now())).json();
+const adKeys = Object.keys((siteJson && siteJson.site && siteJson.site.ad) || {}).sort().join(',');
+push('ad 只剩白名单键（enabled,html,slots,ticker）', adKeys === 'enabled,html,slots,ticker', adKeys);
+const cats = (siteJson && siteJson.site && siteJson.site.article && siteJson.site.article.categories) || [];
+push('文章分类非空（空分类会让详情页 301）', Array.isArray(cats) && cats.length >= 1, 'categories=' + cats.length);
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

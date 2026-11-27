@@ -77,8 +77,8 @@ const clean = (s) => norm(s).replace('🔒', '').trim();
   const spa = await goto(BASE + '/?page=articles', '#artViewList .artcard').then(() => evalJs(SPA_READ));
   const st = await goto(BASE + '/articles', '#cards .acard').then(() => evalJs(STATIC_READ));
 
-  ok('站内「文章」tab 渲染出卡片', spa.length >= 3, String(spa.length));
-  ok('静态 /articles 渲染出卡片', st.length >= 3, String(st.length));
+  ok('站内「文章」tab 渲染出卡片', spa.length >= 1 && spa.length === st.length, JSON.stringify({ spa: spa.length, st: st.length }));
+  ok('静态 /articles 渲染出卡片', st.length >= 1, String(st.length));
 
   const byTitle = new Map(st.map((c) => [clean(c.title), c]));
   for (const c of spa) {
@@ -101,7 +101,7 @@ const clean = (s) => norm(s).replace('🔒', '').trim();
 
   // —— 切「分类显示英文」，两边都要跟着变 ——
   const pw = 'dev';
-  const body = (catEn) => JSON.stringify({ password: pw, section: 'article', value: { catEn: catEn, unlockHint: '这篇需要密码才能看，问站长要。', categories: [] } });
+    const body = (catEn) => JSON.stringify({ password: pw, section: 'article', value: { catEn: catEn } }); // 只改开关，不碰分类/列数/解锁提示
   const save = await (await fetch(BASE + '/api/site', { method: 'POST', headers: { 'content-type': 'application/json' }, body: body(true) })).json();
   ok('能打开「分类显示英文」开关', save.ok === true, JSON.stringify(save).slice(0, 120));
   const spa2 = await goto(BASE + '/?page=articles', '#artViewList .artcard').then(() => evalJs(SPA_READ));

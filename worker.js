@@ -1736,7 +1736,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v247';
+const ASSET_V = 'v249';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2659,6 +2659,8 @@ function normalizeSite(o) {
       shenma: String((rt.verify || {}).shenma || '').slice(0, 200),
     },
   };
+  // whitelist-ad（读侧）：ad 只保留白名单键，历史脏字段不再回显
+  d.ad = { enabled: d.ad.enabled, html: d.ad.html, slots: d.ad.slots, ticker: d.ad.ticker };
   return d;
 }
 
@@ -2996,13 +2998,51 @@ async function handleSite(request, env) {
   if (SITE_SECTIONS.indexOf(body.section) < 0) {
     return json({ ok: false, error: 'section 只能是 ad、layout、contact、beian、seo、geo 或 runtime' }, 400);
   }
-  const check = checkSection(body.section, body.value);
-  if (!check.ok) return json({ ok: false, error: check.error }, 400);
-
   const cur = await readSite(env);
   if (!cur.ok) return json({ ok: false, error: cur.error }, 502);
   const site = cur.site;
+
+  // merge-article-section：article 段允许局部保存（只传 catEn 之类），缺失字段沿用现存值。
+  // 否则一次「切换分类显示英文」的保存会把 categories / cols / unlockHint 一起清掉。
+  let rawValue = body.value;
+  if (body.section === 'article') {
+    const curArt = (site.article && typeof site.article === 'object') ? site.article : {};
+    const inArt = (rawValue && typeof rawValue === 'object') ? rawValue : {};
+    if (Array.isArray(inArt.categories) && inArt.categories.length === 0) {
+      return json({ ok: false, error: '分类不能清空：至少保留一个分类（要改名就直接改那一行）' }, 400);
+    }
+    rawValue = {
+      unlockHint: inArt.unlockHint === undefined ? curArt.unlockHint : inArt.unlockHint,
+      catEn: inArt.catEn === undefined ? curArt.catEn : inArt.catEn,
+      cols: inArt.cols === undefined ? curArt.cols : inArt.cols,
+      categories: inArt.categories === undefined ? curArt.categories : inArt.categories,
+    };
+  }
+
+  const check = checkSection(body.section, rawValue);
+  if (!check.ok) return json({ ok: false, error: check.error }, 400);
+
   site[body.section] = check.clean;
+
+  // tighten-ticker：写盘前把 ad.ticker 收紧成 5 个已知键。
+  // 起因：某次只改 article 段的保存，让 ticker 里多出一个 article 字段（数据看起来没坏，但文件被污染）。
+  try {
+    // whitelist-ad：写盘前把 ad 重建成白名单，丢掉任何历史遗留的多余字段（例如曾被塞进来的 ad.article）。
+    const adIn = (site.ad && typeof site.ad === 'object') ? site.ad : {};
+    const tk = (adIn.ticker && typeof adIn.ticker === 'object') ? adIn.ticker : {};
+    site.ad = {
+      enabled: adIn.enabled === true,
+      html: String(adIn.html == null ? '' : adIn.html).slice(0, 20000),
+      slots: (adIn.slots && typeof adIn.slots === 'object') ? adIn.slots : {},
+      ticker: {
+        enabled: tk.enabled === true,
+        text: String(tk.text == null ? '' : tk.text).slice(0, 200),
+        speed: Math.min(60, Math.max(6, Math.round(Number(tk.speed) || 18))),
+        link: String(tk.link == null ? '' : tk.link).slice(0, 300),
+        modal: String(tk.modal == null ? '' : tk.modal).slice(0, 2000),
+      },
+    };
+  } catch (e) { /* 收紧失败就按原样写，别让保存整体失败 */ }
 
   const w = await writeSite(env, site, cur.sha);
   if (!w.ok) return json({ ok: false, error: w.error }, 500);

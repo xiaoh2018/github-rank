@@ -76,6 +76,10 @@ try {
   await sleep(2200);
 
   console.log('== 1. 第 1 页 ==');
+  // 总篇数按实际数据算：别再写死 15（那是我当初数据里恰好有 3 篇时的数字）
+  const __before = await (await fetch(base + '/data/articles.json?t=' + Date.now())).json();
+  const __total = Array.isArray(__before) ? __before.length : 0;
+  const __pages = Math.max(1, Math.ceil(__total / 9));
   const p1 = await evalJs(`(() => ({
     cards: document.querySelectorAll('#cards .acard').length,
     pager: (() => { const p = document.querySelector('#apager'); return p ? { hidden: p.hidden, text: p.textContent.replace(/\\s+/g, ' ').trim() } : null; })(),
@@ -83,7 +87,7 @@ try {
   }))()`);
   ok('第 1 页渲染 9 张卡片', p1 && p1.cards === 9, JSON.stringify(p1));
   ok('分页条可见', p1 && p1.pager && p1.pager.hidden === false, JSON.stringify(p1 && p1.pager));
-  ok('页码文案正确', p1 && p1.pager && /第 1 \/ 2 页/.test(p1.pager.text) && /共 15 篇/.test(p1.pager.text), JSON.stringify(p1 && p1.pager && p1.pager.text));
+  ok('页码文案正确', p1 && p1.pager && p1.pager.text.includes('第 1 / ' + __pages + ' 页') && p1.pager.text.includes('共 ' + __total + ' 篇'), JSON.stringify(p1 && p1.pager && p1.pager.text));
   const prevDisabled = await evalJs(`(() => { const b = document.querySelector('#apager [data-page]'); return !!(b && b.disabled); })()`);
   ok('第 1 页「上一页」是禁用的', prevDisabled === true, String(prevDisabled));
 
@@ -108,7 +112,7 @@ try {
       firstTitle: (document.querySelector('#cards .acard h3') || {}).textContent || '',
     };
   })()`);
-  ok('第 2 页只剩 6 张卡片', p2 && p2.cards === 6, JSON.stringify(p2));
+  ok('第 2 页只剩 6 张卡片', p2 && p2.cards === (__total - 9), JSON.stringify(p2));
   ok('第 2 页页码文案正确', p2 && /第 2 \/ 2 页/.test(p2.text), JSON.stringify(p2 && p2.text));
   ok('第 2 页「下一页」是禁用的', p2 && p2.nextDisabled === true, JSON.stringify(p2));
 

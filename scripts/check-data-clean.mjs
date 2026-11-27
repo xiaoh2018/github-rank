@@ -17,6 +17,34 @@ const ok = (name, cond, detail) => {
 };
 
 const digest = (buf) => crypto.createHash('sha256').update(buf).digest('hex').slice(0, 16);
+
+// 内容级比对：git status 会因为 CRLF/stat 认为「改了」，但内容其实一模一样。
+// 这里改成跟 HEAD 里的字节比（只把 CRLF 归一成 LF，其余逐字比）。
+const normText = (buf) => String(buf).split('\r\n').join('\n');
+const HEAD_CACHE = new Map();
+function headBuf(rel) {
+  if (HEAD_CACHE.has(rel)) return HEAD_CACHE.get(rel);
+  const r = spawnSync('git', ['show', 'HEAD:' + rel], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
+  const buf = r.status === 0 ? r.stdout : null;
+  HEAD_CACHE.set(rel, buf);
+  return buf;
+}
+function dataFiles() {
+  const dir = path.join(ROOT, 'data');
+  return fs.readdirSync(dir).filter((n) => n.endsWith('.json')).sort().map((n) => 'data/' + n);
+}
+function diffFromHead() {
+  const bad = [];
+  for (const rel of dataFiles()) {
+    const diskPath = path.join(ROOT, rel);
+    const disk = fs.existsSync(diskPath) ? fs.readFileSync(diskPath) : null;
+    const head = headBuf(rel);
+    if (!disk) { bad.push(rel + '：磁盘上不存在'); continue; }
+    if (!head) { bad.push(rel + '：HEAD 里没有这个文件'); continue; }
+    if (normText(disk) !== normText(head)) bad.push(rel + '：' + digest(disk) + ' ≠ ' + digest(head));
+  }
+  return bad;
+}
 function snapshot() {
   const out = {};
   for (const name of fs.readdirSync(DATA).sort()) {
@@ -34,8 +62,8 @@ function diff(a, b) {
 }
 
 // 1) 跑之前：data 必须已经和 git HEAD 一致（否则后面无法判断是谁改的）
-const dirtyBefore = spawnSync('git', ['status', '--porcelain', '--', 'data'], { cwd: ROOT, encoding: 'utf8' });
-ok('跑之前 data/ 与 git HEAD 一致', (dirtyBefore.stdout || '').trim() === '', JSON.stringify((dirtyBefore.stdout || '').trim()));
+const badBefore = diffFromHead();
+ok('跑之前 data/ 与 git HEAD 内容一致', badBefore.length === 0, badBefore.join(' | '));
 
 const before = snapshot();
 ok('data/ 里有可检查的 JSON 文件', Object.keys(before).length >= 3, JSON.stringify(Object.keys(before)));
@@ -57,8 +85,8 @@ const after = snapshot();
 const changed = diff(before, after);
 ok('门禁跑完后 data/ 逐字节还原', changed.length === 0, changed.join('; '));
 
-const dirtyAfter = spawnSync('git', ['status', '--porcelain', '--', 'data'], { cwd: ROOT, encoding: 'utf8' });
-ok('门禁跑完后 git 看不到 data/ 改动', (dirtyAfter.stdout || '').trim() === '', JSON.stringify((dirtyAfter.stdout || '').trim()));
+const badAfter = diffFromHead();
+ok('跑完之后 data/ 与 git HEAD 内容一致', badAfter.length === 0, badAfter.join(' | '));
 
 // 4) dev-server 的内存视图也要和磁盘一致（缓存污染会让截图与线上证据撒谎）
 let served = null;
