@@ -4632,5 +4632,22 @@
  "Claude Code plugin and optional Windows tray client: pick a skill set for each session at its first message, and the model sees only those skills. Subagents get their own set. In Chinese or English.": "Claude Code 插件和可选的 Windows 系统托盘客户端：在每个会话的第一条消息中选择一组技能，模型仅能看到这些技能。子代理有自己的技能集。提供中文或英文版本。",
  "A small packet path visualizer for Linux.": "适用于 Linux 的小型数据包路径可视化工具。",
  "Open-source, self-hosted Instagram DM automation: comment-to-DM and story automations, a visual flow builder, inbox and metrics. A Manychat alternative you run on your own Cloudflare account.": "开源、自托管的 Instagram 私信自动化：评论转私信和故事自动化、可视化流程构建器、收件箱和指标。一款可在您自己的 Cloudflare 账户上运行的 Manychat 替代产品。",
- "A high-performance MySQL-compatible database for HTAP and AI agents  Mixed transactional and analytical workloads, with native AI retrieval.": "一款高性能的 MySQL 兼容数据库，适用于 HTAP 和 AI 代理。混合事务和分析工作负载，具备原生 AI 检索功能。"
+ "A high-performance MySQL-compatible database for HTAP and AI agents  Mixed transactional and analytical workloads, with native AI retrieval.": "一款高性能的 MySQL 兼容数据库，适用于 HTAP 和 AI 代理。混合事务和分析工作负载，具备原生 AI 检索功能。",
+ "Examdiff Pro for Windows 10/11. Compares text files, folders and binary data side by side, highlights differences and merges edits, helping developers and writers review code changes and document revisions.": "适用于 Windows 10/11 的 Examdiff Pro。并排比较文本文件、文件夹和二进制数据，突出显示差异并合并编辑内容，帮助开发人员和撰写人员审核代码变更和文档修订。",
+ "YouTube Ad Blocker - Chrome / Browser Extension": "YouTube 广告拦截器 - Chrome/浏览器扩展",
+ "Native macOS port of the VIctory Xbox Series emulator for GTA VI: no Wine, game code in-process, GPU straight to Metal. Bring your own game copy.": "VIctory Xbox Series 模拟器的原生 macOS 移植版，用于 GTA VI：无需 Wine，游戏代码进程内运行，GPU 直接使用 Metal。请自带游戏副本。",
+ "Agent skill that draws an original icon library matching your design system (React, Vue, Svelte, React Native, SVG).": "该客服代表技能可绘制与您的设计系统（React、Vue、Svelte、React Native、SVG）相匹配的原始图标库。",
+ "Agentic ASPM, the open source Snyk alternative. A full security audit in one command": "Agentic ASPM，开源的Snyk替代方案。一条命令即可完成全面安全审计",
+ "A curated list of awesome Obsidian plugins, themes, CSS snippets, publishing engines, CLI workflows, companion apps, starter vaults, and developer tools.": "精选的优秀 Obsidian 插件、主题、CSS 代码片段、发布引擎、CLI 工作流、配套应用程序、入门级知识库和开发者工具列表。",
+ "Open-source Windows uninstaller: removes programs with their leftovers, shows why each leftover was found, and can restore whatever it deleted. Rust + Tauri.": "开源 Windows 卸载程序：卸载程序及其残留文件，显示找到每个残留文件的原因，并可以还原其删除的任何内容。Rust + Tauri。",
+ "Electrum-DINGO is an independent Windows desktop wallet for Dingocoin (DINGO) mainnet.": "Electrum-DINGO 是一个独立的 Windows 桌面钱包，适用于 Dingocoin (DINGO) 主网。",
+ "贴吧客户端，prism_ui 液态玻璃设计语言，Flutter 实现。TiebaLite 的 Flutter 重写版。": "贴吧客户端，prism_ui 液态玻璃设计语言，Flutter 实现。TiebaLite 的 Flutter 重写版。",
+ "VPN 个人搭建与使用指南（2026 更新）：整理 VLESS-Reality / Hysteria2 / V2Ray / Shadowsocks 自建 VPN 教程、全平台客户端配置，以及个人实测可用的高性价比梯子与机场避坑记录。": "VPN 个人搭建与使用指南（2026 更新）：整理 VLESS-Reality / Hysteria2 / V2Ray / Shadowsocks 自建 VPN 教程、全平台客户端配置，以及个人实测可用的高性价比梯子与机场避坑记录。",
+ "Independent Windows wallet for native Flux (FLUX). BIP39 recovery, multisig and Electrum server support.": "适用于原生Flux (FLUX)的独立Windows钱包。支持BIP39恢复、多重签名和Electrum服务器。",
+ "vanity generator, btc vanity, eth vanity,  open-source bitcoin vanity address generator, all currencies vanity, Super Vanitygen, A vanity address generator supporting over 100 cryptocurrencies, hijack clipboard, Vanity address generator, ": "虚荣地址生成器，比特币虚荣地址，以太坊虚荣地址，开源比特币虚荣地址生成器，所有币种虚荣地址，Super Vanitygen，支持超过100种加密货币的虚荣地址生成器，劫持剪贴板，虚荣地址生成器，",
+ "P&ID to Knowledge Graph: a Claude skill that turns P&ID PDFs (digital or scanned) into a process knowledge graph of flow, instruments and control loops.": "P&ID转知识图谱：一种Claude技能，可将P&ID PDF（数字或扫描）转换为流程、仪表和控制回路的流程知识图谱。",
+ "谁说mac上跑不起来wallpaper的？": "谁说Mac上跑不起来壁纸的？",
+ "A curated list of papers for AI in Astronomy & Astrophysics.": "一份精选的论文清单，内容涉及人工智能在天文学和天体物理学中的应用。",
+ "NUP is a clean-room container format for unencrypted NX (Nintendo Switch 1/2) game dumps.": "NUP 是一种用于未加密 NX（Nintendo Switch 1/2）游戏转储的无损容器格式。",
+ "Tiny, Performant & 100% Native client for Discord made in Rust": "使用 Rust 编写的轻巧、高性能且 100% 原生的 Discord 客户端"
 }
