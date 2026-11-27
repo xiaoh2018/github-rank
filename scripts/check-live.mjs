@@ -410,7 +410,7 @@ push('输入法打字时不逐字过滤（首页）', bundleSrc.includes('functi
 push('静态文章页也跳过拼音阶段', artListHtml.includes('compositionstart'));
 push('后台三个筛选框也跳过拼音阶段', admHtml.includes('function imeBind') && admHtml.includes("imeBind($('navFilter')"));
 
-push('文章卡片列数可设置（首页）', home.includes('body[data-artcols="triple"] .artgrid') && home.includes('applyArtCols'));
+push('文章卡片列数可设置（首页）', home.includes('html[data-artcols="triple"] .artgrid') && home.includes('applyArtCols'));
 push('文章页跟随列数设置', artListHtml.includes('html[data-artcols="double"] .cards'));
 push('后台有列数开关', admHtml.includes('type="radio" name="article-cols"') && admHtml.includes('文章卡片列数'));
 
