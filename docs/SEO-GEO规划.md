@@ -22,9 +22,10 @@
 - Worker 对 `/articles/<任意合法 slug>` 直接返回文章页（前端按路径里的 slug 打开对应文章）。
 - sitemap 输出 slug 链接，`<lastmod>` 取文章日期。
 
-待补：
-- 文章页 `<link rel="canonical">` 随 slug 变化（现在是静态 `/articles`）。做法：Worker 注入时按请求路径替换 canonical 与 `og:url`。
-- 分页与筛选参数（`?range=`、`?lang=`）加 `noindex`，避免重复内容。
+已补齐（第 19 轮核对，带证据）：
+- 文章页 `<link rel="canonical">` 与 `og:url` 随 slug 变化 ✅ —— `/articles/tech/4.html` 的两个地址都指向它自己。
+- 分页与筛选参数一律 `noindex,follow` ✅ —— `?range=month`、`?page=2`、`?q=rust`、`?cat=ai`、`?lang=en` 实测都是 `noindex,follow`，canonical 回首页，响应 `cache-control: no-store`（视图变体不进边缘缓存）。
+- `?page=articles` 这类**视图路由**不误伤 ✅ —— 它不是分页，仍 `index,follow`。
 
 ## 2. 内容策略（决定 80% 效果）
 
@@ -58,10 +59,11 @@
 - [x] 每页唯一 title / description（Worker 按 site.json 注入）
 - [x] canonical、og:url、og:image、twitter:card
 - [x] `/nav` 导航页与首页互链
-- [ ] 文章页 `<title>` 带栏目后缀（`{标题} · 文章 · GitHub 热门项目排行榜`）→ 已在 `document.title` 做了，需同步到服务端 SSR 注入
-- [ ] 404 页面（现在是首页兜底）
-- [ ] 图片 alt（README 渲染出的图片 alt 已保留，广告图需人工）
-- [ ] 内链锚文本多样化（别全是「点击查看」）
+- [x] 文章页 `<title>` 服务端注入（`/articles/tech/4.html` → `目录高亮验证 · GitHub 热门项目排行榜`）
+- [x] 404 页面（`notFoundPage()`：404 状态 + `robots noindex` + 四个入口）
+- [x] 图片 alt（`check-media` 17 项：可见图都有 alt 与固有尺寸，装饰图 `alt=""`）
+- [x] 文章列表 `ItemList` 结构化数据（`/articles` 注入前 20 篇）
+- [ ] 内链锚文本多样化（现在列表卡统一是「阅读全文」）
 
 ## 6. GEO（AI 搜索）专项
 
@@ -103,6 +105,6 @@ AI 搜索的引用逻辑：**结构清晰 + 事实密度高 + 有明确来源与
 
 1. 文章页服务端注入 canonical / og:url / Article JSON-LD（Worker 按 slug 渲染 head）。
 2. 分类页与标签页（`/articles?cat=xxx` → 独立可索引页）。
-3. `/api/rank` 只读 JSON 接口。
+3. `/api/rank` 只读 JSON 接口。（**未做**：要先定去重与配额规则，避免变成免费的全量数据出口；当前机器可读入口是 `/api/status`、`/data/repos-*.js` 与 `/data/articles.json`。）
 4. 「关于数据」页 + 引用格式。
 5. 内容日历：先攒 20 篇再谈外链与推广。

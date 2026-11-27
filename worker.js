@@ -749,7 +749,7 @@ function versionAssets(html) {
   });
 }
 
-async function serveSite(env, entry, pathname) {
+async function serveSite(env, entry, pathname, absUrl) {
   if (!repoOf(env).owner || !repoOf(env).name) {
     return text('还没配置 REPO_OWNER / REPO_NAME 变量，请按部署说明添加', 503);
   }
@@ -776,6 +776,12 @@ async function serveSite(env, entry, pathname) {
       // /nav 复用的是 index.html，但它是独立地址：标题/描述/canonical 必须指向自己，
       // 否则搜索引擎把它当首页的重复内容（sitemap 里还挂着 /nav，等于自相矛盾）。
       if (pathname === '/nav') html = applyNavSeo(html, siteCfg.seo);
+      if (pathname === '/' && absUrl && filteredSearch(new URL(absUrl).search)) {
+        const canonOrigin = siteCfg.seo.siteUrl
+          ? String(siteCfg.seo.siteUrl).replace(/\/+$/, '')
+          : new URL(absUrl).origin;
+        html = markFiltered(html, canonOrigin);
+      }
       try {
         html = await injectVerifyMeta(env, html);
       } catch (e) {}
@@ -785,7 +791,18 @@ async function serveSite(env, entry, pathname) {
       });
     }
     if (/\.html$/.test(entry[0]) || entry[1] === 'text/html') {
-      return new Response(versionAssets(await r.text()), {
+      let html = await r.text();
+      // 文章列表页补 ItemList 结构化数据（文档 §3 承诺过，一直没做）
+      if (entry[0] === 'articles.html' && absUrl) {
+        try {
+          const cfg = await loadSiteRaw(env);
+          const canonOrigin = cfg.seo.siteUrl
+            ? String(cfg.seo.siteUrl).replace(/\/+$/, '')
+            : new URL(absUrl).origin;
+          html = await injectArticleItemList(env, html, canonOrigin);
+        } catch (e) {}
+      }
+      return new Response(versionAssets(html), {
         headers: { 'content-type': entry[1], 'cache-control': 'public, max-age=300' },
       });
     }
@@ -889,8 +906,12 @@ async function serveSiteEdge(env, pathname, entry, request) {
   const immutable = !!ver && (pathname.indexOf('/data/') === 0 || pathname.indexOf('/js/') === 0);
   const cacheKey = edgeKeyOf(pathname, ver);
 
+  // 分页/筛选视图：既不读缓存也不写缓存。
+  // 只跳过写入是不够的 —— 先访问过干净首页，之后 ?q= / ?page=2 都会命中那份干净 HTML，
+  // noindex 就永远不生效（第一版正是这么错的）。
+  const filtered = filteredSearch(new URL(request.url).search);
   let hit = null;
-  if (pol.ttl > 0) {
+  if (pol.ttl > 0 && !filtered) {
     try { hit = await EDGE_CACHE.match(cacheKey); } catch (e) { hit = null; }
   }
 
@@ -905,12 +926,12 @@ async function serveSiteEdge(env, pathname, entry, request) {
     return new Response(await hit.arrayBuffer(), { status: hit.status, headers: headers });
   }
 
-  const res = await serveSite(env, entry, pathname);
+  const res = await serveSite(env, entry, pathname, request.url);
   const status = res.status;
   const buf = status === 200 ? await res.arrayBuffer() : null;
   const headers = new Headers();
   headers.set('content-type', entry[1]);
-  headers.set('cache-control', cacheControlOf(pol, immutable));
+  headers.set('cache-control', filtered ? 'no-store' : cacheControlOf(pol, immutable));
   headers.set('x-edge', 'MISS');
   if (buf) headers.set('etag', '"h' + hash32(buf) + '"');
   // 首页提前告诉浏览器马上要用的两个脚本，少一轮「先拿 HTML 再发现脚本」
@@ -922,7 +943,7 @@ async function serveSiteEdge(env, pathname, entry, request) {
     return new Response(res.body, { status: status, headers: headers });
   }
 
-  if (pol.ttl > 0) {
+  if (pol.ttl > 0 && !filtered) {
     try {
       await EDGE_CACHE.put(cacheKey, new Response(buf, { status: status, headers: new Headers(headers) }));
     } catch (e) {
@@ -1003,6 +1024,55 @@ function escAttr(s) {
 }
 
 // 把 site.seo 写进站点页 head 的标题和 meta；字段为空就保留页面原来的内容
+// 分页与筛选参数：这些 URL 的内容与首页高度重复，收录它们只会稀释首页权重。
+// 约定：属于这些参数、且不是默认值时，判为「视图变体」，给 noindex,follow + canonical 指向首页。
+// ?page=articles 这类视图路由（非数字）不算分页，保持可索引。
+function filteredSearch(search) {
+  const sp = new URLSearchParams(search || '');
+  const p = sp.get('page');
+  if (p && !/^[0-9]+$/.test(p)) return false;
+  if (p && Number(p) > 1) return true;
+  const defaults = { range: 'week', lang: 'zh', cat: 'all', sort: 'stars', size: '20' };
+  for (const k of Object.keys(defaults)) {
+    const v = sp.get(k);
+    if (v && v !== defaults[k]) return true;
+  }
+  return sp.get('q') ? true : false;
+}
+
+// 把视图变的 head 标成「别收录我，但可以跟内链」，canonical 回到首页
+function markFiltered(html, origin) {
+  let out = html.replace(
+    /<meta\s+name=["']robots["'][^>]*>/i,
+    '<meta name="robots" content="noindex,follow">'
+  );
+  out = out.replace(
+    /<link\s+rel=["']canonical["'][^>]*>/i,
+    '<link rel="canonical" href="' + escAttr(origin) + '/">'
+  );
+  return out;
+}
+
+// 文章列表页的 ItemList：让搜索引擎知道「这一页是一组文章的索引」
+async function injectArticleItemList(env, html, origin) {
+  let cur = null;
+  try {
+    cur = await readArticles(env);
+  } catch (e) {
+    return html;
+  }
+  if (!cur || !cur.ok || !Array.isArray(cur.articles) || !cur.articles.length) return html;
+  const items = cur.articles.slice(0, 20).map((a, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: a.title || a.slug || ('第 ' + (i + 1) + ' 篇'),
+    url: origin + artPathOf(a),
+  }));
+  const ld = JSON.stringify({ '@context': 'https://schema.org', '@type': 'ItemList', itemListElement: items })
+    .split('<').join('\\u003c');
+  return html.replace('</head>', '<script type="application/ld+json">' + ld + '</script></head>');
+}
+
 function applySeo(html, seo) {
   let out = html;
   const put = (re, val, build) => {
@@ -1736,7 +1806,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v258';
+const ASSET_V = 'v259';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };

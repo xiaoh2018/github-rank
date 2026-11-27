@@ -524,6 +524,11 @@ push('文章分类非空（空分类会让详情页 301）', Array.isArray(cats)
 push('关闭阅读器不再用 history.back（会把人带离站点）', home.includes('深链进来时历史里没有 art 状态') && !home.includes('history.state.art) history.back()'), '');
 push('底部边界提示可见时长 1.2 秒（原 0.7 秒太短）', artHtml.includes('classList.remove(\'is-hit\'); }, 1200)'), '');
 
+const filtHtml = await (await fetch(base + '/?range=month&cb=' + Date.now())).text();
+push('筛选/分页视图 noindex,follow（不与首页抢收录）', /<meta name="robots" content="noindex,follow">/.test(filtHtml), '');
+const listHtml = await (await fetch(base + '/articles?cb=' + Date.now())).text();
+push('/articles 带 ItemList 结构化数据', /"@type":"ItemList"/.test(listHtml), '');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
