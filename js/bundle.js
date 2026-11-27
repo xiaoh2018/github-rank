@@ -601,10 +601,12 @@ function renderItem(r, rank, maxStars, trend) {
   const fav = el('button', 'fav' + (faved ? ' on' : ''), faved ? '★' : '☆');
   fav.title = '收藏 / 取消收藏';
   fav.setAttribute('aria-label', fav.title);
+  fav.setAttribute('aria-pressed', String(!!faved));
   fav.onclick = () => {
     const on = toggleFav(r.name);
     fav.textContent = on ? '★' : '☆';
     fav.classList.toggle('on', on);
+    fav.setAttribute('aria-pressed', String(on));
     li.classList.toggle('faved', on);
     if (state.favOnly) hooks.onFavChanged();
   };
@@ -1687,12 +1689,20 @@ $('top').onclick = () => { listAnchorGen++; window.scrollTo({ top: 0, behavior: 
 // ---------- 事件 ----------
 function setRange(r) {
   state.range = r;
-  document.querySelectorAll('#ranges .btn').forEach(b => b.classList.toggle('on', b.dataset.range === r));
+  document.querySelectorAll('#ranges .btn').forEach(b => {
+    const on = b.dataset.range === r;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
 }
 function setView(v) {
   if (state.view === v) return;
   state.view = v; state.page = 1; state.users = [];
-  document.querySelectorAll('#views .btn').forEach(b => b.classList.toggle('on', b.dataset.view === v));
+  document.querySelectorAll('#views .btn').forEach(b => {
+    const on = b.dataset.view === v;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
   toggleRepoOnly();
   syncHash(); load();
 }
@@ -1816,6 +1826,7 @@ $('btnFavFilter').onclick = () => {
   state.favOnly = !state.favOnly;
   $('btnFavFilter').classList.toggle('on', state.favOnly);
   $('btnFavFilter').textContent = state.favOnly ? '★ 只看收藏（开）' : '☆ 只看收藏';
+  $('btnFavFilter').setAttribute('aria-pressed', String(state.favOnly));
   state.page = 1;
   render();
 };
@@ -1837,7 +1848,12 @@ window.addEventListener('beforeunload', e => {
 initDrawer();
 readHash();
 setRange(state.range);
-document.querySelectorAll('#views .btn').forEach(b => b.classList.toggle('on', b.dataset.view === state.view));
+document.querySelectorAll('#views .btn').forEach(b => {
+  const on = b.dataset.view === state.view;
+  b.classList.toggle('on', on);
+  b.setAttribute('aria-pressed', String(on));
+});
+if (document.getElementById('btnFavFilter')) document.getElementById('btnFavFilter').setAttribute('aria-pressed', String(state.favOnly));
 $('lang').value = state.lang;
 $('sort').value = state.sort;
 markCat();
