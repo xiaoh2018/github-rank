@@ -4844,5 +4844,16 @@
  "Zero-GPU CPU inference for 26B-284B MoE models (Inkling-2-Mini Monza-RS v3, Qwen3.8 176.5B, DeepSeek-V4 284B, Nemotron-30B) + AVX-512 Fusion & RouteCrack 2.0.": "适用于 260 亿至 2840 亿参数 MoE 模型的零 GPU CPU 推理（Inkling-2-Mini Monza-RS v3、Qwen3.8 1765 亿、DeepSeek-V4 2840 亿、Nemotron-300 亿）+ AVX-512 Fusion 和 RouteCrack 2.0。",
  "面向中国医生与医学研究生的医学论文写作 Agent Skills：32 个技能覆盖 PubMed 文献检索、统计分析、中英写作、选刊投稿与审稿修回，适用于 Claude Code、Codex。Medical writing skills for Claude Code & Codex.": "面向中国医生与医学研究生的医学论文写作 Agent Skills：32 个技能覆盖 PubMed 文献检索、统计分析、中英写作、选刊投稿与审稿修回，适用于 Claude Code、Codex。适用于 Claude Code 和 Codex 的医学写作技能。",
  "Free, open-source macOS disk cleaner made for developers' Macs. Explains every gigabyte in plain English with a danger level, never sends your data anywhere, and removes nothing you have not confirmed.": "专为开发人员的 Mac 打造的免费开源 macOS 磁盘清理工具。用通俗易懂的语言解释每一吉字节的用途，并标明危险级别；绝不会将您的数据发送到任何地方；未经您确认，绝不会删除任何内容。",
- "An open-source AI research partner for discovering hidden UX features, behaviours, and edge cases in unfamiliar domains.": "一款开源人工智能研究合作伙伴，用于在不熟悉的领域发现隐藏的用户体验功能、行为和边缘案例。"
+ "An open-source AI research partner for discovering hidden UX features, behaviours, and edge cases in unfamiliar domains.": "一款开源人工智能研究合作伙伴，用于在不熟悉的领域发现隐藏的用户体验功能、行为和边缘案例。",
+ "VALORANT rdr2 ROB RUN GTA V Rainbow Six Siege Roblox Marvel Rivals Apex Legends Genshin Impact Rust Palworld Fortnite Call of Duty ARC Raiders Warzone FiveM warhammer AION 2 Destiny 2 Skyrim CS2 Tarkov PUBG Minecraft Battlefield 6 Overwatch 2  / cheat cheats cheating hack hacks hacking FPS boost scripts bypass spoofer mods Lua aimbot ESP wallhack": "《无畏契约》《荒野大镖客2》《劫案模拟器》《GTA V》《彩虹六号：围攻》《罗布乐思》《漫威争锋》《Apex英雄》《原神》《腐蚀》《幻兽帕鲁》《堡垒之夜》《使命召唤》《ARC Raiders》《战区》《FiveM》《战锤》《永恒之塔2》《命运2》《上古卷轴5》《CS2》《塔科夫》《PUBG》《我的世界》《战地6》《守望先锋2》/作弊作弊作弊黑客黑客黑客FPS提升脚本绕过欺骗器MOD Lua瞄准辅助ESP穿墙",
+ "Trade perpetuals with a community-built, feature-rich market maker bot for Hyperliquid.": "使用由社区打造的、功能丰富的Hyperliquid做市商机器人交易永续合约。",
+ "FPS Booster Tweaker Baleven: configurable performance tuning for frame-rate optimization.": "FPS Booster Tweaker Baleven：可配置的性能调优，用于帧率优化。",
+ "Command-line Roblox scripts that expose live game state for faster decisions.": "命令行 Roblox 脚本，可显示实时游戏状态，以便更快地做出决策。",
+ "Vector design tools refined for precision workflows - built to accelerate complex illustration": "为高精度工作流程而优化的矢量设计工具——旨在加速复杂插图的创作",
+ "Combat-led resource exploitation guide for War Dogs with live intel readouts.": "针对战争犬的战斗主导型资源开采指南，包含实时情报读数。",
+ "Bone ESP for Deadlock Source—see enemy skeletons, stay sharp.": "《绝境封锁》骨骼透视——看到敌人的骨骼，保持警惕。",
+ "Marvel Rivals UE5 external tool delivering bounding box visuals and match intel.": "《漫威争锋》UE5外部工具，提供包围盒可视化和对战情报。",
+ "Open-source, local-first observability and evals for AI agents: see what Claude Code, Codex, Cursor and others did and what it cost.": "面向 AI 代理的开源、本地优先可观测性和评估：了解 Claude Code、Codex、Cursor 等工具的运作方式及其成本。",
+ "Made for listening, not logging in. Levyra is an open-source music player for Android and Windows, bringing music discovery, synced lyrics, radio and beautiful artwork together. No ads, no tracking, just music ♫": "专为聆听而生，无需登录。Levyra是一款适用于Android和Windows的开源音乐播放器，将音乐发现、同步歌词、电台和精美封面融为一体。无广告，无跟踪，只有音乐 ♫",
+ "An open-source, faster Devin alternative": "一款开源、更快的 Devin 替代品"
 }
