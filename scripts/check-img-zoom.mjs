@@ -66,18 +66,18 @@ try {
   pass('阅读器已打开', (await ev("!document.getElementById('reader').hidden")) === true, '');
   pass('正文图片已标记可放大', (await ev("document.querySelectorAll('#rBody img.zoomable').length")) === 1, '');
   pass('图片可聚焦且声明为按钮', (await ev("(function(){var i=document.querySelector('#rBody img');return !!i && i.tabIndex===0 && i.getAttribute('role')==='button';})()")) === true, '');
-  pass('灯箱初始隐藏', (await ev("document.getElementById('lightbox').hidden")) === true, '');
+  pass('灯箱初始是关的（dialog 未 open）', (await ev("!document.getElementById('lightbox').open")) === true, '');
 
   await ev("document.querySelector('#rBody img').click()");
   await sleep(300);
-  pass('点图片后灯箱出现', (await ev("!document.getElementById('lightbox').hidden")) === true, '');
+  pass('点图片后灯箱出现', (await ev("document.getElementById('lightbox').open")) === true, '');
   pass('灯箱里是同一张图', (await ev("(document.getElementById('lbImg').src||'').indexOf('og-image.png')>=0")) === true, '');
   pass('灯箱打开时锁滚动', (await ev("document.body.classList.contains('lb-open')")) === true, '');
   pass('焦点落在关闭按钮', (await ev("document.activeElement && document.activeElement.id")) === 'lbClose', String(await ev("document.activeElement && document.activeElement.id")));
 
   await key('Escape', 'Escape', 27);
   await sleep(300);
-  pass('Esc 关闭灯箱', (await ev("document.getElementById('lightbox').hidden")) === true, '');
+  pass('Esc 关闭灯箱', (await ev("!document.getElementById('lightbox').open")) === true, '');
   pass('Esc 没有误关阅读器', (await ev("!document.getElementById('reader').hidden")) === true, '');
   pass('关闭后解除滚动锁', (await ev("document.body.classList.contains('lb-open')")) === false, '');
 
@@ -85,13 +85,20 @@ try {
   await sleep(250);
   await ev("document.getElementById('lightbox').click()");
   await sleep(250);
-  pass('点遮罩空白处也能关', (await ev("document.getElementById('lightbox').hidden")) === true, '');
+  pass('点遮罩空白处也能关', (await ev("!document.getElementById('lightbox').open")) === true, '');
 
   await ev("document.querySelector('#rBody img').focus()");
   await key('Enter', 'Enter', 13);
   await sleep(250);
-  pass('键盘 Enter 也能放大', (await ev("!document.getElementById('lightbox').hidden")) === true, '');
-  await ev("document.getElementById('lbClose').click()");
+  pass('键盘 Enter 也能放大', (await ev("document.getElementById('lightbox').open")) === true, '');
+
+  await key('Escape', 'Escape', 27);
+  await sleep(250);
+  pass('再次 Esc 关掉灯箱（不残留）', (await ev("!document.getElementById('lightbox').open")) === true, '');
+
+  await key('Escape', 'Escape', 27);
+  await sleep(300);
+  pass('灯箱关着时 Esc 关阅读器（不被灯箱吞掉）', (await ev("document.getElementById('reader').hidden")) === true, '');
 } finally {
   try { ws.close(); } catch {}
   try { child.kill(); } catch {}

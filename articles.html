@@ -990,13 +990,13 @@ window.__sb = function () { return window.__motionQuery && window.__motionQuery.
     lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
-        if (lb.hidden) return;
+        if (!lb.open) return;
         e.stopPropagation();
         closeLb();
         return;
       }
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        if (lb.hidden) return;
+        if (!lb.open) return;
         e.stopPropagation();
         e.preventDefault();
         lbStep(e.key === 'ArrowLeft' ? -1 : 1);

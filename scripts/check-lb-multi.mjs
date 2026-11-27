@@ -96,7 +96,7 @@ try {
     pass('在最后一张再按 → 不越界', (await cnt()) === '3 / 3', String(await cnt()));
 
     pass('左右键没有翻到别的文章', (await ev("document.getElementById('rTitle').textContent")) === title0, '');
-    pass('灯箱仍然打开', (await ev("!document.getElementById('lightbox').hidden")) === true, '');
+    pass('灯箱仍然打开', (await ev("document.getElementById('lightbox').open")) === true, '');
 
     await ev("document.getElementById('lbPrev').click()");
     await sleep(300);
@@ -104,7 +104,7 @@ try {
 
     await key('Escape', 'Escape', 27);
     await sleep(300);
-    pass('Esc 关灯箱后阅读器仍在', (await ev("document.getElementById('lightbox').hidden && !document.getElementById('reader').hidden")) === true, '');
+    pass('Esc 关灯箱后阅读器仍在', (await ev("!document.getElementById('lightbox').open && !document.getElementById('reader').hidden")) === true, '');
 
     await ev("document.querySelectorAll('#rBody img')[2].click()");
     await sleep(300);
