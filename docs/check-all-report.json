@@ -1,582 +1,666 @@
 {
-  "at": "2026-11-27T12:36:26.381Z",
+  "at": "2026-11-27T18:49:53.147Z",
   "cwd": "H:\\VS\\github项目排行榜",
-  "total": 136,
-  "passed": 136,
+  "total": 150,
+  "passed": 150,
   "failed": [],
-  "seconds": 1294,
+  "seconds": 1660.7,
   "results": [
     {
       "file": "check-a11y.mjs",
       "code": 0,
-      "ms": 31799,
+      "ms": 32831,
       "timedOut": false,
       "last": "ALL OK (8)"
     },
     {
       "file": "check-admin-320.mjs",
       "code": 0,
-      "ms": 12442,
+      "ms": 13081,
       "timedOut": false,
       "last": "ALL OK"
     },
     {
       "file": "check-admin-artpager.mjs",
       "code": 0,
-      "ms": 11471,
+      "ms": 11650,
       "timedOut": false,
       "last": "ALL OK (17)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-admin-arttable.mjs",
       "code": 0,
-      "ms": 3926,
+      "ms": 4166,
       "timedOut": false,
       "last": "ALL OK (16)"
     },
     {
       "file": "check-admin-del.mjs",
       "code": 0,
-      "ms": 11449,
+      "ms": 11858,
       "timedOut": false,
       "last": "ALL OK (18)"
     },
     {
       "file": "check-admin-dlg-a11y.mjs",
       "code": 0,
-      "ms": 10567,
+      "ms": 10772,
       "timedOut": false,
       "last": "ALL OK (14)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-admin-draft.mjs",
       "code": 0,
-      "ms": 10722,
+      "ms": 10686,
       "timedOut": false,
       "last": "ALL OK (16)"
     },
     {
       "file": "check-admin-empty.mjs",
       "code": 0,
-      "ms": 9405,
+      "ms": 9542,
       "timedOut": false,
       "last": "ALL 21 OK"
     },
     {
       "file": "check-admin-flows.mjs",
       "code": 0,
-      "ms": 46146,
+      "ms": 46328,
       "timedOut": false,
       "last": "全部交互流程通过（17 项）"
     },
     {
       "file": "check-admin-labels.mjs",
       "code": 0,
-      "ms": 10669,
+      "ms": 10917,
       "timedOut": false,
       "last": "ALL OK (12)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-admin-mobile-forms.mjs",
       "code": 0,
-      "ms": 16125,
+      "ms": 16240,
       "timedOut": false,
       "last": "全部通过（30 项，视口 390px，14 个面板）"
     },
     {
       "file": "check-admin-nav.mjs",
       "code": 0,
-      "ms": 5974,
+      "ms": 5965,
       "timedOut": false,
       "last": "ALL OK (11)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-admin-panes.mjs",
       "code": 0,
-      "ms": 12311,
+      "ms": 12477,
       "timedOut": false,
       "last": "MOBILE    ad        {\"vw\":390,\"sw\":390,\"sideH\":58} | OK"
     },
     {
       "file": "check-admin-refs.mjs",
       "code": 0,
-      "ms": 62,
+      "ms": 78,
       "timedOut": false,
       "last": "✓ 所有 $('id') 引用都能在 HTML 里找到"
     },
     {
       "file": "check-admin-save-msg.mjs",
       "code": 0,
-      "ms": 10381,
+      "ms": 10366,
       "timedOut": false,
       "last": "ALL OK (12)"
     },
     {
       "file": "check-admin-saves.mjs",
       "code": 0,
-      "ms": 26418,
+      "ms": 26326,
       "timedOut": false,
       "last": "全部保存按钮都能真存（10 个面板）"
     },
     {
       "file": "check-admin-script.mjs",
       "code": 0,
-      "ms": 141,
+      "ms": 151,
       "timedOut": false,
       "last": "全部内联脚本可解析"
     },
     {
       "file": "check-ads-off.mjs",
       "code": 0,
-      "ms": 11766,
+      "ms": 11744,
       "timedOut": false,
       "last": "全部通过（13 项）"
     },
     {
+      "file": "check-anchor-text.mjs",
+      "code": 0,
+      "ms": 4281,
+      "timedOut": false,
+      "last": "ALL OK (14)"
+    },
+    {
       "file": "check-artbody.mjs",
       "code": 0,
-      "ms": 6060,
+      "ms": 6053,
       "timedOut": false,
       "last": "ALL OK (8)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-artcat.mjs",
       "code": 0,
-      "ms": 10852,
+      "ms": 11079,
       "timedOut": false,
       "last": "ALL OK (11)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-artcols.mjs",
       "code": 0,
-      "ms": 24053,
+      "ms": 24263,
       "timedOut": false,
       "last": "ALL OK (13)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-article-cards.mjs",
       "code": 0,
-      "ms": 1418,
+      "ms": 1401,
       "timedOut": false,
       "last": "ALL OK (16)"
     },
     {
       "file": "check-articles-pager.mjs",
       "code": 0,
-      "ms": 3778,
+      "ms": 3938,
       "timedOut": false,
       "last": "文章分页门禁全部通过"
     },
     {
       "file": "check-articles.mjs",
       "code": 0,
-      "ms": 2921,
+      "ms": 2987,
       "timedOut": false,
       "last": "restored data/articles.json"
     },
     {
       "file": "check-artpager-memory.mjs",
       "code": 0,
-      "ms": 6651,
+      "ms": 6674,
       "timedOut": false,
       "last": "ALL OK (14)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-artseo.mjs",
       "code": 0,
-      "ms": 117,
+      "ms": 124,
       "timedOut": false,
       "last": "文章页 SEO 全部通过"
     },
     {
+      "file": "check-artview-empty.mjs",
+      "code": 0,
+      "ms": 4644,
+      "timedOut": false,
+      "last": "ALL OK (10)"
+    },
+    {
       "file": "check-artview.mjs",
       "code": 0,
-      "ms": 15464,
+      "ms": 14565,
       "timedOut": false,
       "last": "全部通过（24 项）"
     },
     {
       "file": "check-beian.mjs",
       "code": 0,
-      "ms": 10261,
+      "ms": 10251,
       "timedOut": false,
       "last": "ALL OK (11)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-bulkconfirm.mjs",
       "code": 0,
-      "ms": 8352,
+      "ms": 8349,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-card-meta.mjs",
       "code": 0,
-      "ms": 9174,
+      "ms": 9250,
       "timedOut": false,
       "last": "ALL OK (10)"
     },
     {
       "file": "check-card-noise.mjs",
       "code": 0,
-      "ms": 7630,
+      "ms": 7669,
       "timedOut": false,
       "last": "ALL OK (11)"
     },
     {
+      "file": "check-card-render.mjs",
+      "code": 0,
+      "ms": 2849,
+      "timedOut": false,
+      "last": "ALL OK (14)  @1440px"
+    },
+    {
       "file": "check-cards-focus.mjs",
       "code": 0,
-      "ms": 12165,
+      "ms": 12342,
       "timedOut": false,
       "last": "全部通过（11 项）"
     },
     {
       "file": "check-cat-labels.mjs",
       "code": 0,
-      "ms": 9986,
+      "ms": 11356,
       "timedOut": false,
       "last": "ALL OK (11)"
     },
     {
       "file": "check-catfilter.mjs",
       "code": 0,
-      "ms": 6662,
+      "ms": 6418,
       "timedOut": false,
       "last": "全部通过"
     },
     {
+      "file": "check-cdp-lib.mjs",
+      "code": 0,
+      "ms": 133,
+      "timedOut": false,
+      "last": "ALL OK (8)"
+    },
+    {
       "file": "check-chip-style.mjs",
       "code": 0,
-      "ms": 11830,
+      "ms": 11869,
       "timedOut": false,
       "last": "ALL OK (15)"
     },
     {
       "file": "check-contact.mjs",
       "code": 0,
-      "ms": 9369,
+      "ms": 9440,
       "timedOut": false,
       "last": "ALL OK (15)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-cover-admin.mjs",
       "code": 0,
-      "ms": 11985,
+      "ms": 74263,
       "timedOut": false,
       "last": "ALL OK (14)"
     },
     {
       "file": "check-cover.mjs",
       "code": 0,
-      "ms": 11855,
+      "ms": 12026,
       "timedOut": false,
       "last": "ALL OK (14)  http://127.0.0.1:8123"
     },
     {
       "file": "check-data-clean.mjs",
       "code": 0,
-      "ms": 3269,
+      "ms": 3400,
       "timedOut": false,
       "last": "ALL OK"
     },
     {
+      "file": "check-data-fresh.mjs",
+      "code": 0,
+      "ms": 631,
+      "timedOut": false,
+      "last": "ALL OK (5)"
+    },
+    {
       "file": "check-dead-handlers.mjs",
       "code": 0,
-      "ms": 67,
+      "ms": 68,
       "timedOut": false,
       "last": "全部有对应产出 ✓"
     },
     {
+      "file": "check-dead-js.mjs",
+      "code": 0,
+      "ms": 64,
+      "timedOut": false,
+      "last": "ALL OK (8)"
+    },
+    {
       "file": "check-dialog-a11y.mjs",
       "code": 0,
-      "ms": 12078,
+      "ms": 11926,
       "timedOut": false,
       "last": "ALL OK (13)"
     },
     {
+      "file": "check-docs-facts.mjs",
+      "code": 0,
+      "ms": 617,
+      "timedOut": false,
+      "last": "ALL OK (17)"
+    },
+    {
+      "file": "check-docs-toc.mjs",
+      "code": 0,
+      "ms": 67,
+      "timedOut": false,
+      "last": "ALL OK"
+    },
+    {
       "file": "check-docs.mjs",
       "code": 0,
-      "ms": 74,
+      "ms": 62,
       "timedOut": false,
       "last": "ALL OK (13)"
     },
     {
       "file": "check-empty-states.mjs",
       "code": 0,
-      "ms": 7962,
+      "ms": 7902,
       "timedOut": false,
       "last": "ALL 23 OK"
     },
     {
       "file": "check-error-state.mjs",
       "code": 0,
-      "ms": 2460,
+      "ms": 2494,
       "timedOut": false,
       "last": "ALL OK (12)"
     },
     {
       "file": "check-faq-chips.mjs",
       "code": 0,
-      "ms": 5276,
+      "ms": 5680,
       "timedOut": false,
       "last": "全部通过（13 项）"
     },
     {
       "file": "check-faq-highlight.mjs",
       "code": 0,
-      "ms": 5617,
+      "ms": 6859,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-faq-tidy.mjs",
       "code": 0,
-      "ms": 4427,
+      "ms": 4241,
       "timedOut": false,
       "last": "ALL OK (16)"
     },
     {
       "file": "check-faqview.mjs",
       "code": 0,
-      "ms": 13443,
+      "ms": 13436,
       "timedOut": false,
       "last": "ALL OK (22)"
     },
     {
       "file": "check-filter-empty.mjs",
       "code": 0,
-      "ms": 2899,
+      "ms": 3016,
       "timedOut": false,
       "last": "ALL OK (28)"
     },
     {
       "file": "check-footnote.mjs",
       "code": 0,
-      "ms": 8099,
+      "ms": 8350,
       "timedOut": false,
       "last": "ALL OK (16)"
     },
     {
       "file": "check-front-flows.mjs",
       "code": 0,
-      "ms": 45690,
+      "ms": 46661,
       "timedOut": false,
       "last": "全部前台流程通过（19 项）"
     },
     {
       "file": "check-front-labels.mjs",
       "code": 0,
-      "ms": 12429,
+      "ms": 16713,
       "timedOut": false,
       "last": "ALL OK (12)  @http://127.0.0.1:8123"
     },
     {
       "file": "check-front-mobile-forms.mjs",
       "code": 0,
-      "ms": 23226,
+      "ms": 26246,
       "timedOut": false,
       "last": "全部通过（16 项，2 个视口 × 4 个页面）"
     },
     {
       "file": "check-frontend-closure.mjs",
       "code": 0,
-      "ms": 176,
+      "ms": 721,
       "timedOut": false,
       "last": "全部通过（已还原数据）"
     },
     {
       "file": "check-harness.mjs",
       "code": 0,
-      "ms": 25488,
+      "ms": 27438,
       "timedOut": false,
       "last": "ALL OK (12)"
     },
     {
       "file": "check-headers.mjs",
       "code": 0,
-      "ms": 103,
+      "ms": 102,
       "timedOut": false,
       "last": "ALL OK (19)  @http://127.0.0.1:8123"
     },
     {
+      "file": "check-home-empty.mjs",
+      "code": 0,
+      "ms": 7755,
+      "timedOut": false,
+      "last": "ALL OK (10)"
+    },
+    {
       "file": "check-ime.mjs",
       "code": 0,
-      "ms": 10466,
+      "ms": 12271,
       "timedOut": false,
       "last": "ALL OK (12)"
     },
     {
       "file": "check-img-zoom.mjs",
       "code": 0,
-      "ms": 5049,
+      "ms": 7570,
       "timedOut": false,
       "last": "全部通过（18 项）"
     },
     {
+      "file": "check-index-batch.mjs",
+      "code": 0,
+      "ms": 9752,
+      "timedOut": false,
+      "last": "ALL OK"
+    },
+    {
+      "file": "check-index-check.mjs",
+      "code": 0,
+      "ms": 9438,
+      "timedOut": false,
+      "last": "ALL OK (20)"
+    },
+    {
       "file": "check-inline-ads.mjs",
       "code": 0,
-      "ms": 8726,
+      "ms": 8945,
       "timedOut": false,
       "last": "ALL OK (8)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-inline.mjs",
       "code": 0,
-      "ms": 64,
+      "ms": 82,
       "timedOut": false,
-      "last": "bytes 82920"
+      "last": "bytes 83149"
     },
     {
       "file": "check-insights-mobile.mjs",
       "code": 0,
-      "ms": 8332,
+      "ms": 9908,
       "timedOut": false,
       "last": "ALL OK (14)"
     },
     {
       "file": "check-interaction.mjs",
       "code": 0,
-      "ms": 8496,
+      "ms": 8824,
       "timedOut": false,
       "last": "ALL OK (16)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-kbd.mjs",
       "code": 0,
-      "ms": 13297,
+      "ms": 46497,
       "timedOut": false,
       "last": "ALL OK (18 项，1440px)"
     },
     {
       "file": "check-lang.mjs",
       "code": 0,
-      "ms": 11548,
+      "ms": 26522,
       "timedOut": false,
       "last": "ALL OK (11)  @1440px  http://127.0.0.1:8123"
     },
     {
+      "file": "check-lazy-md.mjs",
+      "code": 0,
+      "ms": 14265,
+      "timedOut": false,
+      "last": "ALL OK  @1440px"
+    },
+    {
       "file": "check-lb-multi.mjs",
       "code": 0,
-      "ms": 5263,
+      "ms": 5209,
       "timedOut": false,
       "last": "全部通过（18 项）"
     },
     {
       "file": "check-links-order.mjs",
       "code": 0,
-      "ms": 110,
+      "ms": 312,
       "timedOut": false,
       "last": "友链排序门禁全部通过"
     },
     {
       "file": "check-links.mjs",
       "code": 0,
-      "ms": 5202,
+      "ms": 5478,
       "timedOut": false,
       "last": "ALL OK (13)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-load-states.mjs",
       "code": 0,
-      "ms": 15748,
+      "ms": 15676,
       "timedOut": false,
       "last": "ALL OK (19 项，390px)"
     },
     {
       "file": "check-media.mjs",
       "code": 0,
-      "ms": 13442,
+      "ms": 13526,
       "timedOut": false,
       "last": "ALL OK (17)  http://127.0.0.1:8123"
     },
     {
       "file": "check-mobile-admin.mjs",
       "code": 0,
-      "ms": 8605,
+      "ms": 8563,
       "timedOut": false,
       "last": "全部通过（13 项，视口 390px）"
     },
     {
       "file": "check-mobile-polish.mjs",
       "code": 0,
-      "ms": 9972,
+      "ms": 10096,
       "timedOut": false,
       "last": "全部通过（16 项，视口 390px）"
     },
     {
       "file": "check-mobile-tidy.mjs",
       "code": 0,
-      "ms": 3975,
+      "ms": 4252,
       "timedOut": false,
       "last": "ALL OK (18)"
     },
     {
       "file": "check-mobile.mjs",
       "code": 0,
-      "ms": 9554,
+      "ms": 9522,
       "timedOut": false,
       "last": "/nav ok {\"vw\":390,\"sw\":390,\"cw\":390,\"overflow\":false,\"wide\":[]}"
     },
     {
       "file": "check-motion.mjs",
       "code": 0,
-      "ms": 16429,
+      "ms": 17284,
       "timedOut": false,
       "last": "ALL OK (14)  @1024px  http://127.0.0.1:8123"
     },
     {
       "file": "check-narrow-faq.mjs",
       "code": 0,
-      "ms": 3600,
+      "ms": 3295,
       "timedOut": false,
       "last": "全部通过（13 项，320px）"
     },
     {
       "file": "check-narrow-nav.mjs",
       "code": 0,
-      "ms": 8123,
+      "ms": 8309,
       "timedOut": false,
       "last": "全部通过（10 项）"
     },
     {
       "file": "check-narrow-order.mjs",
       "code": 0,
-      "ms": 7794,
+      "ms": 10131,
       "timedOut": false,
       "last": "全部通过（13 项，320px）"
     },
     {
       "file": "check-narrow-panels.mjs",
       "code": 0,
-      "ms": 6847,
+      "ms": 7289,
       "timedOut": false,
       "last": "全部通过（17 项，视口 390px）"
     },
     {
       "file": "check-narrow-tables.mjs",
       "code": 0,
-      "ms": 9166,
+      "ms": 9163,
       "timedOut": false,
       "last": "全部通过（12 项）"
     },
     {
       "file": "check-nav-combo.mjs",
       "code": 0,
-      "ms": 7653,
+      "ms": 8556,
       "timedOut": false,
       "last": "全部通过（12 项）"
     },
     {
       "file": "check-nav-fold.mjs",
       "code": 0,
-      "ms": 8446,
+      "ms": 11115,
       "timedOut": false,
       "last": "导航折叠门禁全部通过"
     },
     {
       "file": "check-nav-highlight.mjs",
       "code": 0,
-      "ms": 6956,
+      "ms": 7456,
       "timedOut": false,
       "last": "全部通过"
     },
@@ -590,373 +674,387 @@
     {
       "file": "check-nav-order.mjs",
       "code": 0,
-      "ms": 13036,
+      "ms": 13020,
       "timedOut": false,
       "last": "导航排序门禁全部通过"
     },
     {
       "file": "check-nav-persist.mjs",
       "code": 0,
-      "ms": 12146,
+      "ms": 12371,
       "timedOut": false,
       "last": "全部通过（9 项）"
     },
     {
       "file": "check-nav-tidy.mjs",
       "code": 0,
-      "ms": 67510,
+      "ms": 67511,
       "timedOut": false,
       "last": "ALL OK (18)"
     },
     {
       "file": "check-nav-touch.mjs",
       "code": 0,
-      "ms": 14711,
+      "ms": 15926,
       "timedOut": false,
       "last": "ALL OK (15 项，320px)"
     },
     {
       "file": "check-navsearch.mjs",
       "code": 0,
-      "ms": 7018,
+      "ms": 6936,
       "timedOut": false,
       "last": "全部通过（12 项）"
     },
     {
       "file": "check-page-memory.mjs",
       "code": 0,
-      "ms": 11831,
+      "ms": 11855,
       "timedOut": false,
       "last": "ALL OK (13)  @http://127.0.0.1:8123"
     },
     {
       "file": "check-page-scroll.mjs",
       "code": 0,
-      "ms": 6269,
+      "ms": 6298,
       "timedOut": false,
       "last": "ALL OK (9 项，390px)"
     },
     {
       "file": "check-pager-jump.mjs",
       "code": 0,
-      "ms": 5142,
+      "ms": 5139,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-pager-narrow.mjs",
       "code": 0,
-      "ms": 3916,
+      "ms": 4185,
       "timedOut": false,
       "last": "全部通过（14 项）"
     },
     {
       "file": "check-pager-step.mjs",
       "code": 0,
-      "ms": 9416,
+      "ms": 9777,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-pane-wiring.mjs",
       "code": 0,
-      "ms": 68,
+      "ms": 77,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-payload.mjs",
       "code": 0,
-      "ms": 66,
+      "ms": 62,
       "timedOut": false,
       "last": "ALL OK"
     },
     {
       "file": "check-pinned.mjs",
       "code": 0,
-      "ms": 105,
+      "ms": 102,
       "timedOut": false,
       "last": "置顶门禁全部通过"
     },
     {
       "file": "check-placeholder.mjs",
       "code": 0,
-      "ms": 13955,
+      "ms": 13707,
       "timedOut": false,
       "last": "ALL OK (11)"
     },
     {
       "file": "check-prev-count.mjs",
       "code": 0,
-      "ms": 103,
+      "ms": 136,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-promo.mjs",
       "code": 0,
-      "ms": 23303,
+      "ms": 23414,
       "timedOut": false,
       "last": "ALL OK (10)  @http://127.0.0.1:8123"
     },
     {
       "file": "check-qa-order.mjs",
       "code": 0,
-      "ms": 9116,
+      "ms": 10931,
       "timedOut": false,
       "last": "问答排序门禁全部通过"
     },
     {
       "file": "check-qafilter.mjs",
       "code": 0,
-      "ms": 7195,
+      "ms": 7341,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-range-fail.mjs",
       "code": 0,
-      "ms": 8652,
+      "ms": 8651,
       "timedOut": false,
       "last": "ALL OK (14)"
     },
     {
       "file": "check-reader-font.mjs",
       "code": 0,
-      "ms": 1765,
+      "ms": 1688,
       "timedOut": false,
       "last": "ALL OK (17)"
     },
     {
       "file": "check-reader-keys.mjs",
       "code": 0,
-      "ms": 12352,
+      "ms": 74939,
       "timedOut": false,
       "last": "ALL OK"
     },
     {
       "file": "check-reader-nav.mjs",
       "code": 0,
-      "ms": 10005,
+      "ms": 73175,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-reader-parity.mjs",
       "code": 0,
-      "ms": 9366,
+      "ms": 41742,
       "timedOut": false,
       "last": "ALL OK (17 项，390px)"
     },
     {
       "file": "check-reader-spa.mjs",
       "code": 0,
-      "ms": 11042,
+      "ms": 10304,
       "timedOut": false,
       "last": "ALL OK (17)"
     },
     {
       "file": "check-reader-state.mjs",
       "code": 0,
-      "ms": 5271,
+      "ms": 4976,
       "timedOut": false,
       "last": "ALL OK (15)"
     },
     {
       "file": "check-reader-tone.mjs",
       "code": 0,
-      "ms": 9451,
+      "ms": 8053,
       "timedOut": false,
       "last": "ALL OK (13)"
     },
     {
       "file": "check-refresh-cancel.mjs",
       "code": 0,
-      "ms": 12507,
+      "ms": 12428,
       "timedOut": false,
       "last": "ALL OK (14 项，390px)"
     },
     {
       "file": "check-refresh-errors.mjs",
       "code": 0,
-      "ms": 11458,
+      "ms": 11500,
       "timedOut": false,
       "last": "ALL OK (13 项，390px)"
     },
     {
       "file": "check-related.mjs",
       "code": 0,
-      "ms": 6734,
+      "ms": 6888,
       "timedOut": false,
       "last": "相关阅读门禁全部通过"
     },
     {
       "file": "check-save-dispatch.mjs",
       "code": 0,
-      "ms": 17942,
+      "ms": 17751,
       "timedOut": false,
       "last": "ALL OK (13)  @http://127.0.0.1:8123"
     },
     {
       "file": "check-search-highlight.mjs",
       "code": 0,
-      "ms": 6282,
+      "ms": 6385,
       "timedOut": false,
       "last": "全部通过"
     },
     {
+      "file": "check-seo-plan.mjs",
+      "code": 0,
+      "ms": 136,
+      "timedOut": false,
+      "last": "ALL OK (18)  @http://127.0.0.1:8123"
+    },
+    {
       "file": "check-seo.mjs",
       "code": 0,
-      "ms": 115,
+      "ms": 99,
       "timedOut": false,
       "last": "ALL OK (62)"
     },
     {
       "file": "check-settings-order.mjs",
       "code": 0,
-      "ms": 4172,
+      "ms": 4275,
       "timedOut": false,
       "last": "ALL OK (14)"
     },
     {
       "file": "check-share-mobile.mjs",
       "code": 0,
-      "ms": 3203,
+      "ms": 3704,
       "timedOut": false,
       "last": "ALL OK (12)  @http://127.0.0.1:8123"
     },
     {
+      "file": "check-shot-lib.mjs",
+      "code": 0,
+      "ms": 2845,
+      "timedOut": false,
+      "last": "ALL OK (4)"
+    },
+    {
       "file": "check-side-recent.mjs",
       "code": 0,
-      "ms": 4468,
+      "ms": 4487,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-slug-alias.mjs",
       "code": 0,
-      "ms": 132,
+      "ms": 118,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-slug-preview.mjs",
       "code": 0,
-      "ms": 7745,
+      "ms": 7884,
       "timedOut": false,
       "last": "全部通过（17 项）"
     },
     {
       "file": "check-stats-slim.mjs",
       "code": 0,
-      "ms": 8162,
+      "ms": 9338,
       "timedOut": false,
       "last": "ALL OK (13)"
     },
     {
       "file": "check-sticky-actions.mjs",
       "code": 0,
-      "ms": 8853,
+      "ms": 8704,
       "timedOut": false,
       "last": "全部通过（12 项）"
     },
     {
       "file": "check-submit-pane.mjs",
       "code": 0,
-      "ms": 6940,
+      "ms": 6889,
       "timedOut": false,
       "last": "ALL OK (16/16)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-theme-admin.mjs",
       "code": 0,
-      "ms": 11539,
+      "ms": 11632,
       "timedOut": false,
       "last": "ALL OK (12)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-theme-affordance.mjs",
       "code": 0,
-      "ms": 7071,
+      "ms": 9730,
       "timedOut": false,
       "last": "ALL OK (13)"
     },
     {
       "file": "check-theme-parity.mjs",
       "code": 0,
-      "ms": 7880,
+      "ms": 7977,
       "timedOut": false,
       "last": "ALL OK (11 项通过, 0 项失败)"
     },
     {
       "file": "check-ticker-ui.mjs",
       "code": 0,
-      "ms": 2971,
+      "ms": 3031,
       "timedOut": false,
       "last": "ALL OK (10)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-toc.mjs",
       "code": 0,
-      "ms": 8723,
+      "ms": 8783,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-toggle-aria.mjs",
       "code": 0,
-      "ms": 7334,
+      "ms": 7165,
       "timedOut": false,
       "last": "ALL OK (12)  @1440px  http://127.0.0.1:8123"
     },
     {
       "file": "check-toolbar-collapse.mjs",
       "code": 0,
-      "ms": 8292,
+      "ms": 8505,
       "timedOut": false,
       "last": "ALL OK (25)"
     },
     {
       "file": "check-totop.mjs",
       "code": 0,
-      "ms": 10105,
+      "ms": 10502,
       "timedOut": false,
       "last": "全部通过"
     },
     {
       "file": "check-touch-320.mjs",
       "code": 0,
-      "ms": 14793,
+      "ms": 15717,
       "timedOut": false,
       "last": "全部通过（17 项，320px）"
     },
     {
       "file": "check-unlock.mjs",
       "code": 0,
-      "ms": 10338,
+      "ms": 10458,
       "timedOut": false,
       "last": "加密文章端到端通过（6 项）"
     },
     {
       "file": "check-url-filters.mjs",
       "code": 0,
-      "ms": 14457,
+      "ms": 14461,
       "timedOut": false,
       "last": "全部通过（15 项）"
     },
     {
       "file": "check-view-title.mjs",
       "code": 0,
-      "ms": 6581,
+      "ms": 7046,
       "timedOut": false,
       "last": "ALL OK (14)  @http://127.0.0.1:8123"
     },
     {
       "file": "check-worker.mjs",
       "code": 0,
-      "ms": 256,
+      "ms": 631,
       "timedOut": false,
-      "last": "全部通过（回源 88 次，API 117 次）"
+      "last": "全部通过（回源 90 次，API 119 次）"
     }
   ]
 }

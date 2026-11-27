@@ -47,14 +47,15 @@ try {
   pass('/articles 有文章卡', acardCount > 0, 'n=' + acardCount);
 
   const baseBorder = await ev("getComputedStyle(document.querySelector('.acard')).borderTopColor");
-  await ev("document.querySelector('.acard').focus(); true");
+  await ev("(function(){var a=document.querySelector('.acard a');if(a)a.focus();return !!a})()");
   await sleep(320);
   const focusInfo = await ev(`(function(){
     var c = document.querySelector('.acard');
-    return { active: document.activeElement === c, border: getComputedStyle(c).borderTopColor };
+    var a = c ? c.querySelector('a') : null;
+    return { link: !!a, active: !!(a && document.activeElement === a), border: c ? getComputedStyle(c).borderTopColor : null };
   })()`);
-  pass('卡片可获得焦点', !!(focusInfo && focusInfo.active), JSON.stringify(focusInfo));
-  pass(':focus-within 会换描边色', focusInfo && focusInfo.border !== baseBorder, baseBorder + ' -> ' + (focusInfo && focusInfo.border));
+  pass('卡片内链接可获得焦点', !!(focusInfo && focusInfo.link && focusInfo.active), JSON.stringify(focusInfo));
+  pass(':focus-within 会换描边色', !!focusInfo && focusInfo.border !== baseBorder, baseBorder + ' -> ' + (focusInfo && focusInfo.border));
 
   await ev('document.activeElement.blur(); true');
   await sleep(80);

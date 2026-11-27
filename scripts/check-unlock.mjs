@@ -43,6 +43,7 @@ try {
     const proc = spawn(chrome, ['--headless=new', '--disable-gpu', '--remote-debugging-port=' + port, '--user-data-dir=' + dir, '--window-size=1440,1000', 'about:blank'], { stdio: 'ignore' });
     let target = null;
     for (let i = 0; i < 40 && !target; i++) { await sleep(250); try { const l = await (await fetch('http://127.0.0.1:' + port + '/json/list')).json(); target = l.find((t) => t.type === 'page'); } catch (e) {} }
+    if (!target) throw new Error('headless Chrome 10 秒内没起来（端口 ' + port + '）');
     const ws = new WebSocket(target.webSocketDebuggerUrl);
     let id = 0; const waiting = new Map();
     ws.addEventListener('message', (e) => { const m = JSON.parse(e.data); if (m.id && waiting.has(m.id)) { waiting.get(m.id)(m); waiting.delete(m.id); } });

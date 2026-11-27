@@ -82,7 +82,7 @@ const box = `(function(){const b=document.querySelector('#cards')||document.quer
   await unblock(s);
   await s.ev(`(document.querySelector('[data-retry]')||{click(){}}).click()`);
   await sleep(2600);
-  const after = await s.ev(`({cards:document.querySelectorAll('#cards a.acard').length,err:!!document.querySelector('.loaderr')})`);
+  const after = await s.ev(`({cards:document.querySelectorAll('#cards .acard').length,err:!!document.querySelector('.loaderr')})`);
   push('/articles 点重试后内容真的回来', after.cards > 0 && !after.err, 'cards=' + after.cards);
   try { await s.send('Browser.close'); } catch {}
   s.child.kill();

@@ -48,7 +48,7 @@ const SPA_READ = `(function(){
       title:(c.querySelector('h3')||{}).textContent||'',
       cat:(c.querySelector('.artcard-cat')||{}).textContent||'',
       date:(c.querySelector('time')||{}).textContent||'',
-      mins:(c.querySelector('.artcard-mins')||{}).textContent||'',
+      mins:(c.querySelector('.artcard-min')||{}).textContent||'',
       lock:(c.querySelector('.lock')||{}).textContent||''
     });
   });

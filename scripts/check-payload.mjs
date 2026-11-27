@@ -12,8 +12,8 @@ const sandbox = { window: {} };
 vm.runInNewContext(raw, sandbox);
 const repos = sandbox.window.__GHRANK_RANGES__.week.repos;
 const per = bytes / repos.length;
-ok('week 数据文件 < 250KB', bytes < 250 * 1024, Math.round(bytes / 1024) + 'KB');
-ok('每条记录 < 500 字节', per < 500, Math.round(per) + 'B/条');
+ok('week 数据文件 < 400KB（含 desc_zh 译文）', bytes < 400 * 1024, Math.round(bytes / 1024) + 'KB');
+ok('每条记录 < 900 字节（desc + desc_zh 双份文案）', per < 900, Math.round(per) + 'B/条');
 
 const sample = repos.slice(0, 200);
 ok('不再落盘 url 字段（前端拼）', sample.every((r) => r.url === undefined));
