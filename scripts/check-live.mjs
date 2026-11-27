@@ -406,7 +406,6 @@ push('后台有列数开关', admHtml.includes('type="radio" name="article-cols"
 
 push('文章详情是页内阅读器（不再跳 /articles/xxx.html）', home.includes('id="artDlg"') && home.includes('class="artdlg"') && home.includes('data-artpost'));
 push('文章详情地址用 ?post= 深链（bundle 也保留它）', home.includes('/?page=articles&post=') && bundleJs.includes("get('post')"));
-push('空正文有明确说明（不是白屏）', home.includes('这篇还没有正文'));
 push('阅读器 Esc 可关（document 捕获层）', home.includes("!dlg.open) return;"));
 push('手机一列时布局改成 stretch（不再横向溢出/右侧空条）', home.includes('.layout{display:flex;flex-direction:column;align-items:stretch}'));
 push('分页器窄屏改两行网格', home.includes('#pager{display:grid;grid-template-columns:auto minmax(0,1fr) auto') && home.includes('#pager #pageInfo{grid-area:1 / 2'));
@@ -432,6 +431,10 @@ push('数据瘦身：时间戳是 epoch 秒', /(?:"updated"|updated)\s*:\s*1[6-9
 push('首页预载周榜数据（与 script 地址一致）', bundleJs.indexOf('s.src = file;') >= 0 && bundleJs.indexOf('function repoUrl(r)') >= 0);
 const navHtml = await (await fetch(base + '/nav?t=' + t)).text();
 const artHtml = await (await fetch(base + '/articles?t=' + t)).text();
+  const artBodyRaw = await (await fetch(base + '/data/articles.json')).text();
+  push('文章数据里没有重复的「…1111」测试文章', !artBodyRaw.includes('说明1111'), artBodyRaw.slice(0, 60));
+  push('静态文章页对空正文给提示（不空白）', artHtml.includes('这篇还没有正文 —— 作者可能只存了标题和摘要。'), '');
+  push('首页弹窗对空正文也给提示', home.includes('adl-empty'), '');
 push('文章列表翻页记忆位置（apY + 只往回恢复）', artHtml.includes('window.__apY = apY') && artHtml.includes('function apRestore(y)'), '');
 push('文章分页键含筛选维度', artHtml.includes("function apKey(n) { return [state.cat, state.q.trim(), state.sort, n].join('|'); }"), '');
 push('往前翻仍回列表顶（scroll-margin 96）', artHtml.includes("box.scrollIntoView({ behavior: window.__sb(), block: 'start' })") && artHtml.includes('scroll-margin-top:96px'), '');

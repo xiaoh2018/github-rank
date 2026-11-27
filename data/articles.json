@@ -1,36 +1,14 @@
 [
   {
     "id": "1795584752367",
-    "slug": "cat/1",
-    "unlockHint": "",
     "title": "麦田 · 本机使用说明",
     "summary": "装在这台电脑上的多平台发布中控。已经全部搭好，只剩登录 7 个平台的账号（这一步必须你本人扫码/输密码，机器替代不了）。",
     "body": "",
     "category": "",
-    "cover": "",
-    "pinned": false,
     "tags": [],
     "locked": true,
     "date": "2026-11-25",
-    "lock": {
-      "v": 1,
-      "iter": 100000,
-      "salt": "lrHhHLhnIGSO0niXp6p3aQ==",
-      "iv": "2K9LOk6Taqn4Srfd",
-      "ct": "isExeHko8ULp2JAVUSdt9g=="
-    }
-  },
-  {
-    "id": "1795584786860",
-    "slug": "cat/2",
-    "unlockHint": "123",
-    "title": "麦田 · 本机使用说明1111",
-    "summary": "装在这台电脑上的多平台发布中控。已经全部搭好，只剩登录 7 个平台的账号（这一步必须你本人扫码/输密码，机器替代不了）。",
-    "body": "",
-    "category": "",
-    "tags": [],
-    "locked": true,
-    "date": "2026-11-25",
+    "slug": "cat/1",
     "hasLock": true
   },
   {

@@ -1691,7 +1691,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v233';
+const ASSET_V = 'v234';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3176,6 +3176,10 @@ function checkArticle(v) {
     clean[k] = t;
   }
   if (!clean.title) return { ok: false, error: '文章标题不能为空' };
+  // 正文为空又没有密文 = 读者点进去看到空白页。入口直接拒绝，别等上线才发现。
+  if (!clean.body && !(v.lock && v.lock.ct)) {
+    return { ok: false, error: '正文是空的：写点内容再保存；如果这篇要加密，请先设置密码' };
+  }
   const cat = v.category == null ? '' : String(v.category).trim();
   if (cat.length > 24) return { ok: false, error: '分类最多 24 个字符' };
   clean.category = cat;

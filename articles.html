@@ -1160,7 +1160,8 @@ window.__sb = function () { return window.__motionQuery && window.__motionQuery.
     } else {
       // 读者不需要知道「标记了加密但正文没加密」这种站务细节：这种情况就直接当普通文章展示
     var staleNote = '';
-      body.innerHTML = readerCover(a) + staleNote + md(a.body || '') + relatedHtml(a);
+      var bodyHtml = String(a.body || '').trim() ? md(a.body) : '<p class="adl-empty">这篇还没有正文 —— 作者可能只存了标题和摘要。</p>';
+    body.innerHTML = readerCover(a) + staleNote + bodyHtml + relatedHtml(a);
       enhanceBody(body);
       mountAd($('adAPAfter'), adSlot['article-after']);
     }
