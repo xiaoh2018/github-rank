@@ -751,7 +751,7 @@ window.__imeBind = function (el, fn) {
   .head-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
   .head-actions .btn{width:100%;justify-content:center;padding-left:4px;padding-right:4px;font-size:13px}
   .head-sep{display:none}
-  #btnTheme{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #btnTheme{overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .head-actions[data-hbtn="4"]{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
 </head>
@@ -791,6 +791,17 @@ window.__imeBind = function (el, fn) {
         var t = document.getElementById(a.getAttribute('data-target'));
         a.hidden = !t || t.hidden;
       });
+      // 页头窄屏网格的行数取决于「可见按钮有几个」（没有友链时少一个）：
+      // 4 个排 2×2，5 个排 3+2，别让最后一行孤零零挂一个。
+      var ha = document.querySelector('.head-actions');
+      if (ha) {
+        requestAnimationFrame(function () {
+          var vis = Array.prototype.filter.call(ha.querySelectorAll('.btn'), function (b) {
+            return getComputedStyle(b).display !== 'none';
+          }).length;
+          ha.setAttribute('data-hbtn', String(vis));
+        });
+      }
     }
     document.addEventListener('DOMContentLoaded', function () {
       sync();

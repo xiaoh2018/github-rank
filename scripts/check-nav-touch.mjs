@@ -72,16 +72,35 @@ for (const p of ['/', '/articles', '/faq']) {
 await send('Page.navigate', { url: BASE + '/?h=' + Date.now() });
 await sleep(2600);
 const head = JSON.parse(await ev(`(() => {
-  const btns = [...document.querySelectorAll('.head-actions .btn')];
+  const ha = document.querySelector('.head-actions');
+  const all = [...ha.querySelectorAll('.btn')];
+  const vis = all.filter((b) => { const cs = getComputedStyle(b); const r = b.getBoundingClientRect(); return cs.display !== 'none' && r.width > 0; });
+  const hid = all.filter((b) => vis.indexOf(b) < 0);
   const rows = {};
-  btns.forEach((b) => { const r = b.getBoundingClientRect(); const k = Math.round(r.top / 4); rows[k] = (rows[k] || 0) + 1; });
-  const ws = btns.map((b) => Math.round(b.getBoundingClientRect().width));
-  return JSON.stringify({ n: btns.length, rows: Object.values(rows), min: Math.min(...ws), max: Math.max(...ws), over: document.documentElement.scrollWidth > document.documentElement.clientWidth });
+  vis.forEach((b) => { const k = Math.round(b.getBoundingClientRect().top / 4); rows[k] = (rows[k] || 0) + 1; });
+  const ws = vis.map((b) => Math.round(b.getBoundingClientRect().width));
+  const g = getComputedStyle(ha).gridTemplateColumns.split(' ').filter(Boolean).length;
+  return JSON.stringify({
+    n: all.length, v: vis.length, h: hid.length, g: g,
+    hbtn: ha.getAttribute('data-hbtn'),
+    hiddenZero: hid.every((b) => b.getBoundingClientRect().width === 0),
+    rows: Object.values(rows), display: getComputedStyle(ha).display,
+    min: Math.min(...ws), max: Math.max(...ws),
+    over: document.documentElement.scrollWidth > document.documentElement.clientWidth
+  });
 })()`));
 if (W <= 380) {
-  check('页头 5 个胶囊都在', head.n === 5, 'n=' + head.n);
-  check('窄屏排成 2 行（不是 4+1 孤儿）', head.rows.length === 2 && head.rows[0] === 3 && head.rows[1] === 2, JSON.stringify(head.rows));
-  check('五个胶囊宽度一致（网格等宽）', head.max - head.min <= 3, head.min + '~' + head.max);
+  // 可见按钮数取决于数据（有友链时会多一个「友情链接」）：4 个排 2×2，5 个排 3+2
+  const expectCols = head.v === 4 ? 2 : 3;
+  const rows = head.rows || [];
+  const full = rows.slice(0, -1);
+  check('页头按钮：可见 ' + head.v + ' 个 + 隐藏 ' + head.h + ' 个（data-hbtn=' + head.hbtn + '）', head.v >= 3 && head.v + head.h === head.n && String(head.v) === head.hbtn, 'n=' + head.n);
+  check('隐藏的入口不占位（如没有友链时的「友情链接」）', head.hiddenZero === true, 'hidden=' + head.h);
+  check('窄屏是网格布局', head.display === 'grid', head.display);
+  check(head.v === 4 ? '4 个按钮排 2×2（不留孤儿）' : '5 个按钮排 3+2（不留孤儿）',
+    head.g === expectCols && rows.length === Math.ceil(head.v / expectCols) && full.every((c) => c === expectCols) && rows[rows.length - 1] >= 1 && rows[rows.length - 1] <= expectCols,
+    JSON.stringify(rows) + ' 列数 ' + head.g);
+  check('可见胶囊宽度一致（网格等宽）', head.max - head.min <= 3, head.min + '~' + head.max);
   check('页头不溢出', !head.over, '');
 } else {
   console.log('（' + W + 'px > 380，页头仍用弹性换行，跳过网格断言）');

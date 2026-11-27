@@ -25,6 +25,7 @@ push('首页三个控件有可访问名（Token / 两个排序）',
   home.includes('aria-label="排序方式（文章）"'),
   '');
 push('文章弹窗密码框有可访问名', home.includes('aria-label="文章访问密码"'), '');
+push('页头窄屏按可见按钮数排版（4 个排 2×2，不留孤儿）', home.includes('data-hbtn') && home.includes('.head-actions[data-hbtn="4"]{grid-template-columns:repeat(2,minmax(0,1fr))}'), '');
 push('联系面板是 dialog 且可聚焦（tabindex=-1）', home.indexOf('role="dialog" tabindex="-1" aria-labelledby="contactTitle"') >= 0, '');
 push('联系按钮 aria-controls 指向真实面板', home.indexOf('aria-controls="contactPanel"') >= 0 && home.indexOf('id="contactPanel"') >= 0, '');
 push('打开联系面板时把焦点移进面板', home.indexOf('var contactBack=null') >= 0 && home.indexOf('first.focus()') >= 0, '');
