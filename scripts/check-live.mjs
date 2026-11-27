@@ -35,6 +35,9 @@ push('首页尊重「减少动态效果」', home.includes('window.__sb') && hom
 push('导航图标声明 16×16', home.includes('width="16" height="16"'));
 
 const bundleJs = await (await fetch(base + '/js/bundle.js?v=' + t)).text();
+push('榜单列表末尾不再追一条广告', bundleJs.indexOf('pageNodes.pop()') > 0 && bundleJs.indexOf("contains('ad-inline')") > 0, '');
+push('文章卡网格末尾不再追一条广告', home.indexOf('grid.lastElementChild.remove()') > 0, '');
+push('导航分组末尾不再追一条广告', home.indexOf('idx+1<vis.length') > 0, '');
 push('收藏星暴露 aria-pressed（初始 + 点击后）', bundleJs.includes("fav.setAttribute('aria-pressed', String(!!faved))") && bundleJs.includes("fav.setAttribute('aria-pressed', String(on))"), '');
 push('榜单三档 / 时间四档同步 aria-pressed', bundleJs.includes("b.setAttribute('aria-pressed', String(on))"), '');
 push('「只看收藏」有初始与切换后的 aria-pressed', bundleJs.includes("$('btnFavFilter').setAttribute('aria-pressed', String(state.favOnly))"), '');

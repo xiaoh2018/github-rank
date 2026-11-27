@@ -1276,6 +1276,7 @@ function renderRepos() {
       pageNodes.push(ad);
     }
   });
+  while (pageNodes.length && pageNodes[pageNodes.length - 1].classList && pageNodes[pageNodes.length - 1].classList.contains('ad-inline')) pageNodes.pop();
   if (!list.length && state.repos.length) {
     const li = document.createElement('li');
     li.className = 'item empty-item';

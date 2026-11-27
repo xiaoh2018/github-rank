@@ -1634,6 +1634,7 @@ window.__imeBind = function (el, fn) {
           grid.appendChild(inlineAd);
         }
       });
+      while (grid.lastElementChild && grid.lastElementChild.classList && grid.lastElementChild.classList.contains('ad-inline')) grid.lastElementChild.remove();
       wrap.replaceChildren(grid);
       box.hidden=false;
       if(window.ghrankMountInline) window.ghrankMountInline();
@@ -1863,7 +1864,7 @@ getJSON('/data/site.json').then(function(site){
             (it.desc?'<small>'+navHl(it.desc)+'</small>':'')+
             '<span class="host">'+escH(navHost(it.url))+'</span></span></a>';
           var ne=(window.ghrankAdEvery&&window.ghrankAdEvery.nav)||8;
-          if(ne>0&&(idx+1)%ne===0) html+='<div class="navcard ad-inline-card" data-ad-inline="nav" hidden></div>';
+          if(ne>0&&(idx+1)%ne===0&&idx+1<vis.length) html+='<div class="navcard ad-inline-card" data-ad-inline="nav" hidden></div>';
         });
         html+='</div>';
         if(!expanded&&items.length>vis.length){
