@@ -565,6 +565,8 @@ push('后台有「收录自查」卡片', admHtml.includes('id="indexCheck"') &&
   push('收录自查接口要密码（不带密码 403）', r.status === 403, 'HTTP ' + r.status);
 }
 
+push('自查能解释「为什么跳过」（这批地址指纹）', admHtml.includes('这批地址') && admHtml.includes('sigSame'), '');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

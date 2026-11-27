@@ -1809,7 +1809,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v266';
+const ASSET_V = 'v267';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2347,6 +2347,36 @@ async function handleIndexCheck(request, env, origin) {
     lastAt = last && last.at ? last.at : '';
     inLastSubmit = !!(last && Array.isArray(last.urlList) && last.urlList.indexOf(want) >= 0);
   } catch (e) {}
+  let batchCount = 0;
+  let sigNow = '';
+  let sigLast = '';
+  let sigSame = null;
+  let why = '';
+  try {
+    const fp8 = function (str) {
+      let h = 0x811c9dc5;
+      for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = (h * 0x01000193) >>> 0; }
+      return ('0000000' + h.toString(16)).slice(-8);
+    };
+    const batchArts = await rawJson(env, 'data/articles.json');
+    const batch = [root + '/', root + '/articles'];
+    (Array.isArray(batchArts) ? batchArts : []).slice(0, 100).forEach(function (a) {
+      if (a && a.id) batch.push(root + '/articles/' + String(a.slug || a.id).split('/').map(encodeURIComponent).join('/') + '.html');
+    });
+    batchCount = batch.length;
+    const rawSig = batch.join(String.fromCharCode(10));
+    sigNow = fp8(rawSig);
+    const lastRun2 = await readLastSubmit();
+    sigLast = lastRun2 && lastRun2.sig ? fp8(String(lastRun2.sig)) : '';
+    sigSame = lastRun2 && lastRun2.at ? rawSig === String(lastRun2.sig) : null;
+    if (!lastRun2 || !lastRun2.at) {
+      why = '还没有提交记录：现在点「全部提交」会真的推一次，不会被跳过。';
+    } else if (sigSame) {
+      why = '这批地址和上次提交时完全一样（上次 ' + new Date(lastRun2.at).toLocaleString() + '）：再推会被判为同一批而跳过；想强推就勾「强制再推一次」。';
+    } else {
+      why = '这批地址和上次提交时不一样了（上次 ' + new Date(lastRun2.at).toLocaleString() + '）：可以再推一次，不会被判成同一批。';
+    }
+  } catch (e) {}
 
   let host = '';
   try {
@@ -2373,6 +2403,11 @@ async function handleIndexCheck(request, env, origin) {
     sitemapCount,
     inLastSubmit,
     lastAt,
+    batchCount: batchCount,
+    sigNow: sigNow,
+    sigLast: sigLast,
+    sigSame: sigSame,
+    why: why,
     bing: 'https://www.bing.com/search?q=site%3A' + encodeURIComponent(host),
     baidu: 'https://www.baidu.com/s?wd=site%3A' + encodeURIComponent(host),
     bingTools: 'https://www.bing.com/webmasters/searchperf?siteUrl=' + encodeURIComponent(root),
@@ -7118,7 +7153,14 @@ function saveMsgFor(btn) {
       list.appendChild(ickRow('canonical', r.canonical ? (r.canonicalSelf ? '指向自己（正确）' : '指向 ' + r.canonical + '（不是自己，收录会跑到那个地址）') : '没写', r.canonical ? (r.canonicalSelf ? 'good' : 'bad') : 'bad'));
       list.appendChild(ickRow('在 sitemap 里', r.inSitemap === null ? '读不到 sitemap' : (r.inSitemap ? '在（共 ' + r.sitemapCount + ' 条）' : '不在（共 ' + r.sitemapCount + ' 条）'), r.inSitemap ? 'good' : 'bad'));
       list.appendChild(ickRow('上次提交含它', r.inLastSubmit ? '推过 · ' + ickTime(r.lastAt) : '没推过' + (r.lastAt ? '（上次提交 ' + ickTime(r.lastAt) + '）' : '（还没有提交记录）'), r.inLastSubmit ? 'good' : ''));
+      list.appendChild(ickRow('这批地址', (r.batchCount || 0) + ' 条 · 指纹 ' + (r.sigNow || '—') + (r.sigLast ? '（上次 ' + r.sigLast + '）' : ''), r.sigSame === true ? 'bad' : ''));
       out.appendChild(list);
+      if (r.why) {
+        var wp = document.createElement('p');
+        wp.className = 'note ick-why';
+        wp.textContent = r.why;
+        out.appendChild(wp);
+      }
       var links = document.createElement('div');
       links.className = 'ick-links';
       [['Bing 收录（site: 查询）', r.bing], ['百度收录（site: 查询）', r.baidu], ['Bing 站长工具', r.bingTools], ['百度搜索资源平台', r.baiduTools]].forEach(function (pair) {

@@ -23,6 +23,14 @@ try {
   ck('错密码 → 403', r1.status === 403, String(r1.status));
 
   if (!REMOTE) {
+    const r2 = await fetch(BASE + '/api/index-check', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: PAGES, url: '/articles/tech/4.html' }) });
+    const j2 = await r2.json();
+    ck('自查返回「这批地址」指纹', r2.status === 200 && /^[0-9a-f]{8}$/.test(j2.sigNow || '') && j2.batchCount >= 2, JSON.stringify({ count: j2.batchCount, sig: j2.sigNow }));
+    ck('自查解释「为什么跳过」', typeof j2.why === 'string' && /(还没有提交记录|完全一样|不一样了)/.test(j2.why), String(j2.why || '').slice(0, 40));
+    ck('sigSame 与提交记录一致', j2.lastAt ? typeof j2.sigSame === 'boolean' : j2.sigSame === null, JSON.stringify({ lastAt: j2.lastAt || '', sigSame: j2.sigSame }));
+  }
+
+  if (!REMOTE) {
     await cdp.goto(BASE + '/admin?cb=' + Date.now(), 1800);
     await cdp.js(`sessionStorage.setItem('adminPw', ${JSON.stringify(PAGES)}); 1`);
     await cdp.goto(BASE + '/admin?cb=' + (Date.now() + 1), 2200);
@@ -50,7 +58,8 @@ try {
       return { rows, links };
     })()`);
     const keys = (home && home.rows ? home.rows.map((r) => r.k) : []).join('|');
-    ck('查出六行', home && home.rows.length === 6 || home.rows.length === 7, keys);
+    ck('查出七行（含「这批地址」）', home && home.rows.length === 7, keys);
+    ck('「这批地址」带指纹', home && home.rows.some((r) => r.k === '这批地址' && /[0-9a-f]{8}/.test(r.v)), '');
     ck('HTTP 状态 200', home && home.rows.some((r) => r.k === 'HTTP 状态' && r.v === '200'), '');
     ck('canonical 指向自己', home && home.rows.some((r) => r.k === 'canonical' && /指向自己/.test(r.v)), '');
     ck('在 sitemap 里', home && home.rows.some((r) => r.k === '在 sitemap 里' && /^在/.test(r.v)), '');
