@@ -2497,12 +2497,14 @@ async function handleRank(request, env, url, origin) {
     }
   }
   const lang = String(p.get('lang') || '').trim();
-  const base = String(origin || '').replace(/\/+$/, '');
-  const grab = async (path, ttl) => {
-    const r = await fetch(base + path, { cf: { cacheTtl: ttl, cacheEverything: true } });
+  // 直接读仓库 raw（与其它数据读取同一口径），不要走本站 /data/ 路由：
+  // 那条路由只放行固定的几个数据文件，新加的 .json 会被 404 掉
+  const rawBase = 'https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/';
+  const grab = async (path) => {
+    const r = await fetch(rawBase + path, { cf: { cacheTtl: 300, cacheEverything: true } });
     return r && r.ok ? r.text() : '';
   };
-  const raw = await grab('/data/repos-' + range + '.json', 300);
+  const raw = await grab('data/repos-' + range + '.json');
   if (!raw) {
     return new Response(JSON.stringify({ ok: false, error: '读不到 ' + range + ' 的数据文件，稍后再试' }), { status: 503, headers: noStore });
   }
@@ -2512,7 +2514,7 @@ async function handleRank(request, env, url, origin) {
     return new Response(JSON.stringify({ ok: false, error: '数据文件格式不对（不是合法的 JSON），这次不返回空列表以免误导' }), { status: 503, headers: noStore });
   }
   const repos = payload.repos;
-  const metaText = await grab('/data/repos-meta.js', 300);
+  const metaText = await grab('data/repos-meta.js');
   const gm = metaText.match(/generatedAt:\s*"([^"]+)"/);
   let list = repos;
   if (lang) {
