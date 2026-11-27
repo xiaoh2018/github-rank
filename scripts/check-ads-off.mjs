@@ -2,16 +2,31 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
+import net from 'node:net';
 import path from 'node:path';
 
 const BASE = process.env.PROBE_BASE || 'http://127.0.0.1:8123';
 const AD_SEL = '.ad-slot,.ad-inline,.ad-inner,.ad-ticker,.ad-modal,.ad-strip';
-const port = 9100 + Math.floor(Math.random() * 200);
-const prof = fs.mkdtempSync(path.join(os.tmpdir(), 'cdp-'));
 const exe = ['C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'].find((p) => fs.existsSync(p));
-const child = spawn(exe, ['--headless=new', '--remote-debugging-port=' + port, '--user-data-dir=' + prof, '--window-size=1280,900', '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-let ws, n = 0; const pending = new Map();
+// 端口用系统分配的空闲端口：门禁并发跑时，随机端口会撞上别的 chrome 实例，
+// 表现是「no cdp target」并 exit 2（第 18 轮全量跑就这么红过一次）。
+async function freePort() {
+  return await new Promise((res, rej) => {
+    const srv = net.createServer();
+    srv.once('error', rej);
+    srv.listen(0, '127.0.0.1', () => { const p = srv.address().port; srv.close(() => res(p)); });
+  });
+}
+let child = null;
+let prof = '';
+let port = 0;
+let ws = null;
+let n = 0; const pending = new Map();
+for (let attempt = 0; attempt < 3 && !ws; attempt++) {
+  port = await freePort();
+  prof = fs.mkdtempSync(path.join(os.tmpdir(), 'cdp-'));
+  child = spawn(exe, ['--headless=new', '--remote-debugging-port=' + port, '--user-data-dir=' + prof, '--window-size=1280,900', '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 for (let i = 0; i < 60; i++) {
   try {
     const list = await (await fetch('http://127.0.0.1:' + port + '/json/list')).json();
@@ -25,7 +40,9 @@ for (let i = 0; i < 60; i++) {
   } catch {}
   await sleep(200);
 }
-if (!ws) { console.log('no cdp target'); process.exit(2); }
+  if (!ws) { try { child.kill(); } catch (e) {} await sleep(300); }
+}
+if (!ws) { console.log('no cdp target（换了 3 个空闲端口都没连上，先清掉残留 chrome）'); process.exit(2); }
 const send = (m, p) => new Promise((res) => { const id = ++n; pending.set(id, res); ws.send(JSON.stringify({ id, method: m, params: p || {} })); });
 const ev = async (x) => {
   const r = await send('Runtime.evaluate', { expression: x, awaitPromise: true, returnByValue: true });

@@ -6,11 +6,27 @@
 //   node scripts/check-all.mjs --skip=check-a11y --quiet
 //   node scripts/check-all.mjs --json=docs/tmp-check-all.json
 // 退出码：0 全绿 / 1 有失败 / 2 参数或环境错误
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn, spawnSync, execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
 const args = process.argv.slice(2);
+
+// 跑之前清掉残留的 headless chrome：各门禁自己 spawn 浏览器，异常退出会留下孤儿进程，
+// 后面的门禁连不上调试端口就 exit 2（表现为「随机某个门禁红一次」，第 18 轮全量跑踩过）。
+// --keep-chrome 可跳过。
+if (process.platform === 'win32' && !args.includes('--keep-chrome')) {
+  try {
+    const ps = [
+      'Get-CimInstance Win32_Process -Filter "Name=\'chrome.exe\'"',
+      "| Where-Object { $_.CommandLine -like '*--headless=new*' }",
+      '| ForEach-Object { try { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue } catch {} }'
+    ].join(' ');
+    execSync('powershell -NoProfile -Command "' + ps.replace(/"/g, '\"') + '"', { stdio: 'ignore', timeout: 20000 });
+  } catch (e) {
+    console.log('（清理残留 headless chrome 失败，忽略：' + (e && e.message ? e.message : e) + '）');
+  }
+}
 const flag = (name) => args.includes('--' + name);
 const value = (name, def) => {
   const hit = args.find((a) => a.startsWith('--' + name + '='));
