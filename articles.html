@@ -91,7 +91,7 @@ header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:ce
 .cards{display:flex;flex-direction:column;gap:14px;scroll-margin-top:96px}
 html[data-artcols="double"] .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
 html[data-artcols="triple"] .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
-html[data-artcols="auto"] .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;align-items:start}
+html[data-artcols="auto"] .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;align-items:start}
 @media (max-width:1100px){html[data-artcols="triple"] .cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:900px){html[data-artcols="double"] .cards,html[data-artcols="triple"] .cards,html[data-artcols="auto"] .cards{display:flex;flex-direction:column}}
 .apager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px;flex-wrap:wrap}

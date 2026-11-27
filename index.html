@@ -555,9 +555,9 @@ dialog::backdrop{overflow:hidden;overscroll-behavior:contain}
   .arthead .artnote{font-size:12px;color:var(--muted)}
   .arthead .artmore{margin-left:auto;font-size:13px;color:var(--accent);font-weight:600}
   .artgrid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
-body[data-artcols="single"] .artgrid{grid-template-columns:minmax(0,1fr)}
-body[data-artcols="triple"] .artgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
-body[data-artcols="auto"] .artgrid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+html[data-artcols="single"] .artgrid{grid-template-columns:minmax(0,1fr)}
+html[data-artcols="triple"] .artgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+html[data-artcols="auto"] .artgrid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
   .artcard{display:flex;flex-direction:column;gap:8px;padding:14px 15px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);transition:border-color .15s,transform .15s,box-shadow .15s}
   .artcard:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow)}
 .artcard:focus-within{border-color:var(--accent);box-shadow:var(--shadow)}
@@ -618,7 +618,7 @@ body[data-page="articles"] #rankBar,body[data-page="articles"] #stats,body[data-
   .faqview .qa .ans a{color:var(--accent)}
   @media (max-width:600px){.faqview .qa>summary{padding:13px 14px;font-size:14px}.faqview .qa .ans{padding:0 14px 14px 44px;font-size:13.5px}}
 
-  @media (max-width:1100px){body[data-artcols="triple"] .artgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:1100px){html[data-artcols="triple"] .artgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:900px){body .artgrid{grid-template-columns:minmax(0,1fr)!important}}
 .article-body{font-size:13px}
 .article-body p,.article-body li{margin:6px 0;line-height:1.7;overflow-wrap:anywhere}
@@ -1780,7 +1780,7 @@ window.__imeBind = function (el, fn) {
     function applyArtCols(art){
   var c = (art && art.cols) || 'double';
   if (['auto', 'single', 'double', 'triple'].indexOf(c) < 0) c = 'double';
-  document.body.setAttribute('data-artcols', c);
+  document.body.setAttribute('data-artcols', c); document.documentElement.setAttribute('data-artcols', c);
 }
 
 getJSON('/data/site.json').then(function(site){

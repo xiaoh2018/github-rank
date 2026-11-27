@@ -473,13 +473,13 @@ ok(uiAdm.indexOf('data-ad-field="modal"') > 0, '后台可以设置点击弹窗')
 const evSave = await hit('/api/site', {
   method: 'POST',
   headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ password: 'pw', section: 'ad', value: { slots: { 'list-inline': { enabled: true, html: '<b>ad</b>', every: 5 } }, ticker: { enabled: true, text: '公告一句话', speed: 12, link: 'https://example.com' } } })
+  body: JSON.stringify({ password: 'pw', section: 'ad', value: { slots: { 'list-inline': { enabled: true, html: '<b>ad</b>', every: 5 } }, ticker: { enabled: true, text: '公告一句话内容', speed: 12, link: 'https://example.com' } } })
 });
 const evJson = await evSave.json();
 ok(evJson.ok === true, '广告设置（间隔 + 滚动条）可以保存');
 const evAd = (evJson.site && evJson.site.ad) || {};
 ok(!!(evAd.slots && evAd.slots['list-inline'] && evAd.slots['list-inline'].every === 5), '间隔按后台填的值保存');
-ok(!!(evAd.ticker && evAd.ticker.enabled === true && evAd.ticker.text === '公告一句话'), '滚动条设置保存成功');
+ok(!!(evAd.ticker && evAd.ticker.enabled === true && evAd.ticker.text === '公告一句话内容'), '滚动条设置保存成功');
 const evSpeedBad = await hit('/api/site', {
   method: 'POST',
   headers: { 'content-type': 'application/json' },

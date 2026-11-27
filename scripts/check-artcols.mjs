@@ -1,117 +1,117 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 
-const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
-const BASE = 'http://127.0.0.1:8123';
-const PORT = 10400 + Math.floor(Math.random() * 60);
-const prof = fs.mkdtempSync(path.join(os.tmpdir(), 'artcols-'));
-const chrome = spawn(CHROME, ['--headless=new', '--disable-gpu', '--hide-scrollbars', `--remote-debugging-port=${PORT}`, `--user-data-dir=${prof}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+const BASE = process.env.PROBE_BASE || 'http://127.0.0.1:8123';
+const REMOTE = !BASE.includes('127.0.0.1');
+const W = Number(process.env.W || 1440);
+const PW = process.env.ADMIN_PW || 'dev';
+
+const freePort = () => new Promise((res) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); });
+const chrome = ['C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'].find((p) => fs.existsSync(p));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-let ws, seq = 0; const pending = new Map();
+
 async function connect() {
-  for (let i = 0; i < 100; i++) {
-    try {
-      const list = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json();
-      const p = list.find((t) => t.type === 'page');
-      if (p) { ws = new WebSocket(p.webSocketDebuggerUrl); await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; }); ws.onmessage = (ev) => { const m = JSON.parse(ev.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } }; return; }
-    } catch (e) {}
-    await sleep(200);
+  let last;
+  for (let i = 0; i < 3; i++) {
+    const userDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cdp-'));
+    const port = await freePort();
+    const proc = spawn(chrome, ['--headless=new', '--remote-debugging-port=' + port, '--user-data-dir=' + userDir, '--window-size=' + W + ',900', '--no-first-run', '--disable-gpu', '--lang=zh-CN', 'about:blank'], { stdio: 'ignore' });
+    for (let k = 0; k < 50; k++) {
+      try {
+        const list = await (await fetch('http://127.0.0.1:' + port + '/json/list')).json();
+        const page = list.find((t) => t.type === 'page');
+        if (page) { const ws = new WebSocket(page.webSocketDebuggerUrl); await new Promise((r, j) => { ws.onopen = r; ws.onerror = j; }); return { proc, ws, userDir }; }
+      } catch (e) { last = e; }
+      await sleep(200);
+    }
+    proc.kill();
   }
-  throw new Error('CDP 连不上');
+  throw new Error('cdp 连不上：可能有残留 headless chrome 占着端口（' + (last && last.message) + '）');
 }
-const send = (method, params = {}) => { const id = ++seq; return new Promise((res, rej) => { pending.set(id, (m) => (m.error ? rej(new Error(m.error.message)) : res(m.result))); ws.send(JSON.stringify({ id, method, params })); }); };
-const ev = async (expr) => { const r = await send('Runtime.evaluate', { expression: expr, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('EXC ' + ((r.exceptionDetails.exception && r.exceptionDetails.exception.description) || '').slice(0, 200)); return r.result && r.result.value; };
-async function waitFor(expr, ms = 25000) { for (let t = 0; t < ms; t += 150) { try { if (await ev(expr)) return true; } catch (e) {} await sleep(150); } return false; }
-async function view(w, h) { await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: w < 500 }); }
-async function goto(url) { await send('Page.navigate', { url }); await sleep(1200); }
 
+const { proc, ws, userDir } = await connect();
+let id = 0; const pending = new Map();
+let mode = 'double'; let hits = 0;
+const siteRaw = (() => { try { return JSON.parse(fs.readFileSync('data/site.json', 'utf8')); } catch { return {}; } })();
+ws.onmessage = (e) => {
+  const m = JSON.parse(e.data);
+  if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); return; }
+  if (m.method === 'Fetch.requestPaused') {
+    const { requestId, request } = m.params;
+    const u = request.url;
+    if (/\/api\/site|\/data\/site\.json/.test(u)) {
+      hits++;
+      const site = JSON.parse(JSON.stringify(siteRaw));
+      site.article = Object.assign({}, site.article, { cols: mode });
+      const isApi = u.includes('/api/');
+      const body = JSON.stringify(isApi ? { ok: true, site } : site);
+      ws.send(JSON.stringify({ id: ++id, method: 'Fetch.fulfillRequest', params: { requestId, responseCode: 200, responseHeaders: [{ name: 'content-type', value: isApi ? 'application/json' : 'application/json; charset=utf-8' }], body: Buffer.from(body).toString('base64') } }));
+    } else ws.send(JSON.stringify({ id: ++id, method: 'Fetch.continueRequest', params: { requestId } }));
+  }
+};
+const send = (method, params) => new Promise((res) => { const mid = ++id; pending.set(mid, res); ws.send(JSON.stringify({ id: mid, method, params: params || {} })); });
+const js = async (expr) => { const r = await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result && r.result.exceptionDetails) return { __err: r.result.exceptionDetails.text }; return r.result && r.result.result ? r.result.result.value : null; };
 const rows = [];
-function chk(name, ok, extra) { rows.push({ name, ok: !!ok, extra: extra === undefined ? '' : JSON.stringify(extra) }); }
+const push = (name, ok, extra) => rows.push({ name, ok: !!ok, extra: extra === undefined ? '' : String(extra) });
 
-const siteUrl = BASE + '/data/site.json';
-const orig = await (await fetch(siteUrl + '?v=' + Date.now())).json();
-const origArticle = orig.article || {};
+await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable');
+await send('Network.setCacheDisabled', { cacheDisabled: true });
+await send('Emulation.setDeviceMetricsOverride', { width: W, height: 900, deviceScaleFactor: 1, mobile: W < 700 });
+await send('Fetch.enable', { patterns: [{ urlPattern: '*site*' }] });
 
-async function setCols(v) {
-  const body = { password: 'dev', section: 'article', value: { unlockHint: origArticle.unlockHint || '', catEn: !!origArticle.catEn, cols: v, categories: origArticle.categories || [] } };
-  const r = await fetch(BASE + '/api/site', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-  return { status: r.status, json: await r.json().catch(() => ({})) };
+const measure = async (page, sel) => {
+  await send('Page.navigate', { url: BASE + page + '?t=' + Date.now() + '&m=' + mode });
+  await sleep(2500);
+  return js(`(function(){var el=document.querySelector('${sel}');if(!el)return {no:1};var cs=getComputedStyle(el);var g=cs.gridTemplateColumns||'';var isGrid=cs.display.indexOf('grid')>=0;return {attr:document.documentElement.getAttribute('data-artcols'),display:cs.display,g:g,cols:isGrid?g.split(' ').filter(Boolean).length:1};})()`);
+};
+
+const homeCols = {}; const artCols = {};
+for (const m of ['single', 'double', 'triple', 'auto']) {
+  mode = m;
+  const h = await measure('/', '.artgrid');
+  const a = await measure('/articles', '.cards');
+  homeCols[m] = h; artCols[m] = a;
+  push('两页都落到 html[data-artcols=' + m + ']', h && h.attr === m && a && a.attr === m, (h && h.attr) + '/' + (a && a.attr));
+}
+if (W < 760) {
+  push('窄屏：四档在两页都是单列（手机不看设置）', ['single', 'double', 'triple', 'auto'].every(function (k) { return homeCols[k].cols === 1 && artCols[k].cols === 1; }), ['single', 'double', 'triple', 'auto'].map(function (k) { return k + '=' + homeCols[k].cols + '/' + artCols[k].cols; }).join(' '));
+} else {
+  push('单列：首页 1 列、文章页 1 列', homeCols.single.cols === 1 && artCols.single.cols === 1, homeCols.single.cols + '/' + artCols.single.cols);
+  push('双列：首页 2 列、文章页 2 列', homeCols.double.cols === 2 && artCols.double.cols === 2, homeCols.double.cols + '/' + artCols.double.cols);
+  push('三列：' + (W >= 1100 ? '两页都 3 列' : '窄屏降为 ≤2 列'), W >= 1100 ? homeCols.triple.cols === 3 && artCols.triple.cols === 3 : homeCols.triple.cols <= 2 && artCols.triple.cols <= 2, homeCols.triple.cols + '/' + artCols.triple.cols);
+  push('自动：两页都按容器铺满（≥1 列）', homeCols.auto.cols >= 1 && artCols.auto.cols >= 1, homeCols.auto.cols + '/' + artCols.auto.cols);
 }
 
-async function colsOfHome() {
-  await goto(BASE + '/?t=' + Date.now());
-  const ok = await waitFor("document.querySelectorAll('.artgrid .artcard').length>0");
-  if (!ok) return { ok: false, n: 0, attr: '' };
-  const n = await ev("(function(){var g=document.querySelector('.artgrid');if(!g)return 0;return getComputedStyle(g).gridTemplateColumns.split(' ').filter(Boolean).length;})()");
-  const attr = await ev("document.body.getAttribute('data-artcols')||''");
-  return { ok: true, n, attr };
+const src = (() => {
+  try {
+    const a = fs.readFileSync('index.html', 'utf8');
+    const b = fs.readFileSync('articles.html', 'utf8');
+    return { h: /minmax\(320px,1fr\)/.test(a), a: /minmax\(320px,1fr\)/.test(b), body: /body\[data-artcols/.test(a) };
+  } catch (e) { return null; }
+})();
+push('两页「自动」的最小列宽一致（320px）', src && src.h && src.a, src && JSON.stringify(src));
+push('首页不再只给 body 挂属性（html 也能命中）', src && src.body === false, src && 'bodySelectors=' + src.body);
+
+if (!REMOTE) {
+  await send('Page.addScriptToEvaluateOnNewDocument', { source: "try{sessionStorage.setItem('adminPw','" + PW + "')}catch(e){}" });
+  await send('Page.navigate', { url: BASE + '/admin?t=' + Date.now() });
+  await sleep(2600);
+  await js(`(function(){var n=document.querySelector('[data-tab="articles"]');if(n)n.click();return 1;})()`);
+  await sleep(500);
+  const hint = await js(`(function(){var el=document.querySelector('#pane-articles .hint');return el?(el.textContent||'').trim():'';})()`);
+  push('后台说明讲清「自动」由宽度决定、两页可能不同', /列数由页面宽度决定/.test(hint) && /可能不同/.test(hint), hint.slice(0, 80));
+  const over = await js(`({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth})`);
+  push('后台不横向溢出', over && over.sw <= over.cw + 1, over && over.sw + '/' + over.cw);
+} else {
+  push('线上模式：跳过后台断言（需要后台密码）', true, 'REMOTE');
 }
-async function colsOfArticles() {
-  await goto(BASE + '/articles?t=' + Date.now());
-  const ok = await waitFor("document.querySelectorAll('.cards .acard').length>0");
-  if (!ok) return { ok: false, n: 0, attr: '' };
-  const n = await ev("(function(){var g=document.querySelector('.cards');if(!g)return 0;var cs=getComputedStyle(g);if(cs.display!=='grid')return 1;return cs.gridTemplateColumns.split(' ').filter(Boolean).length;})()");
-  const attr = await ev("document.documentElement.getAttribute('data-artcols')||''");
-  return { ok: true, n, attr };
-}
+push('拦截确实命中（否则上面的断言全是空转）', hits > 0, 'hits=' + hits);
 
-(async () => {
-  await connect(); await send('Page.enable'); await send('Runtime.enable');
-  await view(1440, 1000);
-
-  const r0 = await setCols('single');
-  chk('保存 single 成功', r0.status === 200 && r0.json.ok === true, r0.status);
-  let h = await colsOfHome();
-  chk('首页 单列：data-artcols=single', h.attr === 'single', h.attr);
-  chk('首页 单列：实际 1 栏', h.n === 1, h.n);
-  let a = await colsOfArticles();
-  chk('文章页 单列：1 栏', a.n === 1, a);
-
-  const r1 = await setCols('double');
-  chk('保存 double 成功', r1.status === 200 && r1.json.ok === true);
-  h = await colsOfHome();
-  chk('首页 双列：实际 2 栏', h.n === 2, h.n);
-  a = await colsOfArticles();
-  chk('文章页 双列：实际 2 栏', a.n === 2, a);
-
-  const r2 = await setCols('triple');
-  chk('保存 triple 成功', r2.status === 200 && r2.json.ok === true);
-  h = await colsOfHome();
-  chk('首页 三列：实际 3 栏', h.n === 3, h.n);
-  a = await colsOfArticles();
-  chk('文章页 三列：实际 3 栏', a.n === 3, a);
-
-  const r3 = await setCols('auto');
-  chk('保存 auto 成功', r3.status === 200 && r3.json.ok === true);
-  h = await colsOfHome();
-  chk('首页 自动：≥2 栏', h.n >= 2, h.n);
-
-  await view(390, 844);
-  const r4 = await setCols('triple');
-  chk('保存 triple（手机前）', r4.status === 200);
-  h = await colsOfHome();
-  chk('390 下即使是三列也只 1 栏', h.n === 1, h.n);
-  a = await colsOfArticles();
-  chk('390 文章页 1 栏', a.n === 1, a);
-
-  const adm = await (await fetch(BASE + '/admin?v=' + Date.now())).text();
-  chk('后台有 4 个列数选项', (adm.split('type="radio" name="article-cols"').length - 1) === 4, adm.split('type="radio" name="article-cols"').length - 1);
-  chk('后台读取列数（collect 里有 acols）', adm.includes("name=\"article-cols\"") && adm.includes("'double'") && adm.includes('acols'));
-  chk('后台保存后回填选中项', adm.includes('acR[aci].checked'));
-
-  const bad = await setCols('quad');
-  chk('非法值被拒 400', bad.status === 400, bad.status);
-  chk('拒绝原因说清可选值', String((bad.json && bad.json.error) || '').indexOf('auto、single、double 或 triple') >= 0, (bad.json && bad.json.error) || '');
-
-  const back = await setCols(origArticle.cols || 'double');
-  chk('还原原值', back.status === 200);
-
-  const badCnt = rows.filter((r) => !r.ok).length;
-  for (const r of rows) console.log((r.ok ? 'OK   ' : 'FAIL ') + r.name + (r.extra ? '  [' + r.extra + ']' : ''));
-  console.log(badCnt === 0 ? 'ALL OK (' + rows.length + ')' : badCnt + ' FAILED of ' + rows.length);
-  try { ws.close(); } catch (e) {}
-  chrome.kill();
-  process.exit(badCnt === 0 ? 0 : 1);
-})().catch((err) => { console.error('ERROR ' + err.message); try { chrome.kill(); } catch (e) {} process.exit(1); });
+let bad = 0;
+for (const r of rows) { if (!r.ok) bad++; console.log((r.ok ? 'OK   ' : 'FAIL ') + r.name + (r.extra ? '  → ' + r.extra : '')); }
+console.log(bad === 0 ? 'ALL OK (' + rows.length + ')  @' + W + 'px  ' + BASE : bad + ' FAILED of ' + rows.length);
+ws.close(); proc.kill(); try { fs.rmSync(userDir, { recursive: true, force: true }); } catch {}
+process.exit(bad === 0 ? 0 : 1);

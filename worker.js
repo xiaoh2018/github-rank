@@ -1691,7 +1691,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v237';
+const ASSET_V = 'v238';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4559,7 +4559,7 @@ tr:hover td{background:#fcfbf8}
       <div class="intro">文章用来沉淀长内容：会被搜索引擎收录，也会被 AI 搜索引用。正文支持 Markdown（标题、列表、代码块、链接、图片），写作时右侧实时预览。保存即发布，刷新文章页即可看到。</div>
       <div class="card">
         <div class="card-head"><b>文章卡片列数</b><span class="msg">首页「最新文章」和文章页都按这个列数</span></div>
-        <div class="hint">手机上一律单列，不受这里影响；选「自动」时按屏幕宽度铺满。</div>
+        <div class="hint">手机上一律单列，不受这里影响。选「自动」时列数由页面宽度决定：首页较宽（三列起步），文章页带目录栏、会更少一些，所以同一档在两页的列数可能不同。</div>
         <div class="choice-grid">
           <label class="choice"><input type="radio" name="article-cols" value="auto"><span class="choice-t">自动<b>随屏幕宽度</b></span></label>
           <label class="choice"><input type="radio" name="article-cols" value="single"><span class="choice-t">单列<b>一行一篇</b></span></label>
