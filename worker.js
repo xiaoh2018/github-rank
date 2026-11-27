@@ -1691,7 +1691,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v235';
+const ASSET_V = 'v236';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3465,6 +3465,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .save-msg.ok{color:#15803d}
 .tickwarn{margin:2px 0 12px;font-size:12.5px;line-height:1.7;color:var(--bad)}
 .tickwarn::before{content:"⚠ ";font-weight:700}
+.beianstate{margin:6px 0 2px;font-size:12.5px;line-height:1.7;color:var(--muted)}
+.beianstate.bad{color:var(--bad)}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 .save-msg.err{color:var(--bad)}
 .row-actions a.small{display:inline-flex;align-items:center;min-height:30px;padding:0 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--fg);text-decoration:none;font-size:12.5px}
@@ -4323,6 +4325,7 @@ tr:hover td{background:#fcfbf8}
       <div class="intro">国内服务器的网站需要备案号，并在页脚展示。没有备案号就关闭开关，页脚不会显示备案信息；打开开关但字段为空，页脚会只显示底部文字。</div>
       <div class="card">
         <label class="toggle"><input type="checkbox" id="beian-enabled">在页脚显示备案信息</label>
+        <p class="beianstate" id="beianState" role="status" aria-live="polite" hidden></p>
         <label for="beian-icp">ICP 备案号</label>
         <input type="text" id="beian-icp" maxlength="60" placeholder="京ICP备12345678号">
         <div class="hint">形如 京ICP备12345678号，没有就留空并关闭开关。</div>
@@ -5469,6 +5472,36 @@ function tickerAudit(){
   }
   w.textContent=msg; w.hidden=!msg;
 }
+// 备案信息：边填边说明「现在页脚到底显示什么」
+function beianAudit(){
+  var en=$("beian-enabled"), st=$("beianState");
+  if(!en||!st) return;
+  var icp=String(($("beian-icp")||{}).value||"").trim();
+  var pol=String(($("beian-police")||{}).value||"").trim();
+  var txt=String(($("beian-text")||{}).value||"").trim();
+  var on=en.checked===true, msg="", bad=false;
+  if(!on){ msg="现在页脚不显示备案信息 —— 填了号码也要勾上这个开关，页脚才会出现。"; }
+  else if(!icp && !pol && !txt){ msg="开关开着，但一条都没填：页脚仍然不会显示。"; bad=true; }
+  else {
+    var parts=[];
+    if(icp) parts.push("ICP备案号："+icp);
+    if(pol) parts.push("公安备案号："+pol);
+    if(txt) parts.push("底部文字");
+    msg="页脚会显示："+parts.join(" · ");
+  }
+  st.textContent=msg; st.hidden=false; st.className="beianstate"+(bad?" bad":"");
+}
+(function(){
+  function onEdit(e){ var t=e.target; if(t&&/^beian-/.test(t.id||"")) beianAudit(); }
+  document.addEventListener("input",onEdit,true);
+  document.addEventListener("change",onEdit,true);
+  document.addEventListener("click",function(e){
+    var t=e.target;
+    if(t&&t.closest&&t.closest('[data-tab="beian"]')) setTimeout(beianAudit,30);
+  },true);
+  setTimeout(beianAudit,0);
+  setTimeout(beianAudit,600);
+})();
 function saveMsgFor(btn) {
     var el = btn.getAttribute('data-save') === 'qa' ? $('qaSaveMsg') : null;
     if (!el) {
