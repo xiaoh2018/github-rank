@@ -1124,7 +1124,7 @@ function applyArticleSeo(html, seo, art, origin, path) {
 async function serveArticlePage(env, path, request) {
   const u = new URL(request.url);
   const ver = u.searchParams.get('v') || '';
-  const key = EDGE_KEY_BASE + path + (ver ? '?v=' + ver : '');
+  const key = edgeKeyOf(path, ver);
   const hit = await EDGE_CACHE.match(key);
   if (hit) {
     const headers = new Headers(hit.headers);
@@ -1736,7 +1736,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v242';
+const ASSET_V = 'v243';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3298,6 +3298,7 @@ async function handleArticles(request, env) {
     if (!ids.length) return json({ ok: false, error: '没有选中文章' }, 400);
     if (ids.length > 200) return json({ ok: false, error: '一次最多批量处理 200 篇' }, 400);
     const set = new Set(ids);
+    const stalePaths = [];
     const op = body.op === 'category' ? 'category' : 'remove';
     const hasCat = typeof body.category === 'string';
     const cat = hasCat ? body.category.trim().slice(0, 24) : '';
@@ -3308,7 +3309,7 @@ async function handleArticles(request, env) {
     const siteForBulk = await readSite(env).then((x) => x.site).catch(() => null);
     for (const a of list) {
       if (a && set.has(String(a.id))) {
-        if (op === 'remove') { removed += 1; continue; }
+        if (op === 'remove') { stalePaths.push(artPathOf(a)); removed += 1; continue; }
         a.category = cat;
         changed += 1;
         if (!cat) { next.push(a); continue; }
@@ -3320,6 +3321,7 @@ async function handleArticles(request, env) {
         let bump = 2;
         while (list.concat(next).some((x) => x && x !== a && x.slug === want)) want = ck + '/' + keepSeq + '-' + bump++;
         if (a.slug && a.slug !== want) {
+          stalePaths.push(artPathOf(a));
           a.prevSlugs = [a.slug].concat((Array.isArray(a.prevSlugs) ? a.prevSlugs : []).filter((x) => x && x !== a.slug && x !== want)).slice(0, 5);
           a.slug = want;
         }
@@ -3329,7 +3331,7 @@ async function handleArticles(request, env) {
     const msg = 'chore: 批量' + (op === 'remove' ? '删除 ' + removed + ' 篇' : (cat ? '把 ' + changed + ' 篇改成分类「' + cat + '」' : '把 ' + changed + ' 篇清空分类'));
     const w = await writeArticles(env, next, cur.sha, msg);
     if (!w.ok) return json({ ok: false, error: w.error }, 500);
-    await purgeEdge(['/articles', '/articles.html', '/data/articles.json', '/sitemap.xml']);
+    await purgeEdge(['/articles', '/articles.html', '/data/articles.json', '/sitemap.xml'].concat(stalePaths).concat(next.map(artPathOf)));
     await warmEdge('/data/articles.json', publicArticlesJson(next), 'application/json; charset=utf-8');
     return json({ ok: true, removed: removed, changed: changed, articles: next.map(publicArticle) });
   }
@@ -3360,6 +3362,7 @@ async function handleArticles(request, env) {
     const idx = list.findIndex((a) => a && String(a.id) === id);
     if (idx < 0) return json({ ok: false, error: '没有找到这篇文章' }, 404);
     if (body.action === 'remove') {
+      await purgeEdge([artPathOf(list[idx])]);
       list.splice(idx, 1);
     } else {
       const c = checkArticle(body.article);
