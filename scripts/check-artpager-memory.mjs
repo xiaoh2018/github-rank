@@ -7,7 +7,7 @@ import path from 'node:path';
 
 const W = Number(process.env.W || 1440);
 const H = Number(process.env.H || 900);
-const BASE = 'http://127.0.0.1:8123';
+const BASE = process.env.PROBE_BASE || 'http://127.0.0.1:8123';
 const results = [];
 const check = (name, ok, extra) => { results.push({ name, ok: !!ok, extra: extra === undefined ? '' : String(extra) }); console.log((ok ? 'OK   ' : 'FAIL ') + name + (extra === undefined || extra === '' ? '' : '  → ' + extra)); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
