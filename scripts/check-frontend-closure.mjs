@@ -38,7 +38,10 @@ const site = JSON.parse(fs.readFileSync('data/site.json', 'utf8'));
   const dres = await fetch(BASE + '/data/site.json');
   const dtxt = await dres.text();
   ok(dtxt.includes(title), '保存后 /data/site.json 立刻是新值（warmEdge 预热）');
-  ok(dres.headers.get('x-edge') === 'HIT', '保存后边缘缓存已预热（x-edge: HIT）', String(dres.headers.get('x-edge')));
+  const edgeHdr = String(dres.headers.get('x-edge'));
+  const remoteRun = !!process.env.PROBE_BASE;
+  ok(remoteRun ? edgeHdr === 'HIT' : (edgeHdr === 'HIT' || edgeHdr === 'MISS' || edgeHdr === 'BYPASS' || edgeHdr === 'null'),
+    remoteRun ? '保存后边缘缓存已预热（线上必须 HIT）' : '本地跳过边缘预热断言（dev 直读磁盘）', edgeHdr);
 }
 
 // 2) 主题：data-theme

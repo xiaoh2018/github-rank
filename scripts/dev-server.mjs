@@ -32,14 +32,39 @@ const ck = (req) => {
 globalThis.caches = {
   default: {
     async match(req) {
-      const v = store.get(ck(req));
-      return v ? new Response(v.body, { status: v.status, headers: v.headers }) : undefined;
+      const k = ck(req);
+      const v = store.get(k);
+      if (!v) return undefined;
+      // 假缓存必须遵守 TTL：真 caches.default 会按 s-maxage 过期，这里以前永不过期，
+      // 于是「门禁写过、又还原」之后，缓存里那版内容会一直活着（第 9 轮遇到的幽灵）。
+      if (v.exp && v.exp < Date.now()) { store.delete(k); return undefined; }
+      return new Response(v.body, { status: v.status, headers: v.headers });
     },
     async put(req, res) {
-      store.set(ck(req), { body: Buffer.from(await res.clone().arrayBuffer()), status: res.status, headers: [...res.headers] });
+      const cc = res.headers.get('cache-control') || '';
+      const m = /(?:s-maxage|max-age)=(\d+)/i.exec(cc);
+      const ttl = m ? Number(m[1]) * 1000 : 0;
+      const key = ck(req);
+      const body = Buffer.from(await res.clone().arrayBuffer());
+      store.set(key, {
+        body: body,
+        status: res.status,
+        headers: [...res.headers],
+        exp: ttl > 0 ? Date.now() + ttl : 0,
+      });
     },
     async delete(req) {
-      store.delete(ck(req));
+      const k = ck(req);
+      store.delete(k);
+      // 兜底：worker 里同一路径可能以 ?v=<版本> 缓存（版本化资源），只按精确键删会留幽灵。
+      // 开发环境按路径清一遍，省得排查半天（生产没有这一层，Cloudflare 自己按 URL 处理）。
+      let p = "";
+      try { p = new URL(k).pathname; } catch (e) { p = ""; }
+      if (p) {
+        for (const key of [...store.keys()]) {
+          if (key.indexOf(p) >= 0) store.delete(key);
+        }
+      }
     },
   },
 };
@@ -146,6 +171,27 @@ http
     // 否则门禁「写完再还原」之后，缓存里还留着测试数据 —— 截图和本地核对会看到幽灵内容。
     {
       const pn = new URL(url).pathname;
+      if (/^\/data\/articles\.json$/.test(pn)) {
+        const bufA = local('data/articles.json');
+        if (bufA) {
+          let arr = [];
+          try { arr = JSON.parse(bufA.toString('utf8')); } catch (e) { arr = []; }
+          const proj = (Array.isArray(arr) ? arr : []).map((a) => {
+            const o = {};
+            for (const k of Object.keys(a || {})) {
+              if (k === 'lock' || k === 'prevSlugs') continue;
+              o[k] = a[k];
+            }
+            o.locked = !!a.locked;
+            o.hasLock = !!(a.lock && a.lock.ct);
+            o.prevCount = Array.isArray(a.prevSlugs) ? a.prevSlugs.length : 0;
+            return o;
+          });
+          res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+          res.end(JSON.stringify(proj));
+          return;
+        }
+      }
       if (/^\/data\/[A-Za-z0-9._-]+\.json$/.test(pn)) {
         const buf = local(pn.replace(/^\/+/, ''));
         if (buf) {

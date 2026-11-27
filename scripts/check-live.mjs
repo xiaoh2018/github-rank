@@ -292,13 +292,15 @@ push('/faq 有返回顶部按钮', faqTotop.includes('id="totop"') && faqTotop.i
 push('/faq 页脚有 RSS', faqTotop.includes('href="/rss.xml"'), '');
 const admHtml = await (await fetch(base + '/admin?v=' + t)).text();
 push('主题面板有「你现在会看到什么」的状态行', admHtml.indexOf('id="themeState"') >= 0, '');
-push('问答「删除」按钮有处理函数（不是死按钮）', admHtml.indexOf('已删除 1 条，点「保存问答」后才会真正生效') >= 0 && admHtml.indexOf("closest('[data-qadel]')") >= 0, '');
+push('问答「删除」按钮只走一条路径（先确认再删，不再双重处理）', admHtml.indexOf('点「保存问答」才生效') >= 0 && admHtml.indexOf("closest('[data-qadel]')") >= 0 && admHtml.indexOf('已删除 1 条，点「保存问答」后才会真正生效') < 0, '');
 push('地址预览会先校验序号（不再承诺存不下来的地址）', admHtml.indexOf('序号只能是数字') >= 0 && admHtml.indexOf('序号要从 1 开始') >= 0, '');
 push('主题状态说明本地选择会盖过站点默认', admHtml.indexOf('保存过访客主题') >= 0, '');
 push('主题面板给「清除本地主题」入口', admHtml.indexOf('themeClearLocal') >= 0, '');
 push('备案面板有「现在页脚显示什么」的状态行', admHtml.indexOf('id="beianState"') >= 0, '');
 push('备案状态提示：填了号码也要勾开关', admHtml.indexOf('填了号码也要勾上这个开关') >= 0, '');
 push('备案状态会说出最终显示什么', admHtml.indexOf('function beianAudit') >= 0 && admHtml.indexOf('页脚会显示：') >= 0, '');
+const artJsonTxt = await (await fetch(base + '/data/articles.json?cb=' + t)).text();
+push('公开文章数据不暴露 prevSlugs（只给 prevCount）', artJsonTxt.indexOf('prevSlugs') < 0 && artJsonTxt.indexOf('prevCount') >= 0, '');
 push('后台文章分页会回到表格顶（artGoPage + artPgY）', admHtml.includes('function artGoPage(n)') && admHtml.includes('var artPgY = {}'), '');
 push('后台文章分页有「跳到第 N 页」', admHtml.includes('id="artJump"') && admHtml.includes("data-artjump"), '');
 push('窄屏分页按钮不折行（nowrap + min-width 84）', admHtml.includes('#pane-articles .artpager button{white-space:nowrap;min-width:84px'), '');

@@ -6,7 +6,7 @@
 //   node scripts/check-all.mjs --skip=check-a11y --quiet
 //   node scripts/check-all.mjs --json=docs/tmp-check-all.json
 // 退出码：0 全绿 / 1 有失败 / 2 参数或环境错误
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -82,10 +82,20 @@ function runOne(file) {
 }
 
 const results = [];
+// 门禁之间没有隔离：谁写过 data/*.json 谁自己还原，漏一个就会污染后面所有门禁
+// （第 17 轮全量跑出 6 个假红，全是这一条造成的）。每个门禁前后各重置一次，用 --no-reset 关掉。
+const NO_RESET = flag('no-reset');
+function resetData(tag) {
+  if (NO_RESET) return;
+  const r = spawnSync('git', ['checkout', '--', 'data/'], { cwd: process.cwd(), encoding: 'utf8' });
+  if (r.status !== 0) console.log('  ! 重置 data/ 失败（' + tag + '）：' + String(r.stderr || '').trim().slice(0, 120));
+}
 console.log('跑 ' + picked.length + ' 个门禁' + (INCLUDE_LIVE ? '（含线上 check-live）' : '') + '，单个超时 ' + TIMEOUT / 1000 + 's\n');
 for (const file of picked) {
+  resetData('before ' + file);
   process.stdout.write('  ' + file.replace(/\.mjs$/, '').padEnd(28));
   const r = await runOne(file);
+  resetData('after ' + file);
   const ok = r.code === 0 && !r.timedOut;
   results.push(r);
   if (ok) {

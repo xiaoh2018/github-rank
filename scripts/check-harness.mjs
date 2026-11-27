@@ -18,7 +18,7 @@ const run = (args, timeout) =>
     env: { ...process.env, FORCE_COLOR: '0' },
   });
 
-const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8').replace(/^\uFEFF/, ''));
 push('package.json 有 check 脚本', pkg.scripts && pkg.scripts.check === 'node scripts/check-all.mjs', pkg.scripts && pkg.scripts.check);
 push('package.json 有 check:live', pkg.scripts && pkg.scripts['check:live'] === 'node scripts/check-all.mjs --live');
 push('package.json 有 dev / deploy / push', !!(pkg.scripts && pkg.scripts.dev && pkg.scripts.deploy && pkg.scripts.push));

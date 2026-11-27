@@ -229,11 +229,15 @@ try {
   const QA_FIND = "(function(){var rows=document.querySelectorAll('#qaList .qa-row'); for(var i=0;i<rows.length;i++){ var q=rows[i].querySelector('.qa-q'); if(q && (q.value||'').indexOf(" + JSON.stringify(QA_Q) + ") >= 0) return rows[i]; } return null;})()";
   await ev(`(function(){var r=${QA_FIND}; if(!r) return 'no row'; var b=r.querySelector('[data-qadel]'); if(b) b.click(); return 'ok';})()`);
   await sleep(600);
+  // 删除是「先确认再删」（§218）：只点删除不会移除，必须点确认框里的删除
+  const qaDlgOpen = await ev("!!(document.getElementById('delDlg') && document.getElementById('delDlg').open)");
+  await ev("var d=document.getElementById('delSubmit'); if (d) d.click(); 'ok'");
+  await sleep(600);
   await ev("document.querySelector('#pane-qa [data-save=\"qa\"]').click(); 'ok'");
   await sleep(2200);
   const qaAfterDel = await ev(QA_COUNT);
   const qaGone = await ev(QA_FIND + " ? 'still there' : 'gone'");
-  check('问答删除并保存', qaAfterDel === qaBefore && qaGone === 'gone', `${qaAfterAdd} → ${qaAfterDel}`);
+  check('问答删除并保存', qaAfterDel === qaBefore && qaGone === 'gone', `${qaAfterAdd} → ${qaAfterDel}（确认框=${qaDlgOpen}）`);
 
   // ---------- 密钥显示/隐藏 ----------
   await ev("document.querySelector('.nav[data-tab=\"keys\"]').click(); 'ok'");

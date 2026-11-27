@@ -1736,7 +1736,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v256';
+const ASSET_V = 'v257';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3402,7 +3402,9 @@ async function handleArticles(request, env) {
     const idx = list.findIndex((a) => a && String(a.id) === id);
     if (idx < 0) return json({ ok: false, error: '没有找到这篇文章' }, 404);
     if (body.action === 'remove') {
-      await purgeEdge([artPathOf(list[idx])]);
+      // 删除单篇也要让「公开列表」失效：以前只清了这篇文章的页面，
+      // /data/articles.json 里还挂着它（本地门禁看到幽灵，线上访客刷新也会看到）。
+      await purgeEdge(['/articles', '/articles.html', '/data/articles.json', '/sitemap.xml', artPathOf(list[idx])]);
       list.splice(idx, 1);
     } else {
       const c = checkArticle(body.article);
@@ -7019,18 +7021,8 @@ function saveMsgFor(btn) {
     if (!box || box.dataset.bound === '1') return;
     box.dataset.bound = '1';
     box.addEventListener('click', function (e) {
-      var del = e.target.closest('[data-qadel]');
-      if (del) {
-        readQaForm();
-        var k = +del.getAttribute('data-qadel');
-        if (k >= 0 && k < qaState.items.length) {
-          qaState.items.splice(k, 1);
-          renderQa();
-          var mm = $('qaSaveMsg');
-          if (mm) { mm.className = 'msg'; mm.textContent = '已删除 1 条，点「保存问答」后才会真正生效'; }
-        }
-        return;
-      }
+      // 删除只走下面的「先确认再删」那一条路径：这里曾经也直接 splice 一次，
+      // 于是「点删除 + 确认」会连删两条，且取消确认时东西已经没了。
       var up = e.target.closest('[data-qaup]'), dn = e.target.closest('[data-qadn]');
       if (up) {
         readQaForm();
