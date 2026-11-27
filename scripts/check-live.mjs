@@ -567,6 +567,9 @@ push('后台有「收录自查」卡片', admHtml.includes('id="indexCheck"') &&
 
 push('自查能解释「为什么跳过」（这批地址指纹）', admHtml.includes('这批地址') && admHtml.includes('sigSame'), '');
 
+push('收录自查窄屏改成上下排（标签在上）', admHtml.includes('.ick-i{display:block}') && admHtml.includes('@media (max-width:480px)'), '');
+push('sitemap 读不到时不再判「没被收录」', admHtml.includes('这一项不能当成「没被收录」'), '');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

@@ -15,6 +15,7 @@ try {
   const html = await shot.text();
   ck('后台含收录自查卡片', html.includes('id="indexCheck"'), '');
   ck('后台引用 /api/index-check', html.includes('/api/index-check'), '');
+  ck('sitemap 读不到时给出「不能当成没被收录」的说明', html.includes('这一项不能当成「没被收录」'), '');
 
   // 未登录的接口行为（不依赖 CDP）
   const r0 = await fetch(BASE + '/api/index-check', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ url: '/' }) });
@@ -81,6 +82,30 @@ try {
     await new Promise((r) => setTimeout(r, 1200));
     const bad = await cdp.js(`(() => { const p = document.querySelector('#ickOut p'); return p ? p.textContent : ''; })()`);
     ck('站外地址给出人话拒绝', /只能检查本站地址/.test(bad || ''), String(bad).slice(0, 40));
+
+    if (W <= 480) {
+      await cdp.js(`(() => { const i = document.getElementById('ickUrl'); i.value = ''; document.getElementById('ickRun').click(); return 1; })()`);
+      await new Promise((r) => setTimeout(r, 1700));
+      const lay = await cdp.js(`(() => {
+        const card = document.getElementById('indexCheck');
+        const row = card.querySelector('.ick-i');
+        const b = row.querySelector('b');
+        const sp = row.querySelector('span');
+        const links = [...card.querySelectorAll('.ick-links a')];
+        const btn = document.getElementById('ickRun');
+        const inp = document.getElementById('ickUrl');
+        return {
+          rowDisplay: getComputedStyle(row).display,
+          stacked: Math.round(b.getBoundingClientRect().bottom) <= Math.round(sp.getBoundingClientRect().top),
+          linkW: links.map((a) => Math.round(a.getBoundingClientRect().width)),
+          linkH: links.map((a) => Math.round(a.getBoundingClientRect().height)),
+          fullBtn: Math.round(btn.getBoundingClientRect().width) >= Math.round(inp.getBoundingClientRect().width) - 2,
+        };
+      })()`);
+      ck('窄屏：行改成上下排（标签在上）', lay && lay.rowDisplay === 'block' && lay.stacked, JSON.stringify({ d: lay && lay.rowDisplay, s: lay && lay.stacked }));
+      ck('窄屏：四个链接排成两列等宽', lay && lay.linkW && lay.linkW.length === 4 && Math.max(...lay.linkW) - Math.min(...lay.linkW) <= 2, JSON.stringify(lay && lay.linkW));
+      ck('窄屏：链接与按钮是触摸尺寸', lay && Math.min(...lay.linkH) >= 36 && lay.fullBtn, JSON.stringify({ h: lay && lay.linkH, full: lay && lay.fullBtn }));
+    }
 
     const noOverflow = await cdp.js(`(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }))()`);
     ck('不横向溢出', noOverflow && noOverflow.sw <= noOverflow.cw + 1, JSON.stringify(noOverflow));

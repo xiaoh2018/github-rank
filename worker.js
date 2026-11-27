@@ -1809,7 +1809,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v267';
+const ASSET_V = 'v268';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3926,6 +3926,17 @@ td>.empty-card{margin:0}
 .ick-i.bad>span{color:var(--bad)}
 .ick-i.good>span{color:#15803d}
 .ick-links{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px}
+@media (max-width:480px){
+  .ick-i{display:block}
+  .ick-i>b{display:block;margin-bottom:2px}
+  .ick-i>span{display:block}
+  .ick-row{flex-direction:column;align-items:stretch}
+  .ick-row input{flex:1 1 auto}
+  .ick-row #ickRun{width:100%;min-height:42px}
+  .ick-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .ick-links a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 8px;text-align:center;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+  .ick-why{margin-top:8px}
+}
 .sgroup{margin-top:10px}
 .sgroup:first-child{margin-top:0}
 .sgh{display:block;margin:0 0 6px;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.03em}
@@ -7151,7 +7162,7 @@ function saveMsgFor(btn) {
       list.appendChild(ickRow('robots', r.robotsMeta || (r.xRobots ? '没有 meta，但有 X-Robots-Tag' : '没写（默认允许收录）'), r.noindex ? 'bad' : ''));
       if (r.xRobots) list.appendChild(ickRow('X-Robots-Tag', r.xRobots, /noindex/i.test(r.xRobots) ? 'bad' : ''));
       list.appendChild(ickRow('canonical', r.canonical ? (r.canonicalSelf ? '指向自己（正确）' : '指向 ' + r.canonical + '（不是自己，收录会跑到那个地址）') : '没写', r.canonical ? (r.canonicalSelf ? 'good' : 'bad') : 'bad'));
-      list.appendChild(ickRow('在 sitemap 里', r.inSitemap === null ? '读不到 sitemap' : (r.inSitemap ? '在（共 ' + r.sitemapCount + ' 条）' : '不在（共 ' + r.sitemapCount + ' 条）'), r.inSitemap ? 'good' : 'bad'));
+      list.appendChild(ickRow('在 sitemap 里', r.inSitemap === null ? '读不到 sitemap（可能刚部署、或被缓存/拦截）—— 这一项不能当成「没被收录」' : (r.inSitemap ? '在（共 ' + r.sitemapCount + ' 条）' : '不在（共 ' + r.sitemapCount + ' 条）'), r.inSitemap === null ? '' : (r.inSitemap ? 'good' : 'bad')));
       list.appendChild(ickRow('上次提交含它', r.inLastSubmit ? '推过 · ' + ickTime(r.lastAt) : '没推过' + (r.lastAt ? '（上次提交 ' + ickTime(r.lastAt) + '）' : '（还没有提交记录）'), r.inLastSubmit ? 'good' : ''));
       list.appendChild(ickRow('这批地址', (r.batchCount || 0) + ' 条 · 指纹 ' + (r.sigNow || '—') + (r.sigLast ? '（上次 ' + r.sigLast + '）' : ''), r.sigSame === true ? 'bad' : ''));
       out.appendChild(list);
