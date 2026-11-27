@@ -45,6 +45,11 @@ const SITE = {
 
 export default {
   async fetch(request, env, ctx) {
+    const res = await this.route(request, env, ctx);
+    return withSecurity(res, request);
+  },
+
+  async route(request, env, ctx) {
     const url = new URL(request.url);
     try {
       // HEAD 也放行：监控探针、链接预检、社交平台抓取大量使用 HEAD，只认 GET 会被当成死链
@@ -662,6 +667,46 @@ async function readmeZhMap(env) {
 async function staticReadmeZh(env, repo) {
   const map = await readmeZhMap(env);
   return (map && map[repo]) || null;
+}
+
+// 安全响应头：一次给所有响应加上（HTML / API / 静态文件 / 404 / sitemap 都受益）
+// 说明：站点的 CSS/JS 有一半是内联的（index.html 137K 里 96K 是内联），所以 script-src/style-src 必须留 unsafe-inline；
+// 真正收紧的是 object-src / base-uri / frame-ancestors / form-action —— 这几条挡住点击劫持与外部脚本注入。
+function securityHeaders(request) {
+  const h = {
+    'x-content-type-options': 'nosniff',
+    'x-frame-options': 'SAMEORIGIN',
+    'referrer-policy': 'strict-origin-when-cross-origin',
+    'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=()',
+    'content-security-policy': [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' https: data:",
+      "font-src 'self' data:",
+      "connect-src 'self' https://api.github.com",
+      "frame-src 'self' https:",
+      "frame-ancestors 'self'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "object-src 'none'",
+    ].join('; '),
+  };
+  // HSTS 只在 https 下加：本地 npm 起的 http 服务加了会被浏览器记住、之后强制跳 https
+  try { if (new URL(request.url).protocol === 'https:') h['strict-transport-security'] = 'max-age=31536000; includeSubDomains'; } catch (e) {}
+  return h;
+}
+
+function withSecurity(res, request) {
+  try {
+    const add = securityHeaders(request);
+    const headers = new Headers(res.headers);
+    for (const k in add) if (!headers.has(k)) headers.set(k, add[k]);
+    const out = new Response(res.body, { status: res.status, statusText: res.statusText, headers: headers });
+    return out;
+  } catch (e) {
+    return res;
+  }
 }
 
 function text(msg, status) {
@@ -1691,7 +1736,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v240';
+const ASSET_V = 'v241';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4161,7 +4206,7 @@ tr:hover td{background:#fcfbf8}
 
     <section class="pane" id="pane-ad" data-sec="fixed" hidden>
       <div class="bar"><div><h1>广告</h1><div class="sub">${AD_SLOTS.length} 个位置 + 顶部滚动条：逐格开关、逐格代码、点开可以跳链接或弹窗</div></div></div>
-      <div class="intro">勾上并保存就出现在那个位置，不勾就完全不渲染（不留白）。<b>固定位</b>是通栏，<b>信息流位</b>插在列表中间、间隔自己填（1–${AD_EVERY_MAX} 条之间的任意整数）。每格可以单独设「点击行为」：填弹窗内容 → 点击就地弹窗；只填链接 → 新窗口打开。位置示意图：<code>docs/shots/ad-slots.png</code>。</div>
+      <div class="intro">勾上并保存就出现在那个位置，不勾就完全不渲染（不留白）。<b>固定位</b>是通栏，<b>信息流位</b>插在列表中间、间隔自己填（1–${AD_EVERY_MAX} 条之间的任意整数）。每格可以单独设「点击行为」：填弹窗内容 → 点击就地弹窗；只填链接 → 新窗口打开。位置示意图：<code>docs/shots/ad-slots.png</code>。 注意：站点已启用安全策略（CSP），外部广告脚本（<code>&lt;script src=&quot;https://…&quot;&gt;</code>）会被浏览器拒绝执行；纯 HTML、图片、iframe 都正常。</div>
 
         <div class="segtabs" data-group="ad"><button type="button" class="is-on" data-adsec="fixed">固定位 6</button><button type="button" data-adsec="inline">信息流位 3</button><button type="button" data-adsec="ticker">顶部滚动条</button></div>
       <div class="card ticker-card" data-sec="ticker">

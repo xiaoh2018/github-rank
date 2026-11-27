@@ -12,6 +12,13 @@ push('404 带导航', nfText.includes('href="/nav"') && nfText.includes('这个�
 push('404 不缓存', (nf.headers.get('cache-control') || '').includes('no-store'));
 
 const home = await (await fetch(base + '/?v=' + t)).text();
+const homeRes = await fetch(base + '/?hdr=' + t);
+const hcsp = homeRes.headers.get('content-security-policy') || '';
+push('线上有 CSP 且禁止被外站嵌套', /frame-ancestors 'self'/.test(hcsp), hcsp.slice(0, 42));
+push('线上 X-Content-Type-Options = nosniff', homeRes.headers.get('x-content-type-options') === 'nosniff', String(homeRes.headers.get('x-content-type-options')));
+push('线上 X-Frame-Options = SAMEORIGIN', (homeRes.headers.get('x-frame-options') || '') === 'SAMEORIGIN', String(homeRes.headers.get('x-frame-options')));
+push('线上有 HSTS（https 一年）', /max-age=31536000/.test(homeRes.headers.get('strict-transport-security') || ''), String(homeRes.headers.get('strict-transport-security')));
+push('线上 Referrer-Policy 已设', !!(homeRes.headers.get('referrer-policy') || ''), String(homeRes.headers.get('referrer-policy')));
 push('联系面板是 dialog 且可聚焦（tabindex=-1）', home.indexOf('role="dialog" tabindex="-1" aria-labelledby="contactTitle"') >= 0, '');
 push('联系按钮 aria-controls 指向真实面板', home.indexOf('aria-controls="contactPanel"') >= 0 && home.indexOf('id="contactPanel"') >= 0, '');
 push('打开联系面板时把焦点移进面板', home.indexOf('var contactBack=null') >= 0 && home.indexOf('first.focus()') >= 0, '');
