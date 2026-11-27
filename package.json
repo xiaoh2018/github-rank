@@ -1,0 +1,15 @@
+﻿{
+  "name": "github-rank",
+  "version": "244.0.0",
+  "private": true,
+  "description": "GitHub 鐑棬椤圭洰鎺掕姒?鈥斺€?闈欐€佸墠绔?+ 鍗曟枃浠?Cloudflare Worker 鍚庣",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "check": "node scripts/check-all.mjs",
+    "check:live": "node scripts/check-all.mjs --live",
+    "check:quiet": "node scripts/check-all.mjs --quiet",
+    "deploy": "node scripts/deploy-worker.mjs",
+    "push": "node scripts/rest-push.mjs",
+    "bump": "node scripts/bump-version.mjs"
+  }
+}
