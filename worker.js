@@ -1736,7 +1736,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v252';
+const ASSET_V = 'v253';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -7009,6 +7009,18 @@ function saveMsgFor(btn) {
     if (!box || box.dataset.bound === '1') return;
     box.dataset.bound = '1';
     box.addEventListener('click', function (e) {
+      var del = e.target.closest('[data-qadel]');
+      if (del) {
+        readQaForm();
+        var k = +del.getAttribute('data-qadel');
+        if (k >= 0 && k < qaState.items.length) {
+          qaState.items.splice(k, 1);
+          renderQa();
+          var mm = $('qaSaveMsg');
+          if (mm) { mm.className = 'msg'; mm.textContent = '已删除 1 条，点「保存问答」后才会真正生效'; }
+        }
+        return;
+      }
       var up = e.target.closest('[data-qaup]'), dn = e.target.closest('[data-qadn]');
       if (up) {
         readQaForm();
