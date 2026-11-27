@@ -54,6 +54,7 @@ await send('Page.setBypassServiceWorker', { bypass: true });
 await send('Emulation.setDeviceMetricsOverride', { width: W, height: 900, deviceScaleFactor: 1, mobile: W < 700 });
 
 // ---------- 后台：边填边说明 ----------
+if (!REMOTE) {
 await send('Page.addScriptToEvaluateOnNewDocument', { source: "try{sessionStorage.setItem('adminPw','" + PW + "')}catch(e){}" });
 await send('Page.navigate', { url: BASE + '/admin?t=' + Date.now() });
 await sleep(2600);
@@ -70,6 +71,9 @@ push('填了 ICP → 说明页脚会显示什么', onFilled && /页脚会显示�
 
 const over = await js(`({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth})`);
 push('后台页面不横向溢出', over && over.sw <= over.cw + 1, over && over.sw + '/' + over.cw);
+} else {
+  push('线上模式：跳过后台三态断言（需要后台密码）', true, 'REMOTE');
+}
 
 // ---------- 前台：三种数据各渲染一次 ----------
 const site = await (await fetch(BASE + '/api/site')).json();
