@@ -191,6 +191,9 @@ export default {
       if (url.pathname === '/api/submit' && (request.method === 'GET' || request.method === 'POST')) {
         return handleSubmit(request, env, url.origin);
       }
+      if (url.pathname === '/api/index-check' && request.method === 'POST') {
+        return handleIndexCheck(request, env, url.origin);
+      }
       if (url.pathname === '/api/articles' && (request.method === 'GET' || request.method === 'POST')) {
         return handleArticles(request, env);
       }
@@ -1806,7 +1809,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v265';
+const ASSET_V = 'v266';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2276,6 +2279,107 @@ async function countsOf(env) {
   };
 }
 
+async function handleIndexCheck(request, env, origin) {
+  if (!env.ADMIN_PASSWORD) return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== 'object') return json({ ok: false, error: '请求体必须是 JSON' }, 400);
+  if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
+    return json({ ok: false, error: '密码不对' }, 403);
+  }
+  const siteSeo = (await loadSiteRaw(env)).seo || {};
+  const root = siteSeo.siteUrl ? String(siteSeo.siteUrl).replace(/\/+$/, '') : origin;
+  let localHost = '';
+  try {
+    localHost = new URL(origin).hostname;
+  } catch (e) {
+    localHost = '';
+  }
+  const isLocal = localHost === '127.0.0.1' || localHost === 'localhost';
+  const base = isLocal ? String(origin).replace(/\/+$/, '') : root;
+  let want = String(body.url || '').trim();
+  if (!want) want = base + '/';
+  if (!/^https?:\/\//i.test(want)) want = base + (want.charAt(0) === '/' ? want : '/' + want);
+  const okBase = want === base || want.indexOf(base + '/') === 0;
+  const okRoot = want === root || want.indexOf(root + '/') === 0;
+  if (!okBase && !okRoot) {
+    return json({ ok: false, error: '只能检查本站地址（填 ' + root + ' 开头的地址，或直接填 /articles 这样的路径）' }, 400);
+  }
+  const trimSlash = (v) => String(v).replace(/\/+$/, '');
+  const wantKey = want === base || want.indexOf(base + '/') === 0 ? root + want.slice(base.length) : trimSlash(want);
+
+  let inSitemap = null;
+  let sitemapCount = 0;
+  try {
+    const sm = await fetch(base + '/sitemap.xml', { cf: { cacheTtl: 300 } });
+    const txt = sm.ok ? await sm.text() : '';
+    const locs = [];
+    const re = /<loc>([^<]+)<\/loc>/g;
+    let m;
+    while ((m = re.exec(txt))) locs.push(m[1].trim());
+    sitemapCount = locs.length;
+    inSitemap = locs.indexOf(want) >= 0 || locs.indexOf(wantKey) >= 0;
+  } catch (e) {
+    inSitemap = null;
+  }
+
+  let status = 0;
+  let robotsMeta = '';
+  let xRobots = '';
+  let canonical = '';
+  try {
+    const r = await fetch(want, { cf: { cacheTtl: 0 }, headers: { 'cache-control': 'no-cache' } });
+    status = r.status;
+    xRobots = r.headers.get('x-robots-tag') || '';
+    const html = (await r.text()).slice(0, 200000);
+    const m1 = /<meta[^>]+name=["']robots["'][^>]*content=["']([^"']*)["']/i.exec(html);
+    const m2 = /<meta[^>]+content=["']([^"']*)["'][^>]*name=["']robots["']/i.exec(html);
+    robotsMeta = m1 ? m1[1] : (m2 ? m2[1] : '');
+    const cm = /<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']*)["']/i.exec(html);
+    canonical = cm ? cm[1] : '';
+  } catch (e) {
+    status = 0;
+  }
+
+  let lastAt = '';
+  let inLastSubmit = false;
+  try {
+    const last = await readLastSubmit();
+    lastAt = last && last.at ? last.at : '';
+    inLastSubmit = !!(last && Array.isArray(last.urlList) && last.urlList.indexOf(want) >= 0);
+  } catch (e) {}
+
+  let host = '';
+  try {
+    host = new URL(root).host;
+  } catch (e) {
+    host = '';
+  }
+  const noindex = /noindex/i.test(robotsMeta) || /noindex/i.test(xRobots);
+  const canonicalSelf = canonical ? trimSlash(canonical) === trimSlash(wantKey) : null;
+  return json({
+    ok: true,
+    url: want,
+    root,
+    base,
+    wantKey,
+    host,
+    status,
+    robotsMeta,
+    xRobots,
+    canonical,
+    canonicalSelf,
+    noindex,
+    inSitemap,
+    sitemapCount,
+    inLastSubmit,
+    lastAt,
+    bing: 'https://www.bing.com/search?q=site%3A' + encodeURIComponent(host),
+    baidu: 'https://www.baidu.com/s?wd=site%3A' + encodeURIComponent(host),
+    bingTools: 'https://www.bing.com/webmasters/searchperf?siteUrl=' + encodeURIComponent(root),
+    baiduTools: 'https://ziyuan.baidu.com/'
+  });
+}
+
 async function handleHealth(env, origin) {
   const rt = await siteRuntime(env);
   const key = indexNowKey(env, rt);
@@ -2446,6 +2550,7 @@ async function handleSubmit(request, env, origin) {
     out.results.indexNow = {
       ok: true,
       skipped: true,
+      at: prevRun && prevRun.at ? prevRun.at : '',
       note: '这批地址上次已经推过，IndexNow 对同一批有频率限制，1 小时内不重复推（要强推就勾「强制再推一次」）',
     };
   }
@@ -3776,6 +3881,16 @@ td>.empty-card{margin:0}
 .tr-next span{flex:1 1 180px;min-width:0;color:var(--muted)}
 .tr-next a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
 .tr-next a:focus-visible{outline:2px solid var(--accent-ink,var(--accent));outline-offset:2px}
+.ick-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ick-row input{flex:1 1 260px;min-height:38px}
+.ick-out{margin-top:10px}
+.ick-list{display:flex;flex-direction:column;gap:6px}
+.ick-i{display:flex;gap:10px;font-size:13px;line-height:1.7}
+.ick-i>b{flex:0 0 104px;color:var(--muted);font-weight:600}
+.ick-i>span{flex:1 1 auto;min-width:0;word-break:break-all}
+.ick-i.bad>span{color:var(--bad)}
+.ick-i.good>span{color:#15803d}
+.ick-links{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px}
 .sgroup{margin-top:10px}
 .sgroup:first-child{margin-top:0}
 .sgh{display:block;margin:0 0 6px;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.03em}
@@ -4545,6 +4660,12 @@ tr:hover td{background:#fcfbf8}
       </div>
               <div class="segtabs" data-group="seogeo"><button type="button" class="is-on" data-go="seo">SEO 基础</button><button type="button" data-go="qa">问答（GEO）</button><button type="button" data-go="submit">收录与平台</button></div>
       <p class="intro">提交走 IndexNow（Bing、Yandex、Seznam 共用）和百度主动推送；豆包、通义千问、ChatGPT 这些没有公开的收录接口，靠 robots.txt 放行 + llms.txt + 站点地图被爬到。<b>建议每天点一次，或者交给 Actions 定时。</b></p>
+      <div class="card" id="indexCheck">
+        <div class="card-head"><div><h2>收录自查</h2><p class="desc">查的是「我们这边能确定的事实」：页面状态、robots、canonical、在不在站点地图、上次推没推过。真正有没有被收录，只能去平台后台看。</p></div></div>
+        <div class="ick-row"><input type="text" id="ickUrl" aria-label="要检查的地址（留空查首页）" placeholder="留空查首页；也可以填 /articles 或某篇文章地址"><button class="btn primary" type="button" id="ickRun">查一下</button></div>
+        <div id="ickOut" class="ick-out"></div>
+        <p class="hint">平台那边的记录要 24–72 小时才出现（Bing 还要先在站长工具里验证过本站）。这里能证明的只有「页面允许收录、我们推过」。</p>
+      </div>
       <div class="card" id="geoCard">
         <div class="card-head"><div><h2>GEO 平台清单：每个平台怎么弄</h2><p class="desc">国内 AI 搜索没有「提交就被引用」的直通车——它们各自接的是某家搜索索引。下面是逐个平台的入口、要填的参数、能不能一键。</p></div></div>
         <table class="geo-plat">
@@ -4914,6 +5035,13 @@ tr:hover td{background:#fcfbf8}
       .catch(function () { return { ok: false, error: '网络错误，请稍后重试' }; });
   }
   function today() { return new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10); }
+
+  if ($('ickRun')) $('ickRun').onclick = ickRun;
+  if ($('ickUrl')) {
+    $('ickUrl').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); ickRun(); }
+    });
+  }
 
   // ---- 登录 ----
   function enter() {
@@ -6937,13 +7065,76 @@ function saveMsgFor(btn) {
   }
   function subBox(name, o) {
     if (!o) return '';
-    var head = '<b>' + name + '</b> · ' + (o.ok ? '成功' : '失败') + (o.status ? '（HTTP ' + o.status + '）' : '') + (typeof o.ms === 'number' ? ' · ' + o.ms + 'ms' : '');
+    var st = o.skipped ? '已跳过' : (o.ok ? '已接收' : '失败');
+    var head = '<b>' + name + '</b> · ' + st + (o.status ? '（HTTP ' + o.status + '）' : '') + (typeof o.ms === 'number' ? ' · ' + o.ms + 'ms' : '') + (o.at ? ' · ' + new Date(o.at).toLocaleString() : '');
     var raw = o.raw ? '<details class="raw"><summary>看原始返回</summary><pre>' + navEsc(o.raw) + '</pre></details>' : '';
     var urls = '';
     if (o.urlList && o.urlList.length) {
       urls = '<details class="raw"><summary>这次推了 ' + o.urlList.length + ' 条地址' + (o.urlListNote ? '（' + navEsc(o.urlListNote) + '）' : '') + '</summary><pre>' + o.urlList.map(function (u) { return navEsc(u); }).join(String.fromCharCode(10)) + '</pre></details>';
     }
-    return '<div class="tr-box' + (o.ok ? '' : ' tr-bad') + '">' + head + '<br>' + navEsc(o.note || '') + urls + raw + '</div>';
+    return '<div class="tr-box' + ((o.ok || o.skipped) ? '' : ' tr-bad') + '">' + head + '<br>' + navEsc(o.note || '') + urls + raw + '</div>';
+  }
+  function ickSay(text, cls) {
+    var out = $('ickOut');
+    if (!out) return;
+    out.innerHTML = '';
+    var p = document.createElement('p');
+    p.className = 'note ' + (cls || '');
+    p.textContent = text;
+    out.appendChild(p);
+  }
+  function ickRow(label, value, kind) {
+    var row = document.createElement('div');
+    row.className = 'ick-i' + (kind ? ' ' + kind : '');
+    var b = document.createElement('b');
+    b.textContent = label;
+    var sp = document.createElement('span');
+    sp.textContent = value;
+    row.appendChild(b);
+    row.appendChild(sp);
+    return row;
+  }
+  function ickTime(t) {
+    try { return new Date(t).toLocaleString(); } catch (e) { return t || ''; }
+  }
+  function ickRun() {
+    var inp = $('ickUrl');
+    var btn = $('ickRun');
+    var out = $('ickOut');
+    if (!inp || !btn || !out) return;
+    var v = inp.value.trim();
+    btn.disabled = true;
+    ickSay('正在查…');
+    api('/api/index-check', { method: 'POST', body: { password: pw, url: v } }).then(function (r) {
+      btn.disabled = false;
+      if (!r.ok) { ickSay(r.error || '查询失败', 'tr-bad'); return; }
+      out.innerHTML = '';
+      var list = document.createElement('div');
+      list.className = 'ick-list';
+      list.appendChild(ickRow('地址', r.url));
+      list.appendChild(ickRow('HTTP 状态', r.status ? String(r.status) : '打不开（可能刚部署、还没生效）', r.status === 200 ? 'good' : 'bad'));
+      list.appendChild(ickRow('robots', r.robotsMeta || (r.xRobots ? '没有 meta，但有 X-Robots-Tag' : '没写（默认允许收录）'), r.noindex ? 'bad' : ''));
+      if (r.xRobots) list.appendChild(ickRow('X-Robots-Tag', r.xRobots, /noindex/i.test(r.xRobots) ? 'bad' : ''));
+      list.appendChild(ickRow('canonical', r.canonical ? (r.canonicalSelf ? '指向自己（正确）' : '指向 ' + r.canonical + '（不是自己，收录会跑到那个地址）') : '没写', r.canonical ? (r.canonicalSelf ? 'good' : 'bad') : 'bad'));
+      list.appendChild(ickRow('在 sitemap 里', r.inSitemap === null ? '读不到 sitemap' : (r.inSitemap ? '在（共 ' + r.sitemapCount + ' 条）' : '不在（共 ' + r.sitemapCount + ' 条）'), r.inSitemap ? 'good' : 'bad'));
+      list.appendChild(ickRow('上次提交含它', r.inLastSubmit ? '推过 · ' + ickTime(r.lastAt) : '没推过' + (r.lastAt ? '（上次提交 ' + ickTime(r.lastAt) + '）' : '（还没有提交记录）'), r.inLastSubmit ? 'good' : ''));
+      out.appendChild(list);
+      var links = document.createElement('div');
+      links.className = 'ick-links';
+      [['Bing 收录（site: 查询）', r.bing], ['百度收录（site: 查询）', r.baidu], ['Bing 站长工具', r.bingTools], ['百度搜索资源平台', r.baiduTools]].forEach(function (pair) {
+        var a = document.createElement('a');
+        a.href = pair[1];
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = pair[0];
+        links.appendChild(a);
+      });
+      out.appendChild(links);
+      var tip = document.createElement('p');
+      tip.className = 'hint';
+      tip.textContent = '「推过了」不等于「收录了」：平台记录 24–72 小时后才出现，Bing 还要先验证站点。';
+      out.appendChild(tip);
+    });
   }
   function loadSubmit() {
     var box = $('subStatus');

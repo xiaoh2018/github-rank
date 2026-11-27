@@ -559,6 +559,12 @@ const liveAgeH = liveGen ? (Date.now() - Date.parse(liveGen)) / 3600000 : NaN;
 push('线上数据是新的（3 小时抓取链路还活着）', Number.isFinite(liveAgeH) && liveAgeH <= 6,
   'generatedAt=' + liveGen + ' / 距今 ' + (Number.isFinite(liveAgeH) ? liveAgeH.toFixed(1) + ' 小时' : '未知'));
 
+push('后台有「收录自查」卡片', admHtml.includes('id="indexCheck"') && admHtml.includes('/api/index-check'), '');
+{
+  const r = await fetch(base + '/api/index-check', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"url":"/"}' });
+  push('收录自查接口要密码（不带密码 403）', r.status === 403, 'HTTP ' + r.status);
+}
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
