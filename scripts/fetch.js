@@ -333,6 +333,11 @@ async function main() {
       `  repos: ${toJs(ranges[name].repos, '  ')}\n` +
       `};\n`;
     writeAtomic(path.join(OUT_DIR, 'repos-' + name + '.js'), body);
+    // /api/rank 用：同一份数据再落一份纯 JSON，Worker 里只做 JSON.parse（不 eval 任何东西）
+    writeAtomic(
+      path.join(OUT_DIR, 'repos-' + name + '.json'),
+      JSON.stringify({ range: name, generatedAt: generatedAt, repos: ranges[name].repos })
+    );
   }
 
   // 旧版合并文件 data/repos.js 不再生成（见文件顶部说明）：过渡期兜底用它，之后可直接删。

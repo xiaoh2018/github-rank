@@ -147,6 +147,9 @@ export default {
       if (url.pathname === '/api/ai-usage' && request.method === 'GET') {
         return json({ ok: true, usage: await aiUsage(env, await siteRuntime(env)) });
       }
+      if (url.pathname === '/api/rank' && request.method === 'GET') {
+        return handleRank(request, env, url, url.origin);
+      }
       if (url.pathname === '/api/status' && request.method === 'GET') {
         // 状态接口要打两次 GitHub API，冷启动接近 1 秒；用边缘缓存挡 60 秒
         return json(await getStatusCached(env));
@@ -1809,7 +1812,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v270';
+const ASSET_V = 'v271';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2153,6 +2156,7 @@ async function llmsTxt(env, origin) {
   lines.push('- ' + root + '/data/articles.json — 文章列表与正文');
   lines.push('- ' + root + '/data/nav.json — 导航站点列表（分类 / 名称 / 地址 / 描述 / 图标）');
   lines.push('- ' + root + '/api/status — 数据新鲜度与最近一次抓取状态（JSON，60 秒缓存）');
+  lines.push('- ' + root + '/api/rank?range=week&limit=20 — 排行榜 JSON（range=week/month/year/total/all，limit 1–100，可选 lang=Rust；5 分钟缓存）');
   lines.push('- ' + root + '/sitemap.xml — 全站页面清单（含 lastmod）');
   lines.push('- ' + root + '/rss.xml — 文章 RSS 订阅源（RSS 2.0）');
   lines.push('');
@@ -2472,6 +2476,69 @@ async function handleIndexCheckOne(request, env, origin, bodyIn) {
     baidu: 'https://www.baidu.com/s?wd=site%3A' + encodeURIComponent(host),
     bingTools: 'https://www.bing.com/webmasters/searchperf?siteUrl=' + encodeURIComponent(root),
     baiduTools: 'https://ziyuan.baidu.com/'
+  });
+}
+
+// /api/rank：给机器 / LLM 读的排行榜（只读、可缓存 5 分钟、单次最多 100 条）
+const RANK_RANGE_FILES = { week: 'week', month: 'month', year: 'year', total: 'total', all: 'all' };
+async function handleRank(request, env, url, origin) {
+  const p = url.searchParams;
+  const range = String(p.get('range') || 'week').trim().toLowerCase();
+  const noStore = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
+  if (!RANK_RANGE_FILES[range]) {
+    return new Response(JSON.stringify({ ok: false, error: 'range 只能是 week / month / year / total / all（现在给的是「' + range + '」）' }), { status: 400, headers: noStore });
+  }
+  let limit = 20;
+  const limRaw = p.get('limit');
+  if (limRaw != null && limRaw !== '') {
+    limit = Number(limRaw);
+    if (!Number.isFinite(limit) || limit < 1 || limit > 100 || Math.floor(limit) !== limit) {
+      return new Response(JSON.stringify({ ok: false, error: 'limit 要是 1–100 的整数（现在给的是「' + limRaw + '」）' }), { status: 400, headers: noStore });
+    }
+  }
+  const lang = String(p.get('lang') || '').trim();
+  const base = String(origin || '').replace(/\/+$/, '');
+  const grab = async (path, ttl) => {
+    const r = await fetch(base + path, { cf: { cacheTtl: ttl, cacheEverything: true } });
+    return r && r.ok ? r.text() : '';
+  };
+  const raw = await grab('/data/repos-' + range + '.json', 300);
+  if (!raw) {
+    return new Response(JSON.stringify({ ok: false, error: '读不到 ' + range + ' 的数据文件，稍后再试' }), { status: 503, headers: noStore });
+  }
+  let payload = null;
+  try { payload = JSON.parse(raw); } catch (e) { payload = null; }
+  if (!payload || !Array.isArray(payload.repos)) {
+    return new Response(JSON.stringify({ ok: false, error: '数据文件格式不对（不是合法的 JSON），这次不返回空列表以免误导' }), { status: 503, headers: noStore });
+  }
+  const repos = payload.repos;
+  const metaText = await grab('/data/repos-meta.js', 300);
+  const gm = metaText.match(/generatedAt:\s*"([^"]+)"/);
+  let list = repos;
+  if (lang) {
+    const want = lang.toLowerCase();
+    list = repos.filter((r) => String(r.lang || '').toLowerCase() === want);
+  }
+  const items = list.slice(0, limit).map((r, i) => ({
+    rank: i + 1,
+    name: r.name,
+    url: 'https://github.com/' + r.name,
+    desc: r.desc || '',
+    descZh: r.desc_zh || '',
+    stars: r.stars || 0,
+    forks: r.forks || 0,
+    lang: r.lang || '',
+    topics: Array.isArray(r.topics) ? r.topics.slice(0, 3) : [],
+  }));
+  const body = { ok: true, range: range, generatedAt: gm ? gm[1] : '', total: list.length, returned: items.length, items: items };
+  if (lang) body.lang = lang;
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'public, max-age=300, s-maxage=300',
+      'access-control-allow-origin': '*',
+    },
   });
 }
 

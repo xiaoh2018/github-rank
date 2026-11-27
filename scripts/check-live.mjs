@@ -80,6 +80,11 @@ push('后台提示「旧地址 N 个（已 301）」', adm.includes('个（已 3
 const api = await fetch(base + '/api/status?v=' + t);
 const apiJson = await api.json();
 push('/api/status', api.ok && apiJson && apiJson.configured === true, 'ai=' + (apiJson && apiJson.translator ? apiJson.translator.ai : 'n/a'));
+const rankRes = await fetch(base + '/api/rank?limit=2&v=' + t, { headers: { 'cache-control': 'no-cache' } });
+let rankJson = null;
+try { rankJson = await rankRes.json(); } catch (e) { rankJson = null; }
+push('/api/rank 可用（机器可读排行）', rankRes.ok && !!rankJson && rankJson.ok === true && rankJson.total > 0 && Array.isArray(rankJson.items) && rankJson.items.length === 2, rankRes.status + ' total=' + (rankJson && rankJson.total));
+push('/api/rank 边缘缓存 5 分钟 + 允许跨域', !!rankRes.headers.get('cache-control') && rankRes.headers.get('cache-control').includes('s-maxage=300') && rankRes.headers.get('access-control-allow-origin') === '*', (rankRes.headers.get('cache-control') || '') + ' | ' + (rankRes.headers.get('access-control-allow-origin') || ''));
 
 const submit = await (await fetch(base + '/api/submit?v=' + t)).text();
 push('/api/submit 明细', submit.includes('keyFileOk'));
@@ -113,6 +118,7 @@ for (const p of ['/', '/articles', '/nav', '/faq']) {
 const llms = await fetch(base + '/llms.txt?v=' + t);
 const llmsText = await llms.text();
 push('/llms.txt', llms.ok && llmsText.startsWith('# '), llms.status + ' ' + llmsText.length + 'B');
+push('/llms.txt 提到 /api/rank', llmsText.includes('/api/rank?range='), '');
 
 const robots = await fetch(base + '/robots.txt?v=' + t);
 const robotsText = await robots.text();
