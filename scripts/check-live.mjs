@@ -550,6 +550,9 @@ push('首页不再急加载 md.js（改成 ensureMd 按需）',
 push('文章视图空态有「为什么空 + 三个出口」',
   home.includes('function artEmptyHtml(') && home.includes('data-avf="all"') && home.includes('当前筛选：'), '');
 
+push('首页空态说清筛选并提供两个出口',
+  bundleJs.includes('当前筛选：') && bundleJs.includes('只清关键词') && bundleJs.includes('清空全部筛选') && bundleJs.includes('这次抓到的 '), '');
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;

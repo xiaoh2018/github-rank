@@ -1294,19 +1294,45 @@ function renderRepos() {
   });
   while (pageNodes.length && pageNodes[pageNodes.length - 1].classList && pageNodes[pageNodes.length - 1].classList.contains('ad-inline')) pageNodes.pop();
   if (!list.length && state.repos.length) {
+    // 空态要说清「为什么空」：把当前生效的筛选逐个列出来（用 DOM 拼，不拼 HTML 字符串，免转义）
     const li = document.createElement('li');
     li.className = 'item empty-item';
-    li.innerHTML = '<div class="empty-c"><b>没有符合条件的项目</b><p class="hint">换个关键词，或者清空筛选看看全部榜单。</p></div>';
-    const btn = el('button', 'btn', '清空筛选');
-    btn.onclick = () => {
-      state.q = ''; state.cat = ''; state.lang = ''; state.page = 1;
-      if ($('q')) $('q').value = '';
-      if ($('lang')) $('lang').value = '';
-      markCat();
-      syncHash();
-      render();
-    };
-    li.querySelector('.empty-c').append(btn);
+    const conds = [];
+    if (state.q) conds.push('关键词「' + state.q + '」');
+    if (state.cat) { const c = (typeof CATS !== 'undefined' ? CATS.find((x) => x.id === state.cat) : null); conds.push('分类「' + ((c && (c.label || c.name)) || state.cat) + '」'); }
+    if (state.lang) conds.push('语言「' + state.lang + '」');
+    if (state.range && state.range !== 'week') {
+      const RN = { week: '近 7 天', month: '近 30 天', year: '近 1 年', total: '总榜' };
+      conds.push('范围「' + (RN[state.range] || state.range) + '」');
+    }
+    const hint = conds.length
+      ? '当前筛选：' + conds.join(' + ') + ' —— 这次抓到的 ' + state.repos.length + ' 个项目里没有一个符合。'
+      : '这次抓到的 ' + state.repos.length + ' 个项目里没有可显示的。';
+    const wrap = el('div', 'empty-c');
+    wrap.append(el('b', null, '没有符合条件的项目'), el('p', 'hint', hint));
+    if (state.q) {
+      const b1 = el('button', 'btn ghost', '只清关键词');
+      b1.onclick = () => {
+        state.q = ''; state.page = 1;
+        if ($('q')) $('q').value = '';
+        syncHash();
+        render();
+      };
+      wrap.append(b1);
+    }
+    if (conds.length) {
+      const btn = el('button', 'btn', '清空全部筛选');
+      btn.onclick = () => {
+        state.q = ''; state.cat = ''; state.lang = ''; state.page = 1;
+        if ($('q')) $('q').value = '';
+        if ($('lang')) $('lang').value = '';
+        markCat();
+        syncHash();
+        render();
+      };
+      wrap.append(btn);
+    }
+    li.append(wrap);
     pageNodes.push(li);
   }
   $('list').replaceChildren(...pageNodes);
