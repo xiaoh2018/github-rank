@@ -1691,7 +1691,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v236';
+const ASSET_V = 'v237';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -3467,6 +3467,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .tickwarn::before{content:"⚠ ";font-weight:700}
 .beianstate{margin:6px 0 2px;font-size:12.5px;line-height:1.7;color:var(--muted)}
 .beianstate.bad{color:var(--bad)}
+.themestate{margin:8px 0 2px;font-size:12.5px;line-height:1.7;color:var(--muted)}
+.themestate .linkbtn{margin:0 0 0 4px;padding:0 2px;border:0;background:none;color:var(--accent);font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.themestate .linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 .save-msg.err{color:var(--bad)}
 .row-actions a.small{display:inline-flex;align-items:center;min-height:30px;padding:0 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--fg);text-decoration:none;font-size:12.5px}
@@ -4517,6 +4520,8 @@ tr:hover td{background:#fcfbf8}
       <div class="intro">四种主题都内置在页面里，切换只改 CSS 变量，不重新加载、不影响数据。关掉「允许访客自己切换」后，前台只按这里选的显示。</div>
       <div class="card">
         <div class="card-head"><b>配色</b><span class="msg">点一下选中，再点右上「保存主题」</span></div>
+        <p class="themestate" id="themeState" role="status" aria-live="polite" hidden></p>
+        <p class="themestate" id="themeClearWrap" hidden><button type="button" class="linkbtn" id="themeClearLocal">清除我这台浏览器的主题选择</button> <span class="hint">清完刷新前台，就会看到站点默认。</span></p>
         <div class="choice-grid">
           <label class="choice"><input type="radio" name="theme-name" value="paper" checked><span class="sw"><i style="background:#fffbf3"></i><i style="background:#e6dcc4"></i><i style="background:#b8860b"></i></span><span class="choice-t">暖纸白<em>当前默认：米白底 + 金棕强调，最像纸质笔记</em></span></label>
           <label class="choice"><input type="radio" name="theme-name" value="ink"><span class="sw"><i style="background:#0b0d11"></i><i style="background:#1b1f27"></i><i style="background:#6366f1"></i></span><span class="choice-t">Linear 冷暗<em>近黑底 + 靛蓝强调，信息密度高、偏工程师审美</em></span></label>
@@ -5501,6 +5506,45 @@ function beianAudit(){
   },true);
   setTimeout(beianAudit,0);
   setTimeout(beianAudit,600);
+})();
+// 主题：说清「你现在会看到什么」，并给一个清掉本地选择的入口
+var THEME_NAMES={paper:"暖纸白",ink:"Linear 冷暗",stripe:"Stripe 亮白",notion:"Notion 柔灰"};
+function themeLocalName(){
+  var v=""; try{ v=localStorage.getItem("ghrank:theme")||""; }catch(e){}
+  if(v==="dark") v="ink"; if(v==="light") v="paper";
+  return v;
+}
+function themeAdminAudit(){
+  var st=$("themeState"), wrap=$("themeClearWrap");
+  if(!st) return;
+  var picked="paper", rs=document.querySelectorAll('input[name="theme-name"]');
+  for(var i=0;i<rs.length;i++) if(rs[i].checked) picked=rs[i].value;
+  var allow=$("theme-allow") ? $("theme-allow").checked : true;
+  var local=themeLocalName();
+  var pn=THEME_NAMES[picked]||picked, ln=THEME_NAMES[local]||local;
+  var msg="";
+  if(!allow){ msg="「允许访客自己切换」已关：前台一律按站点默认「"+pn+"」显示，访客以前选过的主题也会被忽略。"; }
+  else if(local){ msg="你这台浏览器保存过访客主题「"+ln+"」，所以前台会显示它，而不是站点默认「"+pn+"」。"; }
+  else { msg="这台浏览器没手动选过主题：前台会按站点默认「"+pn+"」显示。"; }
+  st.textContent=msg; st.hidden=false;
+  if(wrap) wrap.hidden=!(allow && local);
+}
+(function(){
+  document.addEventListener("change",function(e){
+    var t=e.target; if(!t) return;
+    if(t.name==="theme-name" || t.id==="theme-allow") themeAdminAudit();
+  },true);
+  document.addEventListener("click",function(e){
+    var t=e.target; if(!t||!t.closest) return;
+    if(t.closest('[data-tab="theme"]')) setTimeout(themeAdminAudit,30);
+    if(t.id==="themeClearLocal"){
+      try{ localStorage.removeItem("ghrank:theme"); }catch(err){}
+      themeAdminAudit();
+      if(t.id==="themeClearLocal"){ t.textContent="已清除 · 刷新前台即见站点默认"; t.disabled=true; }
+    }
+  },true);
+  setTimeout(themeAdminAudit,0);
+  setTimeout(themeAdminAudit,700);
 })();
 function saveMsgFor(btn) {
     var el = btn.getAttribute('data-save') === 'qa' ? $('qaSaveMsg') : null;
