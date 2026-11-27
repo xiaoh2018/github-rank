@@ -20,3 +20,16 @@ for (const [file, re, to] of files) {
   fs.writeFileSync(file, t.replace(re, to), 'utf8');
 }
 console.log('version -> ' + v);
+
+// 文档里举例的 SW 版本号也要跟着走，否则 check-docs 会在下一次发版时红
+const docRe = /例如 `ghrank-shell-v\d+`/;
+try {
+  const doc = 'docs/操作手册.md';
+  const t = fs.readFileSync(doc, 'utf8');
+  if (docRe.test(t)) {
+    fs.writeFileSync(doc, t.replace(docRe, '例如 `ghrank-shell-' + v + '`'), 'utf8');
+    console.log('docs/操作手册.md 的 SW 版本示例 -> ' + v);
+  }
+} catch (e) {
+  console.log('（文档示例未同步：' + (e && e.message ? e.message : e) + '）');
+}
