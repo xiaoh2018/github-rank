@@ -1809,7 +1809,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v268';
+const ASSET_V = 'v269';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2282,6 +2282,63 @@ async function countsOf(env) {
 async function handleIndexCheck(request, env, origin) {
   if (!env.ADMIN_PASSWORD) return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
   const body = await request.json().catch(() => null);
+  if (!body || typeof body !== 'object') return json({ ok: false, error: '请求体必须是 JSON' }, 400);
+  if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
+    return json({ ok: false, error: '密码不对' }, 403);
+  }
+  if (!Array.isArray(body.urls)) return handleIndexCheckOne(request, env, origin, body);
+  const list = [];
+  body.urls.forEach(function (u) {
+    const v = String(u == null ? '' : u).trim();
+    if (v && list.indexOf(v) < 0) list.push(v);
+  });
+  if (!list.length) return json({ ok: false, error: '至少要填一条地址' }, 400);
+  if (list.length > 20) return json({ ok: false, error: '一次最多查 20 条（现在 ' + list.length + ' 条），分批查' }, 400);
+  const items = [];
+  let errors = 0;
+  for (let i = 0; i < list.length; i++) {
+    const resp = await handleIndexCheckOne(request, env, origin, { password: body.password, url: list[i] });
+    const j = await resp.json();
+    if (!j.ok) {
+      items.push({ url: list[i], error: j.error || '查询失败' });
+      errors++;
+      continue;
+    }
+    items.push({
+      url: j.url,
+      path: j.url.indexOf(j.base) === 0 ? (j.url.slice(j.base.length) || '/') : j.url,
+      status: j.status,
+      robotsMeta: j.robotsMeta,
+      noindex: j.noindex,
+      canonicalSelf: j.canonicalSelf,
+      inSitemap: j.inSitemap,
+      inLastSubmit: j.inLastSubmit,
+    });
+  }
+  const count = function (fn) {
+    return items.filter(function (x) {
+      return !x.error && fn(x);
+    }).length;
+  };
+  return json({
+    ok: true,
+    batch: true,
+    total: items.length,
+    items: items,
+    summary: {
+      okStatus: count(function (x) { return x.status >= 200 && x.status < 400; }),
+      noindex: count(function (x) { return x.noindex; }),
+      notSelf: count(function (x) { return x.canonicalSelf === false; }),
+      notInSitemap: count(function (x) { return x.inSitemap === false; }),
+      unknownSitemap: count(function (x) { return x.inSitemap === null; }),
+      inLast: count(function (x) { return x.inLastSubmit; }),
+      errors: errors,
+    },
+  });
+}
+async function handleIndexCheckOne(request, env, origin, bodyIn) {
+  if (!env.ADMIN_PASSWORD) return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
+  const body = bodyIn || (await request.json().catch(() => null));
   if (!body || typeof body !== 'object') return json({ ok: false, error: '请求体必须是 JSON' }, 400);
   if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
     return json({ ok: false, error: '密码不对' }, 403);
@@ -3937,6 +3994,18 @@ td>.empty-card{margin:0}
   .ick-links a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 8px;text-align:center;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
   .ick-why{margin-top:8px}
 }
+.ick-batch{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ick-batch summary{cursor:pointer;font-size:13px;color:var(--muted);font-weight:600}
+.ick-batch textarea{width:100%;margin-top:8px;min-height:84px;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text)}
+.ick-batch .ick-row{margin-top:8px}
+.ick-sum{margin:10px 0 0;font-size:12.5px;line-height:1.7;color:var(--muted)}
+.ick-tw{margin-top:8px;overflow-x:auto}
+.ick-tw table{width:100%;border-collapse:collapse;font-size:12.5px}
+.ick-tw th,.ick-tw td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.ick-tw td.path{white-space:normal;word-break:break-all;min-width:150px}
+.ick-tw .bad{color:var(--bad)}
+.ick-tw .good{color:#15803d}
+.ick-tw .dim{color:var(--muted)}
 .sgroup{margin-top:10px}
 .sgroup:first-child{margin-top:0}
 .sgh{display:block;margin:0 0 6px;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.03em}
@@ -4710,6 +4779,12 @@ tr:hover td{background:#fcfbf8}
         <div class="card-head"><div><h2>收录自查</h2><p class="desc">查的是「我们这边能确定的事实」：页面状态、robots、canonical、在不在站点地图、上次推没推过。真正有没有被收录，只能去平台后台看。</p></div></div>
         <div class="ick-row"><input type="text" id="ickUrl" aria-label="要检查的地址（留空查首页）" placeholder="留空查首页；也可以填 /articles 或某篇文章地址"><button class="btn primary" type="button" id="ickRun">查一下</button></div>
         <div id="ickOut" class="ick-out"></div>
+        <details class="ick-batch">
+          <summary>批量查（一次最多 20 条，一行一条）</summary>
+          <textarea id="ickBatch" rows="4" aria-label="批量检查的地址，一行一条" placeholder="一行一条；可以填 /、/articles 或某篇文章地址"></textarea>
+          <div class="ick-row"><button class="btn" type="button" id="ickBatchRun">批量查一下</button></div>
+          <div id="ickTable" class="ick-out"></div>
+        </details>
         <p class="hint">平台那边的记录要 24–72 小时才出现（Bing 还要先在站长工具里验证过本站）。这里能证明的只有「页面允许收录、我们推过」。</p>
       </div>
       <div class="card" id="geoCard">
@@ -7143,6 +7218,77 @@ function saveMsgFor(btn) {
   function ickTime(t) {
     try { return new Date(t).toLocaleString(); } catch (e) { return t || ''; }
   }
+  function ickBatchRun() {
+    var box = $('ickBatch');
+    var btn = $('ickBatchRun');
+    var out = $('ickTable');
+    if (!box || !btn || !out) return;
+    var urls = box.value.split(String.fromCharCode(10)).map(function (v) { return v.trim(); }).filter(Boolean);
+    out.innerHTML = '';
+    if (!urls.length) {
+      var tip = document.createElement('p');
+      tip.className = 'note';
+      tip.textContent = '先贴几条地址（一行一条）。';
+      out.appendChild(tip);
+      return;
+    }
+    btn.disabled = true;
+    var busy = document.createElement('p');
+    busy.className = 'note';
+    busy.textContent = '正在查 ' + urls.length + ' 条…';
+    out.appendChild(busy);
+    api('/api/index-check', { method: 'POST', body: { password: pw, urls: urls } }).then(function (r) {
+      btn.disabled = false;
+      out.innerHTML = '';
+      if (!r.ok) {
+        var e = document.createElement('p');
+        e.className = 'note tr-bad';
+        e.textContent = r.error || '查询失败';
+        out.appendChild(e);
+        return;
+      }
+      var sm = r.summary || {};
+      var sum = document.createElement('p');
+      sum.className = 'ick-sum';
+      sum.textContent = '共 ' + r.total + ' 条：可访问 ' + (sm.okStatus || 0) + ' · noindex ' + (sm.noindex || 0) + ' · canonical 不自指 ' + (sm.notSelf || 0) + ' · 不在 sitemap ' + (sm.notInSitemap || 0) + ' · sitemap 读不到 ' + (sm.unknownSitemap || 0) + ' · 上次推过 ' + (sm.inLast || 0) + (sm.errors ? ' · 查不了 ' + sm.errors : '');
+      out.appendChild(sum);
+      var wrap = document.createElement('div');
+      wrap.className = 'ick-tw';
+      var table = document.createElement('table');
+      var thead = document.createElement('thead');
+      var hr = document.createElement('tr');
+      ['地址', 'HTTP', 'robots', 'canonical', '在 sitemap', '上次提交'].forEach(function (h) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        hr.appendChild(th);
+      });
+      thead.appendChild(hr);
+      table.appendChild(thead);
+      var tb = document.createElement('tbody');
+      (r.items || []).forEach(function (it) {
+        var tr = document.createElement('tr');
+        var cells = [
+          [it.error ? it.url + '（' + it.error + '）' : it.path, 'path'],
+          [it.error ? '—' : (it.status || '打不开'), !it.error && it.status === 200 ? 'good' : 'bad'],
+          [it.error ? '—' : (it.noindex ? 'noindex' : (it.robotsMeta || '默认')), !it.error && it.noindex ? 'bad' : ''],
+          [it.error ? '—' : (it.canonicalSelf === true ? '自指' : it.canonicalSelf === false ? '指向别处' : '没写'), !it.error && it.canonicalSelf === false ? 'bad' : ''],
+          [it.error ? '—' : (it.inSitemap === true ? '在' : it.inSitemap === false ? '不在' : '读不到'), !it.error && it.inSitemap === false ? 'bad' : (!it.error && it.inSitemap === null ? 'dim' : '')],
+          [it.error ? '—' : (it.inLastSubmit ? '推过' : '没推过'), it.error ? 'dim' : (it.inLastSubmit ? 'good' : 'dim')],
+        ];
+        cells.forEach(function (c) {
+          var td = document.createElement('td');
+          td.textContent = c[0];
+          if (c[1]) td.className = c[1];
+          tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+      });
+      table.appendChild(tb);
+      wrap.appendChild(table);
+      out.appendChild(wrap);
+    });
+  }
+  if ($('ickBatchRun')) $('ickBatchRun').onclick = ickBatchRun;
   function ickRun() {
     var inp = $('ickUrl');
     var btn = $('ickRun');
