@@ -990,7 +990,7 @@ window.__imeBind = function (el, fn) {
 <button id="top" aria-label="回到顶部">↑</button>
 
 <button id="contactFab" class="contact-fab" type="button" aria-controls="contactPanel" aria-expanded="false" aria-label="联系我" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 3z"/></svg><span>联系</span></button>
-<section class="contact-panel" id="contactPanel" aria-labelledby="contactTitle" hidden>
+<section class="contact-panel" id="contactPanel" role="dialog" tabindex="-1" aria-labelledby="contactTitle" hidden>
   <div class="contact-head"><h2 id="contactTitle">联系我</h2><button class="btn ghost" id="contactClose" type="button" aria-label="关闭联系面板">✕</button></div>
   <div id="contactBody"></div>
 </section>
@@ -1190,10 +1190,20 @@ window.__imeBind = function (el, fn) {
     var fab=document.getElementById('contactFab');
     var panel=document.getElementById('contactPanel');
     var closeBtn=document.getElementById('contactClose');
+    var contactBack=null;
     function setContactOpen(open){
       if(!fab||!panel) return;
+      if(open===!panel.hidden) return;
+      if(open) contactBack=document.activeElement;
       panel.hidden=!open;
       fab.setAttribute('aria-expanded',open?'true':'false');
+      if(open){
+        var first=closeBtn||panel;
+        requestAnimationFrame(function(){ try{ first.focus(); }catch(e){} });
+      } else if(contactBack && contactBack.focus){
+        requestAnimationFrame(function(){ try{ contactBack.focus(); }catch(e){} });
+        contactBack=null;
+      }
     }
     function hideContact(){
       if(fab) fab.hidden=true;
