@@ -459,6 +459,7 @@ push('数据瘦身：时间戳是 epoch 秒', /(?:"updated"|updated)\s*:\s*1[6-9
 push('首页预载周榜数据（与 script 地址一致）', bundleJs.indexOf('s.src = file;') >= 0 && bundleJs.indexOf('function repoUrl(r)') >= 0);
 const navHtml = await (await fetch(base + '/nav?t=' + t)).text();
 const artHtml = await (await fetch(base + '/articles?t=' + t)).text();
+push('阅读器进度条：短文隐藏、长文按页面滚动算百分比', artHtml.includes('maxY < window.innerHeight * 0.5') && artHtml.includes('Math.min(top - 100, maxY - 40)'), '');
 push('静态文章页密码框有可访问名', artHtml.includes('aria-label="文章访问密码"'), '');
 push('两页「自动」列宽统一为 320px', home.indexOf('minmax(320px,1fr))}') > 0 && artHtml.indexOf('minmax(320px,1fr)') > 0 && artHtml.indexOf('minmax(340px') < 0, '');
 push('首页列数属性挂到 html（不再只挂 body）', home.indexOf('html[data-artcols="auto"] .artgrid') > 0 && home.indexOf('body[data-artcols') < 0, '');

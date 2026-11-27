@@ -1062,11 +1062,17 @@ window.__sb = function () { return window.__motionQuery && window.__motionQuery.
   function paintProgress() {
     var bar = document.getElementById('rprogress');
     var r = document.getElementById('reader');
-    if (!bar || !r || r.hidden) { if (bar) bar.hidden = true; return; }
+    if (!bar || !r) return;
+    if (r.hidden) { bar.hidden = true; return; }
+    var y = window.scrollY || 0;
+    var maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    // 页面几乎不能滚（短文 / 大屏）：进度条没有信息，藏起来而不是永远停在 0%
+    if (maxY < window.innerHeight * 0.5) { bar.hidden = true; return; }
     var ab = document.querySelector('#reader .abody') || r;
-    var top = ab.getBoundingClientRect().top + (window.scrollY || 0);
-    var span = Math.max(1, ab.offsetHeight - window.innerHeight * 0.7);
-    var p = ((window.scrollY || 0) - top + 120) / span;
+    var top = ab.getBoundingClientRect().top + y;
+    var start = Math.max(0, Math.min(top - 100, maxY - 40));
+    var span = Math.max(1, maxY - start);
+    var p = (y - start) / span;
     p = Math.max(0, Math.min(1, p));
     bar.hidden = false;
     bar.style.width = (p * 100).toFixed(1) + '%';
