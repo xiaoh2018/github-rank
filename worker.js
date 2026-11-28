@@ -171,7 +171,7 @@ export default {
         return json(r, r.ok ? 200 : 500);
       }
       if (url.pathname === '/admin' && request.method === 'GET') {
-        return new Response(ADMIN_PAGE.split('__SITE__').join(url.origin).split('__HOST__').join(url.host), { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
+        return new Response(versionAssets(ADMIN_PAGE.split('__SITE__').join(url.origin).split('__HOST__').join(url.host)), { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
       }
       if (url.pathname === '/api/links' && (request.method === 'GET' || request.method === 'POST')) {
         return handleLinks(request, env);
@@ -1822,7 +1822,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v287';
+const ASSET_V = 'v288';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -5638,7 +5638,7 @@ tr:hover td{background:#fcfbf8}
       <div class="actions"><button type="button" class="ghost" data-close="artDlg">取消</button><button type="button" id="artSubmit">保存文章</button></div>
     </div>
     <div class="art-prev-col">
-      <div class="art-prev-head">实时预览</div>
+      <div class="art-prev-head">实时预览 · 和读者看到的一致（md.js ${ASSET_V}）</div>
       <div id="artPrev" class="art-prev"><p class="empty">左边写正文，这里实时显示渲染效果</p></div>
     </div>
   </div>
