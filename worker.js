@@ -137,6 +137,7 @@ export default {
           // 加密文章的详情页是 noindex（不把密文页交给搜索引擎），就不该出现在 sitemap 里：
           // 一条「我存在但别索引我」的地址只会拉低整站的抓取质量。
           if (a.locked && a.lock && a.lock.ct) continue;
+    if (a.draft === true) continue;
           const lm = a.date ? String(a.date).slice(0, 10) : '';
           const artPath = a.slug
     ? '/articles/' + String(a.slug).split('/').map(encodeURIComponent).join('/') + '.html'
@@ -985,7 +986,8 @@ async function serveSiteEdge(env, pathname, entry, request) {
 function publicArticlesJson(list) {
   const arr = Array.isArray(list) ? list.slice() : [];
   fillArticleSlugs(arr);
-  return JSON.stringify(arr.map(publicArticle));
+  // 草稿只给后台看：前台列表 / 数据文件 / 站点地图都不出现
+  return JSON.stringify(arr.filter(function (a) { return a && a.draft !== true; }).map(publicArticle));
 }
 
 async function serveArticlesPublic(env, request) {
@@ -1839,7 +1841,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v302';
+const ASSET_V = 'v303';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4090,7 +4092,7 @@ function checkArticle(v) {
   }
   if (!clean.title) return { ok: false, error: '文章标题不能为空' };
   // 正文为空又没有密文 = 读者点进去看到空白页。入口直接拒绝，别等上线才发现。
-  if (!clean.body && !(v.lock && v.lock.ct)) {
+  if (!clean.body && !(v.lock && v.lock.ct) && v.draft !== true) {
     return { ok: false, error: '正文是空的：写点内容再保存；如果这篇要加密，请先设置密码' };
   }
   const cat = v.category == null ? '' : String(v.category).trim();
@@ -4113,6 +4115,7 @@ function checkArticle(v) {
   for (const t of tags) if (t.length > 20) return { ok: false, error: '单个标签最多 20 个字符' };
   clean.tags = tags;
   clean.locked = v.locked === true;
+  clean.draft = v.draft === true;
   const pwd = v.password == null ? '' : String(v.password);
   if (pwd.length > 100) return { ok: false, error: '文章密码最多 100 个字符' };
   clean.password = pwd;
@@ -4404,6 +4407,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .msg{color:var(--muted);font-size:14px}
 .dirt{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:11.5px;font-weight:600;vertical-align:3px}
 .dirt[hidden]{display:none}
+.draft-badge{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:6px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-size:11px;font-weight:700}
 .draft-bar{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:2px 0 0;padding:9px 12px;border:1px solid #fde68a;border-radius:10px;background:#fffbeb;font-size:12.5px;color:#92400e;line-height:1.6}
 .draft-bar[hidden]{display:none}
 .draft-bar>span{flex:1 1 100%;min-width:0}
@@ -5738,6 +5742,7 @@ tr:hover td{background:#fcfbf8}
       <div class="covprev" id="covPrevWrap" hidden><img id="covPrevImg" alt="" width="320" height="180" loading="lazy" decoding="async"><span class="covstate" id="covState"></span></div>
       <div class="hint">建议 1200×675；图床链接、仓库 raw 链接，或站内以 / 开头的路径（如 /og-image.png）都行。</div>
       <label class="toggle inline"><input type="checkbox" id="artPinned"> 置顶这篇（排在列表最前面）</label>
+      <label class="toggle inline" title="草稿只存在后台：前台列表、站点地图、/api/rank 都不会出现"><input type="checkbox" id="artDraft"> 草稿（不在前台显示）</label>
       <label for="artSummary">摘要</label>
       <textarea id="artSummary" maxlength="300" style="min-height:74px" placeholder="一两句话说清这篇讲什么，会显示在列表里，也会被 AI 搜索引用。"></textarea>
       <div class="lockrow">
@@ -6903,7 +6908,7 @@ function saveMsgFor(btn) {
     }
     $('artTbody').innerHTML = pageList.map(function (a) {
       return '<tr><td><input type="checkbox" aria-label="选中这篇文章" data-artpick="' + esc(a.id) + '"' + (state.artSel.has(String(a.id)) ? ' checked' : '') + '></td><td>' + esc(a.date) + '</td><td>' + (a.cover ? '<span class="cthumb" style="background-image:url(' + "'" + esc(a.cover).replace(/["'()<> ]/g, '') + "'" + ')"></span>' : '') + '<b>' + esc(a.title) + '</b>' +
-        (a.locked ? '<span class="art-lock">加密</span>' : '') +
+        (a.locked ? '<span class="art-lock">加密</span>' : '') + (a.draft ? '<span class="draft-badge">草稿</span>' : '') +
         '<div class="artcatrow"><select class="artcat" data-artcat="' + esc(a.id) + '" aria-label="《' + esc(a.title) + '》的分类">' + artCatOptions(a.category) + '</select></div>' +
         '<div class="slugline">/articles/' + esc(a.slug || a.id) + '.html' + (a.category ? ' · ' + esc(a.category) : ' · 未分类') + (a.prevCount ? ' · 旧地址 ' + a.prevCount + ' 个（已 301）' : '') + '</div>' +
         '</td><td>' + esc(a.summary) +
@@ -6959,6 +6964,7 @@ function saveMsgFor(btn) {
     if ($('artCover')) $('artCover').value = a && a.cover ? a.cover : '';
     if (typeof artCoverPaint === 'function') artCoverPaint();
     if ($('artPinned')) $('artPinned').checked = !!(a && a.pinned);
+    if ($('artDraft')) $('artDraft').checked = !!(a && a.draft);
     $('artBody').value = a ? a.body : '';
     $('artLock').checked = !!(a && a.locked);
     $('artPw').value = '';
@@ -7099,6 +7105,7 @@ function saveMsgFor(btn) {
       summary: $('artSummary').value,
       cover: $('artCover') ? $('artCover').value.trim() : '',
       pinned: $('artPinned') ? $('artPinned').checked : false,
+      draft: $('artDraft') ? $('artDraft').checked : false,
       body: $('artBody').value
     };
     var lockOn = $('artLock').checked;

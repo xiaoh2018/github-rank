@@ -176,7 +176,10 @@ http
         if (bufA) {
           let arr = [];
           try { arr = JSON.parse(bufA.toString('utf8')); } catch (e) { arr = []; }
-          const proj = (Array.isArray(arr) ? arr : []).map((a) => {
+          // 与线上 publicArticlesJson 同口径：草稿不进前台数据文件
+const proj = (Array.isArray(arr) ? arr : [])
+            .filter((a) => a && a.draft !== true)
+            .map((a) => {
             const o = {};
             for (const k of Object.keys(a || {})) {
               if (k === 'lock' || k === 'prevSlugs') continue;
