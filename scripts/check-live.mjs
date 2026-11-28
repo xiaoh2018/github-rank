@@ -595,6 +595,7 @@ push('收录记录上方有「今天 vs 昨天」摘要', admHtml.includes('id="
 
 push('提交失败时会说清原因并给出「只重试这一项」', admHtml.includes('data-subretry=') && admHtml.includes('只重试这一项') && admHtml.includes('下一步'), '');
 push('提交结果带诊断字段（原因/下一步/能否重试）', admHtml.includes('diagnoseSubmitResult') || admHtml.includes('o.diag.retry'), '');
+push('「试推」改成真演练（不发请求，标题写「演练 · 未发送」）', admHtml.includes('演练（不发请求）') && admHtml.includes('演练 · 未发送') && admHtml.includes('sub-dry'), '');
 push('后台有「定时自查」块与可粘贴的配置片段', admHtml.includes('id="cronWrap"') && admHtml.includes('id="cronSnippet"') && admHtml.includes('/api/index-cron'), '');
 
 push('后台能填定时令牌（输入框 + 生成 + 保存 + 状态行）', admHtml.includes('id="seo-indexCronToken"') && admHtml.includes('id="cronTokGen"') && admHtml.includes('id="cronTokState"'), '');

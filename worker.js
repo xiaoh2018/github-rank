@@ -1822,7 +1822,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v279';
+const ASSET_V = 'v280';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2864,6 +2864,7 @@ async function handleHealth(env, origin) {
 // 起因：429 / 403 / 422 / 网络不通 在页面上都是一句 toast「提交失败」，用户不知道从哪下手。
 function diagnoseSubmitResult(key, r) {
   if (!r) return null;
+  if (r.dry === true) return { level: 'warn', reason: '演练：没有真的推', next: '去掉「演练」再点提交，才会真的把地址推给平台', retry: false };
   const note = String(r.note || "");
   const st = Number(r.status) || 0;
   if (key === 'indexNow') {
@@ -3001,11 +3002,21 @@ async function handleSubmit(request, env, origin) {
     if (a && a.id) urls.push(root + '/articles/' + String(a.slug || a.id).split('/').map(encodeURIComponent).join('/') + '.html');
   });
   const want = String(body.action || 'all');
-  if (body.test === true) {
-    urls.length = 0;
-    urls.push(root + '/');
-  }
+
   const out = { ok: true, urls: urls.length, urlList: urls.slice(0, 50), urlListNote: urls.length > 50 ? '只显示前 50 条（共 ' + urls.length + ' 条）' : '', root: root, host: host, keyLocation: root + '/' + keyNow + '.txt', test: body.test === true, results: {} };
+  // 演练：一个外部请求都不发（IndexNow 按频率限流、百度普通收录有每日额度，
+  // 所以「试推」绝不能真推；用户点它是想知道「配置对不对」，不是想消耗配额）。
+  if (body.test === true) {
+    out.dry = true;
+    out.fullUrls = urls.length;
+    const two = urls.slice(0, 2);
+    out.results.indexNow = { ok: true, dry: true, status: 0, ms: 0, note: '演练：没有真的推（只校验配置与地址，不消耗配额）', raw: '', urlList: two, urlListNote: '演练只列前 2 条' };
+    out.results.baidu = { ok: true, dry: true, status: 0, ms: 0, note: '演练：没有真的推（没有请求百度接口）', raw: '', urlList: two, urlListNote: '演练只列前 2 条' };
+    Object.keys(out.results).forEach(function (k) { out.results[k].diag = diagnoseSubmitResult(k, out.results[k]); });
+    out.summary = { ok: 0, warn: 2, fail: 0, retriable: 0 };
+    out.at = new Date().toISOString();
+    return json(out);
+  }
 
   const sigNow = urls.join(String.fromCharCode(10));
   const sameBatch = !!(prevRun && prevRun.sig === sigNow && body.force !== true);
@@ -4460,6 +4471,7 @@ td>.empty-card{margin:0}
 .dg-warn{background:#fffbeb;border:1px solid #fde68a}
 .dg-fail{background:#fef2f2;border:1px solid #fecaca}
 .dg .btn.small{margin-top:6px}
+.sub-dry{margin:8px 0 6px;padding:7px 10px;border-radius:9px;background:#fef3c7;border:1px solid #f5cfae;color:#92400e;font-size:12.5px;font-weight:600}
 .sub-sum{margin-top:6px;font-weight:600}
 .dg-bad{color:#b91c1c}
 .cron-tok{margin:10px 0 12px;padding:12px;border:1px dashed var(--line);border-radius:12px}
@@ -5260,7 +5272,7 @@ tr:hover td{background:#fcfbf8}
     <section class="pane" id="pane-submit" hidden>
       <div class="bar">
         <div><h1>收录与平台</h1><p class="sub">把新榜单和文章主动告诉搜索引擎与大模型</p></div>
-        <div class="bar-actions"><label class="toggle inline"><input type="checkbox" id="subForce"> 强制再推一次</label><button class="btn ghost" type="button" id="subTest">试推 1 条</button><button class="btn ghost" type="button" id="subRunIN">只推 IndexNow</button><button class="btn ghost" type="button" id="subRunBD">只推百度</button><button class="btn primary" type="button" id="subRun">全部提交</button></div>
+        <div class="bar-actions"><label class="toggle inline"><input type="checkbox" id="subForce"> 强制再推一次</label><button class="btn ghost" type="button" id="subTest" title="演练：只校验配置与地址，不会真的发请求，不消耗配额">演练（不发请求）</button><button class="btn ghost" type="button" id="subRunIN">只推 IndexNow</button><button class="btn ghost" type="button" id="subRunBD">只推百度</button><button class="btn primary" type="button" id="subRun">全部提交</button></div>
       </div>
               <div class="segtabs" data-group="seogeo"><button type="button" class="is-on" data-go="seo">SEO 基础</button><button type="button" data-go="qa">问答（GEO）</button><button type="button" data-go="submit">收录与平台</button></div>
       <p class="intro">提交走 IndexNow（Bing、Yandex、Seznam 共用）和百度主动推送；豆包、通义千问、ChatGPT 这些没有公开的收录接口，靠 robots.txt 放行 + llms.txt + 站点地图被爬到。<b>建议每天点一次，或者交给 Actions 定时。</b></p>
@@ -7708,14 +7720,18 @@ function saveMsgFor(btn) {
       if (sm.retriable) bits.push('其中 ' + sm.retriable + ' 项可以只重试');
       line = '<div class="sub-sum">' + bits.join(' · ') + '</div>';
     }
+    if (r.dry === true) {
+      line = '<div class="sub-dry">演练 · 没有真的发请求（不消耗配额）；去掉「演练」再提交才会真的推</div>' + line;
+    }
     return '<div class="tr-box">本次提交 <b>' + (r.urls || 0) + '</b> 个地址（首页 + 文章列表 + 每篇文章）' +
       (r.root ? '<br>站点地址：<code>' + navEsc(r.root) + '</code>（必须与百度验证、key 文件同域）' : '') + line + '</div>';
   }
   function subBox(name, o, retryKey) {
     if (o && o.diag && retryKey) o.diag.retryKey = retryKey;
     if (!o) return '';
-    var st = o.skipped ? '已跳过' : (o.ok ? '已接收' : '失败');
-    var head = '<b>' + name + '</b> · ' + st + (o.status ? '（HTTP ' + o.status + '）' : '') + (typeof o.ms === 'number' ? ' · ' + o.ms + 'ms' : '') + (o.at ? ' · ' + new Date(o.at).toLocaleString() : '');
+    // 演练不是「已接收」：它压根没发请求，写成「已接收 · 0ms」会让人以为平台收到了
+    var st = o.dry === true ? '演练 · 未发送' : (o.skipped ? '已跳过' : (o.ok ? '已接收' : '失败'));
+    var head = '<b>' + name + '</b> · ' + st + (o.status ? '（HTTP ' + o.status + '）' : '') + (o.dry === true ? '' : (typeof o.ms === 'number' ? ' · ' + o.ms + 'ms' : '')) + (o.at ? ' · ' + new Date(o.at).toLocaleString() : '');
     var raw = o.raw ? '<details class="raw"><summary>看原始返回</summary><pre>' + navEsc(o.raw) + '</pre></details>' : '';
     var urls = '';
     if (o.urlList && o.urlList.length) {
