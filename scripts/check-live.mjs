@@ -591,6 +591,7 @@ push('宽表旁边提示可左右滑动', admHtml.includes('ick-hint'), '');
 
 push('后台有「最近查询记录」块（可展开）', admHtml.includes('id="ickLogWrap"') && admHtml.includes('id="ickLogBox"'), '');
 push('收录记录每行有动作按钮（推 / 重查）', admHtml.includes('data-ickpush') && admHtml.includes('data-ickre'), '');
+push('收录记录上方有「今天 vs 昨天」摘要', admHtml.includes('id="ickTrend"') && admHtml.includes('把挂着的填进批量框'), '');
 {
   const rp = await fetch(base + '/api/index-push', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
   push('单条推 IndexNow 要密码（不带密码 403）', rp.status === 403, 'HTTP ' + rp.status);

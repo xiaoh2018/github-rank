@@ -1818,7 +1818,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v275';
+const ASSET_V = 'v276';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2289,6 +2289,57 @@ async function countsOf(env) {
   };
 }
 
+// 北京时区的「今天 0 点」时间戳
+function bjDayStart(ms) {
+  const d = new Date(Number(ms) + 8 * 3600 * 1000);
+  d.setUTCHours(0, 0, 0, 0);
+  return d.getTime() - 8 * 3600 * 1000;
+}
+// 今天 vs 昨天：查了几次、新出几条问题、修好几条、还挂着哪些
+function indexLogSummary(list) {
+  const arr = Array.isArray(list) ? list : [];
+  const dayStart = bjDayStart(Date.now());
+  const dayAgo = dayStart - 24 * 3600 * 1000;
+  const bad = function (e) {
+    return !!e && (Number(e.status) >= 400 || e.noindex === true || e.canonicalSelf === false);
+  };
+  let today = 0;
+  let yesterday = 0;
+  const byPath = new Map();
+  for (const e of arr) {
+    const at = Number(e.at) || 0;
+    if (at >= dayStart) today++;
+    else if (at >= dayAgo) yesterday++;
+    const key = String(e.path || "");
+    if (!byPath.has(key)) byPath.set(key, []);
+    byPath.get(key).push(e);
+  }
+  const openIssues = [];
+  let fixedToday = 0;
+  let newToday = 0;
+  byPath.forEach(function (rowsIn) {
+    const rows = rowsIn.slice().sort(function (a, b) { return (Number(b.at) || 0) - (Number(a.at) || 0); });
+    const latest = rows[0];
+    const prev = rows[1];
+    if (bad(latest)) {
+      const isNew = !prev || (Number(prev.at) || 0) < dayStart;
+      if (isNew) newToday++;
+      openIssues.push({
+        path: latest.path,
+        status: latest.status,
+        noindex: latest.noindex === true,
+        canonicalSelf: latest.canonicalSelf,
+        inSitemap: latest.inSitemap,
+        at: latest.at,
+        isNew: isNew,
+      });
+    } else if (prev && bad(prev) && (Number(latest.at) || 0) >= dayStart) {
+      fixedToday++;
+    }
+  });
+  openIssues.sort(function (a, b) { return (Number(b.at) || 0) - (Number(a.at) || 0); });
+  return { whole: arr.length, today: today, yesterday: yesterday, newToday: newToday, fixedToday: fixedToday, openIssues: openIssues };
+}
 async function handleIndexLog(request, env) {
   if (!env.ADMIN_PASSWORD) return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
   const body = await request.json().catch(() => null);
@@ -2302,7 +2353,8 @@ async function handleIndexLog(request, env) {
   }
   const list = await readIndexLog();
   const entries = indexLogWithDelta(list);
-  return json({ ok: true, cap: INDEX_LOG_MAX, total: entries.length, entries: entries });
+  const summary = indexLogSummary(list);
+  return json({ ok: true, cap: INDEX_LOG_MAX, total: entries.length, entries: entries, summary: summary });
 }
 // 单条地址推一次 IndexNow：收录记录里「200 但还没被收录」时直接推，不用去改整批
 async function handleIndexPush(request, env, origin) {
@@ -4224,6 +4276,10 @@ td>.empty-card{margin:0}
 .ick-links{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px}
 .ick-act{white-space:nowrap}
 .ick-act .mini{margin:2px 6px 2px 0}
+.ick-trend{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 4px}
+.ick-tag{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--chip);color:var(--muted);white-space:nowrap}
+.ick-tag.bad{background:#fee2e2;color:#991b1b}
+.ick-tag.ok{background:#dcfce7;color:#166534}
 @media (max-width:480px){
   .ick-i{display:block}
   .ick-act{white-space:nowrap}
@@ -5033,6 +5089,7 @@ tr:hover td{background:#fcfbf8}
         <details id="ickLogWrap">
           <summary>最近查询记录（保留最近 50 条，存在边缘缓存里）</summary>
           <div class="ick-row"><button class="btn ghost" type="button" id="ickLogReload">刷新记录</button><button class="btn ghost" type="button" id="ickLogClear">清空记录</button></div>
+          <div id="ickTrend" class="ick-trend" aria-live="polite"></div>
           <div id="ickLogBox" class="ick-out"></div>
         </details>
         <p class="hint">平台那边的记录要 24–72 小时才出现（Bing 还要先在站长工具里验证过本站）。这里能证明的只有「页面允许收录、我们推过」。</p>
@@ -7542,6 +7599,34 @@ function saveMsgFor(btn) {
     tip.className = 'note';
     tip.textContent = '共 ' + r.total + ' 条（最多保留 ' + r.cap + ' 条）；只显示最近 12 条。';
     box.appendChild(tip);
+    ickTrendPaint(r.summary);
+  }
+  function ickTrendPaint(sm) {
+    var bar = $('ickTrend');
+    if (!bar) return;
+    bar.innerHTML = '';
+    window.__ickOpen = [];
+    if (!sm) return;
+    var mk = function (txt, cls) {
+      var b = document.createElement('span');
+      b.className = 'ick-tag' + (cls ? ' ' + cls : '');
+      b.textContent = txt;
+      return b;
+    };
+    bar.appendChild(mk('今天查了 ' + sm.today + ' 次'));
+    bar.appendChild(mk('昨天 ' + sm.yesterday + ' 次'));
+    bar.appendChild(mk('新出问题 ' + sm.newToday, sm.newToday ? 'bad' : ''));
+    bar.appendChild(mk('修好 ' + sm.fixedToday, sm.fixedToday ? 'ok' : ''));
+    bar.appendChild(mk('还挂着 ' + sm.openIssues.length, sm.openIssues.length ? 'bad' : ''));
+    window.__ickOpen = sm.openIssues.map(function (o) { return o.path; });
+    if (sm.openIssues.length) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'mini';
+      btn.textContent = '把挂着的填进批量框（' + sm.openIssues.length + '）';
+      btn.setAttribute('data-ickfill', '1');
+      bar.appendChild(btn);
+    }
   }
   function loadIckLog() {
     api('/api/index-log', { method: 'POST', body: { password: pw } }).then(ickLogPaint).catch(function () {
@@ -7561,7 +7646,7 @@ function saveMsgFor(btn) {
     });
   }
   (function bindIckAct() {
-    var lbox = $('ickLogBox');
+    var lbox = $('ickLogWrap') || $('ickLogBox');
     if (!lbox) return;
     lbox.addEventListener('click', function (ev) {
       var t = ev.target;
@@ -7569,7 +7654,8 @@ function saveMsgFor(btn) {
       var push = t.getAttribute('data-ickpush');
       var re = t.getAttribute('data-ickre');
       var sm = t.getAttribute('data-icksm');
-      if (!push && !re && !sm) return;
+      var fill = t.getAttribute('data-ickfill');
+      if (!push && !re && !sm && !fill) return;
       var say = function (txt) {
         var m = document.getElementById('ickActMsg');
         if (!m) {
@@ -7580,6 +7666,16 @@ function saveMsgFor(btn) {
         }
         m.textContent = txt;
       };
+      if (fill) {
+        var bi0 = $('ickBatch');
+        var arr0 = (window.__ickOpen || []).slice(0, 20);
+        if (bi0 && arr0.length) {
+          bi0.value = arr0.map(function (p) { return location.origin + p; }).join(String.fromCharCode(10));
+          bi0.focus();
+        }
+        say('已经把 ' + arr0.length + ' 条挂着的地址填进批量框（最多 20 条）：点「批量查」再核一遍，或去「立即提交」推一次。');
+        return;
+      }
       if (sm) {
         var bi = $('ickBatch');
         if (bi) {
