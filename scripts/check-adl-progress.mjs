@@ -17,7 +17,8 @@ const post = a ? (a.slug || a.id) : '';
 
 if (REMOTE) {
   const home = await (await fetch(BASE + '/')).text();
-  const art = await (await fetch(BASE + '/articles/' + (a ? (a.category || 'tech') + '/' + (a.id || '1') : 'tech/1') + '.html')).text().catch(() => '');
+  const artPath = a ? (a.slug || (a.category || 'tech') + '/' + (a.id || '1')) : 'tech/1';
+  const art = await (await fetch(BASE + '/articles/' + artPath + '.html')).text().catch(() => '');
   push('弹窗阅读器有阅读进度条', home.includes('id="adlProg"') && home.includes('adlProgPaint'), '');
   push('静态页仍有点顶进度条（两边都在）', art.includes('id="rprogress"'), '');
   const bad0 = rows.filter((x) => !x.ok);
