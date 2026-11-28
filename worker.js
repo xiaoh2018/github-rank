@@ -1841,7 +1841,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v303';
+const ASSET_V = 'v304';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -5158,6 +5158,7 @@ tr:hover td{background:#fcfbf8}
           <div class="stat"><b>距今</b><span id="stAge">—</span></div>
           <div class="stat"><b>下次定时</b><span id="stNext">—</span></div>
           <div class="stat"><b>最近一次数据更新</b><span id="stWf">—</span></div>
+        <div class="stat"><b>草稿未发布</b><span id="stDraft"><button type="button" class="linkbtn" data-draft-only="1" hidden>—</button></span></div>
         </div>
         <div class="err" id="stErr"></div>
         <div class="actions">
@@ -5665,6 +5666,11 @@ tr:hover td{background:#fcfbf8}
       <div class="card">
         <div class="toolbar">
           <input type="text" id="artSearch" aria-label="搜索文章标题与摘要" placeholder="搜索标题、摘要或正文…">
+          <select id="artDraftFilter" aria-label="按发布状态筛选文章" style="max-width:150px">
+            <option value="">全部状态</option>
+            <option value="draft">仅草稿</option>
+            <option value="live">不含草稿</option>
+          </select>
           <span class="msg" id="artSearchNote"></span>
         </div>
         <table>
@@ -6816,6 +6822,8 @@ function saveMsgFor(btn) {
     if (act === 'artreset') {
       if ($('artSearch')) $('artSearch').value = '';
       if ($('artCatFilter')) $('artCatFilter').value = '';
+    if ($('artDraftFilter')) $('artDraftFilter').value = '';
+    state.artDraft = '';
       state.artCat = '';
       state.artPage = 1;
       renderArticles();
@@ -6862,6 +6870,16 @@ function saveMsgFor(btn) {
       artInlineSay('已把《' + a.title + '》改成「' + label + '」· 链接和旧地址已同步（工具栏可撤销）', 'ok');
     });
   }
+  function paintDraftStat() {
+    var box = $('stDraft');
+    if (!box) return;
+    var btn = box.querySelector('[data-draft-only]');
+    if (!btn) return;
+    var n = (state.articles || []).filter(function (a) { return a.draft === true; }).length;
+    btn.textContent = n ? (n + ' 篇 · 点这里只看草稿') : '0 篇 · 都发了';
+    btn.hidden = false;
+    btn.disabled = !n;
+  }
   function renderArticles() {
     var box = $('artSearch');
     var q = (box && box.value || '').trim().toLowerCase();
@@ -6881,6 +6899,10 @@ function saveMsgFor(btn) {
     var list = q ? all.filter(function (a) {
       return (String(a.title) + ' ' + String(a.summary) + ' ' + String(a.body)).toLowerCase().indexOf(q) >= 0;
     }) : all;
+    var draftWant = state.artDraft || '';
+    if (draftWant === 'draft') list = list.filter(function (a) { return a.draft === true; });
+    else if (draftWant === 'live') list = list.filter(function (a) { return a.draft !== true; });
+    paintDraftStat();
     var cat = state.artCat || '';
     if (cat) list = list.filter(function (a) { return String(a.category || '') === cat; });
     fillCatFilter(all);
@@ -6888,6 +6910,7 @@ function saveMsgFor(btn) {
       var parts = [];
       if (q) parts.push('关键词「' + String(box && box.value || '').trim() + '」');
       if (cat) parts.push('分类「' + cat + '」');
+      if (draftWant) parts.push(draftWant === 'draft' ? '仅草稿' : '不含草稿');
       $('artSearchNote').textContent = parts.length ? (parts.join(' ') + '：' + list.length + ' / ' + all.length + ' 篇') : '';
     }
     var per = 20;
@@ -7402,7 +7425,22 @@ function saveMsgFor(btn) {
       var savedSort = '';
       try { savedSort = localStorage.getItem('ghrank-art-sort') || ''; } catch (e) {}
       if (savedSort) { state.artSort = savedSort; $('artSort').value = savedSort; }
-      $('artCatFilter').addEventListener('change', function () {
+      if ($('artDraftFilter')) $('artDraftFilter').addEventListener('change', function () {
+      state.artDraft = $('artDraftFilter').value;
+      state.artPage = 1;
+      renderArticles();
+    });
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-draft-only]');
+      if (!b) return;
+      e.preventDefault();
+      if (typeof go === 'function') go('articles');
+      state.artDraft = 'draft';
+      if ($('artDraftFilter')) $('artDraftFilter').value = 'draft';
+      state.artPage = 1;
+      renderArticles();
+    });
+    $('artCatFilter').addEventListener('change', function () {
         state.artCat = this.value;
         state.artPage = 1;
         renderArticles();

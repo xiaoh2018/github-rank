@@ -322,6 +322,7 @@ push('备案状态会说出最终显示什么', admHtml.indexOf('function beianA
 const artJsonTxt = await (await fetch(base + '/data/articles.json?cb=' + t)).text();
 push('公开文章数据不暴露 prevSlugs（只给 prevCount）', artJsonTxt.indexOf('prevSlugs') < 0 && artJsonTxt.indexOf('prevCount') >= 0, '');
 push('后台文章分页会回到表格顶（artGoPage + artPgY）', admHtml.includes('function artGoPage(n)') && admHtml.includes('var artPgY = {}'), '');
+push('后台文章可按发布状态筛选（全部/仅草稿/不含草稿）', admHtml.includes('id="artDraftFilter"') && admHtml.includes('data-draft-only'), '');
 push('后台文章支持「草稿」状态（不进前台列表/站点地图）', admHtml.includes('id="artDraft"') && admHtml.includes('draft-badge'), '');
 push('后台文章分页有「跳到第 N 页」', admHtml.includes('id="artJump"') && admHtml.includes("data-artjump"), '');
 push('窄屏分页按钮不折行（nowrap + min-width 84）', admHtml.includes('#pane-articles .artpager button{white-space:nowrap;min-width:84px'), '');
