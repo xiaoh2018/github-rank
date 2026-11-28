@@ -1829,7 +1829,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v295';
+const ASSET_V = 'v296';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4056,6 +4056,11 @@ function checkArticle(v) {
 }
 
 // GET 读取；POST 体 { password, action: add|update|remove, id, article }
+// 删除文章后的「恢复窗口」：只保留最后一次删除，10 分钟内可撤销。
+// 存整篇文章对象 + 它原来的位置，撤销时按位置插回（不是追加到末尾）。
+const ART_TRASH_KEY = EDGE_KEY_BASE + "/__art_trash";
+const ART_TRASH_TTL = 600;
+
 async function handleArticles(request, env) {
   if (request.method === 'GET') {
     const r = await readArticles(env);
@@ -4073,13 +4078,32 @@ async function handleArticles(request, env) {
   if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
     return json({ ok: false, error: '密码不对' }, 403);
   }
-  if (body.action !== 'add' && body.action !== 'update' && body.action !== 'remove' && body.action !== 'bulk' && body.action !== 'replace') {
-    return json({ ok: false, error: 'action 只能是 add、update、remove、bulk 或 replace' }, 400);
+  if (body.action !== 'add' && body.action !== 'update' && body.action !== 'remove' && body.action !== 'bulk' && body.action !== 'replace' && body.action !== 'restore') {
+    return json({ ok: false, error: 'action 只能是 add、update、remove、bulk、replace 或 restore' }, 400);
   }
 
   const cur = await readArticles(env);
   if (!cur.ok) return json({ ok: false, error: cur.error }, 502);
   const list = cur.articles;
+
+  if (body.action === "restore") {
+    let rec = null;
+    try {
+      const tr = await EDGE_CACHE.match(ART_TRASH_KEY);
+      if (tr) rec = await tr.json();
+    } catch (e) { rec = null; }
+    if (!rec || !rec.article || !(Date.now() - (Number(rec.at) || 0) < ART_TRASH_TTL * 1000)) {
+      return json({ ok: false, error: "没有可恢复的删除（撤销只在删除后 10 分钟内有效）" }, 400);
+    }
+    const at = Math.max(0, Math.min(list.length, Number(rec.index) || 0));
+    list.splice(at, 0, rec.article);
+    await EDGE_CACHE.delete(ART_TRASH_KEY);
+    const rw = await writeArticles(env, list, cur.sha, "chore: 撤销一次文章删除");
+    if (!rw.ok) return json({ ok: false, error: rw.error }, 500);
+    await purgeEdge(["/articles", "/articles.html", "/data/articles.json", "/sitemap.xml", artPathOf(rec.article)]);
+    await warmEdge("/data/articles.json", publicArticlesJson(list), "application/json; charset=utf-8");
+    return json({ ok: true, restored: publicArticle(rec.article), articles: list.map(publicArticle) });
+  }
 
   if (body.action === 'replace') {
     if (!Array.isArray(body.articles)) return json({ ok: false, error: 'articles 必须是数组' }, 400);
@@ -4166,7 +4190,11 @@ async function handleArticles(request, env) {
       // 删除单篇也要让「公开列表」失效：以前只清了这篇文章的页面，
       // /data/articles.json 里还挂着它（本地门禁看到幽灵，线上访客刷新也会看到）。
       await purgeEdge(['/articles', '/articles.html', '/data/articles.json', '/sitemap.xml', artPathOf(list[idx])]);
+      const gone = list[idx];
       list.splice(idx, 1);
+      try {
+        await EDGE_CACHE.put(ART_TRASH_KEY, new Response(JSON.stringify({ at: Date.now(), index: idx, article: gone }), { headers: { "cache-control": "max-age=" + ART_TRASH_TTL } }));
+      } catch (e) {}
     } else {
       const c = checkArticle(body.article);
       if (!c.ok) return json({ ok: false, error: c.error }, 400);
@@ -7168,12 +7196,14 @@ function saveMsgFor(btn) {
     } else if (dl != null) {
       var art = state.articles.filter(function (x) { return String(x.id) === dl; })[0];
       var artTitle = art ? art.title : '';
-      askConfirm('删除文章', '会删掉《' + artTitle + '》和它的正文，删完可以点「撤销」恢复（只保留最近一次）。', function () {
+      askConfirm('删除文章', '会删掉《' + artTitle + '》和它的正文。删完 10 分钟内可以点「撤销」把它放回原来的位置（只保留最近一次删除）。', function () {
         var snap = state.articles.slice();
         return api('/api/articles', { method: 'POST', body: { password: pw, action: 'remove', id: dl } }).then(function (r) {
           if (r.ok) {
             state.articles = r.articles;
-            artUndoSet(snap);
+            // 注意：artUndoSet() 会把参数包成 {articles: 参数}，精确恢复必须直接赋 state
+            state.artUndo = { restore: true, title: artTitle, at: Date.now() };
+            if ($('artUndo')) $('artUndo').disabled = false;
             renderArticles();
             paintDelMsg('#pane-articles [data-save="article"]', '已删除《' + artTitle + '》· 可撤销', true);
           }
@@ -7319,6 +7349,20 @@ function saveMsgFor(btn) {
       $('artUndo').addEventListener('click', function () {
         var u = state.artUndo;
         if (!u) { toast('没有可撤销的操作', true); return; }
+        if (u.restore) {
+          api('/api/articles', { method: 'POST', body: { password: pw, action: 'restore' } }).then(function (r) {
+            if (r.ok) {
+              state.articles = r.articles;
+              state.artUndo = null;
+              if ($('artUndo')) $('artUndo').disabled = true;
+              renderArticles();
+              toast('已撤销：那篇文章回到原来的位置', true);
+              return;
+            }
+            toast(r.error || '撤销失败', true);
+          });
+          return;
+        }
         api('/api/articles', { method: 'POST', body: { password: pw, action: 'replace', articles: u.articles } }).then(function (r) {
           if (r.ok) { state.articles = r.articles; state.artUndo = null; $('artUndo').disabled = true; renderArticles(); toast('已撤销', true); }
         });
