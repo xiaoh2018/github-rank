@@ -50,10 +50,22 @@ try {
     var b = document.getElementById('ickTrend');
     return b ? { n: b.querySelectorAll('.ick-tag').length, text: b.textContent || '', btn: !!b.querySelector('[data-ickfill]') } : null;
   })()`);
-  ok('趋势条有 5 个标签', bar && bar.n === 5, bar && bar.n);
-  ok('趋势条写了今天查了几次', !!(bar && /今天查了/.test(bar.text)), bar && bar.text.slice(0, 60));
-  ok('趋势条写了还挂着几条', !!(bar && /还挂着/.test(bar.text)), bar && bar.text);
-  ok('有「把挂着的填进批量框」按钮', !!(bar && bar.btn), bar && bar.btn);
+  if (!REMOTE) {
+    ok('趋势条有 5 个标签', bar && bar.n === 5, bar && bar.n);
+    ok('趋势条写了今天查了几次', !!(bar && /今天查了/.test(bar.text)), bar && bar.text.slice(0, 60));
+    ok('趋势条写了还挂着几条', !!(bar && /还挂着/.test(bar.text)), bar && bar.text);
+  }
+  if (REMOTE) {
+    // 线上没有后台口令：/api/index-log 返回 403，面板只显示「读不到记录：密码不对」，
+    // 趋势条本来就是空的。这里只验「容器与文案都部署上去了」，不假装验过数据。
+    const dom = await cdp.js(`(function(){
+      var t = document.getElementById('ickTrend');
+      var b = document.getElementById('ickLogBox');
+      return { hasTrend: !!t, cls: t ? t.className : '', box: b ? (b.textContent || '').slice(0, 40) : '' };
+    })()`);
+    ok('趋势条容器在（#ickTrend）', dom.hasTrend === true && /ick-trend/.test(dom.cls), JSON.stringify(dom));
+    ok('没口令时记录区显示「读不到记录」', /读不到记录/.test(dom.box || ''), dom.box);
+  }
 
   if (!REMOTE) {
     const filled = await cdp.js(`(function(){
