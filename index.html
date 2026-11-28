@@ -1815,12 +1815,33 @@ getJSON('/data/site.json').then(function(site){
       }
       return out+escH(txt.slice(at));
     }
+    function navQFromUrl(){
+      try{
+        var u=new URL(location.href);
+        var isNav = u.searchParams.get('page')==='nav' || /\/nav$/.test(u.pathname);
+        return isNav ? (u.searchParams.get('q')||'') : '';
+      }catch(e){ return ""; }
+    }
+    var navUrlT=null, navQDone=false;
+    function navSyncUrl(){
+      try{
+        var u=new URL(location.href);
+        var isNav = u.searchParams.get('page')==='nav' || /\/nav$/.test(u.pathname);
+        if(!isNav) return;
+        var inp=document.getElementById("navSearch");
+        var q=inp&&inp.value?inp.value.trim():'';
+        if(q) u.searchParams.set('q',q); else u.searchParams.delete('q');
+        var next=u.pathname+u.search+u.hash;
+        if(next!==location.pathname+location.search+location.hash) history.replaceState(null,'',next);
+      }catch(e){}
+    }
     function renderNav(){
       var box=document.getElementById('navBody'); if(!box) return;
       var inp=document.getElementById('navSearch');
+      if(inp && !navQDone){ var uq=navQFromUrl(); if(uq && !inp.value) inp.value=uq; navQDone=true; }
       var q=(inp&&inp.value?inp.value:'').trim().toLowerCase();
       var nc=document.getElementById('navClear'); if(nc) nc.hidden=!q;
-      if(nc && !nc.dataset.bound){ nc.dataset.bound='1'; nc.addEventListener('click', function(){ var i2=document.getElementById('navSearch'); if(i2){ i2.value=''; renderNav(); i2.focus(); } }); var i3=document.getElementById('navSearch'); if(i3){ window.__imeBind(i3, function(){ nc.hidden=!i3.value; }); } }
+      if(nc && !nc.dataset.bound){ nc.dataset.bound='1'; nc.addEventListener('click', function(){ var i2=document.getElementById('navSearch'); if(i2){ i2.value=''; renderNav(); navSyncUrl(); i2.focus(); } }); var i3=document.getElementById('navSearch'); if(i3){ window.__imeBind(i3, function(){ nc.hidden=!i3.value; }); } }
       var groups=(navData&&navData.groups)||[];
       var total=0, shown=0, html='', jump='';
       groups.forEach(function(g, gi){
@@ -1869,6 +1890,7 @@ getJSON('/data/site.json').then(function(site){
             var qi=document.getElementById('navSearch');
             if(qi) qi.value='';
             renderNav();
+            navSyncUrl();
             if(qi) qi.focus();
             return;
           }
@@ -1940,7 +1962,7 @@ getJSON('/data/site.json').then(function(site){
         el.classList.toggle('is-on',on);
         el.setAttribute('aria-selected',String(on));
       });
-      try{ if(history.replaceState){ var keepPost=(/[?&]post=([^&]+)/.exec(location.search)||[])[1]; var viewUrl=v2==='nav'?'/?page=nav':(v2==='articles'?'/?page=articles':(v2==='faq'?'/?page=faq':'/')); if(v2==='articles'&&keepPost) viewUrl+='&post='+keepPost; history.replaceState(null,'',viewUrl); } }catch(e){}
+      try{ if(history.replaceState){ var keepPost=(/[?&]post=([^&]+)/.exec(location.search)||[])[1]; var viewUrl=v2==='nav'?'/?page=nav':(v2==='articles'?'/?page=articles':(v2==='faq'?'/?page=faq':'/')); if(v2==='articles'&&keepPost) viewUrl+='&post='+keepPost; var keepQ=(/[?&]q=([^&]+)/.exec(location.search)||[])[1]; if(v2==='nav'&&keepQ) viewUrl+='&q='+keepQ; history.replaceState(null,'',viewUrl); } }catch(e){}
       if(v2==='nav') loadNav();
       if(v2==='articles') loadArtView();
       if(v2==='faq') loadFaq();
@@ -1986,7 +2008,16 @@ getJSON('/data/site.json').then(function(site){
       renderArtView();
     });
     var navSearchBox=document.getElementById('navSearch');
-    if(navSearchBox) window.__imeBind(navSearchBox, function(){ if(navLoaded) renderNav(); });
+    if(navSearchBox) window.__imeBind(navSearchBox, function(){
+      if(navLoaded) renderNav();
+      if(navUrlT) clearTimeout(navUrlT);
+      navUrlT=setTimeout(navSyncUrl, 180);
+    });
+    window.addEventListener('popstate', function(){
+      var uq=navQFromUrl();
+      var inp=document.getElementById("navSearch");
+      if(inp && inp.value!==uq){ inp.value=uq; if(navLoaded) renderNav(); }
+    });
     // 直接打开导航页：/nav、/?page=nav、/#nav 都认（head 里已提前记下意图）
     // 只认 URL 里的意图（/nav、/?page=nav、/#nav）；不读历史记忆，否则从 /faq 点「榜单」会跳到导航页
     var wantNav = window.__wantNav === true;

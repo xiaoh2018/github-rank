@@ -1125,11 +1125,14 @@ let legacyRange = false; // 从旧链接 #week/... 进来时，地址里明确�
   if (state.view !== 'repos') sp.set('view', state.view);
   // page=nav / page=articles / page=faq 是「哪个视图」的地址标记（不是榜单的 view 参数），同步地址时必须原样保留，
   // 否则刷新/分享会掉回榜单
-  const pageMark = new URLSearchParams(location.search).get('page');
+  const pageMark = new URLSearchParams(location.search).get('page') || (/\/nav\/?$/.test(location.pathname) ? 'nav' : null);
   if (pageMark === 'nav' || pageMark === 'articles' || pageMark === 'faq') sp.set('page', pageMark);
   // ?post= 是「哪篇文章正开着」的标记，同步筛选时必须原样保留，否则刷新会掉回列表
   const postMark = new URLSearchParams(location.search).get('post');
   if (postMark) sp.set('post', postMark);
+  // ?q= 是导航页的搜索关键词（可分享的筛选视图），同步地址时也要原样保留
+  const navQMark = new URLSearchParams(location.search).get('q');
+  if (pageMark === 'nav' && navQMark) sp.set('q', navQMark);
   const qs = sp.toString();
   history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
 }
