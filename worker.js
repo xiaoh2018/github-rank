@@ -1822,7 +1822,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v288';
+const ASSET_V = 'v289';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4507,6 +4507,23 @@ td>.empty-card{margin:0}
   .ick-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .ick-links a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 8px;text-align:center;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
   .ick-why{margin-top:8px}
+}
+@media (max-width:760px){
+  #ickLogBox table{display:block;width:100%;min-width:0;table-layout:auto}
+  #ickLogBox thead{display:none}
+  #ickLogBox th{display:none}
+  #ickLogBox tr:has(th){display:none;border:0;padding:0;margin:0}
+  #ickLogBox tr{display:block;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px;background:#fff}
+  #ickLogBox td{display:block;width:auto;border:0;padding:2px 0;white-space:normal;word-break:break-all;font-size:12.5px}
+  #ickLogBox td::before{content:"";display:inline-block;min-width:70px;color:var(--muted);font-weight:600}
+  #ickLogBox td:nth-child(1)::before{content:"时间"}
+  #ickLogBox td:nth-child(2)::before{content:"路径"}
+  #ickLogBox td:nth-child(3)::before{content:"状态"}
+  #ickLogBox td:nth-child(4)::before{content:"sitemap"}
+  #ickLogBox td:nth-child(5)::before{content:"和上次比"}
+  #ickLogBox td:nth-child(6){margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+  #ickLogBox td:nth-child(6)::before{content:"动作";display:block;margin-bottom:4px}
+  #ickLogBox .mini{min-height:40px;min-width:76px;padding:0 12px}
 }
 .ick-batch{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
 .ick-hint{margin:8px 0 0;font-size:12.5px;color:var(--muted)}

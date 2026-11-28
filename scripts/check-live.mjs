@@ -533,6 +533,7 @@ push('推送也留痕（记录里标「推送 · 」）', admHtml.includes("kind
 push('弹窗阅读器也有阅读进度（和静态页对称）', home.includes('id="adlProg"') && home.includes('adlProgPaint'), '');
 push('手机后台写文章时预览默认收起（编辑区优先）', admHtml.includes('previewDefault') && admHtml.includes("btn.textContent = '显示预览'"), '');
 push('后台 md.js 跟着发版号走（预览和读者同一份）', /\/js\/md\.js\?v=v\d+/.test(admHtml) && !admHtml.includes('md.js?v=9'), '');
+push('收录记录在窄屏变卡片（不再被裁一半）', admHtml.includes('td:nth-child(2)::before') && admHtml.includes('#ickLogBox th{display:none}'), '');
 push('两个阅读器共用字号存档与 --rfont', home.includes("RF_KEY='ghrank-reader-font'") && home.includes('var(--rfont'), '');
 push('文章弹窗有上一篇/下一篇', home.includes('id="adlNav"') && home.includes('上一篇：'), '');
 const siteJson = await (await fetch(base + '/api/site?cb=' + Date.now())).json();
