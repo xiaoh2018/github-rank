@@ -1,0 +1,49 @@
+# 收录自查：每天北京时间 09:00 自动跑一次，把结果写进后台「最近查询记录」。
+#
+# 需要配一个 secret：仓库 Settings → Secrets and variables → Actions →
+#   New repository secret → 名称 INDEX_CRON_TOKEN
+#   值 = 后台「收录与平台 → 定时自查」里点「生成」得到的那个令牌
+# 没配也不会报红：这一步会打印一条 warning 然后跳过。
+#
+# 站点换域名时，把下面 curl 里的地址一起改掉（或用仓库 Variable 覆盖）。
+name: 收录自查
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  index-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检查有没有配令牌
+        id: tok
+        env:
+          TOKEN: ${{ secrets.INDEX_CRON_TOKEN }}
+        run: |
+          if [ -z "${TOKEN:-}" ]; then
+            echo "has=0" >> "$GITHUB_OUTPUT"
+            echo "::warning::没有配置 INDEX_CRON_TOKEN，这次跳过；后台「收录与平台 → 定时自查」可以生成令牌，再加到 Settings → Secrets。"
+          else
+            echo "has=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 跑一次收录自查
+        if: steps.tok.outputs.has == '1'
+        env:
+          TOKEN: ${{ secrets.INDEX_CRON_TOKEN }}
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/out.json -w '%{http_code}' --max-time 60 \
+            "https://github.661026.xyz/api/index-cron?token=${TOKEN}")
+          echo "HTTP ${code}"
+          head -c 2000 /tmp/out.json || true
+          echo
+          if [ "${code}" != "200" ]; then
+            echo "::error::收录自查失败（HTTP ${code}）；如果是 403，多半是后台那个令牌被重新生成过。"
+            exit 1
+          fi

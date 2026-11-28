@@ -1822,7 +1822,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v280';
+const ASSET_V = 'v281';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -7954,7 +7954,10 @@ function saveMsgFor(btn) {
   setTimeout(bindCronTok, 360);
   function cronSnippetText() {
     var lines = [
-      '# .github/workflows/index-check.yml（每天北京时间 09:00 跑一次）',
+      '# 仓库里已经有 .github/workflows/index-check.yml（每天北京 09:00 跑一次），你只需要配一个 secret：',
+      '#   Settings → Secrets and variables → Actions → New repository secret',
+      '#   名称 INDEX_CRON_TOKEN，值 = 后台「定时自查」里点「生成」得到的令牌',
+      '# 下面这份是「想自己另写一个」时的参考（仓库里那份已经带了「没配 secret 就跳过」的保护）',
       'on:',
       '  schedule:',
       '    - cron: 0 1 * * *',

@@ -597,6 +597,7 @@ push('提交失败时会说清原因并给出「只重试这一项」', admHtml.
 push('提交结果带诊断字段（原因/下一步/能否重试）', admHtml.includes('diagnoseSubmitResult') || admHtml.includes('o.diag.retry'), '');
 push('「试推」改成真演练（不发请求，标题写「演练 · 未发送」）', admHtml.includes('演练（不发请求）') && admHtml.includes('演练 · 未发送') && admHtml.includes('sub-dry'), '');
 push('后台有「定时自查」块与可粘贴的配置片段', admHtml.includes('id="cronWrap"') && admHtml.includes('id="cronSnippet"') && admHtml.includes('/api/index-cron'), '');
+push('定时自查指向仓库里真实的 workflow（.github/workflows/index-check.yml）', admHtml.includes('.github/workflows/index-check.yml') && admHtml.includes('INDEX_CRON_TOKEN'), '');
 
 push('后台能填定时令牌（输入框 + 生成 + 保存 + 状态行）', admHtml.includes('id="seo-indexCronToken"') && admHtml.includes('id="cronTokGen"') && admHtml.includes('id="cronTokState"'), '');
 
