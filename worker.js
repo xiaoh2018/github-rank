@@ -78,6 +78,16 @@ export default {
         });
         return new Response(request.method === 'HEAD' ? null : xmlRss, { status: 200, headers: headRss });
       }
+      if (url.pathname === '/feed.xml' && (request.method === 'GET' || request.method === 'HEAD')) {
+        const seoFeed = (await loadSiteRaw(env)).seo;
+        const originFeed = seoFeed.siteUrl ? seoFeed.siteUrl.replace(/\/+$/, '') : url.origin;
+        const xmlFeed = await rankFeedXml(env, originFeed);
+        const headFeed = new Headers({
+          'content-type': 'application/rss+xml; charset=utf-8',
+          'cache-control': 'public, max-age=600, s-maxage=600',
+        });
+        return new Response(request.method === 'HEAD' ? null : xmlFeed, { status: 200, headers: headFeed });
+      }
       if (url.pathname === '/llms.txt' && (request.method === 'GET' || request.method === 'HEAD')) {
         return new Response(await llmsTxt(env, url.origin), {
           headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },
@@ -1829,7 +1839,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v299';
+const ASSET_V = 'v300';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2176,6 +2186,7 @@ async function llmsTxt(env, origin) {
   lines.push('- ' + root + '/api/rank?range=week&limit=20 — 排行榜数据（range=week/month/year/total/all，limit 1–100，可选 lang=Rust / topic=desktop-app，format=tsv 可下载表格；5 分钟缓存）');
   lines.push('- ' + root + '/sitemap.xml — 全站页面清单（含 lastmod）');
   lines.push('- ' + root + '/rss.xml — 文章 RSS 订阅源（RSS 2.0）');
+  lines.push('- ' + root + '/feed.xml — 榜单订阅源（近 7 天 Top 50，RSS 2.0，10 分钟缓存）');
   lines.push('');
   lines.push('## 引用与抓取建议');
   lines.push('');
@@ -2713,6 +2724,62 @@ async function handleIndexCheckOne(request, env, origin, bodyIn) {
 
 // /api/rank：给机器 / LLM 读的排行榜（只读、可缓存 5 分钟、单次最多 100 条）
 const RANK_RANGE_FILES = { week: 'week', month: 'month', year: 'year', total: 'total', all: 'all' };
+// 榜单订阅：/feed.xml（近 7 天 Top 50，RSS 2.0）
+async function rankFeedXml(env, origin) {
+  const xe = (v) =>
+    String(v == null ? '' : v)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  const rawBase =
+    'https://raw.githubusercontent.com/' + repoOf(env).owner + '/' + repoOf(env).name + '/' + branch(env) + '/';
+  const grab = async (path) => {
+    const r = await fetch(rawBase + path, { cf: { cacheTtl: 300, cacheEverything: true } });
+    return r && r.ok ? r.text() : '';
+  };
+  const site = await loadSiteRaw(env).catch(() => ({}));
+  const seo = (site && site.seo) || {};
+  const siteName = seo.siteName || 'GitHub 热门项目排行榜';
+  const metaText = await grab('data/repos-meta.js');
+  const gm = metaText.match(/generatedAt:\s*"([^"]+)"/);
+  const generatedAt = gm ? gm[1] : new Date().toISOString();
+  const raw = await grab('data/repos-week.json');
+  let payload = null;
+  try { payload = raw ? JSON.parse(raw) : null; } catch (e) { payload = null; }
+  const repos = payload && Array.isArray(payload.repos) ? payload.repos.slice() : [];
+  repos.sort((a, b) => (Number(b.stars) || 0) - (Number(a.stars) || 0));
+  const top = repos.slice(0, 50);
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel>\n';
+  xml += '  <title>' + xe(siteName + ' · 近 7 天 Top 50') + '</title>\n';
+  xml += '  <link>' + xe(origin + '/') + '</link>\n';
+  xml += '  <description>' + xe('每 3 小时更新的 GitHub 热门项目榜（近 7 天），按星标数排序。') + '</description>\n';
+  xml += '  <language>zh-CN</language>\n';
+  xml += '  <lastBuildDate>' + new Date(generatedAt).toUTCString() + '</lastBuildDate>\n';
+  xml += '  <generator>ghrank</generator>\n';
+  for (const r of top) {
+    if (!r || !r.name) continue;
+    const url = 'https://github.com/' + String(r.name).replace(/^\/+/, '');
+    const bits = [];
+    if (r.descZh || r.desc) bits.push(String(r.descZh || r.desc));
+    bits.push('★' + (Number(r.stars) || 0));
+    if (r.lang) bits.push(String(r.lang));
+    if (r.forks) bits.push('Fork ' + (Number(r.forks) || 0));
+    xml += '    <item>\n';
+    xml += '      <title>' + xe(r.name + ' ★' + (Number(r.stars) || 0)) + '</title>\n';
+    xml += '      <link>' + xe(url) + '</link>\n';
+    xml += '      <guid isPermaLink="true">' + xe(url) + '</guid>\n';
+    xml += '      <description>' + xe(bits.join(' · ')) + '</description>\n';
+    if (r.updated) {
+      const d = new Date(r.updated);
+      if (!isNaN(d.getTime())) xml += '      <pubDate>' + d.toUTCString() + '</pubDate>\n';
+    }
+    xml += '    </item>\n';
+  }
+  xml += '</channel></rss>\n';
+  return xml;
+}
+
 async function handleRank(request, env, url, origin) {
   const p = url.searchParams;
   const range = String(p.get('range') || 'week').trim().toLowerCase();

@@ -44,6 +44,7 @@ window.__wantFaq = (function () {
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://github.661026.xyz/">
 <link rel="alternate" type="application/rss+xml" title="文章 RSS" href="https://github.661026.xyz/rss.xml">
+<link rel="alternate" type="application/rss+xml" title="榜单 Top 50（近 7 天）" href="/feed.xml">
 <meta property="og:type" content="website">
 <meta property="og:title" content="GitHub 热门项目排行榜">
 <meta property="og:description" content="按星标、增速、活跃度发现热门 GitHub 开源项目，附语言分布、热门开发者与组织榜。">
@@ -949,8 +950,10 @@ window.__imeBind = function (el, fn) {
               <h2 id="faqTitle">关于本排行榜</h2>
               <button class="btn ghost" id="aboutClose" type="button">关闭</button>
             </div>
+      <p class="rssline">订阅：<a id="feedLink" href="/feed.xml">榜单 Top 50（RSS）</a> · <a href="/rss.xml">文章（RSS）</a></p>
       <div id="geoSummary">
-        <p>它把 GitHub 上星标数较高的开源仓库按时间范围（近 7 天、近 30 天、近 1 年）整理成排行榜，并单独提供「总榜」：全站按星标降序的前 500 个仓库，并提供语言分布、今日增量、活跃度、热门开发者与组织等视图。</p>
+        
+<p>它把 GitHub 上星标数较高的开源仓库按时间范围（近 7 天、近 30 天、近 1 年）整理成排行榜，并单独提供「总榜」：全站按星标降序的前 500 个仓库，并提供语言分布、今日增量、活跃度、热门开发者与组织等视图。</p>
         <p>页面默认读取定时抓取的静态数据，每 3 小时更新一次；数据来自 GitHub 公开的 Search API。「总榜」是 GitHub 全站按星标降序的前 500 名（深翻 10 页搜索结果），近 7 天 / 30 天 / 1 年三个榜只收该时间段内新建的仓库。筛选条件会写进网址（例如 ?range=month&amp;lang=Python&amp;sort=trend），复制地址栏即可分享同一视图。</p>
       </div>
       <div id="geoFaq" class="geo-faq" hidden></div>
