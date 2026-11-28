@@ -1525,6 +1525,44 @@ async function translateDescs() {
   }
 }
 
+// ---------- 我的收藏（独立视图） ----------
+function renderFavs() {
+  const list = $("list");
+  list.classList.remove("users-view");
+  list.classList.add("favs-view");
+  const names = [...getFavs()];
+  const known = new Map(state.repos.map(r => [r.name, r]));
+  const nodes = names.map(function (name) {
+    const r = known.get(name);
+    const li = el("li", "item fav-item");
+    const a = el("a", "name", name);
+    a.href = "https://github.com/" + name;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    const meta = el("p", "desc", r ? ("★" + fmt(r.stars) + " · " + (r.lang || "未知语言") + (r.desc ? " · " + r.desc : "")) : "不在当前这次拉到的榜单里（可能属于别的范围或语言）");
+    const rm = el("button", "mini", "取消收藏");
+    rm.type = "button";
+    rm.setAttribute("aria-label", "取消收藏「" + name + "」");
+    rm.onclick = function () { toggleFav(name); renderFavs(); favStatPaint(); };
+    li.append(a, meta, rm);
+    return li;
+  });
+  if (!nodes.length) {
+    const li = el("li", "item empty-item");
+    const wrap = el("div", "empty-c");
+    wrap.append(el("b", null, "还没有收藏"));
+    wrap.append(el("p", "hint", "在榜单里点卡片上的 ☆ 就能收藏。收藏只存在这台设备，换浏览器或清缓存会丢 —— 记得偶尔「导出收藏」存一份。"));
+    const b1 = el("button", "btn ghost", "去项目榜");
+    b1.onclick = function () { setView("repos"); };
+    const b2 = el("button", "btn ghost", "去设置里导出");
+    b2.onclick = function () { var sb = document.getElementById("btnSettings"); if (sb) sb.click(); };
+    wrap.append(b1, b2);
+    li.append(wrap);
+    nodes.push(li);
+  }
+  list.replaceChildren(...nodes);
+  setStatus(names.length ? ("共 " + names.length + " 个收藏（只存在这台设备）") : "还没有收藏");
+}
 function renderUsers() {
   const isOrg = state.view === 'orgs';
   const kindLabel = isOrg ? '组织' : '开发者';
@@ -1582,7 +1620,8 @@ function render() {
   paintBlockBar();
   paintChurn();
   densApply();
-  if (state.view === 'repos') renderRepos(); else renderUsers();
+  if (state.view === 'favs') renderFavs();
+  else if (state.view === 'repos') renderRepos(); else renderUsers();
   updateSourceNote();
   paintFresh();
 }
@@ -1908,7 +1947,9 @@ function setView(v) {
     b.setAttribute('aria-pressed', String(on));
   });
   toggleRepoOnly();
-  syncHash(); load();
+  syncHash();
+  if (v === 'favs') { render(); return; }
+  load();
 }
 document.querySelectorAll('#views .btn').forEach(b => { b.onclick = () => setView(b.dataset.view); });
 document.querySelectorAll('#ranges .btn').forEach(b => {

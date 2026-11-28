@@ -61,6 +61,7 @@ push('「分享」有带项目名的可访问名 + 32px 触摸高度', bundleJs.
 const feedRes = await fetch(base + '/feed.xml');
 const feedXml = await feedRes.text();
 push('榜单订阅源 /feed.xml 可用（RSS 2.0，50 条）', feedRes.status === 200 && /application\/rss\+xml/.test(feedRes.headers.get('content-type') || '') && (feedXml.match(/<item>/g) || []).length === 50);
+push('顶栏有「收藏」视图（本机收藏可查看/取消）', home.includes('data-view="favs"') && bundleJs.includes('function renderFavs'), '');
 push('榜单顶部有「新进/掉出」摘要（和本机快照比）', bundleJs.includes('function paintChurn') && bundleJs.includes('churnBar'), '');
 push('榜单有视图密度三档（紧凑/标准/卡片，本机记忆）', home.includes('data-dens="compact"') && bundleJs.includes('ghrank:dens'), '');
 push('榜单卡片有「不感兴趣」（本机保存 + 一键恢复）', bundleJs.includes('ghrank:blocked') && bundleJs.includes('不感兴趣') && bundleJs.includes('恢复全部'), '');
