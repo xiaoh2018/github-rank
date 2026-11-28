@@ -1822,7 +1822,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v282';
+const ASSET_V = 'v283';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4397,6 +4397,14 @@ td>.empty-card{margin:0}
     #navImpDlg{width:min(720px,calc(100% - 28px))}
     #navImpDlg textarea{min-height:220px;font-family:ui-monospace,Consolas,monospace}
     #navImpDlg .desc{color:var(--muted);font-size:13px;margin:6px 0 10px}
+  #navImpDlg .imp-prev{margin-top:10px;max-height:200px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fbfaf7}
+  #navImpDlg .imp-prev table{width:100%;border-collapse:collapse;font-size:12.5px}
+  #navImpDlg .imp-prev th,#navImpDlg .imp-prev td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  #navImpDlg .imp-prev th{background:#f1ede5;font-weight:600;white-space:nowrap}
+  #navImpDlg .ip-ok{color:#15803d}
+  #navImpDlg .ip-dup{color:#b45309}
+  #navImpDlg .ip-bad{color:#b91c1c}
+  #navImpDlg .imp-sum{margin:8px 0 0;font-size:13px;color:var(--muted)}
     .nav-g-head{display:flex;gap:8px;flex-wrap:wrap;flex:1;min-width:0}
     .nav-g-head input{max-width:260px}
     #navAdmin td input{font-size:13px;padding:7px 9px}
@@ -5262,6 +5270,8 @@ tr:hover td{background:#fcfbf8}
         <input type="file" id="navImpFile" accept=".txt,.csv,text/plain,text/csv" aria-label="选择要导入的 txt 或 csv 文件" style="max-width:330px">
         <span class="hint" style="margin:0">或者选一个 .txt / .csv 文件（每行一个站点，列用 | 或 Tab 分隔）</span>
       </div>
+      <div id="navImpPrev" class="imp-prev" aria-live="polite" hidden></div>
+      <p class="imp-sum" id="navImpSum">粘贴或选文件后会自动检查一遍：重复的、协议不对的、缺网址的都会先列出来，能导入几条、跳过几条写在这里。</p>
       <div class="actions"><button type="button" class="ghost" id="navImpCancel">取消</button><button type="button" id="navImpGo">导入</button></div>
     </dialog>
 
@@ -7469,28 +7479,87 @@ function saveMsgFor(btn) {
         '</div>';
     }).join('');
   }
-  function navImportText(raw) {
+  // 批量导入：先解析成「逐行结论」，再决定写不写（以前是边解析边 push，坏行直接扔掉，用户不知道丢了什么）
+  function navParseImport(raw) {
     var CR = String.fromCharCode(13), LF = String.fromCharCode(10);
     var lines = String(raw || '').replace(new RegExp(CR, 'g'), '').split(LF);
+    var existing = {};
+    (navState.groups || []).forEach(function (grp) {
+      (grp.items || []).forEach(function (it) {
+        if (it && it.url) existing[String(it.url).trim().toLowerCase().replace(/\\/+$/, '')] = true;
+      });
+    });
+    var seen = {}, rows = [];
+    lines.forEach(function (line, i) {
+      var t = line.trim();
+      if (!t || t.charAt(0) === '#') return;
+      var parts = t.split(/\\s*\\|\\s*|\\t+/);
+      var name = (parts[0] || '').trim();
+      var url = (parts[1] || '').trim();
+      var row = { line: i + 1, name: name, url: url, desc: (parts[2] || '').trim(), icon: (parts[3] || '').trim(), state: 'ok', reason: '' };
+      if (!url) { row.state = 'bad'; row.reason = '这一行没有网址（第二列）'; rows.push(row); return; }
+      if (!/^https?:\\/\\//i.test(url)) { row.state = 'bad'; row.reason = '只收 http(s) 地址，现在是「' + url.slice(0, 24) + '」'; rows.push(row); return; }
+      if (/[\\s"']/.test(url)) { row.state = 'bad'; row.reason = '网址里有空格或引号'; rows.push(row); return; }
+      var low = url.toLowerCase().replace(/\\/+$/, '');
+      if (existing[low]) { row.state = 'dup'; row.reason = '这个网址已经在导航里了'; rows.push(row); return; }
+      if (seen[low]) { row.state = 'dup'; row.reason = '和上面某一行重复'; rows.push(row); return; }
+      seen[low] = true;
+      var host = low.replace(/^https?:\\/\\//, '').split('/')[0];
+      if (!name) row.name = host;
+      rows.push(row);
+    });
+    function count(k) { return rows.filter(function (r) { return r.state === k; }).length; }
+    var g0 = (navState.groups || [])[0];
+    return { rows: rows, ok: count('ok'), dup: count('dup'), bad: count('bad'), group: (g0 && g0.name) || '第一个分类' };
+  }
+
+  function navImpRefresh() {
+    var box = $('navImpPrev'), sum = $('navImpSum'), go = $('navImpGo');
+    var p = navParseImport($('navImpText') ? $('navImpText').value : '');
+    if (!box || !sum) return p;
+    if (!p.rows.length) {
+      box.hidden = true;
+      box.innerHTML = '';
+      sum.textContent = '粘贴或选文件后会自动检查一遍：重复的、协议不对的、缺网址的都会先列出来，能导入几条、跳过几条写在这里。';
+      if (go) go.disabled = true;
+      return p;
+    }
+    box.hidden = false;
+    box.innerHTML = '<table><thead><tr><th style="width:30px"></th><th>名称</th><th>网址</th><th>说明</th></tr></thead><tbody>' +
+      p.rows.map(function (r) {
+        var cls = r.state === 'ok' ? 'ip-ok' : (r.state === 'dup' ? 'ip-dup' : 'ip-bad');
+        var mark = r.state === 'ok' ? '✓' : (r.state === 'dup' ? '⚠' : '✗');
+        return '<tr><td class="' + cls + '">' + mark + '</td><td>' + navEsc(r.name || '—') + '</td><td>' + navEsc(r.url || '—') + '</td><td class="' + cls + '">' + navEsc(r.reason || '可以导入') + '</td></tr>';
+      }).join('') + '</tbody></table>';
+    sum.textContent = '可以导入 ' + p.ok + ' 条' +
+      (p.dup ? ' · 跳过 ' + p.dup + ' 条重复' : '') +
+      (p.bad ? ' · 跳过 ' + p.bad + ' 条格式不对' : '') +
+      '（都会进「' + p.group + '」）';
+    if (go) go.disabled = p.ok === 0;
+    return p;
+  }
+
+  function navImportText(raw) {
+    var p = navParseImport(raw);
     if (!(navState.groups || []).length) {
       navState.groups = [{ id: 'imported', name: '导入', desc: '', items: [] }];
     }
     var g = navState.groups[0];
     g.items = g.items || [];
-    var added = 0;
-    lines.forEach(function (line) {
-      var t = line.trim();
-      if (!t || t.charAt(0) === '#') return;
-      var parts = t.split(/\\s*\\|\\s*|\\t+/);
-      var url = (parts[1] || '').trim();
-      if (!/^https?:\\/\\//i.test(url)) return;
-      var host = url.replace(/^https?:\\/\\//i, '').split('/')[0];
-      g.items.push({ name: (parts[0] || '').trim() || host, url: url, desc: (parts[2] || '').trim(), icon: (parts[3] || '').trim() });
-      added++;
+    p.rows.forEach(function (r) {
+      if (r.state === 'ok') g.items.push({ name: r.name, url: r.url, desc: r.desc, icon: r.icon });
     });
     renderNavAdmin();
-    toast(added ? '已导入 ' + added + ' 个站点到「' + g.name + '」，记得点保存' : '没识别到可导入的行（第二列要是 http(s) 网址）', added > 0);
+    var skip = p.dup + p.bad;
+    toast(p.ok
+      ? '已导入 ' + p.ok + ' 个站点到「' + g.name + '」' + (skip ? '，跳过 ' + skip + ' 条（重复或格式不对，预览里能看到原因）' : '') + '，记得点保存'
+      : '没有可导入的行：' + (p.dup ? p.dup + ' 条重复、' : '') + (p.bad ? p.bad + ' 条格式不对' : '') + '（看预览里的原因）',
+      p.ok > 0);
+    return p;
   }
+
+  window.__navParseImport = navParseImport;
+  window.__navImpRefresh = navImpRefresh;
   imeBind($('navFilter'), renderNavAdmin);
   document.addEventListener('click', function (e) {
     var b = e.target.closest ? e.target.closest('[data-navfreset]') : null;
@@ -7498,6 +7567,7 @@ function saveMsgFor(btn) {
     if ($('navFilter')) { $('navFilter').value = ''; $('navFilter').focus(); }
     renderNavAdmin();
   });
+  $('navImpText') && $('navImpText').addEventListener('input', navImpRefresh);
   $('navImport').addEventListener('click', function () {
     var dlg = $('navImpDlg');
     $('navImpText').value = '';
@@ -7517,7 +7587,8 @@ function saveMsgFor(btn) {
   });
   $('navImpCancel').addEventListener('click', function () { $('navImpDlg').close(); });
   $('navImpGo').addEventListener('click', function () {
-    navImportText($('navImpText').value);
+    var p = navImportText($('navImpText').value);
+    if (!p || p.ok === 0) return;
     $('navImpDlg').close();
   });
   function loadNavAdmin() {
