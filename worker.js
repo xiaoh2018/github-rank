@@ -197,6 +197,9 @@ export default {
       if (url.pathname === '/api/index-check' && request.method === 'POST') {
         return handleIndexCheck(request, env, url.origin);
       }
+      if (url.pathname === '/api/index-log' && request.method === 'POST') {
+        return handleIndexLog(request, env);
+      }
       if (url.pathname === '/api/articles' && (request.method === 'GET' || request.method === 'POST')) {
         return handleArticles(request, env);
       }
@@ -1812,7 +1815,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v272';
+const ASSET_V = 'v274';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2283,6 +2286,21 @@ async function countsOf(env) {
   };
 }
 
+async function handleIndexLog(request, env) {
+  if (!env.ADMIN_PASSWORD) return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== 'object') return json({ ok: false, error: '请求体必须是 JSON' }, 400);
+  if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
+    return json({ ok: false, error: '密码不对' }, 403);
+  }
+  if (body.action === 'clear') {
+    const done = await clearIndexLog();
+    return json({ ok: done, cleared: done, total: 0, cap: INDEX_LOG_MAX, entries: [] });
+  }
+  const list = await readIndexLog();
+  const entries = indexLogWithDelta(list);
+  return json({ ok: true, cap: INDEX_LOG_MAX, total: entries.length, entries: entries });
+}
 async function handleIndexCheck(request, env, origin) {
   if (!env.ADMIN_PASSWORD) return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
   const body = await request.json().catch(() => null);
@@ -2449,6 +2467,16 @@ async function handleIndexCheckOne(request, env, origin, bodyIn) {
   }
   const noindex = /noindex/i.test(robotsMeta) || /noindex/i.test(xRobots);
   const canonicalSelf = canonical ? trimSlash(canonical) === trimSlash(wantKey) : null;
+  const logPath = wantKey.indexOf(trimSlash(root)) === 0 ? (wantKey.slice(trimSlash(root).length) || '/') : wantKey;
+  await appendIndexLog({
+    at: Date.now(),
+    path: logPath,
+    status: status,
+    noindex: !!noindex,
+    canonicalSelf: canonicalSelf,
+    inSitemap: inSitemap,
+    inLastSubmit: !!inLastSubmit,
+  });
   return json({
     ok: true,
     url: want,
@@ -2814,6 +2842,65 @@ async function handleSubmit(request, env, origin) {
   if (!out.at) out.at = new Date().toISOString();
   await saveLastSubmit(out);
   return json(out);
+}
+
+// 收录自查的历史：存边缘缓存（不写仓库，否则每查一次都产生一次提交）
+const INDEX_LOG_KEY = EDGE_KEY_BASE + '/__index_log';
+const INDEX_LOG_MAX = 50;
+async function readIndexLog() {
+  try {
+    const hit = await EDGE_CACHE.match(INDEX_LOG_KEY);
+    if (!hit) return [];
+    const arr = await hit.json();
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) {
+    return [];
+  }
+}
+async function appendIndexLog(entry) {
+  try {
+    const list = await readIndexLog();
+    list.unshift(entry);
+    const capped = list.slice(0, INDEX_LOG_MAX);
+    await EDGE_CACHE.put(INDEX_LOG_KEY, new Response(JSON.stringify(capped), { headers: { 'cache-control': 'max-age=2592000' } }));
+  } catch (e) {
+    /* 记录失败不影响查询结果 */
+  }
+}
+async function clearIndexLog() {
+  try {
+    await EDGE_CACHE.put(INDEX_LOG_KEY, new Response('[]', { headers: { 'cache-control': 'max-age=2592000' } }));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+function indexLogWithDelta(list) {
+  // 列表是「新的在前」，算 delta 要从旧到新扫一遍，否则最新那条永远没有对照
+  const out = new Array(list.length);
+  const lastByPath = {};
+  for (let i = list.length - 1; i >= 0; i--) {
+    const e = list[i];
+    const prev = lastByPath[e.path];
+    let deltaSitemap = null;
+    let deltaStatus = null;
+    if (prev) {
+      if (prev.inSitemap === e.inSitemap) deltaSitemap = 'same';
+      else if (e.inSitemap === true) deltaSitemap = 'new';
+      else if (e.inSitemap === false) deltaSitemap = 'lost';
+      else deltaSitemap = 'unknown';
+      const pOk = prev.status >= 200 && prev.status < 400;
+      const nOk = e.status >= 200 && e.status < 400;
+      deltaStatus = pOk === nOk ? 'same' : (nOk ? 'fixed' : 'broken');
+    }
+    lastByPath[e.path] = e;
+    const copy = {};
+    for (const k in e) copy[k] = e[k];
+    copy.deltaSitemap = deltaSitemap;
+    copy.deltaStatus = deltaStatus;
+    out[i] = copy;
+  }
+  return out;
 }
 
 // 最近一次提交结果（存边缘缓存 7 天，后台打开时直接看）
@@ -4884,6 +4971,11 @@ tr:hover td{background:#fcfbf8}
           <div class="ick-row"><button class="btn ghost" type="button" id="ickFillSitemap">把 sitemap 里的地址填进来</button><button class="btn" type="button" id="ickBatchRun">批量查一下</button></div>
           <div id="ickTable" class="ick-out"></div>
           <p class="ick-hint">表格列比较多：窄屏时可以点左右滑动查看，或把浏览器窗口拉宽。</p>
+        </details>
+        <details id="ickLogWrap">
+          <summary>最近查询记录（保留最近 50 条，存在边缘缓存里）</summary>
+          <div class="ick-row"><button class="btn ghost" type="button" id="ickLogReload">刷新记录</button><button class="btn ghost" type="button" id="ickLogClear">清空记录</button></div>
+          <div id="ickLogBox" class="ick-out"></div>
         </details>
         <p class="hint">平台那边的记录要 24–72 小时才出现（Bing 还要先在站长工具里验证过本站）。这里能证明的只有「页面允许收录、我们推过」。</p>
       </div>
@@ -7315,6 +7407,78 @@ function saveMsgFor(btn) {
     row.appendChild(sp);
     return row;
   }
+  function ickLogPaint(r) {
+    var box = $('ickLogBox');
+    if (!box) return;
+    box.innerHTML = '';
+    if (!r || !r.ok) {
+      var e1 = document.createElement('p');
+      e1.className = 'note';
+      e1.textContent = '读不到记录：' + ((r && r.error) || '网络问题');
+      box.appendChild(e1);
+      return;
+    }
+    if (!r.entries.length) {
+      var e2 = document.createElement('p');
+      e2.className = 'note';
+      e2.textContent = '还没有查询记录。查一次地址，这里就会留下痕迹（最多 ' + r.cap + ' 条）。';
+      box.appendChild(e2);
+      return;
+    }
+    var tbl = document.createElement('table');
+    tbl.className = 'tbl';
+    var head = document.createElement('tr');
+    ['时间', '路径', '状态', 'sitemap', '和上次比'].forEach(function (t) {
+      var th = document.createElement('th');
+      th.textContent = t;
+      head.appendChild(th);
+    });
+    tbl.appendChild(head);
+    r.entries.slice(0, 12).forEach(function (e) {
+      var tr = document.createElement('tr');
+      var c1 = document.createElement('td');
+      c1.textContent = ickTime(e.at);
+      var c2 = document.createElement('td');
+      c2.textContent = e.path;
+      var c3 = document.createElement('td');
+      c3.textContent = String(e.status) + (e.noindex ? ' · noindex' : '') + (e.canonicalSelf === false ? ' · canonical 不对' : '');
+      var c4 = document.createElement('td');
+      c4.textContent = e.inSitemap === null ? '读不到' : (e.inSitemap ? '在' : '不在');
+      var c5 = document.createElement('td');
+      var d = [];
+      if (e.deltaSitemap === 'new') d.push('新进 sitemap');
+      if (e.deltaSitemap === 'lost') d.push('掉出 sitemap');
+      if (e.deltaStatus === 'fixed') d.push('恢复正常');
+      if (e.deltaStatus === 'broken') d.push('新出问题');
+      if (!d.length) d.push(e.deltaSitemap === null ? '首次' : '没变化');
+      c5.textContent = d.join('、');
+      [c1, c2, c3, c4, c5].forEach(function (c) { tr.appendChild(c); });
+      tbl.appendChild(tr);
+    });
+    box.appendChild(tbl);
+    var tip = document.createElement('p');
+    tip.className = 'note';
+    tip.textContent = '共 ' + r.total + ' 条（最多保留 ' + r.cap + ' 条）；只显示最近 12 条。';
+    box.appendChild(tip);
+  }
+  function loadIckLog() {
+    api('/api/index-log', { method: 'POST', body: { password: pw } }).then(ickLogPaint).catch(function () {
+      ickLogPaint({ ok: false, error: '网络问题' });
+    });
+  }
+  window.__loadIckLog = loadIckLog;
+  function bindIckLog() {
+    var wrap = $('ickLogWrap');
+    var reload = $('ickLogReload');
+    var clear = $('ickLogClear');
+    if (wrap) wrap.addEventListener('toggle', function () { if (wrap.open) loadIckLog(); });
+    if (reload) reload.addEventListener('click', loadIckLog);
+    if (clear) clear.addEventListener('click', function () {
+      if (!confirm('清空最近查询记录？（只删记录，不影响已提交的收录）')) return;
+      api('/api/index-log', { method: 'POST', body: { password: pw, action: 'clear' } }).then(loadIckLog);
+    });
+  }
+  setTimeout(bindIckLog, 300);
   function ickTime(t) {
     try { return new Date(t).toLocaleString(); } catch (e) { return t || ''; }
   }

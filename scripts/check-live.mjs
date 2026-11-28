@@ -589,6 +589,12 @@ push('批量入口写明了上限', admHtml.includes('一次最多 20 条，一�
 push('批量查支持一键填入 sitemap 地址', admHtml.includes('id="ickFillSitemap"'), '');
 push('宽表旁边提示可左右滑动', admHtml.includes('ick-hint'), '');
 
+push('后台有「最近查询记录」块（可展开）', admHtml.includes('id="ickLogWrap"') && admHtml.includes('id="ickLogBox"'), '');
+{
+  const rl = await fetch(base + '/api/index-log', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+  push('收录历史接口要密码（不带密码 403）', rl.status === 403, 'HTTP ' + rl.status);
+}
+
 let bad = 0;
 for (const r of rows) {
   if (!r.ok) bad++;
