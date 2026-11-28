@@ -428,7 +428,12 @@ push('没填网址时「打开」不可点（span 而非 href=#）', admHtml.inc
 push('保存按钮文字会变「保存中…」并恢复', admHtml.includes("saveLabel(btn, '保存中…')") && admHtml.includes('btn.textContent = text || btn.dataset.label'), '');
 push('保存失败给人话原因 + 重试', admHtml.includes("msg.textContent = '保存失败：' + saveReason(r)") && admHtml.includes("again.textContent = '重试'"), '');
 push('删除结果有常驻状态行助手', admHtml.includes('function paintDelMsg') && admHtml.includes('function delMsgBox'));
-push('删除确认框讲清后果与能否撤销', admHtml.includes('删完可以点「撤销」恢复') && admHtml.includes('删除不可撤销'));
+push(
+  '删除确认框讲清后果与能否撤销',
+  admHtml.includes('删完可以点「撤销」恢复') &&
+    (admHtml.includes('删除不可撤销') || admHtml.includes('删完 8 秒内可以点「撤销」')),
+  ''
+);
 push('删问答会提示要先保存才生效', admHtml.includes('已从列表移除 1 条 · 点「保存问答」才生效'));
 push('文章编辑器有本地草稿与「恢复草稿」', admHtml.includes("var ART_DRAFT = 'ghrank-art-draft'") && admHtml.includes('function artOfferDraft') && admHtml.includes('id="draftRestore"'));
 push('未保存时关弹窗会先确认', admHtml.includes('这篇还没保存') && admHtml.includes("'放弃改动'"));
