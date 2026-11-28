@@ -10,8 +10,8 @@ const push = (label, ok, detail) => {
 
 if (REMOTE) {
   const home = await (await fetch(BASE + '/')).text();
-  const st = await (await fetch(BASE + '/api/status')).json().catch(function(){ return {}; });
-  const ver = (st && st.version) || '';
+  const homeHtml = await (await fetch(BASE + '/')).text();
+  const ver = (/bundle\.js\?v=([A-Za-z0-9._-]+)/.exec(homeHtml) || [])[1] || '';
   const bundle = await (await fetch(BASE + '/js/bundle.js' + (ver ? '?v=' + ver : ''))).text();
   push('导航搜索会把关键词写进地址（可分享）', home.includes('navSyncUrl') && home.includes("u.searchParams.set('q'"), '');
   push('切换视图时不丢 q（setView 保留）', home.includes("v2==='nav'&&keepQ"), '');
