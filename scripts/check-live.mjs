@@ -61,7 +61,6 @@ push('「分享」有带项目名的可访问名 + 32px 触摸高度', bundleJs.
 const feedRes = await fetch(base + '/feed.xml');
 const feedXml = await feedRes.text();
 push('榜单订阅源 /feed.xml 可用（RSS 2.0，50 条）', feedRes.status === 200 && /application\/rss\+xml/.test(feedRes.headers.get('content-type') || '') && (feedXml.match(/<item>/g) || []).length === 50);
-push('后台文章支持「草稿」状态（不进前台列表/站点地图）', admHtml.includes('id="artDraft"') && admHtml.includes('draft-badge'), '');
 push('顶栏有「收藏」视图（本机收藏可查看/取消）', home.includes('data-view="favs"') && bundleJs.includes('function renderFavs'), '');
 push('榜单顶部有「新进/掉出」摘要（和本机快照比）', bundleJs.includes('function paintChurn') && bundleJs.includes('churnBar'), '');
 push('榜单有视图密度三档（紧凑/标准/卡片，本机记忆）', home.includes('data-dens="compact"') && bundleJs.includes('ghrank:dens'), '');
@@ -323,6 +322,7 @@ push('备案状态会说出最终显示什么', admHtml.indexOf('function beianA
 const artJsonTxt = await (await fetch(base + '/data/articles.json?cb=' + t)).text();
 push('公开文章数据不暴露 prevSlugs（只给 prevCount）', artJsonTxt.indexOf('prevSlugs') < 0 && artJsonTxt.indexOf('prevCount') >= 0, '');
 push('后台文章分页会回到表格顶（artGoPage + artPgY）', admHtml.includes('function artGoPage(n)') && admHtml.includes('var artPgY = {}'), '');
+push('后台文章支持「草稿」状态（不进前台列表/站点地图）', admHtml.includes('id="artDraft"') && admHtml.includes('draft-badge'), '');
 push('后台文章分页有「跳到第 N 页」', admHtml.includes('id="artJump"') && admHtml.includes("data-artjump"), '');
 push('窄屏分页按钮不折行（nowrap + min-width 84）', admHtml.includes('#pane-articles .artpager button{white-space:nowrap;min-width:84px'), '');
 push('滚动条分区写清出现范围（首页与导航页）', admHtml.includes('首页与导航页的顶部') && admHtml.includes('文章页、问答页是独立页面'), '');
