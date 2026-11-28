@@ -5638,5 +5638,21 @@
  "Capri — an AI desktop companion for Windows with local/API models, Hugging Face, optional voice, memory and permission-based desktop tools.": "Capri — 适用于 Windows 的 AI 桌面助手，具备本地/API 模型、Hugging Face、可选语音、内存和基于权限的桌面工具。",
  "Static recompilation of Xenoblade Chronicles 2 to native Windows x86-64, with a Vulkan renderer. Game files not included.": "使用Vulkan渲染器将《异度神剑2》静态重新编译为原生Windows x86-64版本。不包含游戏文件。",
  "Native open-source rebuild of Dune 2000 (1998) for macOS, Windows, Linux, Android and iOS — not OpenRA; needs your own game data": "《沙丘2000》（1998）的原生开源重制版，适用于macOS、Windows、Linux、Android和iOS——并非OpenRA；需要您自己的游戏数据",
- "macOS Apple Silicon 独立增强版 哈基米.app 构建工具：账号地区解锁、上下文窗口扩容、实时 Token/速率监控、Remote SSH 适配、客户端汉化与自定义图标（零改动官方 Antigravity.app）": "macOS Apple Silicon 独立增强版 哈基米.app 构建工具：账号地区解锁、上下文窗口扩容、实时 Token/速率监控、Remote SSH 适配、客户端汉化与自定义图标（零改动官方 Antigravity.app）"
+ "macOS Apple Silicon 独立增强版 哈基米.app 构建工具：账号地区解锁、上下文窗口扩容、实时 Token/速率监控、Remote SSH 适配、客户端汉化与自定义图标（零改动官方 Antigravity.app）": "macOS Apple Silicon 独立增强版 哈基米.app 构建工具：账号地区解锁、上下文窗口扩容、实时 Token/速率监控、Remote SSH 适配、客户端汉化与自定义图标（零改动官方 Antigravity.app）",
+ "KLBF Lab: Xbox Series X|S compatibility layer for Windows. Runs the Xbox Series build of a title on PC from your own files. AMD Radeon fixes, AMD FSR 4 and frame generation, built-in benchmark. No game files.": "KLBF Lab：适用于 Windows 的 Xbox Series X|S 兼容层。从您自己的文件在 PC 上运行游戏的 Xbox Series 版本。AMD Radeon 修复、AMD FSR 4 和帧生成、内置基准测试。不含游戏文件。",
+ "Version control for video projects made with coding agents": "使用编码代理制作的视频项目的版本控制",
+ "Win11 Customizer Suite: Visual Themes, Icons, Wallpapers and Performance Styling": "Win11 自定义工具套件：视觉主题、图标、壁纸和性能风格",
+ "Pokemon Pokopia Life Sim: Craft Your Cozy Island Haven with Beloved Creatures": "宝可梦Pokopia生活模拟：与心爱的宝可梦一起打造温馨的岛屿天堂",
+ "Purffle Copy Trading Bot - Community-driven, feature-rich mirror trading with leaderboard scanning a": "Purffle 复制交易机器人 - 由社区驱动、功能丰富的镜像交易，带排行榜扫描功能",
+ "Open-Source AI Text Detector for Document and Sentence-Level Content Analysis": "用于文档和句子级内容分析的开源 AI 文本检测器",
+ "CS2 Cosmetic Swapper: Weapon Skins, Knives, Gloves and Presets for Windows": "CS2 饰品交换器：适用于 Windows 的武器皮肤、刀具、手套和预设",
+ "Whalefeed Utility: Cross-Platform Desktop Toolkit for Streamlined Workflow Automation": "Whalefeed Utility：跨平台桌面工具包，用于简化工作流程自动化",
+ "Voice Notes Pipeline: Automated Signal-to-Markdown, Tasks, and Calendar Sync": "语音备忘录管道：自动信号转Markdown、任务和日历同步",
+ "SMS-MAN Virtual Numbers: load-testing affordable setup stability": "SMS-MAN虚拟号码：负载测试经济实惠的设置稳定性",
+ "PHP library for Roblox script signing, rbxsig generation, and signature verification": "用于 Roblox 脚本签名、rbxsig 生成和签名验证的 PHP 库",
+ "SupoClip Opus Studio: Autonomous short-form video workflow for visual storytellers": "SupoClip Opus Studio：面向视觉故事创作者的自主式短视频工作流程",
+ "Autodesk Revit: BIM Platform Architectural Design, Structural Engineering, MEP Systems, and Para": "Autodesk Revit：BIM平台建筑设计、结构工程、机电系统和参数化设计",
+ "一个轻量化网页版的盒子助手 适用于macOS、 Windows 、Linux 三种平台 也支持Docker部署": "一个轻量化网页版的盒子助手，适用于macOS、Windows、Linux三种平台，也支持Docker部署。",
+ "ARTEX 源码备份：基于 Autumn-27/ARTEX v0.3.15，保留原始提交历史与 AGPL-3.0 许可证。": "ARTEX 源码备份：基于 Autumn-27/ARTEX v0.3.15，保留原始提交历史与 AGPL-3.0 许可证。",
+ "Free, open-source anti-detect browser launcher for web scraping and multi-accounting. By the ShardX team (formerly ProxyShard). Engine-level fingerprint spoofing in Chromium 158 (WebGL / WebGPU / Client Hints / fonts / TLS), 220+ device profiles bundled, stable QUIC + WebRTC over SOCKS5.": "用于网页抓取和多账户操作的免费开源反检测浏览器启动器。由 ShardX 团队（前身为 ProxyShard）出品。Chromium 158 中的引擎级指纹欺骗（WebGL/WebGPU/客户端提示/字体/TLS），捆绑 220 多个设备配置文件，稳定的 QUIC + WebRTC over SOCKS5。"
 }
