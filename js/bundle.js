@@ -169,6 +169,51 @@ function droppedSnap(q, repos) {
     .slice(0, 20);
 }
 
+// ---------- 新进 / 掉出（只和本机快照比，不猜） ----------
+function churnOf(q, repos) {
+  const list = readSnaps(q);
+  if (!list.length) return null;
+  const old = list[list.length - 1];
+  const hours = Math.max(1, Math.round((Date.now() - old.t) / 3600000));
+  const before = new Set(old.repos.map(r => r.n));
+  const nowNames = new Set(repos.map(r => r.name));
+  const fresh = repos.filter(r => !before.has(r.name)).map(r => r.name);
+  const gone = old.repos.filter(r => !nowNames.has(r.n)).map(r => r.n);
+  return { hours: hours, fresh: fresh, gone: gone };
+}
+function paintChurn() {
+  const box = document.getElementById("list");
+  if (!box) return;
+  let bar = document.getElementById("churnBar");
+  const info = state.view === "repos" && state.repos.length ? churnOf(buildQuery(state), visibleRepos()) : null;
+  if (!info || (!info.fresh.length && !info.gone.length)) { if (bar) bar.remove(); return; }
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.id = "churnBar";
+    bar.setAttribute("role", "status");
+    bar.style.cssText = "margin:0 0 10px;padding:8px 12px;border:1px solid var(--border);border-radius:12px;font-size:13px;color:var(--muted);background:var(--chip)";
+    box.parentNode.insertBefore(bar, box);
+  }
+  bar.textContent = "";
+  const t = document.createElement("span");
+  t.textContent = "较 " + info.hours + " 小时前的记录：新进 " + info.fresh.length + " 个 · 掉出 " + info.gone.length + " 个";
+  bar.append(t);
+  if (info.fresh.length) {
+    const d = document.createElement("button");
+    d.type = "button";
+    d.className = "btn ghost";
+    d.id = "churnMore";
+    d.style.cssText = "min-height:30px;margin-left:10px";
+    d.textContent = "看是哪几个";
+    const det = document.createElement("div");
+    det.id = "churnList";
+    det.hidden = true;
+    det.style.cssText = "margin-top:6px;font-size:12.5px;line-height:1.9;word-break:break-all";
+    det.textContent = "新进：" + info.fresh.slice(0, 5).join("、") + (info.fresh.length > 5 ? " …" : "") + (info.gone.length ? "　掉出：" + info.gone.slice(0, 5).join("、") + (info.gone.length > 5 ? " …" : "") : "");
+    d.onclick = function () { det.hidden = !det.hidden; d.textContent = det.hidden ? "看是哪几个" : "收起"; };
+    bar.append(d, det);
+  }
+}
 // ===== api.js =====
 // GitHub API：分段 + 分页扩量、用户榜、详情（README / Release / 贡献者）、活跃度（ES Module）
 
@@ -194,6 +239,7 @@ function dateStr(daysAgo) {
   return d.toISOString().slice(0, 10);
 }
 
+window.__snapKey = function () { return SNAP_PREFIX + buildQuery(state); };
 function buildQuery(state) {
   const parts = ['stars:>' + MIN_STARS];
   const days = RANGES[state.range].days;
@@ -1534,6 +1580,7 @@ function paintFresh() {
 function render() {
   toggleRepoOnly();
   paintBlockBar();
+  paintChurn();
   densApply();
   if (state.view === 'repos') renderRepos(); else renderUsers();
   updateSourceNote();
