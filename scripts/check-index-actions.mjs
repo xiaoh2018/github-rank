@@ -18,7 +18,17 @@ const post = (p, body) =>
 
   const r2 = await post('/api/index-push', { password: 'wrong-pw', url: '/' });
   ok('密码错 → 403', r2.status === 403, 'HTTP ' + r2.status);
+}
 
+// 线上没有后台口令（ADMIN_PW 是 Cloudflare 环境变量），需要口令的断言只在本地跑
+if (REMOTE) {
+  for (const r of rows) console.log((r.ok ? 'OK   ' : 'FAIL ') + r.name + (r.extra ? '  [' + r.extra + ']' : ''));
+  const bad = rows.filter((r) => !r.ok).length;
+  console.log(bad === 0 ? 'ALL OK (' + rows.length + ')  [线上只验「必须带口令」]' : bad + ' FAILED of ' + rows.length);
+  process.exit(bad === 0 ? 0 : 1);
+}
+
+{
   const r3 = await post('/api/index-push', { password: PW, url: '' });
   ok('不给地址 → 400 并说清', r3.status === 400 && /要推哪一条/.test((r3.json && r3.json.error) || ''), (r3.json && r3.json.error) || '');
 
@@ -29,16 +39,8 @@ const post = (p, body) =>
   const j5 = r5.json || {};
   ok('演练模式返回 host / key / keyLocation', j5.ok === true && j5.dry === true && !!j5.host && !!j5.key && !!j5.keyLocation, JSON.stringify(j5).slice(0, 120));
   ok('演练模式的 keyLocation 指向 /<key>.txt', typeof j5.keyLocation === 'string' && j5.keyLocation.endsWith('/' + j5.key + '.txt'), j5.keyLocation);
-  ok('演练模式把相对地址补成绝对地址', j5.url === 'https://github.661026.xyz/articles' || /^https?:\/\/[^/]+\/articles$/.test(j5.url || ''), j5.url);
+  ok('演练模式把相对地址补成绝对地址', /^https?:\/\/[^/]+\/articles$/.test(j5.url || ''), j5.url);
   ok('演练模式真的没发请求（status=0 / ms=0）', j5.status === 0 && j5.ms === 0 && /演练/.test(j5.note || ''), j5.note);
-}
-
-if (REMOTE) {
-  // 线上不造数据、不真推，只汇总只读结果
-  for (const r of rows) console.log((r.ok ? 'OK   ' : 'FAIL ') + r.name + (r.extra ? '  [' + r.extra + ']' : ''));
-  const bad = rows.filter((r) => !r.ok).length;
-  console.log(bad === 0 ? 'ALL OK (' + rows.length + ')  [线上只跑接口部分]' : bad + ' FAILED of ' + rows.length);
-  process.exit(bad === 0 ? 0 : 1);
 }
 
 // ---------- 造两条记录，再在后台点按钮 ----------
