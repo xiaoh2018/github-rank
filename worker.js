@@ -1829,7 +1829,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v294';
+const ASSET_V = 'v295';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -7746,8 +7746,17 @@ function saveMsgFor(btn) {
       return;
     }
     if (el.hasAttribute('data-idel')) {
+      var nItem = navState.groups[g].items[i];
       navState.groups[g].items.splice(i, 1);
       renderNavAdmin();
+      if (nItem) {
+        var gName = String((navState.groups[g] || {}).name || "这个分类");
+        offerUndo("已从「" + gName + "」移除「" + String(nItem.name || nItem.url || "站点").slice(0, 16) + "」", function () {
+          navState.groups[g].items.splice(i, 0, nItem);
+          renderNavAdmin();
+          toast("已撤销：站点回到原来的位置（仍要点「保存导航」才生效）", true);
+        });
+      }
       return;
     }
     if (el.hasAttribute('data-ifetch')) {
