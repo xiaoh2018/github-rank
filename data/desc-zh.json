@@ -5634,5 +5634,9 @@
  "Talon debloat suite, desktop side. Windows cleanup tooling, personal use.": "Talon 瘦身套件，桌面端。Windows 清理工具，个人使用。",
  "Conan Exiles Cheat — Conan Exiles Cheats, Trainer & Mod Menu": "《流亡者柯南》作弊 - 《流亡者柯南》作弊、修改器和模组菜单",
  "Static recompilation of Donkey Kong Bananza (Switch 2) to native Windows and Linux with Vulkan. 0.5.3 out: amiibo, button prompt styles and a Player 2 pad, DLSS Frame Generation, Chinese, shader precompile, low-spec preset; one-file Windows launcher. Requirements: docs/requirements.md. Roadmap: #10. No game files included.": "使用Vulkan将《大金刚狂热大作战》（Switch 2）静态重新编译为原生Windows和Linux版本。0.5.3版已发布：amiibo、按钮提示样式和玩家2手柄、DLSS帧生成、中文、着色器预编译、低规格预设；单文件Windows启动器。要求：docs/requirements.md。路线图：#10。不包含游戏文件。",
- "Native PC port of Diablo III: Reaper of Souls – Ultimate Evil Edition (PS4). Local co-op for 4.": "《暗黑破坏神 III：夺魂之镰 – 终极邪恶版》（PS4）的原生PC移植版。4人本地合作。"
+ "Native PC port of Diablo III: Reaper of Souls – Ultimate Evil Edition (PS4). Local co-op for 4.": "《暗黑破坏神 III：夺魂之镰 – 终极邪恶版》（PS4）的原生PC移植版。4人本地合作。",
+ "Capri — an AI desktop companion for Windows with local/API models, Hugging Face, optional voice, memory and permission-based desktop tools.": "Capri — 适用于 Windows 的 AI 桌面助手，具备本地/API 模型、Hugging Face、可选语音、内存和基于权限的桌面工具。",
+ "Static recompilation of Xenoblade Chronicles 2 to native Windows x86-64, with a Vulkan renderer. Game files not included.": "使用Vulkan渲染器将《异度神剑2》静态重新编译为原生Windows x86-64版本。不包含游戏文件。",
+ "Native open-source rebuild of Dune 2000 (1998) for macOS, Windows, Linux, Android and iOS — not OpenRA; needs your own game data": "《沙丘2000》（1998）的原生开源重制版，适用于macOS、Windows、Linux、Android和iOS——并非OpenRA；需要您自己的游戏数据",
+ "macOS Apple Silicon 独立增强版 哈基米.app 构建工具：账号地区解锁、上下文窗口扩容、实时 Token/速率监控、Remote SSH 适配、客户端汉化与自定义图标（零改动官方 Antigravity.app）": "macOS Apple Silicon 独立增强版 哈基米.app 构建工具：账号地区解锁、上下文窗口扩容、实时 Token/速率监控、Remote SSH 适配、客户端汉化与自定义图标（零改动官方 Antigravity.app）"
 }
