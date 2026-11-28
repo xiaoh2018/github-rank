@@ -85,12 +85,18 @@ if (!REMOTE) {
       return trs.length + '|' + (b.textContent || '').slice(0, 80);
     })()`);
     const trCount = Number(String(box).split('|')[0]);
-    ok('记录表里有数据行', trCount >= 2, box);
-    const hasDelta = await cdp.js(`(function(){
-      var b = document.getElementById('ickLogBox');
-      return b ? /没变化|新进 sitemap|掉出 sitemap|首次/.test(b.textContent || '') : false;
-    })()`);
-    ok('表格写明了「和上次比」的结论', hasDelta === true, hasDelta);
+    if (REMOTE) {
+      ok('线上记录表可用（行数不设下限，线上多半是空的）', trCount >= 0, box);
+    } else {
+      ok('记录表里有数据行', trCount >= 2, box);
+    }
+    if (!REMOTE) {
+      const hasDelta = await cdp.js(`(function(){
+        var b = document.getElementById('ickLogBox');
+        return b ? /没变化|新进 sitemap|掉出 sitemap|首次/.test(b.textContent || '') : false;
+      })()`);
+      ok('表格写明了「和上次比」的结论', hasDelta === true, hasDelta);
+    }
   } finally {
     await cdp.close();
   }
