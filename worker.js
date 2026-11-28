@@ -1822,7 +1822,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v286';
+const ASSET_V = 'v287';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4579,7 +4579,16 @@ dialog h2,dialog h3{margin:0 0 4px;font-size:18px}
 .bar h1{font-size:20px}
 .card{padding:16px}
 .faq-row{grid-template-columns:1fr}
-dialog{width:calc(100% - 24px)}
+dialog{width:calc(100% - 24px);max-width:calc(100vw - 24px)}
+/* 手机：对话框不许比屏幕宽（写在 .art-grid 里的 minmax(320px,…) 会把 dialog 撑到 464px） */
+dialog, dialog.wide, dialog.wide.full{min-width:0}
+.art-grid{min-width:0}
+.art-grid > *{min-width:0}
+@media (max-width:760px){
+  dialog, dialog.wide, dialog.wide.full{width:100vw;max-width:100vw;max-height:100dvh;border-radius:0}
+  dialog.wide[open]{grid-template-rows:auto minmax(0,1fr)}
+  .art-grid{grid-template-columns:minmax(0,1fr)}
+}
 }
 
 
@@ -6823,6 +6832,15 @@ function saveMsgFor(btn) {
     $('artErr').textContent = '';
     paintPreview();
     $('artDlg').showModal();
+    // 手机上默认收起右侧预览（编辑区优先），桌面上保持并排
+    (function previewDefault() {
+      var grid = document.querySelector('#artDlg .art-grid');
+      var btn = $('artPreviewBtn');
+      if (!grid) return;
+      var narrow = window.matchMedia && window.matchMedia('(max-width:760px)').matches;
+      if (narrow) { grid.classList.add('preview-off'); if (btn) btn.textContent = '显示预览'; }
+      else { grid.classList.remove('preview-off'); if (btn) btn.textContent = '隐藏预览'; }
+    })();
     artDirty = false;
     artPaintDirty();
     if (a) { var dbar = $('draftBar'); if (dbar) dbar.hidden = true; }
