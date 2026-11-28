@@ -353,6 +353,18 @@ html[data-theme="ink"] .navcard .hitmark,html[data-theme="ink"] .navjump .hitmar
   /* 三列：默认就给三栏，窄屏逐级退两栏、单栏 */
   body[data-layout="triple"] #list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);align-items:start}
   body[data-layout="triple"] #list .item,
+/* 视图密度三档（只影响这台设备） */
+.dens{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.dens-b{border:0;border-radius:0;padding:0 10px;min-height:34px;background:var(--card);color:var(--muted);font-size:12.5px}
+.dens-b[aria-pressed="true"]{background:var(--accent);color:var(--accent-on,#fff);font-weight:600}
+#list[data-dens="compact"] .item{padding:8px 12px}
+#list[data-dens="compact"] .item .desc{display:none}
+#list[data-dens="compact"] .item .tags{display:none}
+#list[data-dens="compact"] .item .meta{margin-top:2px;font-size:12px}
+#list[data-dens="compact"] .item .act{display:none}
+#list[data-dens="card"] .item{padding:16px 18px;border-radius:16px}
+#list[data-dens="card"] .item .desc{-webkit-line-clamp:3}
+@media (max-width:760px){.dens{width:100%}.dens-b{flex:1 1 0;min-height:40px}}
   body[data-layout="double"] #list .item{height:auto!important}
   @media (max-width:1279px){
   body[data-layout="triple"] #list{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -895,6 +907,11 @@ window.__imeBind = function (el, fn) {
           <option value="50">每页 50 条</option>
           <option value="100">每页 100 条</option>
         </select>
+        <div class="dens" role="group" aria-label="视图密度（只影响这台设备）">
+          <button type="button" class="btn dens-b" data-dens="compact" aria-pressed="false" title="一行一条，只看项目名、星数、语言">紧凑</button>
+          <button type="button" class="btn dens-b" data-dens="standard" aria-pressed="true" title="带描述与标签（默认）">标准</button>
+          <button type="button" class="btn dens-b" data-dens="card" aria-pressed="false" title="更大留白，描述三行">卡片</button>
+        </div>
       </div>
         <input type="text" id="q" class="grow repo-only" data-ph-lg="搜索：如 rust 命令行、AI 绘图、前端 框架（按 / 快速定位）" data-ph-sm="搜项目、语言、标签…" placeholder="搜索：如 rust 命令行、AI 绘图、前端 框架（按 / 快速定位）" aria-label="搜索">
 

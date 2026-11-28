@@ -58,6 +58,7 @@ push('「只看收藏」有初始与切换后的 aria-pressed', bundleJs.include
 push('手机上有「分享」（系统分享面板，退回复制）', bundleJs.includes('async function shareRepo(') && bundleJs.includes('navigator.share('), '');
 push('「分享」只在窄屏出现（桌面隐藏）', home.includes('#list .item .mshare-row{display:none') && home.includes('#list .item .mini.mshare{display:inline-flex'), '');
 push('「分享」有带项目名的可访问名 + 32px 触摸高度', bundleJs.includes("'分享「' + (r.name || '项目') + '」'") && home.includes('min-height:32px;padding:0 10px'), '');
+push('榜单有视图密度三档（紧凑/标准/卡片，本机记忆）', home.includes('data-dens="compact"') && bundleJs.includes('ghrank:dens'), '');
 push('榜单卡片有「不感兴趣」（本机保存 + 一键恢复）', bundleJs.includes('ghrank:blocked') && bundleJs.includes('不感兴趣') && bundleJs.includes('恢复全部'), '');
 push('bundle 平滑滚动走 __sb 助手', bundleJs.includes('behavior: window.__sb()'));
 push('头像声明 22×22 并异步解码', bundleJs.includes('img.width = 22') && bundleJs.includes("img.decoding = 'async'"));

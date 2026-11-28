@@ -60,7 +60,8 @@ const state = {
   trend: {},              // name -> {dStars, dRank, isNew}
   dropped: [],            // 相对上次快照掉出榜的项目
   hasBase: false,         // 是否已经有至少 1 小时前的快照可对比
-  users: []
+  users: [],
+  density: densLoad(),
 };
 
 // ===== cache.js =====
@@ -1228,6 +1229,26 @@ function paintBlockBar() {
   bar.append(sp, btn);
 }
 
+// ---------- 视图密度（紧凑 / 标准 / 卡片，只存本机） ----------
+const DENS_KEY = 'ghrank:dens';
+const DENS_OK = ['compact', 'standard', 'card'];
+function densLoad() {
+  try { const v = localStorage.getItem('ghrank:dens'); return ['compact', 'standard', 'card'].indexOf(v) >= 0 ? v : 'standard'; } catch (e) { return 'standard'; }
+}
+function densApply() {
+  const list = $('list');
+  if (list) list.setAttribute('data-dens', state.density);
+  document.querySelectorAll('.dens-b').forEach(function (x) {
+    x.setAttribute('aria-pressed', String(x.getAttribute('data-dens') === state.density));
+  });
+}
+function densSet(v) {
+  if (['compact', 'standard', 'card'].indexOf(v) < 0) v = 'standard';
+  state.density = v;
+  try { localStorage.setItem('ghrank:dens', v); } catch (e) {}
+  densApply();
+}
+
 function visibleRepos() {
   const tokens = state.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const favs = getFavs();
@@ -1513,6 +1534,7 @@ function paintFresh() {
 function render() {
   toggleRepoOnly();
   paintBlockBar();
+  densApply();
   if (state.view === 'repos') renderRepos(); else renderUsers();
   updateSourceNote();
   paintFresh();
@@ -2015,5 +2037,12 @@ load();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => { /* 注册失败不影响使用 */ });
 }
+
+// 视图密度按钮（三档，只存本机）
+document.querySelectorAll('.dens-b').forEach(function (x) {
+  x.addEventListener("click", function () { densSet(x.getAttribute("data-dens")); });
+});
+try { state.density = densLoad(); } catch (e) {}
+densApply();
 
 })();
