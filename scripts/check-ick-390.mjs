@@ -11,7 +11,7 @@ const push = (label, ok, detail) => {
 
 if (REMOTE) {
   const adm = await (await fetch(BASE + '/admin')).text();
-  push('后台收录记录在窄屏变卡片（有列名伪元素）', adm.includes('#ickLogBox tbody td:nth-child(2)::before') && adm.includes('#ickLogBox thead{display:none}'), '');
+  push('后台收录记录在窄屏变卡片（有列名伪元素）', adm.includes('#ickLogBox td:nth-child(2)::before') && adm.includes('#ickLogBox th{display:none}'), '');
   push('动作按钮在窄屏至少 40px 高', adm.includes('#ickLogBox .mini{min-height:40px'), '');
   const bad0 = rows.filter((x) => !x.ok);
   console.log('\n' + (bad0.length ? 'FAILED ' + bad0.length : 'ALL OK (' + rows.length + ')') + '  @' + BASE + ' (REMOTE)');
