@@ -10,9 +10,10 @@ const push = (label, ok, detail) => {
 
 if (REMOTE) {
   const home = await (await fetch(BASE + '/')).text();
+  const bundle = await (await fetch(BASE + '/js/bundle.js')).text();
   push('导航搜索会把关键词写进地址（可分享）', home.includes('navSyncUrl') && home.includes("u.searchParams.set('q'"), '');
   push('切换视图时不丢 q（setView 保留）', home.includes("v2==='nav'&&keepQ"), '');
-  push('syncHash 保留导航页的 q', home.includes("pageMark === 'nav' && navQMark"), '');
+  push('syncHash 保留导航页的 q', bundle.includes("pageMark === 'nav' && navQMark"), '');
   const bad0 = rows.filter((x) => !x.ok);
   console.log('\n' + (bad0.length ? 'FAILED ' + bad0.length : 'ALL OK (' + rows.length + ')') + '  @' + BASE + ' (REMOTE)');
   process.exit(bad0.length ? 1 : 0);
