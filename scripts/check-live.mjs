@@ -535,6 +535,7 @@ push('手机后台写文章时预览默认收起（编辑区优先）', admHtml.
 push('后台 md.js 跟着发版号走（预览和读者同一份）', /\/js\/md\.js\?v=v\d+/.test(admHtml) && !admHtml.includes('md.js?v=9'), '');
 push('收录记录在窄屏变卡片（不再被裁一半）', admHtml.includes('td:nth-child(2)::before') && admHtml.includes('#ickLogBox th{display:none}'), '');
 push('体检里能看到「资源版本」是否和 Worker 一致', admHtml.includes("'资源版本'") && admHtml.includes('强刷一下'), '');
+push('收录记录每行能展开「七项事实」', admHtml.includes('data-ickdetail') && admHtml.includes('ickDetailText') && admHtml.includes('完整地址'), '');
 push('导航页搜索能写进地址（可分享的筛选视图）', home.includes('navSyncUrl') && home.includes("u.searchParams.set('q'"), '');
 push('切视图时不丢导航页关键词', home.includes("v2==='nav'&&keepQ"), '');
 push('两个阅读器共用字号存档与 --rfont', home.includes("RF_KEY='ghrank-reader-font'") && home.includes('var(--rfont'), '');

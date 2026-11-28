@@ -1823,7 +1823,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v291';
+const ASSET_V = 'v292';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -4515,6 +4515,8 @@ td>.empty-card{margin:0}
   #ickLogBox th{display:none}
   #ickLogBox tr:has(th){display:none;border:0;padding:0;margin:0}
   #ickLogBox tr{display:block;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px;background:#fff}
+  #ickLogBox tr.ick-det td{background:var(--chip);color:var(--muted);font-size:12px;line-height:1.7;padding:8px 10px}
+  #ickLogBox tr.ick-det[hidden]{display:none}
   #ickLogBox td{display:block;width:auto;border:0;padding:2px 0;white-space:normal;word-break:break-all;font-size:12.5px}
   #ickLogBox td::before{content:"";display:inline-block;min-width:70px;color:var(--muted);font-weight:600}
   #ickLogBox td:nth-child(1)::before{content:"时间"}
@@ -7919,7 +7921,7 @@ function saveMsgFor(btn) {
       head.appendChild(th);
     });
     tbl.appendChild(head);
-    r.entries.slice(0, 12).forEach(function (e) {
+    r.entries.slice(0, 12).forEach(function (e, ix) {
       var tr = document.createElement('tr');
       var c1 = document.createElement('td');
       c1.textContent = ickTime(e.at);
@@ -7939,6 +7941,14 @@ function saveMsgFor(btn) {
       c5.textContent = e.kind === 'push' ? '—' : d.join('、');
       var c6 = document.createElement('td');
       c6.className = 'ick-act';
+      var bd = document.createElement('button');
+      bd.type = "button";
+      bd.className = "mini";
+      bd.textContent = '详情';
+      bd.setAttribute('data-ickdetail', String(ix));
+      bd.setAttribute("aria-expanded", "false");
+      bd.setAttribute('aria-controls', 'ickDet' + ix);
+      c6.appendChild(bd);
       if (e.status >= 200 && e.status < 400 && !e.noindex) {
         var b1 = document.createElement('button');
         b1.type = 'button';
@@ -7963,6 +7973,15 @@ function saveMsgFor(btn) {
       c6.appendChild(b3);
       [c1, c2, c3, c4, c5, c6].forEach(function (c) { tr.appendChild(c); });
       tbl.appendChild(tr);
+      var dt = document.createElement("tr");
+      dt.className = "ick-det";
+      dt.id = "ickDet" + ix;
+      dt.hidden = true;
+      var dc = document.createElement("td");
+      dc.colSpan = 6;
+      dc.textContent = ickDetailText(e);
+      dt.appendChild(dc);
+      tbl.appendChild(dt);
     });
     box.appendChild(tbl);
     var tip = document.createElement('p');
@@ -7970,6 +7989,18 @@ function saveMsgFor(btn) {
     tip.textContent = '共 ' + r.total + ' 条（最多保留 ' + r.cap + ' 条）；只显示最近 12 条。';
     box.appendChild(tip);
     ickTrendPaint(r.summary);
+  }
+  function ickDetailText(e) {
+    var u = (/^https?:/.test(e.path) ? e.path : (location.origin + e.path));
+    var parts = [];
+    parts.push("完整地址：" + u);
+    parts.push("状态码：" + String(e.status) + (e.kind === "push" ? "（这条是推送记录）" : ""));
+    parts.push("noindex：" + (e.noindex ? "是（搜索引擎会跳过，查一下 meta robots）" : "否"));
+    parts.push("canonical：" + (e.canonicalSelf === false ? "不指向自己（检查 link rel=canonical）" : (e.canonicalSelf === true ? "指向自己，正常" : "没读到")));
+    parts.push("sitemap：" + (e.inSitemap === null ? "读不到" : (e.inSitemap ? "在里面" : "不在里面")));
+    parts.push("上次提交：" + (e.inLastSubmit === null || e.inLastSubmit === undefined ? "不知道" : (e.inLastSubmit ? "提交过" : "没提交过")));
+    parts.push("记录时间：" + ickTime(e.at));
+    return parts.join("；");
   }
   function ickTrendPaint(sm) {
     var bar = $('ickTrend');
@@ -8087,7 +8118,8 @@ function saveMsgFor(btn) {
       var sm = t.getAttribute('data-icksm');
       var fill = t.getAttribute('data-ickfill');
       var first = t.getAttribute('data-ickfirst');
-      if (!push && !re && !sm && !fill && !first) return;
+      var det = t.getAttribute('data-ickdetail');
+      if (!push && !re && !sm && !fill && !first && det === null) return;
       if (first) {
         api('/api/index-check', { method: 'POST', body: { password: pw, url: location.origin + '/' } })
           .then(function () { loadIckLog(); })
@@ -8104,6 +8136,15 @@ function saveMsgFor(btn) {
         }
         m.textContent = txt;
       };
+      if (det !== null) {
+        var drow = $("ickDet" + det);
+        if (drow) {
+          drow.hidden = !drow.hidden;
+          t.setAttribute("aria-expanded", drow.hidden ? "false" : "true");
+          t.textContent = drow.hidden ? "详情" : "收起";
+        }
+        return;
+      }
       if (fill) {
         var bi0 = $('ickBatch');
         var arr0 = (window.__ickOpen || []).slice(0, 20);
