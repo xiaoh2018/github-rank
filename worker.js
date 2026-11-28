@@ -1822,7 +1822,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v283';
+const ASSET_V = 'v284';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -5299,7 +5299,7 @@ tr:hover td{background:#fcfbf8}
         </details>
         <details id="ickLogWrap">
           <summary>最近查询记录（保留最近 50 条，存在边缘缓存里）</summary>
-          <div class="ick-row"><button class="btn ghost" type="button" id="ickLogReload">刷新记录</button><button class="btn ghost" type="button" id="ickLogClear">清空记录</button></div>
+          <div class="ick-row"><button class="btn ghost" type="button" id="ickLogReload">刷新记录</button><button class="btn ghost" type="button" id="ickLogCopy">复制挂着的地址</button><button class="btn ghost" type="button" id="ickLogCsv">下载 CSV</button><button class="btn ghost" type="button" id="ickLogClear">清空记录</button></div>
           <div id="ickTrend" class="ick-trend" aria-live="polite"></div>
           <div id="ickLogBox" class="ick-out"></div>
         </details>
@@ -7841,6 +7841,7 @@ function saveMsgFor(btn) {
   }
   function ickLogPaint(r) {
     var box = $('ickLogBox');
+    window.__ickRows = (r && r.entries) ? r.entries : [];
     if (!box) return;
     box.innerHTML = '';
     if (!r || !r.ok) {
@@ -7854,6 +7855,13 @@ function saveMsgFor(btn) {
       var e2 = document.createElement('p');
       e2.className = 'note';
       e2.textContent = '还没有查询记录。查一次地址，这里就会留下痕迹（最多 ' + r.cap + ' 条）。';
+      var b0 = document.createElement('button');
+      b0.type = 'button';
+      b0.className = 'mini';
+      b0.textContent = '先查一次首页';
+      b0.setAttribute('data-ickfirst', '1');
+      e2.appendChild(document.createTextNode(' '));
+      e2.appendChild(b0);
       box.appendChild(e2);
       return;
     }
@@ -7951,12 +7959,73 @@ function saveMsgFor(btn) {
     });
   }
   window.__loadIckLog = loadIckLog;
+  function ickBadUrls() {
+    var rows = window.__ickRows || [];
+    var seen = {};
+    var out = [];
+    rows.forEach(function (e) {
+      var bad = e.status >= 400 || e.noindex === true || e.canonicalSelf === false || e.inSitemap === false;
+      if (!bad || seen[e.path]) return;
+      seen[e.path] = 1;
+      out.push(location.origin + e.path);
+    });
+    return out;
+  }
+  function ickCsvText() {
+    var rows = window.__ickRows || [];
+    var esc = function (v) { return '"' + String(v === null || v === undefined ? '' : v).split('"').join('""') + '"'; };
+    var head = ['时间', '路径', '状态', 'noindex', 'canonical 是否自指', 'sitemap', '和上次比', '状态变化'].map(esc).join(',');
+    var body = rows.map(function (e) {
+      return [
+        ickTime(e.at), e.path, e.status, e.noindex ? 1 : 0, e.canonicalSelf === false ? '不对' : '自指',
+        e.inSitemap === true ? '在' : e.inSitemap === false ? '不在' : '读不到',
+        e.deltaSitemap || '', e.deltaStatus || '',
+      ].map(esc).join(',');
+    });
+    return String.fromCharCode(65279) + [head].concat(body).join(String.fromCharCode(13) + String.fromCharCode(10));
+  }
+  function ickSay(txt) {
+    var m = $('ickActMsg');
+    if (!m) {
+      var wrap = $('ickLogWrap');
+      if (!wrap) return;
+      m = document.createElement('p');
+      m.className = 'note';
+      m.id = 'ickActMsg';
+      m.setAttribute('aria-live', 'polite');
+      wrap.appendChild(m);
+    }
+    m.textContent = txt;
+  }
+  window.__ickBadUrls = ickBadUrls;
+  window.__ickCsv = ickCsvText;
   function bindIckLog() {
     var wrap = $('ickLogWrap');
     var reload = $('ickLogReload');
     var clear = $('ickLogClear');
     if (wrap) wrap.addEventListener('toggle', function () { if (wrap.open) loadIckLog(); });
     if (reload) reload.addEventListener('click', loadIckLog);
+    var copy = $('ickLogCopy');
+    var csv = $('ickLogCsv');
+    if (copy) copy.addEventListener('click', function () {
+      var urls = ickBadUrls();
+      var msg = null;
+      if (!urls.length) { ickSay('现在没有挂着的地址，不用导。'); return; }
+      var txt = urls.join(String.fromCharCode(10));
+      var done = function () { ickSay('已复制 ' + urls.length + ' 条地址。'); };
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).then(done, done); }
+      else { done(); }
+    });
+    if (csv) csv.addEventListener('click', function () {
+      var blob = new Blob([ickCsvText()], { type: 'text/csv;charset=utf-8' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'index-log-' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+      var m2 = null;
+      ickSay('已下载 CSV（' + (window.__ickRows || []).length + ' 条记录）。');
+    });
     if (clear) clear.addEventListener('click', function () {
       if (!confirm('清空最近查询记录？（只删记录，不影响已提交的收录）')) return;
       api('/api/index-log', { method: 'POST', body: { password: pw, action: 'clear' } }).then(loadIckLog);
@@ -7972,7 +8041,14 @@ function saveMsgFor(btn) {
       var re = t.getAttribute('data-ickre');
       var sm = t.getAttribute('data-icksm');
       var fill = t.getAttribute('data-ickfill');
-      if (!push && !re && !sm && !fill) return;
+      var first = t.getAttribute('data-ickfirst');
+      if (!push && !re && !sm && !fill && !first) return;
+      if (first) {
+        api('/api/index-check', { method: 'POST', body: { password: pw, url: location.origin + '/' } })
+          .then(function () { loadIckLog(); })
+          .catch(function () { loadIckLog(); });
+        return;
+      }
       var say = function (txt) {
         var m = document.getElementById('ickActMsg');
         if (!m) {

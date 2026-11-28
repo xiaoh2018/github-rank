@@ -8,6 +8,18 @@ const rows = [];
 const push = (label, ok, detail) => rows.push({ label, ok: !!ok, detail });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+if (REMOTE) {
+  const html = await (await fetch(BASE + '/admin')).text();
+  push('线上后台有预览容器（navImpPrev）', html.includes('navImpPrev'), 'len=' + html.length);
+  push('线上后台有解析函数（navParseImport）', html.includes('navParseImport'), '');
+  push('线上后台总览文案在位', html.includes('可以导入 '), '');
+  const f0 = rows.filter((r) => !r.ok);
+  for (const r of rows) console.log((r.ok ? 'OK   ' : 'FAIL ') + r.label);
+  if (f0.length) { console.log('\n' + f0.length + ' FAILED of ' + rows.length); process.exit(1); }
+  console.log('\nALL OK (' + rows.length + ')  @' + BASE + ' (REMOTE)');
+  process.exit(0);
+}
+
 const cdp = await openCdp({ width: 1440, height: 900 });
 try {
   await cdp.send('Page.navigate', { url: BASE + '/admin' });
