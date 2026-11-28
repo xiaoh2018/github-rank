@@ -609,6 +609,7 @@ function renderItem(r, rank, maxStars, trend) {
     fav.setAttribute('aria-pressed', String(on));
     li.classList.toggle('faved', on);
     if (state.favOnly) hooks.onFavChanged();
+    favStatPaint();
   };
   li.append(fav);
   return li;
@@ -1661,6 +1662,20 @@ async function liveRefresh() {
 
 // ---------- 收藏是否已导出（用来决定关闭页面时要不要提醒） ----------
 const FAV_EXPORTED_KEY = 'ghrank:favs-exported';
+const FAV_EXPORTED_AT = 'ghrank:favs-exported-at';
+
+// 收藏只在这台设备的浏览器里：这行说明「几个 / 备份过没 / 有没有新改动」
+function favStatPaint() {
+  const box = document.getElementById('favStat');
+  if (!box) return;
+  const n = getFavs().size;
+  const at = Number(localStorage.getItem(FAV_EXPORTED_AT) || 0);
+  if (!n) { box.textContent = '还没有收藏。点卡片上的 ☆ 收藏；收藏只保存在这台设备的浏览器里。'; return; }
+  const stamp = at ? new Date(at).toLocaleString() : '';
+  if (!at) { box.textContent = '本地有 ' + n + ' 个收藏，还没备份过：换浏览器或清缓存就没了，建议点「导出收藏」存一份。'; return; }
+  if (favsUnsaved()) { box.textContent = '本地有 ' + n + ' 个收藏；上次备份是 ' + stamp + '，之后还有改动，可以再导出一份。'; return; }
+  box.textContent = '本地有 ' + n + ' 个收藏，已备份（' + stamp + '）。';
+}
 function favSnapshot() { return JSON.stringify([...getFavs()].sort()); }
 function favsUnsaved() {
   if (!getFavs().size) return false;
@@ -1677,8 +1692,27 @@ function exportFavs() {
   a.download = 'github-rank-收藏.json';
   a.click();
   localStorage.setItem(FAV_EXPORTED_KEY, favSnapshot());
+  localStorage.setItem(FAV_EXPORTED_AT, String(Date.now()));
+  favStatPaint();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
+
+// 合并收藏（导入用）：返回「新增几个 / 现在共几个」，供门禁直接调用
+function mergeFavs(list, fileName) {
+  const raw = (list || []).filter(x => typeof x === 'string' && /^[\w.-]+\/[\w.-]+$/.test(x));
+  const names = [...new Set(raw)];
+  const f = getFavs();
+  const before = f.size;
+  names.forEach(n => f.add(n));
+  localStorage.setItem(FAV_KEY, JSON.stringify([...f]));
+  render();
+  favStatPaint();
+  const added = f.size - before;
+  const dup = raw.length - names.length;
+  setStatus('已导入「' + (fileName || '收藏文件') + '」：合并进 ' + added + ' 个新收藏（文件里 ' + names.length + ' 个有效收藏' + (dup ? '，另有 ' + dup + ' 条重复或格式不对' : '') + '），当前共 ' + f.size + ' 个。');
+  return { added, total: f.size, inFile: names.length };
+}
+window.__favMerge = mergeFavs;
 
 function importFavs() {
   const input = document.createElement('input');
@@ -1694,12 +1728,7 @@ function importFavs() {
         ? obj.favs.filter(x => typeof x === 'string' && /^[\w.-]+\/[\w.-]+$/.test(x))
         : null;
     } catch (e) { list = null; }
-    if (!list) { setStatus('导入失败：这不是本站导出的收藏文件。', true); return; }
-    const f = getFavs();
-    list.forEach(n => f.add(n));
-    localStorage.setItem(FAV_KEY, JSON.stringify([...f]));
-    render();
-    setStatus('已导入 ' + list.length + ' 个收藏，当前共 ' + f.size + ' 个。');
+    mergeFavs(list, file.name);
   };
   input.click();
 }
@@ -1875,7 +1904,22 @@ $('btnFavFilter').onclick = () => {
 };
 $('btnRefresh').onclick = () => liveRefresh();
 $('btnExport').onclick = exportCSV;
+// 清空收藏：不可撤销，所以要点「确定」确认一次
+function clearFavs() {
+  const n = getFavs().size;
+  if (!n) { setStatus('本地本来就没有收藏。', true); return; }
+  if (!window.confirm('要清空本地 ' + n + ' 个收藏吗？点「确定」后不可撤销（可以先「导出收藏」存一份）。')) return;
+  localStorage.removeItem(FAV_KEY);
+  localStorage.removeItem(FAV_EXPORTED_KEY);
+  localStorage.removeItem(FAV_EXPORTED_AT);
+  render();
+  favStatPaint();
+  setStatus('已清空本地收藏。');
+}
+
 $('btnFavExport').onclick = exportFavs;
+$('btnFavClear').onclick = clearFavs;
+favStatPaint();
 $('btnFavImport').onclick = importFavs;
 
 hooks.onLangPick = lang => { state.lang = lang; $('lang').value = lang; state.page = 1; syncHash(); load(); };

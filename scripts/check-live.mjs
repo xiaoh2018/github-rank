@@ -526,6 +526,7 @@ push('切榜单数据文件失败会出错误卡（不是一直转骨架）', bu
 push('错误卡说清是哪份数据、给退路', bundleJs.includes('这个榜单的数据文件没读出来') && bundleJs.includes('或者先切回「近 7 天」'), '');
 push('用备用数据文件时要说明可能不是最新', bundleJs.includes('这个榜单用的是备用数据文件（repos-all.js），可能不是最新的。'), '');
 push('文章弹窗有目录 / 字号 / 复制链接三件套', home.includes('id="adlTocBtn"') && home.includes('id="adlPlus"') && home.includes('id="adlCopy"'), '');
+push('设置里有收藏备份状态行 + 清空入口', homeHtml.includes('id="favStat"') && homeHtml.includes('id="btnFavClear"'), '');
 push('两个阅读器共用字号存档与 --rfont', home.includes("RF_KEY='ghrank-reader-font'") && home.includes('var(--rfont'), '');
 push('文章弹窗有上一篇/下一篇', home.includes('id="adlNav"') && home.includes('上一篇：'), '');
 const siteJson = await (await fetch(base + '/api/site?cb=' + Date.now())).json();
