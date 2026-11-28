@@ -197,6 +197,9 @@ export default {
       if (url.pathname === '/api/index-check' && request.method === 'POST') {
         return handleIndexCheck(request, env, url.origin);
       }
+      if (url.pathname === '/api/index-push' && request.method === 'POST') {
+        return handleIndexPush(request, env, url.origin);
+      }
       if (url.pathname === '/api/index-log' && request.method === 'POST') {
         return handleIndexLog(request, env);
       }
@@ -1815,7 +1818,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v274';
+const ASSET_V = 'v275';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2300,6 +2303,57 @@ async function handleIndexLog(request, env) {
   const list = await readIndexLog();
   const entries = indexLogWithDelta(list);
   return json({ ok: true, cap: INDEX_LOG_MAX, total: entries.length, entries: entries });
+}
+// 单条地址推一次 IndexNow：收录记录里「200 但还没被收录」时直接推，不用去改整批
+async function handleIndexPush(request, env, origin) {
+  if (!env.ADMIN_PASSWORD) return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== 'object') return json({ ok: false, error: '请求体必须是 JSON' }, 400);
+  if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
+    return json({ ok: false, error: '密码不对' }, 403);
+  }
+  const rt = await siteRuntime(env);
+  const siteSeo = (await loadSiteRaw(env)).seo || {};
+  const root = siteSeo.siteUrl ? String(siteSeo.siteUrl).replace(/\/+$/, '') : String(origin).replace(/\/+$/, '');
+  const key = indexNowKey(env, rt);
+  if (!key) {
+    return json({ ok: false, error: '还没有 IndexNow key：先在后台「收录与平台」里填一个，或给 Worker 配 INDEXNOW_KEY' }, 400);
+  }
+  let want = String(body.url || '').trim();
+  if (!want) return json({ ok: false, error: '要推哪一条？' }, 400);
+  if (!/^https?:\/\//i.test(want)) want = root + (want.charAt(0) === '/' ? want : '/' + want);
+  if (want.indexOf(root + '/') !== 0 && want !== root) {
+    return json({ ok: false, error: '只能推本站的地址（' + root + '）' }, 400);
+  }
+  let host = '';
+  try {
+    host = new URL(root).host;
+  } catch (e) {
+    return json({ ok: false, error: '后台填的站点地址不成立：' + root }, 400);
+  }
+  const keyLocation = root + '/' + key + '.txt';
+  if (body.dry === true) {
+    return json({ ok: true, dry: true, url: want, host: host, key: key, keyLocation: keyLocation, status: 0, ms: 0, note: "演练：只检查 host / key / keyLocation 对不对，没有真的发请求" });
+  }
+  const t0 = Date.now();
+  try {
+    const r = await fetch('https://api.indexnow.org/indexnow', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ host: host, key: key, keyLocation: keyLocation, urlList: [want] }),
+    });
+    await r.text().catch(function () { return ''; });
+    const good = r.ok || r.status === 202;
+    let note = '';
+    if (good) note = r.status === 202 ? '已接收（202）：搜索引擎会自己来抓，Bing 站长工具那边通常 24–72 小时才有记录' : '已接收（200）：等搜索引擎自己来抓';
+    else if (r.status === 429) note = '被限流了：IndexNow 对同一批地址有频率限制，等 10 分钟再推';
+    else if (r.status === 422) note = 'Key 校验没过：确认 /' + key + '.txt 能打开，且和后台填的 key 一致';
+    else if (r.status === 403) note = 'Key 文件打不开：确认站点是 https、且 /' + key + '.txt 能直接访问';
+    else note = 'IndexNow 返回 HTTP ' + r.status;
+    return json({ ok: good, url: want, status: r.status, ms: Date.now() - t0, note: note });
+  } catch (e) {
+    return json({ ok: false, url: want, status: 0, note: '连不上 api.indexnow.org：' + ((e && e.message) || 'network') }, 502);
+  }
 }
 async function handleIndexCheck(request, env, origin) {
   if (!env.ADMIN_PASSWORD) return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
@@ -4168,8 +4222,12 @@ td>.empty-card{margin:0}
 .ick-i.bad>span{color:var(--bad)}
 .ick-i.good>span{color:#15803d}
 .ick-links{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px}
+.ick-act{white-space:nowrap}
+.ick-act .mini{margin:2px 6px 2px 0}
 @media (max-width:480px){
   .ick-i{display:block}
+  .ick-act{white-space:nowrap}
+  .ick-act .mini{margin-right:6px}
   .ick-i>b{display:block;margin-bottom:2px}
   .ick-i>span{display:block}
   .ick-row{flex-direction:column;align-items:stretch}
@@ -7428,7 +7486,7 @@ function saveMsgFor(btn) {
     var tbl = document.createElement('table');
     tbl.className = 'tbl';
     var head = document.createElement('tr');
-    ['时间', '路径', '状态', 'sitemap', '和上次比'].forEach(function (t) {
+    ['时间', '路径', '状态', 'sitemap', '和上次比', '动作'].forEach(function (t) {
       var th = document.createElement('th');
       th.textContent = t;
       head.appendChild(th);
@@ -7452,7 +7510,31 @@ function saveMsgFor(btn) {
       if (e.deltaStatus === 'broken') d.push('新出问题');
       if (!d.length) d.push(e.deltaSitemap === null ? '首次' : '没变化');
       c5.textContent = d.join('、');
-      [c1, c2, c3, c4, c5].forEach(function (c) { tr.appendChild(c); });
+      var c6 = document.createElement('td');
+      c6.className = 'ick-act';
+      if (e.status >= 200 && e.status < 400 && !e.noindex) {
+        var b1 = document.createElement('button');
+        b1.type = 'button';
+        b1.className = 'mini';
+        b1.textContent = '推 IndexNow';
+        b1.setAttribute('data-ickpush', e.path);
+        c6.appendChild(b1);
+      }
+      if (e.inSitemap === false) {
+        var b2 = document.createElement('button');
+        b2.type = 'button';
+        b2.className = 'mini';
+        b2.textContent = '加到批量框';
+        b2.setAttribute('data-icksm', e.path);
+        c6.appendChild(b2);
+      }
+      var b3 = document.createElement('button');
+      b3.type = 'button';
+      b3.className = 'mini';
+      b3.textContent = '重查';
+      b3.setAttribute('data-ickre', e.path);
+      c6.appendChild(b3);
+      [c1, c2, c3, c4, c5, c6].forEach(function (c) { tr.appendChild(c); });
       tbl.appendChild(tr);
     });
     box.appendChild(tbl);
@@ -7478,6 +7560,53 @@ function saveMsgFor(btn) {
       api('/api/index-log', { method: 'POST', body: { password: pw, action: 'clear' } }).then(loadIckLog);
     });
   }
+  (function bindIckAct() {
+    var lbox = $('ickLogBox');
+    if (!lbox) return;
+    lbox.addEventListener('click', function (ev) {
+      var t = ev.target;
+      if (!t || !t.getAttribute) return;
+      var push = t.getAttribute('data-ickpush');
+      var re = t.getAttribute('data-ickre');
+      var sm = t.getAttribute('data-icksm');
+      if (!push && !re && !sm) return;
+      var say = function (txt) {
+        var m = document.getElementById('ickActMsg');
+        if (!m) {
+          m = document.createElement('p');
+          m.id = 'ickActMsg';
+          m.className = 'note';
+          lbox.appendChild(m);
+        }
+        m.textContent = txt;
+      };
+      if (sm) {
+        var bi = $('ickBatch');
+        if (bi) {
+          var u = location.origin + sm;
+          var cur = String(bi.value || '').replace(/\s+$/, '');
+          if (cur.indexOf(u) < 0) bi.value = cur ? cur + String.fromCharCode(10) + u : u;
+          bi.focus();
+        }
+        say('已加到上面的批量框：点「批量查」可以一起看，或去「立即提交」推一次。');
+        return;
+      }
+      if (push) {
+        say('正在推 ' + push + ' …');
+        api('/api/index-push', { method: 'POST', body: { password: pw, url: push } }).then(function (r) {
+          say((r && r.ok ? '推成功：' : '推失败：') + ((r && r.note) || '') + (r && r.status ? '（HTTP ' + r.status + '，' + r.ms + 'ms）' : ''));
+        }).catch(function () { say('推的时候网络断了，稍后再试。'); });
+        return;
+      }
+      if (re) {
+        say('正在重查 ' + re + ' …');
+        api('/api/index-check', { method: 'POST', body: { password: pw, url: re } }).then(function () {
+          say('已重查并写入记录（往上翻能看到新的那一条）。');
+          loadIckLog();
+        }).catch(function () { say('重查失败，稍后再试。'); });
+      }
+    });
+  })();
   setTimeout(bindIckLog, 300);
   function ickTime(t) {
     try { return new Date(t).toLocaleString(); } catch (e) { return t || ''; }
