@@ -1469,7 +1469,7 @@ async function getStatus(env) {
 
   const miss = checkConfig(env);
   if (miss.length) {
-    return { configured: false, error: '还没配置变量：' + miss.join('、') + '，请按部署说明添加', next: next, translator: translatorStatus(env) };
+    return { version: ASSET_V, configured: false, error: '还没配置变量：' + miss.join('、') + '，请按部署说明添加', next: next, translator: translatorStatus(env) };
   }
 
   const path = filePath(env);
@@ -1515,6 +1515,7 @@ async function getStatus(env) {
     : null;
 
   return {
+    version: ASSET_V,
     configured: true,
     level: level,
     stateText: stateText,
@@ -1822,7 +1823,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v290';
+const ASSET_V = 'v291';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -5913,6 +5914,9 @@ tr:hover td{background:#fcfbf8}
       rows.push(healthRow('站点地址', true, base));
       if (h) {
         rows.push(healthRow('Worker 版本', !!h.version, (h.version || '未知') + ' · 文章 ' + ((h.counts && h.counts.articles) || 0) + ' 篇 · key 文件 ' + (h.keyFileOk ? '可读' : '读不到')));
+    var mdSrc = (document.querySelector('script[src*="md.js"]') || {}).src || '';
+    var mdV = (/[?&]v=([^&]+)/.exec(mdSrc) || [])[1] || '';
+    rows.push(healthRow('资源版本', !!mdV && mdV === h.version, mdV ? (mdV === h.version ? ('页面与 Worker 一致（' + mdV + '）') : ('页面 ' + mdV + ' ≠ Worker ' + h.version + '，强刷一下')) : '页面资源没带版本号，可能命中了旧缓存'));
       }
       if (h && h.dataAge && typeof h.dataAge.minutes === 'number') {
         var minsAgo = h.dataAge.minutes;
