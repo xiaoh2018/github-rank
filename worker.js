@@ -1821,7 +1821,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v277';
+const ASSET_V = 'v278';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2445,16 +2445,23 @@ async function handleIndexCron(request, env, url) {
   const origin = url.origin;
   const site = await loadSiteRaw(env);
   const seo = site.seo || {};
-  const token = String(env.CRON_TOKEN || seo.indexCronToken || '').trim();
+  const envToken = String(env.CRON_TOKEN || '').trim();
+  const tokHash = String(seo.indexCronTokenHash || '').trim();
   let body = null;
   if (request.method === 'POST') body = await request.json().catch(() => null);
   const given = String((body && body.token) || url.searchParams.get('token') || '').trim();
   const pwOk = !!(env.ADMIN_PASSWORD && body && safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD));
   if (!pwOk) {
-    if (!token) {
-      return json({ ok: false, error: '还没有配置定时令牌：在后台「收录与平台」填一个，或给 Worker 配 CRON_TOKEN' }, 400);
+    if (!envToken && !tokHash) {
+      return json({ ok: false, error: '还没有配置定时令牌：去后台「收录与平台」→「定时自查」里生成并保存一个，或给 Worker 配 CRON_TOKEN' }, 400);
     }
-    if (!given || !safeEqual(given, token)) return json({ ok: false, error: '令牌不对' }, 403);
+    let tokOk = false;
+    if (given && envToken && safeEqual(given, envToken)) tokOk = true;
+    if (!tokOk && given && tokHash) {
+      const h = await hashToken(given);
+      if (safeEqual(h.slice(0, 32), tokHash.slice(0, 32))) tokOk = true;
+    }
+    if (!tokOk) return json({ ok: false, error: '令牌不对' }, 403);
   }
   const root = seo.siteUrl ? String(seo.siteUrl).replace(/\/+$/, '') : String(origin).replace(/\/+$/, '');
   const urls = [];
@@ -3173,7 +3180,7 @@ function defaultSite() {
     layout: { mode: 'auto', side: 'right', users: 'auto', articleSide: 'right' },
     contact: { enabled: false, title: '联系我', wechat: '', qrUrl: '', email: '', note: '' },
     beian: { enabled: false, icp: '', icpUrl: 'https://beian.miit.gov.cn/', police: '', policeUrl: '', text: '' },
-    seo: { siteName: '', title: '', description: '', keywords: '', ogImage: '', siteUrl: '' },
+    seo: { siteName: '', title: '', description: '', keywords: '', ogImage: '', siteUrl: '', indexCronTokenHash: '' },
     geo: { summary: '', faq: [{ q: '', a: '' }] },
     // 翻译的运行设置：后台「翻译与密钥」页可直接改，不用去 Cloudflare 配变量
     runtime: { aiCap: null, emails: '', baiduToken: '', indexNowKey: '', verify: { bytedance: '', sogou: '', shenma: '' } },
@@ -3474,7 +3481,7 @@ function checkSection(section, value) {
     return { ok: true, clean: clean };
   }
   if (section === 'seo') {
-    const limits = { siteName: 60, title: 100, description: 300, keywords: 300, ogImage: 300, siteUrl: 300 };
+    const limits = { siteName: 60, title: 100, description: 300, keywords: 300, ogImage: 300, siteUrl: 300, indexCronToken: 128 };
     const urlKeys = ['ogImage', 'siteUrl'];
     const clean = {};
     for (const k of Object.keys(limits)) {
@@ -3484,6 +3491,9 @@ function checkSection(section, value) {
       if (t.length > limits[k]) return { ok: false, error: 'SEO 的「' + k + '」不能超过 ' + limits[k] + ' 个字符' };
       if (urlKeys.indexOf(k) >= 0 && t && !/^https?:\/\//i.test(t)) {
         return { ok: false, error: 'SEO 的「' + k + '」必须以 http:// 或 https:// 开头，或留空' };
+      }
+      if (k === 'indexCronToken' && t && !/^[A-Za-z0-9_-]+$/.test(t)) {
+        return { ok: false, error: '定时令牌只能用字母、数字、下划线和短横线（粘贴时别带空格或引号）' };
       }
       clean[k] = t;
     }
@@ -3546,6 +3556,13 @@ function checkSection(section, value) {
   }
   return { ok: false, error: 'section 只能是 ad、layout、contact、beian、seo、geo 或 runtime' };
   }
+
+// 定时令牌只存哈希：site.json 在公开仓库里，存明文等于把密钥公开
+async function hashToken(raw) {
+  const data = new TextEncoder().encode(String(raw));
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+}
 
 // 把整体结构写回 data/site.json（带上当前 sha）
 async function writeSite(env, site, sha) {
@@ -3656,6 +3673,24 @@ async function handleSite(request, env) {
 
   const check = checkSection(body.section, rawValue);
   if (!check.ok) return json({ ok: false, error: check.error }, 400);
+
+  // merge-seo-token：seo 段是整段替换，而「定时令牌」在另一个面板里单独保存 ——
+  // 不带这个字段的保存（改标题、改分享图）必须沿用已存的哈希，否则改个标题就把定时任务停了。
+  // 另外：site.json 在公开仓库里，明文令牌等于公开密钥 —— 只存 SHA-256 的前 32 位。
+  if (body.section === 'seo') {
+    const curSeo = (site.seo && typeof site.seo === 'object') ? site.seo : {};
+    const inSeo = (rawValue && typeof rawValue === 'object') ? rawValue : {};
+    const rawTok = typeof inSeo.indexCronToken === 'string' ? inSeo.indexCronToken.trim() : undefined;
+    delete check.clean.indexCronToken;
+    if (rawTok === undefined) {
+      check.clean.indexCronTokenHash = curSeo.indexCronTokenHash || '';
+    } else if (!rawTok) {
+      check.clean.indexCronTokenHash = '';
+      await purgeEdge(['/']);
+    } else {
+      check.clean.indexCronTokenHash = await hashToken(rawTok);
+    }
+  }
 
   site[body.section] = check.clean;
 
@@ -4353,6 +4388,8 @@ td>.empty-card{margin:0}
 .ick-links{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px}
 .ick-act{white-space:nowrap}
 .ick-act .mini{margin:2px 6px 2px 0}
+.cron-tok{margin:10px 0 12px;padding:12px;border:1px dashed var(--line);border-radius:12px}
+.cron-tok label{font-size:13px;font-weight:600;display:block;margin-bottom:6px}
 .cron-snip{background:#0f172a;color:#e2e8f0;font-size:12px;line-height:1.6;padding:12px;border-radius:10px;overflow:auto;max-height:260px;margin:8px 0}
 .ick-trend{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 4px}
 .ick-tag{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--chip);color:var(--muted);white-space:nowrap}
@@ -5172,6 +5209,15 @@ tr:hover td{background:#fcfbf8}
         </details>
                 <details id="cronWrap">
           <summary>定时自查（每天自动跑一次，人不用点）</summary>
+          <div class="cron-tok">
+            <label for="seo-indexCronToken">定时令牌（Actions 调用 /api/index-cron 时带上它；这里只保存哈希，原文请自己留好）</label>
+            <div class="ick-row">
+              <input type="text" id="seo-indexCronToken" maxlength="64" placeholder="点「生成随机令牌」，或粘贴你自己的" aria-label="定时令牌">
+              <button class="btn ghost" type="button" id="cronTokGen">生成随机令牌</button>
+              <button class="btn" type="button" data-save="seo" id="cronTokSave">保存令牌</button>
+            </div>
+            <p class="note" id="cronTokState" aria-live="polite">还没配置。</p>
+          </div>
           <p class="note" id="cronState">还没有配置定时令牌：在下面这段配置里填一个，或给 Worker 加 <code>CRON_TOKEN</code> 环境变量。</p>
           <pre class="cron-snip" id="cronSnippet"></pre>
           <div class="ick-row"><button class="btn ghost" type="button" id="cronCopy">复制这段配置</button><button class="btn" type="button" id="cronRun">现在跑一次</button></div>
@@ -5501,7 +5547,7 @@ tr:hover td{background:#fcfbf8}
     layout: ['mode', 'side', 'users', 'articleSide'],
     contact: ['title', 'wechat', 'qrUrl', 'email', 'note'],
     beian: ['icp', 'icpUrl', 'police', 'policeUrl', 'text'],
-    seo: ['siteName', 'title', 'description', 'keywords', 'ogImage', 'siteUrl'],
+    seo: ['siteName', 'title', 'description', 'keywords', 'ogImage', 'siteUrl', 'indexCronToken'],
     geo: ['summary']
   };
   var pw = '';
@@ -5966,6 +6012,7 @@ tr:hover td{background:#fcfbf8}
       renderCats((s && s.article && s.article.categories) || []);
       if ($('artUnlockHint')) $('artUnlockHint').value = (s && s.article && s.article.unlockHint) || '';
     $('beian-enabled').checked = !!b.enabled;
+    window.__cronTokHash = (o && o.indexCronTokenHash) || '';
     var src = { contact: c, beian: b, seo: o, geo: g };
     Object.keys(src).forEach(function (sec) {
       FIELDS[sec].forEach(function (k) {
@@ -7790,6 +7837,7 @@ function saveMsgFor(btn) {
   })();
   setTimeout(bindIckLog, 300);
   setTimeout(bindCron, 320);
+  setTimeout(bindCronTok, 360);
   function cronSnippetText() {
     var lines = [
       '# .github/workflows/index-check.yml（每天北京时间 09:00 跑一次）',
@@ -7807,6 +7855,52 @@ function saveMsgFor(btn) {
       '# 仓库 Settings → Secrets 里加 INDEX_CRON_TOKEN，值和后台填的定时令牌一致',
     ];
     return lines.join(String.fromCharCode(10)).split('__SITE__').join(location.origin).split('__TOKEN__').join('$' + '{{ secrets.INDEX_CRON_TOKEN }}');
+  }
+  function cronTokAudit() {
+    var el = $('seo-indexCronToken');
+    var box = $('cronTokState');
+    if (!el || !box) return;
+    if (!el.value && window.__cronTokHash) {
+      box.textContent = '已配置（哈希 ' + String(window.__cronTokHash).slice(0, 8) + '…）：Actions 里用当时保存的那串原文；忘了就重新生成一次。';
+      box.className = 'note';
+      return;
+    }
+    var v = String(el.value || '').trim();
+    if (!v) {
+      box.textContent = '还没配置：点「生成随机令牌」，再点「保存令牌」，然后把这串原文贴到仓库的 Actions Secret 里。';
+      box.className = 'note cwarn';
+      return;
+    }
+    if (v.length < 16) {
+      box.textContent = '只有 ' + v.length + ' 位，太短了：建议用「生成随机令牌」（32 位）。';
+      box.className = 'note cwarn';
+      return;
+    }
+    if (!/^[A-Za-z0-9_-]+$/.test(v)) {
+      box.textContent = '只能用字母、数字、下划线和短横线 —— 粘贴时别带空格或引号。';
+      box.className = 'note cwarn';
+      return;
+    }
+    box.textContent = '已填 ' + v.length + ' 位（结尾 ' + v.slice(-4) + '）：点「保存令牌」后，Actions 就能带着它来跑。';
+    box.className = 'note';
+  }
+  function bindCronTok() {
+    var el = $('seo-indexCronToken');
+    if (el) el.addEventListener('input', cronTokAudit);
+    var gen = $('cronTokGen');
+    if (gen) {
+      gen.addEventListener('click', function () {
+        var buf = new Uint8Array(16);
+        (window.crypto || window.msCrypto).getRandomValues(buf);
+        var hex = "";
+        for (var i = 0; i < buf.length; i++) hex += ("0" + buf[i].toString(16)).slice(-2);
+        if (el) { el.value = hex; el.focus(); }
+        cronTokAudit();
+      });
+    }
+    var save = $('cronTokSave');
+    if (save) save.addEventListener('click', function () { setTimeout(cronTokAudit, 600); });
+    cronTokAudit();
   }
   function bindCron() {
     var snip = $('cronSnippet');

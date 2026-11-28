@@ -595,6 +595,14 @@ push('收录记录上方有「今天 vs 昨天」摘要', admHtml.includes('id="
 
 push('后台有「定时自查」块与可粘贴的配置片段', admHtml.includes('id="cronWrap"') && admHtml.includes('id="cronSnippet"') && admHtml.includes('/api/index-cron'), '');
 
+push('后台能填定时令牌（输入框 + 生成 + 保存 + 状态行）', admHtml.includes('id="seo-indexCronToken"') && admHtml.includes('id="cronTokGen"') && admHtml.includes('id="cronTokState"'), '');
+
+{
+  const rs = await fetch(base + '/api/site');
+  const sj = await rs.text();
+  push('站点接口只给令牌哈希（不回明文）', rs.status === 200 && sj.indexOf('"indexCronToken"') < 0 && sj.indexOf('indexCronTokenHash') >= 0, 'HTTP ' + rs.status);
+}
+
 {
   const r = await fetch(base + '/api/index-cron', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
   const txt = await r.text();
