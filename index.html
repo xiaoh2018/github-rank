@@ -2066,7 +2066,8 @@ getJSON('/data/site.json').then(function(site){
     </div>
   </div>
   <div class="adl-toc" id="adlToc" hidden></div>
-  <div class="adl-body" id="artDlgBody"></div>
+  <div class="adl-prog" id="adlProg" aria-hidden="true"><i id="adlProgFill"></i></div>
+<div class="adl-body" id="artDlgBody"></div>
   <div class="adl-nav" id="adlNav" hidden></div>
   <div class="adl-lock" id="artDlgLock" hidden>
     <p class="adl-lockt">这篇需要密码才能看，问站长要。</p>
@@ -2105,6 +2106,8 @@ getJSON('/data/site.json').then(function(site){
 .adl-x{margin-left:auto;justify-self:end;flex:0 0 auto;width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:inherit;font-size:18px;line-height:1;cursor:pointer}
 .adl-x:hover{color:var(--accent);border-color:var(--accent)}
 .adl-x:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.adl-prog{flex:0 0 auto;height:3px;background:var(--chip);overflow:hidden}
+.adl-prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .08s linear}
 .adl-body{flex:1 1 auto;min-height:0;padding:18px 22px 30px;overflow:auto;font-size:var(--rfont,17px);line-height:1.85}
 .adl-body h1,.adl-body h2,.adl-body h3{margin:1.2em 0 .5em;line-height:1.4}
 .adl-body p{margin:.7em 0}
@@ -2141,6 +2144,17 @@ getJSON('/data/site.json').then(function(site){
   var RF_KEY='ghrank-reader-font', RF_STEPS=[15,16,17,18,20,22], rfIdx=2;
   var tocBtn=document.getElementById('adlTocBtn'), tocEl=document.getElementById('adlToc');
   var nowEl=document.getElementById('adlNow'), minusEl=document.getElementById('adlMinus'), plusEl=document.getElementById('adlPlus');
+var progEl=document.getElementById('adlProg'), progFill=document.getElementById('adlProgFill');
+function adlProgPaint(){
+  if(!progEl||!progFill) return;
+  var max=bodyEl.scrollHeight-bodyEl.clientHeight;
+  var p=max<=2?100:Math.max(0,Math.min(100,Math.round(bodyEl.scrollTop/max*100)));
+  progFill.style.width=p+"%";
+  progEl.setAttribute("data-pct",String(p));
+  progEl.setAttribute("title","已读 "+p+"%");
+}
+bodyEl.addEventListener("scroll", adlProgPaint);
+window.addEventListener("resize", adlProgPaint);
   var copyEl=document.getElementById('adlCopy'), tipEl=document.getElementById('adlTip'), navEl=document.getElementById('adlNav');
   function rfPaint(){
     var px=RF_STEPS[rfIdx];
@@ -2271,6 +2285,7 @@ getJSON('/data/site.json').then(function(site){
       paint(a);
       if(!dlg.open) dlg.showModal();
       bodyEl.scrollTop=0;
+adlProgPaint();
       if(!fromHistory) history.pushState({art:slug}, '', '/?page=articles&post='+encodeURIComponent(slug));
     });
   }
