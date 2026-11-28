@@ -44,6 +44,7 @@ const SITE = {
 };
 
 export default {
+  __diag: diagnoseSubmitResult,
   async fetch(request, env, ctx) {
     const res = await this.route(request, env, ctx);
     return withSecurity(res, request);
@@ -1821,7 +1822,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v278';
+const ASSET_V = 'v279';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2859,6 +2860,60 @@ async function handleHealth(env, origin) {
   });
 }
 
+// 把「HTTP 状态 + 原始话」翻成运营能直接执行的「原因 + 下一步」，顺便标出能不能重试。
+// 起因：429 / 403 / 422 / 网络不通 在页面上都是一句 toast「提交失败」，用户不知道从哪下手。
+function diagnoseSubmitResult(key, r) {
+  if (!r) return null;
+  const note = String(r.note || "");
+  const st = Number(r.status) || 0;
+  if (key === 'indexNow') {
+    if (r.skipped) {
+      return { level: 'warn', reason: '这批地址刚推过：IndexNow 对同一批有频率限制', next: '等 1 小时再推，或勾上「强制再推一次」', retry: true };
+    }
+    if (r.ok) {
+      return { level: 'ok', reason: '平台收下了（HTTP ' + st + '）', next: '去 Bing 站长工具的「IndexNow」页看记录；真正抓取通常 24–72 小时', retry: false };
+    }
+    if (st === 429) {
+      return { level: 'warn', reason: '被限流了（同一批地址推得太勤）', next: '等 10 分钟再点「只推 IndexNow」；重复批次本站会自动跳过', retry: true };
+    }
+    if (st === 422) {
+      return { level: 'fail', reason: 'key 校验没过：提交的 host 与 keyLocation 不是同一个域，或 key 文件内容不对', next: '先看本页「自检」里 key 文件那一行；确认后只重试 IndexNow', retry: true };
+    }
+    if (st === 403) {
+      return { level: 'fail', reason: 'key 文件打不开或内容不对', next: '确认 /<key>.txt 能直接打开且内容就是 key；再只重试 IndexNow', retry: true };
+    }
+    if (!st) {
+      return { level: 'fail', reason: '连不上 IndexNow（网络或超时）', next: '稍等几秒，只重试 IndexNow；连着失败就看下面的原始返回', retry: true };
+    }
+    return { level: 'fail', reason: 'IndexNow 返回 HTTP ' + st, next: '展开「看原始返回」确认原因，再只重试 IndexNow', retry: true };
+  }
+  if (key === 'baidu') {
+    if (r.ok) {
+      return { level: 'ok', reason: '百度收下了', next: '去百度搜索资源平台的「普通收录」看抓取与索引记录', retry: false };
+    }
+    if (/没填百度准入密钥/.test(note)) {
+      return { level: 'fail', reason: '没填百度准入密钥', next: '去「翻译与密钥」填准入密钥（或配 Cloudflare 变量 BAIDU_TOKEN），再推一次', retry: false };
+    }
+    const m = /错误码\s*(\d+)/.exec(note);
+    if (m) {
+      const code = m[1];
+      const map = {
+        '400': '参数不对（地址格式、站点域名不匹配）',
+        '401': '准入密钥不对（和站点实际域名不匹配）',
+        '403': '没有推送权限（站点未验证，或密钥被停用）',
+        'over quota': '当天配额用完了',
+      };
+      const reason = map[code] || ('百度返回错误码 ' + code);
+      return { level: 'fail', reason: reason, next: '去百度搜索资源平台核对站点与密钥，修好后只重试百度', retry: true };
+    }
+    if (!st) {
+      return { level: 'fail', reason: '连不上百度推送接口', next: '稍后再点「只推百度」；连续失败看原始返回', retry: true };
+    }
+    return { level: 'fail', reason: '百度返回 HTTP ' + st, next: '展开原始返回确认原因，再只重试百度', retry: true };
+  }
+  return null;
+}
+
 async function handleSubmit(request, env, origin) {
   const rtSubmit = await siteRuntime(env);
   const keyNow = indexNowKey(env, rtSubmit);
@@ -3026,6 +3081,18 @@ async function handleSubmit(request, env, origin) {
       }
     }
   }
+
+  // 每项都带上「原因 + 下一步 + 能不能重试」，页面上直接照着做
+  out.summary = { ok: 0, warn: 0, fail: 0, retriable: 0 };
+  Object.keys(out.results).forEach(function (k) {
+    const d = diagnoseSubmitResult(k, out.results[k]);
+    if (!d) return;
+    out.results[k].diag = d;
+    if (d.level === 'ok') out.summary.ok++;
+    else if (d.level === 'warn') out.summary.warn++;
+    else out.summary.fail++;
+    if (d.retry && out.results[k].ok !== true) out.summary.retriable++;
+  });
 
   out.at = new Date().toISOString();
   out.sig = sigNow;
@@ -4388,6 +4455,13 @@ td>.empty-card{margin:0}
 .ick-links{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px}
 .ick-act{white-space:nowrap}
 .ick-act .mini{margin:2px 6px 2px 0}
+.dg{margin-top:8px;padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.7}
+.dg-ok{background:#ecfdf5;border:1px solid #a7f3d0}
+.dg-warn{background:#fffbeb;border:1px solid #fde68a}
+.dg-fail{background:#fef2f2;border:1px solid #fecaca}
+.dg .btn.small{margin-top:6px}
+.sub-sum{margin-top:6px;font-weight:600}
+.dg-bad{color:#b91c1c}
 .cron-tok{margin:10px 0 12px;padding:12px;border:1px dashed var(--line);border-radius:12px}
 .cron-tok label{font-size:13px;font-weight:600;display:block;margin-bottom:6px}
 .cron-snip{background:#0f172a;color:#e2e8f0;font-size:12px;line-height:1.6;padding:12px;border-radius:10px;overflow:auto;max-height:260px;margin:8px 0}
@@ -7623,7 +7697,22 @@ function saveMsgFor(btn) {
       '<a href="https://ziyuan.baidu.com/linksubmit/index" target="_blank" rel="noopener">百度普通收录</a>' +
       '<a href="#geoCard">本页平台清单</a></div>';
   }
-  function subBox(name, o) {
+  function subHead(r) {
+    var sm = r.summary || null;
+    var line = '';
+    if (sm) {
+      var bits = [];
+      if (sm.ok) bits.push(sm.ok + ' 项已收下');
+      if (sm.warn) bits.push(sm.warn + ' 项被限流/跳过');
+      if (sm.fail) bits.push('<b class="dg-bad">' + sm.fail + ' 项失败</b>');
+      if (sm.retriable) bits.push('其中 ' + sm.retriable + ' 项可以只重试');
+      line = '<div class="sub-sum">' + bits.join(' · ') + '</div>';
+    }
+    return '<div class="tr-box">本次提交 <b>' + (r.urls || 0) + '</b> 个地址（首页 + 文章列表 + 每篇文章）' +
+      (r.root ? '<br>站点地址：<code>' + navEsc(r.root) + '</code>（必须与百度验证、key 文件同域）' : '') + line + '</div>';
+  }
+  function subBox(name, o, retryKey) {
+    if (o && o.diag && retryKey) o.diag.retryKey = retryKey;
     if (!o) return '';
     var st = o.skipped ? '已跳过' : (o.ok ? '已接收' : '失败');
     var head = '<b>' + name + '</b> · ' + st + (o.status ? '（HTTP ' + o.status + '）' : '') + (typeof o.ms === 'number' ? ' · ' + o.ms + 'ms' : '') + (o.at ? ' · ' + new Date(o.at).toLocaleString() : '');
@@ -7632,7 +7721,16 @@ function saveMsgFor(btn) {
     if (o.urlList && o.urlList.length) {
       urls = '<details class="raw"><summary>这次推了 ' + o.urlList.length + ' 条地址' + (o.urlListNote ? '（' + navEsc(o.urlListNote) + '）' : '') + '</summary><pre>' + o.urlList.map(function (u) { return navEsc(u); }).join(String.fromCharCode(10)) + '</pre></details>';
     }
-    return '<div class="tr-box' + ((o.ok || o.skipped) ? '' : ' tr-bad') + '">' + head + '<br>' + navEsc(o.note || '') + urls + raw + '</div>';
+    var diag = '';
+    if (o.diag) {
+      var cls = o.diag.level === 'ok' ? 'dg-ok' : (o.diag.level === 'warn' ? 'dg-warn' : 'dg-fail');
+      diag = '<div class="dg ' + cls + '">' +
+        '<div><b>原因</b>：' + navEsc(o.diag.reason || '') + '</div>' +
+        '<div><b>下一步</b>：' + navEsc(o.diag.next || '') + '</div>' +
+        (o.diag.retry ? '<button class="btn ghost small" type="button" data-subretry="' + (o.diag.retryKey || '') + '">只重试这一项</button>' : '') +
+        '</div>';
+    }
+    return '<div class="tr-box' + ((o.ok || o.skipped) ? '' : ' tr-bad') + '">' + head + '<br>' + navEsc(o.note || '') + diag + urls + raw + '</div>';
   }
   function ickSay(text, cls) {
     var out = $('ickOut');
@@ -8129,15 +8227,21 @@ function saveMsgFor(btn) {
         tick();
         if (cool > 0) subTimer = setInterval(tick, 1000);
       })();
+      // 「上次提交」单独放一个可折叠块：以前它写在 #subOut 里，
+      // 结果刚提交完 loadSubmit() 一刷新就把「本次结果 + 接下来 + 诊断」整块盖掉（真 bug）。
       var outBox = $('subOut');
+      var lastBox = $('subLast');
+      if (!lastBox && outBox && outBox.parentNode) {
+        lastBox = document.createElement('div');
+        lastBox.id = 'subLast';
+        outBox.parentNode.insertBefore(lastBox, outBox.nextSibling);
+      }
       var res = (last && last.results) ? last.results : null;
-      if (res) {
-        if (outBox) {
-          outBox.innerHTML = '<p class="note">下面这些是上次提交的结果（' + new Date(last.at || Date.now()).toLocaleString() + '），重新提交会覆盖。</p>' +
-            subBox('上次 IndexNow', res.indexNow) + subBox('上次百度', res.baidu);
-        }
-      } else if (last && outBox) {
-        outBox.innerHTML = '<p class="note">上次提交（' + new Date(last.at || Date.now()).toLocaleString() + '）是旧记录，没有保存原始返回；下次提交后会显示在这里。</p>';
+      if (lastBox && res) {
+        lastBox.innerHTML = '<details class="last-sub"><summary>上次提交的结果（' + new Date(last.at || Date.now()).toLocaleString() + '）</summary>' +
+          subBox('上次 IndexNow', res.indexNow) + subBox('上次百度', res.baidu) + '</details>';
+      } else if (lastBox && last) {
+        lastBox.innerHTML = '<p class="note">上次提交（' + new Date(last.at || Date.now()).toLocaleString() + '）是旧记录，没有保存原始返回。</p>';
       }
     });
   }
@@ -8164,18 +8268,33 @@ function saveMsgFor(btn) {
         return;
       }
       var res = r.results || {};
-      out.innerHTML = '<div class="tr-box">本次提交 <b>' + (r.urls || 0) + '</b> 个地址（首页 + 文章列表 + 每篇文章）' +
+      out.innerHTML = subHead(r) + subBox('IndexNow（Bing / Yandex / Naver）', res.indexNow, 'indexnow') + subBox('百度普通收录', res.baidu, 'baidu') + subNext();
         (r.root ? '<br>站点地址：<code>' + navEsc(r.root) + '</code>（必须与百度验证、key 文件同域）' : '') + '</div>' +
-        subBox('IndexNow（Bing / Yandex / Naver）', res.indexNow) +
-        subBox('百度普通收录', res.baidu) +
-        subNext();
+
       toast('提交完成', true);
       loadSubmit();
     });
   }
+  // 给门禁/排查用：把一份「提交结果」直接渲染出来，不真的发请求
+  window.__subRender = function (r) {
+    var out = $('subOut');
+    if (!out) return false;
+    var res = (r && r.results) || {};
+    out.innerHTML = subHead(r || {}) + subBox('IndexNow（Bing / Yandex / Naver）', res.indexNow, 'indexnow') + subBox('百度普通收录', res.baidu, 'baidu') + subNext();
+    return true;
+  };
   $('subRun').addEventListener('click', function () { runSubmit('all'); });
   if ($('subTest')) $('subTest').addEventListener('click', function () { runSubmit('all', true); });
   $('subRunIN').addEventListener('click', function () { runSubmit('indexnow'); });
+  var subOutEl = $('subOut');
+  if (subOutEl) {
+    subOutEl.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-subretry]') : null;
+      if (!b) return;
+      var act = b.getAttribute('data-subretry') === 'baidu' ? 'baidu' : 'indexnow';
+      runSubmit(act);
+    });
+  }
   $('subRunBD').addEventListener('click', function () { runSubmit('baidu'); });
 
   // ---------- 分段 tab（SEO/GEO、广告位）----------

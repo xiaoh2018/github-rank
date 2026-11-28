@@ -593,6 +593,8 @@ push('后台有「最近查询记录」块（可展开）', admHtml.includes('id
 push('收录记录每行有动作按钮（推 / 重查）', admHtml.includes('data-ickpush') && admHtml.includes('data-ickre'), '');
 push('收录记录上方有「今天 vs 昨天」摘要', admHtml.includes('id="ickTrend"') && admHtml.includes('把挂着的填进批量框'), '');
 
+push('提交失败时会说清原因并给出「只重试这一项」', admHtml.includes('data-subretry=') && admHtml.includes('只重试这一项') && admHtml.includes('下一步'), '');
+push('提交结果带诊断字段（原因/下一步/能否重试）', admHtml.includes('diagnoseSubmitResult') || admHtml.includes('o.diag.retry'), '');
 push('后台有「定时自查」块与可粘贴的配置片段', admHtml.includes('id="cronWrap"') && admHtml.includes('id="cronSnippet"') && admHtml.includes('/api/index-cron'), '');
 
 push('后台能填定时令牌（输入框 + 生成 + 保存 + 状态行）', admHtml.includes('id="seo-indexCronToken"') && admHtml.includes('id="cronTokGen"') && admHtml.includes('id="cronTokState"'), '');
