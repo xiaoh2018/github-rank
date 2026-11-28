@@ -93,9 +93,9 @@ const CARD_SEL = "#list .item:not(.ad-inline)";
   push('+N 的数量与隐藏项对得上', moreOk, '');
 
   // hover 才显示「复制/卡片」
-  const miniCount = await s.evalJs(`document.querySelector('${CARD_SEL}').querySelectorAll('.mini:not(.mshare)').length`);
+  const miniCount = await s.evalJs(`document.querySelector('${CARD_SEL}').querySelectorAll('.mini:not(.mshare):not(.mblock)').length`);
   push('复制/卡片按钮存在', miniCount === 2, miniCount + ' 个');
-  const before = await s.evalJs(`getComputedStyle(document.querySelector('${CARD_SEL} .mini:not(.mshare)')).opacity`);
+  const before = await s.evalJs(`getComputedStyle(document.querySelector('${CARD_SEL} .mini:not(.mshare):not(.mblock)')).opacity`);
   push('默认不显示（opacity 0）', before === '0', before);
 
   const rect = await s.evalJs(`(function(){var r=document.querySelector('${CARD_SEL}').getBoundingClientRect();return {x:Math.round(r.x+r.width/2),y:Math.round(r.y+20)};})()`);
@@ -113,7 +113,7 @@ const CARD_SEL = "#list .item:not(.ad-inline)";
 {
   const s = await session({ width: 390, height: 844, mobile: true, touch: true });
   const r = await s.evalJs(`(function(){
-    var m = document.querySelector('${CARD_SEL} .mini:not(.mshare)');
+    var m = document.querySelector('${CARD_SEL} .mini:not(.mshare):not(.mblock)');
     return { display: m ? getComputedStyle(m).display : 'missing', hoverNone: window.matchMedia('(hover:none)').matches };
   })()`);
   push('触屏设备不显示复制/卡片按钮', r.hoverNone === true && r.display === 'none', JSON.stringify(r));

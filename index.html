@@ -312,6 +312,7 @@ html[data-theme="ink"] .navcard .hitmark,html[data-theme="ink"] .navjump .hitmar
 @media (hover:none){
   #list .item .mini{display:none}
   #list .item .mshare-row{display:block;text-align:right;margin-top:6px}
+  #list .item .mini.mblock{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;font-size:12.5px;opacity:1}
   #list .item .mini.mshare{display:inline-flex;align-items:center;opacity:1;align-self:flex-end;min-height:32px;padding:0 10px;font-size:12.5px}
 }
 /* 数据没读出来时的卡片：别只留一行红字，说清怎么回事、给下一步 */
@@ -325,6 +326,8 @@ html[data-theme="ink"] .navcard .hitmark,html[data-theme="ink"] .navjump .hitmar
 @media (max-width:760px){
   /* 窄屏一律隐藏：不依赖 (hover)/(pointer) 判断，手机、平板、触屏笔记本都干净 */
   #list .item .mini{display:none}
+  /* 「不感兴趣」例外：手机上也该能屏蔽，不然这个功能只有桌面能用 */
+  #list .item .mini.mblock{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;font-size:12.5px;opacity:1;margin-top:6px}
   #list .item .mshare-row{display:block;text-align:right;margin-top:6px}
   #list .item .mini.mshare{display:inline-flex;align-items:center;opacity:1;align-self:flex-end;min-height:32px;padding:0 10px;font-size:12.5px}
   /* 换行后的行距收窄：14px 的 gap 在手机上会让两行信息看起来像断开的两段 */

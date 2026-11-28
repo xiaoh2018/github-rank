@@ -558,6 +558,13 @@ function renderItem(r, rank, maxStars, trend) {
   };
   meta.append(copy);
 
+  const noThanks = el("button", "mini mblock", "不感兴趣");
+  noThanks.type = "button";
+  noThanks.title = "不再显示这个项目（只存在这台设备，可一键恢复）";
+  noThanks.setAttribute("aria-label", "不再显示「" + (r.name || "这个项目") + "」");
+  noThanks.onclick = () => { blockRepo(r.name); render(); };
+  meta.append(noThanks);
+
   const mshare = el('button', 'mini mshare', '分享');
   mshare.type = 'button';
   mshare.setAttribute('aria-label', '分享「' + (r.name || '项目') + '」');
@@ -1179,6 +1186,48 @@ function searchMatch(r, tokens) {
   });
 }
 
+// ---------- 不感兴趣（只存在这台设备，可一键恢复） ----------
+const BLOCK_KEY = 'ghrank:blocked';
+function getBlocked() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(BLOCK_KEY) || '[]');
+    return Array.isArray(raw) ? raw.filter(x => typeof x === "string") : [];
+  } catch (e) { return []; }
+}
+function saveBlocked(list) {
+  try { localStorage.setItem(BLOCK_KEY, JSON.stringify(list.slice(0, 500))); } catch (e) {}
+}
+function blockRepo(name) {
+  const l = getBlocked();
+  if (name && l.indexOf(name) < 0) { l.push(name); saveBlocked(l); }
+}
+function unblockAll() { saveBlocked([]); }
+function paintBlockBar() {
+  let bar = document.getElementById("blockBar");
+  const n = getBlocked().length;
+  if (!n) { if (bar) bar.remove(); return; }
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.id = "blockBar";
+    bar.setAttribute("role", "status");
+    bar.style.cssText = "display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 10px;padding:8px 12px;border:1px dashed var(--line);border-radius:12px;font-size:13px;color:var(--muted)";
+    const list = document.getElementById("list");
+    if (list && list.parentNode) list.parentNode.insertBefore(bar, list);
+    else document.body.appendChild(bar);
+  }
+  bar.textContent = "";
+  const sp = document.createElement("span");
+  sp.textContent = "已屏蔽 " + n + " 个项目（只存在这台设备）";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn ghost";
+  btn.id = "blockRestore";
+  btn.textContent = "恢复全部";
+  btn.style.cssText = "min-height:32px";
+  btn.onclick = () => { unblockAll(); render(); };
+  bar.append(sp, btn);
+}
+
 function visibleRepos() {
   const tokens = state.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const favs = getFavs();
@@ -1186,6 +1235,8 @@ function visibleRepos() {
   const cat = CATS.find(c => c.id === state.cat);
   if (cat) list = list.filter(r => matchCat(r, cat));
   if (state.favOnly) list = list.filter(r => favs.has(r.name));
+  const blockedNames = getBlocked();
+  if (blockedNames.length) list = list.filter(r => blockedNames.indexOf(r.name) < 0);
   list = [...list];
   const dStars = r => {
     const d = (state.trend[r.name] || {}).dStars;
@@ -1314,6 +1365,14 @@ function renderRepos() {
       : '这次抓到的 ' + state.repos.length + ' 个项目里没有可显示的。';
     const wrap = el('div', 'empty-c');
     wrap.append(el('b', null, '没有符合条件的项目'), el('p', 'hint', hint));
+    const blockedNow = getBlocked();
+    if (blockedNow.length) {
+      wrap.append(el('p', 'hint', '其中有 ' + blockedNow.length + ' 个项目被你标了「不感兴趣」（只存在这台设备）。'));
+      const bAll = el('button', 'btn ghost', '恢复全部屏蔽');
+      bAll.id = "blockRestoreEmpty";
+      bAll.onclick = () => { unblockAll(); render(); };
+      wrap.append(bAll);
+    }
     if (state.q) {
       const b1 = el('button', 'btn ghost', '只清关键词');
       b1.onclick = () => {
@@ -1453,6 +1512,7 @@ function paintFresh() {
 
 function render() {
   toggleRepoOnly();
+  paintBlockBar();
   if (state.view === 'repos') renderRepos(); else renderUsers();
   updateSourceNote();
   paintFresh();
