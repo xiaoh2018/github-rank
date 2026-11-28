@@ -537,6 +537,7 @@ push('收录记录在窄屏变卡片（不再被裁一半）', admHtml.includes(
 push('体检里能看到「资源版本」是否和 Worker 一致', admHtml.includes("'资源版本'") && admHtml.includes('强刷一下'), '');
 push('收录记录每行能展开「七项事实」', admHtml.includes('data-ickdetail') && admHtml.includes('ickDetailText') && admHtml.includes('完整地址'), '');
 push('后台危险操作有可撤销的提示（问答删除）', admHtml.includes('offerUndo') && admHtml.includes('已删除问答「') && admHtml.includes('undoGo'), '');
+push('友链删除也能撤销（接口支持按位置插回）', admHtml.includes('已删除友链「') && admHtml.includes("action: 'insert'"), '');
 push('导航页搜索能写进地址（可分享的筛选视图）', home.includes('navSyncUrl') && home.includes("u.searchParams.set('q'"), '');
 push('切视图时不丢导航页关键词', home.includes("v2==='nav'&&keepQ"), '');
 push('两个阅读器共用字号存档与 --rfont', home.includes("RF_KEY='ghrank-reader-font'") && home.includes('var(--rfont'), '');

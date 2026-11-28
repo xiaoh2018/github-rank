@@ -1631,8 +1631,8 @@ async function handleLinks(request, env) {
   if (!safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD)) {
     return json({ ok: false, error: '密码不对' }, 403);
   }
-  if (body.action !== 'add' && body.action !== 'remove' && body.action !== 'update' && body.action !== 'move') {
-    return json({ ok: false, error: 'action 只能是 add、remove、update 或 move' }, 400);
+  if (body.action !== 'add' && body.action !== 'remove' && body.action !== 'update' && body.action !== 'move' && body.action !== 'insert') {
+    return json({ ok: false, error: 'action 只能是 add、insert、remove、update 或 move' }, 400);
   }
 
   const cur = await readLinks(env);
@@ -1667,6 +1667,12 @@ async function handleLinks(request, env) {
       const item = links.splice(body.from, 1)[0];
       links.splice(body.to, 0, item);
     }
+  } else if (body.action === 'insert') {
+    const v = pickLink();
+    if (!v.ok) return json({ ok: false, error: v.error }, 400);
+    const want = body.index == null ? links.length : Number(body.index);
+    const at = Math.max(0, Math.min(links.length, Number.isFinite(want) ? want : links.length));
+    links.splice(at, 0, v.value);
   } else if (body.action === 'remove') {
     const idx = body.index;
     if (typeof idx !== 'number' || !Number.isInteger(idx) || idx < 0 || idx >= links.length) {
@@ -1823,7 +1829,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v293';
+const ASSET_V = 'v294';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -6089,12 +6095,27 @@ tr:hover td{background:#fcfbf8}
     if (d == null) return;
     var i = Number(d);
     var name = state.links[i] ? state.links[i].name : '';
-    askConfirm('删除友链', '会从首页友链里去掉「' + name + '」。删除不可撤销（要恢复就重新添加一次），保存即生效、刷新首页就能看到。', function () {
+    var linkItem = state.links[i] ? { name: state.links[i].name, url: state.links[i].url, desc: state.links[i].desc } : null;
+    var linkAt = i;
+    askConfirm('删除友链', '会从首页友链里去掉「' + name + '」。删完 8 秒内可以点「撤销」放回原来的位置，保存即生效、刷新首页就能看到。', function () {
       return api('/api/links', { method: 'POST', body: { password: pw, action: 'remove', index: i } }).then(function (r) {
         if (r.ok) {
           state.links = r.links;
           renderLinks();
           paintDelMsg('#pane-links .bar', '已删除「' + name + '」· 已生效', false);
+          if (linkItem) {
+            offerUndo('已删除友链「' + name + '」', function () {
+              api('/api/links', { method: 'POST', body: { password: pw, action: 'insert', index: linkAt, name: linkItem.name, url: linkItem.url, desc: linkItem.desc } }).then(function (r2) {
+                if (r2.ok) {
+                  state.links = r2.links;
+                  renderLinks();
+                  paintDelMsg('#pane-links .bar', '已撤销删除：「' + name + '」回到原来的位置（已生效）', false);
+                } else {
+                  toast(r2.error || '撤销失败');
+                }
+              });
+            });
+          }
         }
         return r;
       });
