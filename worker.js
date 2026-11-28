@@ -1829,7 +1829,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v296';
+const ASSET_V = 'v297';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -8054,6 +8054,11 @@ function saveMsgFor(btn) {
       var dc = document.createElement("td");
       dc.colSpan = 6;
       dc.textContent = ickDetailText(e);
+      var hp = document.createElement("p");
+      hp.className = "ick-hist";
+      hp.style.cssText = "margin:6px 0 0;padding-top:6px;border-top:1px dashed rgba(0,0,0,.12);opacity:.9";
+      hp.textContent = e.kind === "push" ? "历史：推送记录不参与页面健康统计" : ickPathHistory(e.path);
+      dc.appendChild(hp);
       dt.appendChild(dc);
       tbl.appendChild(dt);
     });
@@ -8063,6 +8068,26 @@ function saveMsgFor(btn) {
     tip.textContent = '共 ' + r.total + ' 条（最多保留 ' + r.cap + ' 条）；只显示最近 12 条。';
     box.appendChild(tip);
     ickTrendPaint(r.summary);
+  }
+  function ickPathHistory(path) {
+    var all = (window.__ickRows || []).filter(function (x) { return x.path === path && x.kind !== "push"; });
+    if (!all.length) return "历史：还没有别的记录";
+    var badCount = 0, run = 0, brokeAt = 0;
+    all.forEach(function (x) {
+      var bad = Number(x.status) >= 400 || x.noindex === true || x.canonicalSelf === false;
+      if (bad) badCount++;
+    });
+    for (var i = 0; i < all.length; i++) {
+      var b = Number(all[i].status) >= 400 || all[i].noindex === true || all[i].canonicalSelf === false;
+      if (!b) break;
+      run++;
+      brokeAt = all[i].at;
+    }
+    var tail = all.slice(0, 3).map(function (x) { return ickTime(x.at).slice(-8) + " " + (Number(x.status) >= 400 ? ("✗" + x.status) : "✓" + x.status); }).reverse().join(" → ");
+    var s = "历史：共记 " + all.length + " 次，其中出问题 " + badCount + " 次";
+    if (run > 0) s += "；现在连续 " + run + " 次有问题（最近一次 " + ickTime(brokeAt) + "）";
+    else s += "；最近一次是好的";
+    return s + "；最近三次：" + tail;
   }
   function ickDetailText(e) {
     var u = (/^https?:/.test(e.path) ? e.path : (location.origin + e.path));

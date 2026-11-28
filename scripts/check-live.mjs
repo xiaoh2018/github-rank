@@ -541,6 +541,7 @@ push('后台 md.js 跟着发版号走（预览和读者同一份）', /\/js\/md\
 push('收录记录在窄屏变卡片（不再被裁一半）', admHtml.includes('td:nth-child(2)::before') && admHtml.includes('#ickLogBox th{display:none}'), '');
 push('体检里能看到「资源版本」是否和 Worker 一致', admHtml.includes("'资源版本'") && admHtml.includes('强刷一下'), '');
 push('收录记录每行能展开「七项事实」', admHtml.includes('data-ickdetail') && admHtml.includes('ickDetailText') && admHtml.includes('完整地址'), '');
+push('收录记录的详情带「这条 URL 的历史」（连续坏 / 最近三次）', admHtml.includes('ickPathHistory') && admHtml.includes('共记 ') && admHtml.includes('现在连续 '), '');
 push('后台危险操作有可撤销的提示（问答删除）', admHtml.includes('offerUndo') && admHtml.includes('已删除问答「') && admHtml.includes('undoGo'), '');
 push('友链删除也能撤销（接口支持按位置插回）', admHtml.includes('已删除友链「') && admHtml.includes("action: 'insert'"), '');
 push('导航删除也能撤销（分组内站点回原位）', admHtml.includes('已从「') && admHtml.includes('移除「') && admHtml.includes('navState.groups[g].items.splice(i, 0, nItem)'), '');
