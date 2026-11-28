@@ -529,6 +529,7 @@ push('文章弹窗有目录 / 字号 / 复制链接三件套', home.includes('id
 push('设置里有收藏备份状态行 + 清空入口', home.includes('id="favStat"') && home.includes('id="btnFavClear"'), '');
 push('批量导入有逐行预览（navImpPrev + navParseImport）', home.length > 0 && admHtml.includes('navImpPrev') && admHtml.includes('navParseImport'), '');
 push('收录记录能导出（复制挂着的地址 / 下载 CSV）', admHtml.includes('id="ickLogCopy"') && admHtml.includes('id="ickLogCsv"') && admHtml.includes('__ickCsv'), '');
+push('推送也留痕（记录里标「推送 · 」）', admHtml.includes("kind === 'push'") && admHtml.includes("'推送 · '"), '');
 push('两个阅读器共用字号存档与 --rfont', home.includes("RF_KEY='ghrank-reader-font'") && home.includes('var(--rfont'), '');
 push('文章弹窗有上一篇/下一篇', home.includes('id="adlNav"') && home.includes('上一篇：'), '');
 const siteJson = await (await fetch(base + '/api/site?cb=' + Date.now())).json();

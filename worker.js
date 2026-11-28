@@ -1822,7 +1822,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v284';
+const ASSET_V = 'v285';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2341,6 +2341,7 @@ function indexLogSummary(list) {
   let yesterday = 0;
   const byPath = new Map();
   for (const e of arr) {
+    if (e.kind === 'push') continue;
     const at = Number(e.at) || 0;
     if (at >= dayStart) today++;
     else if (at >= dayAgo) yesterday++;
@@ -2436,8 +2437,12 @@ async function handleIndexPush(request, env, origin) {
     else if (r.status === 422) note = 'Key 校验没过：确认 /' + key + '.txt 能打开，且和后台填的 key 一致';
     else if (r.status === 403) note = 'Key 文件打不开：确认站点是 https、且 /' + key + '.txt 能直接访问';
     else note = 'IndexNow 返回 HTTP ' + r.status;
+    const pushPath = want.length > root.length ? want.slice(root.length) : '/';
+    await appendIndexLog({ at: Date.now(), path: pushPath, kind: 'push', status: r.status, noindex: false, canonicalSelf: true, inSitemap: null, inLastSubmit: false });
     return json({ ok: good, url: want, status: r.status, ms: Date.now() - t0, note: note });
   } catch (e) {
+    const pushPath2 = want.length > root.length ? want.slice(root.length) : '/';
+    await appendIndexLog({ at: Date.now(), path: pushPath2, kind: 'push', status: 0, noindex: false, canonicalSelf: true, inSitemap: null, inLastSubmit: false });
     return json({ ok: false, url: want, status: 0, note: '连不上 api.indexnow.org：' + ((e && e.message) || 'network') }, 502);
   }
 }
@@ -2662,6 +2667,7 @@ async function handleIndexCheckOne(request, env, origin, bodyIn) {
   await appendIndexLog({
     at: Date.now(),
     path: logPath,
+    kind: 'check',
     status: status,
     noindex: !!noindex,
     canonicalSelf: canonicalSelf,
@@ -7881,9 +7887,9 @@ function saveMsgFor(btn) {
       var c2 = document.createElement('td');
       c2.textContent = e.path;
       var c3 = document.createElement('td');
-      c3.textContent = String(e.status) + (e.noindex ? ' · noindex' : '') + (e.canonicalSelf === false ? ' · canonical 不对' : '');
+      c3.textContent = (e.kind === 'push' ? '推送 · ' : '') + String(e.status) + (e.noindex ? ' · noindex' : '') + (e.canonicalSelf === false ? ' · canonical 不对' : '');
       var c4 = document.createElement('td');
-      c4.textContent = e.inSitemap === null ? '读不到' : (e.inSitemap ? '在' : '不在');
+      c4.textContent = e.kind === 'push' ? '—' : (e.inSitemap === null ? '读不到' : (e.inSitemap ? '在' : '不在'));
       var c5 = document.createElement('td');
       var d = [];
       if (e.deltaSitemap === 'new') d.push('新进 sitemap');
@@ -7891,7 +7897,7 @@ function saveMsgFor(btn) {
       if (e.deltaStatus === 'fixed') d.push('恢复正常');
       if (e.deltaStatus === 'broken') d.push('新出问题');
       if (!d.length) d.push(e.deltaSitemap === null ? '首次' : '没变化');
-      c5.textContent = d.join('、');
+      c5.textContent = e.kind === 'push' ? '—' : d.join('、');
       var c6 = document.createElement('td');
       c6.className = 'ick-act';
       if (e.status >= 200 && e.status < 400 && !e.noindex) {
