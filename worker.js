@@ -1823,7 +1823,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v292';
+const ASSET_V = 'v293';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -8690,6 +8690,58 @@ function saveMsgFor(btn) {
       if (last) last.querySelector('.qa-q').focus();
     });
   }
+  var undoFn = null, undoTimer = 0, undoBar = null;
+  function undoPaint() {
+    if (undoBar) return undoBar;
+    undoBar = document.createElement("div");
+    undoBar.id = "undoBar";
+    undoBar.setAttribute("role", "status");
+    undoBar.setAttribute("aria-live", "polite");
+    undoBar.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:80;display:none;gap:10px;align-items:center;background:#111827;color:#f9fafb;padding:10px 14px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:13px;max-width:min(560px,calc(100vw - 32px))";
+    var sp = document.createElement("span");
+    sp.id = "undoText";
+    sp.style.cssText = "flex:1 1 auto;min-width:0";
+    var go = document.createElement("button");
+    go.type = "button";
+    go.id = "undoGo";
+    go.className = "btn small";
+    go.textContent = "撤销";
+    go.style.cssText = "flex:0 0 auto;min-height:32px";
+    var x = document.createElement("button");
+    x.type = "button";
+    x.id = "undoX";
+    x.className = "ghost small";
+    x.setAttribute("aria-label", "关闭");
+    x.textContent = "×";
+    x.style.cssText = "flex:0 0 auto;min-height:32px";
+    undoBar.appendChild(sp);
+    undoBar.appendChild(go);
+    undoBar.appendChild(x);
+    document.body.appendChild(undoBar);
+    go.addEventListener("click", function () {
+      var f = undoFn;
+      undoHide();
+      if (f) f();
+    });
+    x.addEventListener("click", undoHide);
+    return undoBar;
+  }
+  function undoHide() {
+    undoFn = null;
+    clearTimeout(undoTimer);
+    if (undoBar) undoBar.style.display = "none";
+    if (window.__undo) window.__undo.shown = false;
+  }
+  function offerUndo(text, fn) {
+    var bar = undoPaint();
+    undoFn = fn;
+    bar.querySelector("#undoText").textContent = text;
+    bar.style.display = "flex";
+    clearTimeout(undoTimer);
+    undoTimer = setTimeout(undoHide, 8000);
+    window.__undo = { shown: true, text: text, has: !!fn };
+  }
+  window.__undoHide = undoHide;
   if ($('qaList')) {
     $('qaList').addEventListener('click', function (e) {
       var b = e.target.closest ? e.target.closest('[data-qadel]') : null;
@@ -8698,9 +8750,17 @@ function saveMsgFor(btn) {
       var qq = (qaState.items[qi] && qaState.items[qi].q) || '';
       askConfirm('删除这条问答？', '会从列表里移除「' + qq.slice(0, 20) + '」。注意：还要点「保存问答」才真正生效，保存前可以先把文字复制走。', function () {
         qaState = readQaForm();
+        var qItem = qaState.items[qi];
         qaState.items.splice(qi, 1);
         renderQa();
         paintDelMsg('#pane-qa [data-save="qa"]', '已从列表移除 1 条 · 点「保存问答」才生效', false);
+        if (qItem) {
+          offerUndo('已删除问答「' + String(qItem.q || "").slice(0, 18) + '」', function () {
+            qaState.items.splice(qi, 0, qItem);
+            renderQa();
+            paintDelMsg('#pane-qa [data-save="qa"]', '已撤销删除：那条问答回到原来的位置（仍要点「保存问答」才生效）', false);
+          });
+        }
         return Promise.resolve({ ok: true });
       });
     });
