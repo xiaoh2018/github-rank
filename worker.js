@@ -197,6 +197,9 @@ export default {
       if (url.pathname === '/api/index-check' && request.method === 'POST') {
         return handleIndexCheck(request, env, url.origin);
       }
+      if (url.pathname === '/api/index-cron') {
+        return handleIndexCron(request, env, url);
+      }
       if (url.pathname === '/api/index-push' && request.method === 'POST') {
         return handleIndexPush(request, env, url.origin);
       }
@@ -1818,7 +1821,7 @@ async function injectFaqLd(env, html) {
 
 // 静态资源版本：HTML 里的 /js/*.js 都会被加上 ?v=<这里>，于是能给浏览器一年 immutable；
 // 改了前端就把它 +1（不然用户浏览器会抱着一周的旧 bundle，界面上去点了没反应）
-const ASSET_V = 'v276';
+const ASSET_V = 'v277';
 
 function emptyNav() {
   return { updatedAt: '', groups: [] };
@@ -2295,6 +2298,36 @@ function bjDayStart(ms) {
   d.setUTCHours(0, 0, 0, 0);
   return d.getTime() - 8 * 3600 * 1000;
 }
+// 最近 N 天：每天查了几次、当天结束时还挂着几个（用来画趋势）
+function indexLogDaily(list, days) {
+  const n = Math.max(1, Math.min(14, Number(days) || 7));
+  const arr = Array.isArray(list) ? list : [];
+  const out = [];
+  const bad = function (e) {
+    return !!e && (Number(e.status) >= 400 || e.noindex === true || e.canonicalSelf === false);
+  };
+  const today0 = bjDayStart(Date.now());
+  for (let i = n - 1; i >= 0; i--) {
+    const start = today0 - i * 24 * 3600 * 1000;
+    const end = start + 24 * 3600 * 1000;
+    const d = new Date(start + 8 * 3600 * 1000);
+    const label = String(d.getUTCMonth() + 1) + "/" + String(d.getUTCDate());
+    let checks = 0;
+    const latest = new Map();
+    for (const e of arr) {
+      const at = Number(e.at) || 0;
+      if (at < start || at >= end) continue;
+      checks++;
+      const k = String(e.path || "");
+      const cur = latest.get(k);
+      if (!cur || at > (Number(cur.at) || 0)) latest.set(k, e);
+    }
+    let open = 0;
+    latest.forEach(function (e) { if (bad(e)) open++; });
+    out.push({ date: start, label: label, checks: checks, open: open });
+  }
+  return out;
+}
 // 今天 vs 昨天：查了几次、新出几条问题、修好几条、还挂着哪些
 function indexLogSummary(list) {
   const arr = Array.isArray(list) ? list : [];
@@ -2354,7 +2387,7 @@ async function handleIndexLog(request, env) {
   const list = await readIndexLog();
   const entries = indexLogWithDelta(list);
   const summary = indexLogSummary(list);
-  return json({ ok: true, cap: INDEX_LOG_MAX, total: entries.length, entries: entries, summary: summary });
+  return json({ ok: true, cap: INDEX_LOG_MAX, total: entries.length, entries: entries, summary: summary, daily: indexLogDaily(list, 7) });
 }
 // 单条地址推一次 IndexNow：收录记录里「200 但还没被收录」时直接推，不用去改整批
 async function handleIndexPush(request, env, origin) {
@@ -2406,6 +2439,50 @@ async function handleIndexPush(request, env, origin) {
   } catch (e) {
     return json({ ok: false, url: want, status: 0, note: '连不上 api.indexnow.org：' + ((e && e.message) || 'network') }, 502);
   }
+}
+// 定时自查：Action 每天带 token 调一次，人不用点也有记录
+async function handleIndexCron(request, env, url) {
+  const origin = url.origin;
+  const site = await loadSiteRaw(env);
+  const seo = site.seo || {};
+  const token = String(env.CRON_TOKEN || seo.indexCronToken || '').trim();
+  let body = null;
+  if (request.method === 'POST') body = await request.json().catch(() => null);
+  const given = String((body && body.token) || url.searchParams.get('token') || '').trim();
+  const pwOk = !!(env.ADMIN_PASSWORD && body && safeEqual(body.password == null ? '' : body.password, env.ADMIN_PASSWORD));
+  if (!pwOk) {
+    if (!token) {
+      return json({ ok: false, error: '还没有配置定时令牌：在后台「收录与平台」填一个，或给 Worker 配 CRON_TOKEN' }, 400);
+    }
+    if (!given || !safeEqual(given, token)) return json({ ok: false, error: '令牌不对' }, 403);
+  }
+  const root = seo.siteUrl ? String(seo.siteUrl).replace(/\/+$/, '') : String(origin).replace(/\/+$/, '');
+  const urls = [];
+  try {
+    const r = await fetch(root + '/sitemap.xml', { cf: { cacheTtl: 60, cacheEverything: true } });
+    const xml = await r.text();
+    const re = /<loc>([^<]+)<\/loc>/g;
+    let m;
+    while ((m = re.exec(xml)) && urls.length < 10) {
+      const u = String(m[1] || '').trim();
+      if (u) urls.push(u);
+    }
+  } catch (e) {
+    urls.length = 0;
+  }
+  if (!urls.length) urls.push(root + '/');
+  const items = [];
+  for (const u of urls) {
+    const resp = await handleIndexCheckOne(null, env, origin, { password: env.ADMIN_PASSWORD || '', url: u });
+    const j = await resp.json();
+    if (j && j.ok) {
+      items.push({ path: String(j.url || u).replace(root, '') || '/', status: j.status, noindex: j.noindex, inSitemap: j.inSitemap });
+    } else {
+      items.push({ path: u, error: (j && j.error) || 'query failed' });
+    }
+  }
+  const list = await readIndexLog();
+  return json({ ok: true, checked: items.length, items: items, summary: indexLogSummary(list) });
 }
 async function handleIndexCheck(request, env, origin) {
   if (!env.ADMIN_PASSWORD) return json({ ok: false, error: '没有设置 ADMIN_PASSWORD，后台已关闭' }, 403);
@@ -4276,6 +4353,7 @@ td>.empty-card{margin:0}
 .ick-links{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px}
 .ick-act{white-space:nowrap}
 .ick-act .mini{margin:2px 6px 2px 0}
+.cron-snip{background:#0f172a;color:#e2e8f0;font-size:12px;line-height:1.6;padding:12px;border-radius:10px;overflow:auto;max-height:260px;margin:8px 0}
 .ick-trend{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 4px}
 .ick-tag{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--chip);color:var(--muted);white-space:nowrap}
 .ick-tag.bad{background:#fee2e2;color:#991b1b}
@@ -5091,6 +5169,13 @@ tr:hover td{background:#fcfbf8}
           <div class="ick-row"><button class="btn ghost" type="button" id="ickLogReload">刷新记录</button><button class="btn ghost" type="button" id="ickLogClear">清空记录</button></div>
           <div id="ickTrend" class="ick-trend" aria-live="polite"></div>
           <div id="ickLogBox" class="ick-out"></div>
+        </details>
+                <details id="cronWrap">
+          <summary>定时自查（每天自动跑一次，人不用点）</summary>
+          <p class="note" id="cronState">还没有配置定时令牌：在下面这段配置里填一个，或给 Worker 加 <code>CRON_TOKEN</code> 环境变量。</p>
+          <pre class="cron-snip" id="cronSnippet"></pre>
+          <div class="ick-row"><button class="btn ghost" type="button" id="cronCopy">复制这段配置</button><button class="btn" type="button" id="cronRun">现在跑一次</button></div>
+          <p class="note" id="cronMsg"></p>
         </details>
         <p class="hint">平台那边的记录要 24–72 小时才出现（Bing 还要先在站长工具里验证过本站）。这里能证明的只有「页面允许收录、我们推过」。</p>
       </div>
@@ -7704,6 +7789,63 @@ function saveMsgFor(btn) {
     });
   })();
   setTimeout(bindIckLog, 300);
+  setTimeout(bindCron, 320);
+  function cronSnippetText() {
+    var lines = [
+      '# .github/workflows/index-check.yml（每天北京时间 09:00 跑一次）',
+      'on:',
+      '  schedule:',
+      '    - cron: 0 1 * * *',
+      '  workflow_dispatch:',
+      'jobs:',
+      '  index-check:',
+      '    runs-on: ubuntu-latest',
+      '    steps:',
+      '      - name: 收录自查（结果写进后台记录）',
+      '        run: |',
+      '          curl -fsS __SITE__/api/index-cron?token=__TOKEN__',
+      '# 仓库 Settings → Secrets 里加 INDEX_CRON_TOKEN，值和后台填的定时令牌一致',
+    ];
+    return lines.join(String.fromCharCode(10)).split('__SITE__').join(location.origin).split('__TOKEN__').join('$' + '{{ secrets.INDEX_CRON_TOKEN }}');
+  }
+  function bindCron() {
+    var snip = $('cronSnippet');
+    if (snip && !snip.textContent) snip.textContent = cronSnippetText();
+    var copy = $('cronCopy');
+    if (copy) {
+      copy.addEventListener('click', function () {
+        var txt = cronSnippetText();
+        var done = function () {
+          var m = $('cronMsg');
+          if (m) m.textContent = '已复制。粘到 .github/workflows/ 里就能每天自动跑。';
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(txt).then(done, done);
+        } else {
+          done();
+        }
+      });
+    }
+    var run = $('cronRun');
+    if (run) {
+      run.addEventListener('click', function () {
+        var m = $('cronMsg');
+        if (m) m.textContent = '正在跑（最多查 10 条）…';
+        api('/api/index-cron', { method: 'POST', body: { password: pw } }).then(function (r) {
+          if (!r || !r.ok) {
+            if (m) m.textContent = '没跑成：' + ((r && r.error) || 'network');
+            return;
+          }
+          var bad = 0;
+          (r.items || []).forEach(function (x) { if (x.error || x.status >= 400) bad++; });
+          if (m) m.textContent = '跑了 ' + r.checked + ' 条，其中 ' + bad + ' 条有问题；记录已经写进去了。';
+          loadIckLog();
+        }).catch(function () {
+          if (m) m.textContent = '没跑成：network error。';
+        });
+      });
+    }
+  }
   function ickTime(t) {
     try { return new Date(t).toLocaleString(); } catch (e) { return t || ''; }
   }
